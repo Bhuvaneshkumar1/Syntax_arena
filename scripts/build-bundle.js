@@ -69,3 +69,33 @@ bundleCode += '\n})();\n';
 const outPath = path.join(projectRoot, 'js', 'bundle.js');
 fs.writeFileSync(outPath, bundleCode, 'utf8');
 console.log('Successfully generated ' + outPath + ' (size: ' + bundleCode.length + ' bytes)');
+
+// Prepare public/ output directory for Vercel and static hosting platforms
+const publicDir = path.join(projectRoot, 'public');
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir, { recursive: true });
+}
+
+const staticEntries = [
+  'index.html',
+  'game.html',
+  'results.html',
+  'progress.html',
+  'settings.html',
+  'favicon.ico',
+  'favicon.svg',
+  'css',
+  'js',
+  'data',
+  'assets'
+];
+
+for (const entry of staticEntries) {
+  const src = path.join(projectRoot, entry);
+  const dest = path.join(publicDir, entry);
+  if (fs.existsSync(src)) {
+    fs.cpSync(src, dest, { recursive: true, force: true });
+  }
+}
+console.log('Successfully prepared public/ output directory for static hosting.');
+

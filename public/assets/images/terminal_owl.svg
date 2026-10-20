@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="owl-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Disc -->
+  <circle cx="50" cy="50" r="48" fill="#111827" stroke="#3B82F6" stroke-width="3"/>
+  <!-- Feather Tufts / Horns -->
+  <polygon points="26,18 38,36 18,36" fill="#60A5FA"/>
+  <polygon points="74,18 62,36 82,36" fill="#60A5FA"/>
+  <!-- Owl Body / Face -->
+  <path d="M 22 42 C 22 24, 78 24, 78 42 C 78 75, 66 88, 50 88 C 34 88, 22 75, 22 42 Z" fill="url(#owl-grad)"/>
+  <!-- Terminal Eye Rings -->
+  <circle cx="36" cy="48" r="14" fill="#080C14" stroke="#10B981" stroke-width="3"/>
+  <circle cx="64" cy="48" r="14" fill="#080C14" stroke="#10B981" stroke-width="3"/>
+  <!-- Terminal Console Text in Eyes -->
+  <text x="36" y="52" fill="#10B981" font-family="monospace" font-size="11" font-weight="900" text-anchor="middle">&gt;_</text>
+  <text x="64" y="52" fill="#10B981" font-family="monospace" font-size="11" font-weight="900" text-anchor="middle">&gt;_</text>
+  <!-- Beak -->
+  <polygon points="46,58 54,58 50,70" fill="#F59E0B"/>
+</svg>

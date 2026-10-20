@@ -1,0 +1,243 @@
+/**
+ * SyntaxArena Design Tokens
+ * Source of truth: docs/DESIGN_SYSTEM.md
+ */
+
+/* High-performance offline system typography stack (Zero external network calls) */
+:root {
+  /* ==========================================================================
+     CANVAS & SURFACE HIERARCHY (DARK THEME - DEFAULT)
+     ========================================================================== */
+  --bg-app:             #0B0F17; /* Deep midnight void */
+  --bg-surface-base:    #111827; /* Ground level containers */
+  --bg-surface-raised:  #1A2234; /* Elevated cards and panels */
+  --bg-surface-overlay: #243048; /* Floating modals, tooltips, drawers */
+  --bg-code-terminal:   #080C14; /* Deep recessed console background */
+
+  /* BORDERS & DIVIDERS */
+  --border-subtle:      #1F2B3E; /* Muted card borders */
+  --border-strong:      #33435C; /* Active boundaries and headers */
+  --border-focus:       #00E5FF; /* High-visibility keyboard outline */
+
+  /* TYPOGRAPHIC INK */
+  --text-primary:       #F8FAFC; /* Crisp heading and active text */
+  --text-secondary:     #94A3B8; /* Explanations, metadata, labels */
+  --text-muted:         #64748B; /* Inactive states, line numbers */
+  --text-inverse:       #0B0F17; /* Text on bright accent buttons */
+
+  /* ==========================================================================
+     TACTILE ARCADE ACCENTS (SURFACE + 3D EDGE PAIRS)
+     ========================================================================== */
+  /* Primary Action: Electric Cyan */
+  --color-primary:        #00E5FF;
+  --color-primary-edge:   #0097A7;
+  --color-primary-hover:  #33ECFF;
+  --color-primary-glow:   rgba(0, 229, 255, 0.25);
+
+  /* Success & Affirmation: Terminal Emerald */
+  --color-success:        #10B981;
+  --color-success-edge:   #047857;
+  --color-success-hover:  #34D399;
+  --color-success-glow:   rgba(16, 185, 129, 0.25);
+
+  /* Warning & Caution: Cyber Amber */
+  --color-warning:        #F59E0B;
+  --color-warning-edge:   #B45309;
+  --color-warning-hover:  #FBBF24;
+  --color-warning-glow:   rgba(245, 158, 11, 0.25);
+
+  /* Danger & Error: Coral Flare */
+  --color-danger:         #EF4444;
+  --color-danger-edge:    #B91C1C;
+  --color-danger-hover:   #F87171;
+  --color-danger-glow:    rgba(239, 68, 68, 0.25);
+
+  /* Streak Flame: Neon Violet */
+  --color-violet:         #8B5CF6;
+  --color-violet-edge:    #6D28D9;
+  --color-violet-hover:   #A78BFA;
+  --color-violet-glow:    rgba(139, 92, 246, 0.25);
+
+  /* Neutral Tactile Button */
+  --color-neutral:        #1E293B;
+  --color-neutral-edge:   #0F172A;
+  --color-neutral-hover:  #334155;
+
+  /* ==========================================================================
+     LANGUAGE BRAND COLORS
+     ========================================================================== */
+  --lang-python:          #3776AB;
+  --lang-python-accent:   #FFD438;
+  --lang-c:               #555555;
+  --lang-c-accent:        #659AD2;
+  --lang-cpp:             #00599C;
+  --lang-cpp-accent:      #004482;
+  --lang-java:            #EA2D2E;
+  --lang-java-accent:     #F89820;
+
+  /* ==========================================================================
+     TYPOGRAPHY
+     ========================================================================== */
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+
+  /* MODULAR TYPE SCALE */
+  --text-xs:   0.75rem;    /* 12px */
+  --text-sm:   0.875rem;   /* 14px */
+  --text-base: 1.0rem;     /* 16px */
+  --text-lg:   1.125rem;   /* 18px */
+  --text-xl:   1.25rem;    /* 20px */
+  --text-2xl:  1.5rem;     /* 24px */
+  --text-3xl:  2.0rem;     /* 32px */
+  --text-4xl:  2.5rem;     /* 40px */
+
+  /* ==========================================================================
+     SPACING SCALE
+     ========================================================================== */
+  --space-1:  0.25rem; /* 4px */
+  --space-2:  0.5rem;  /* 8px */
+  --space-3:  0.75rem; /* 12px */
+  --space-4:  1.0rem;  /* 16px */
+  --space-5:  1.25rem; /* 20px */
+  --space-6:  1.5rem;  /* 24px */
+  --space-8:  2.0rem;  /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3.0rem;  /* 48px */
+  --space-16: 4.0rem;  /* 64px */
+
+  /* ==========================================================================
+     CORNER RADII
+     ========================================================================== */
+  --radius-sm:   0.375rem; /* 6px - Pills, tags, badges */
+  --radius-md:   0.625rem; /* 10px - Code blocks, inputs, options */
+  --radius-lg:   0.875rem; /* 14px - Interactive cards, major buttons */
+  --radius-xl:   1.25rem;  /* 20px - Floating modals, drawers */
+  --radius-full: 9999px;   /* Pills, circle avatars */
+
+  /* ==========================================================================
+     TACTILE 3D SHADOWS
+     ========================================================================== */
+  --shadow-tactile-sm:  0 2px 0;
+  --shadow-tactile-md:  0 4px 0;
+  --shadow-tactile-lg:  0 6px 0;
+  --shadow-depressed:   0 1px 0;
+
+  /* ELEVATION AMBIENT SHADOWS */
+  --shadow-elevation-card:  0 4px 20px -2px rgba(0, 0, 0, 0.4);
+  --shadow-elevation-modal: 0 16px 48px -4px rgba(0, 0, 0, 0.7);
+
+  /* ==========================================================================
+     TRANSITIONS & EASINGS
+     ========================================================================== */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.12s var(--ease-spring);
+  --transition-base: 0.2s ease-in-out;
+  --transition-slow: 0.35s ease-out;
+
+  /* ==========================================================================
+     Z-INDEX LAYERING
+     ========================================================================== */
+  --z-base:      1;
+  --z-sticky:    100;
+  --z-overlay:   500;
+  --z-modal:     1000;
+  --z-toast:     2000;
+}
+
+/* ==========================================================================
+   LIGHT THEME ("STUDIO PAPER" MODE)
+   ========================================================================== */
+[data-theme="light"] {
+  --bg-app:             #F8FAFC; /* Soft clean paper canvas */
+  --bg-surface-base:    #FFFFFF; /* Pure white containers */
+  --bg-surface-raised:  #F1F5F9; /* Subtle warm grey panels */
+  --bg-surface-overlay: #E2E8F0; /* Popovers and floating menus */
+  --bg-code-terminal:   #0F172A; /* Code block remains dark for high contrast */
+
+  --border-subtle:      #E2E8F0;
+  --border-strong:      #CBD5E1;
+  --border-focus:       #0284C7;
+
+  --text-primary:       #0F172A;
+  --text-secondary:     #475569;
+  --text-muted:         #94A3B8;
+  --text-inverse:       #FFFFFF;
+
+  --color-primary:        #0284C7;
+  --color-primary-edge:   #0369A1;
+  --color-primary-hover:  #0EA5E9;
+  --color-primary-glow:   rgba(2, 132, 199, 0.25);
+
+  --color-neutral:        #F1F5F9;
+  --color-neutral-edge:   #CBD5E1;
+  --color-neutral-hover:  #E2E8F0;
+
+  --shadow-elevation-card:  0 4px 16px -2px rgba(0, 0, 0, 0.08);
+  --shadow-elevation-modal: 0 16px 40px -4px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
+   AMBER FLAME CRT THEME (UNLOCKED AT LEVEL 6)
+   ========================================================================== */
+[data-theme="amber"] {
+  --bg-app:             #120D05; /* Warm deep CRT phosphor canvas */
+  --bg-surface-base:    #1C1408; /* Low ground console */
+  --bg-surface-raised:  #281D0C; /* Amber panel */
+  --bg-surface-overlay: #352610; /* Floating modal */
+  --bg-code-terminal:   #0D0802; /* Deep cathode tube recess */
+
+  --border-subtle:      #3D2C12;
+  --border-strong:      #5E431B;
+  --border-focus:       #F59E0B;
+
+  --text-primary:       #FEF3C7; /* Phosphor amber glow text */
+  --text-secondary:     #FDE68A; /* Soft amber */
+  --text-muted:         #D97706; /* Dim amber */
+  --text-inverse:       #120D05;
+
+  --color-primary:        #F59E0B;
+  --color-primary-edge:   #B45309;
+  --color-primary-hover:  #FBBF24;
+  --color-primary-glow:   rgba(245, 158, 11, 0.35);
+
+  --color-neutral:        #2A1E0E;
+  --color-neutral-edge:   #1C1408;
+  --color-neutral-hover:  #3D2C12;
+
+  --shadow-elevation-card:  0 4px 20px -2px rgba(245, 158, 11, 0.15);
+  --shadow-elevation-modal: 0 16px 48px -4px rgba(245, 158, 11, 0.25);
+}
+
+/* ==========================================================================
+   GRANDMASTER GOLD THEME (UNLOCKED AT LEVEL 10)
+   ========================================================================== */
+[data-theme="gold"] {
+  --bg-app:             #141108; /* Deep regal obsidian gold canvas */
+  --bg-surface-base:    #1E190D; /* Ground gold container */
+  --bg-surface-raised:  #2B2413; /* Elevated gold card */
+  --bg-surface-overlay: #3B311A; /* Floating gold dialog */
+  --bg-code-terminal:   #0C0A04; /* Deep code terminal */
+
+  --border-subtle:      #4E3E18;
+  --border-strong:      #7C6324;
+  --border-focus:       #EAB308;
+
+  --text-primary:       #FEF9C3; /* Radiant champion gold */
+  --text-secondary:     #FACC15; /* Bright gold */
+  --text-muted:         #CA8A04; /* Aged gold */
+  --text-inverse:       #141108;
+
+  --color-primary:        #EAB308;
+  --color-primary-edge:   #A16207;
+  --color-primary-hover:  #FDE047;
+  --color-primary-glow:   rgba(234, 179, 8, 0.4);
+
+  --color-neutral:        #2C2513;
+  --color-neutral-edge:   #1A150A;
+  --color-neutral-hover:  #3F341A;
+
+  --shadow-elevation-card:  0 4px 22px -2px rgba(234, 179, 8, 0.2);
+  --shadow-elevation-modal: 0 16px 52px -4px rgba(234, 179, 8, 0.3);
+}

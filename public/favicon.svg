@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00E5FF"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#FF6B35"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <!-- Outer Shield Hex -->
+  <polygon points="60,6 110,32 110,88 60,114 10,88 10,32" fill="#111827" stroke="url(#logo-grad)" stroke-width="4"/>
+  <!-- Left Code Bracket -->
+  <polyline points="44,40 26,60 44,80" fill="none" stroke="#00E5FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Right Code Bracket -->
+  <polyline points="76,40 94,60 76,80" fill="none" stroke="#FF6B35" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Center Joystick Core -->
+  <circle cx="60" cy="52" r="12" fill="#8B5CF6" stroke="#FFFFFF" stroke-width="2.5" filter="url(#glow)"/>
+  <rect x="57" y="64" width="6" height="14" rx="2" fill="#FFFFFF"/>
+  <ellipse cx="60" cy="80" rx="14" ry="4" fill="#334155"/>
+</svg>

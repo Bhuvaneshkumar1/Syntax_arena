@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SyntaxArena — Player Career Analytics, Topic Mastery, Language Performance, and Trophy Room.">
+  <title>SyntaxArena — Career Progression & Learning Analytics</title>
+  
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Embedded SVG Icons -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>
+    </symbol>
+    <symbol id="icon-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="6" x2="10" y1="11" y2="11"></line><line x1="8" x2="8" y1="9" y2="13"></line>
+      <line x1="15" x2="15.01" y1="12" y2="12"></line><line x1="18" x2="18.01" y1="10" y2="10"></line>
+      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
+    </symbol>
+    <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+      <path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+    </symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </symbol>
+    <symbol id="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </symbol>
+    <symbol id="icon-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+    </symbol>
+  </svg>
+
+  <header class="app-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-link" aria-label="SyntaxArena Home">
+        <span class="brand-badge" aria-hidden="true" style="padding: 2px;">
+          <img src="assets/images/logo.svg" width="24" height="24" alt="SyntaxArena Logo">
+        </span>
+        <span class="brand-title">SyntaxArena</span>
+      </a>
+
+      <nav class="app-nav" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Hub</span>
+        </a>
+        <a href="game.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
+          <span>Play</span>
+        </a>
+        <a href="results.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-trophy"></use></svg>
+          <span>Results</span>
+        </a>
+        <a href="progress.html" class="nav-link" aria-current="page">
+          <svg class="nav-icon"><use href="#icon-chart"></use></svg>
+          <span>Progress</span>
+        </a>
+        <a href="settings.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-settings"></use></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="btn-theme-toggle" class="btn-icon-toggle" aria-label="Toggle color theme" title="Toggle color theme">
+          <svg width="20" height="20"><use href="#icon-sun"></use></svg>
+        </button>
+        <button id="btn-sound-toggle" class="btn-icon-toggle" aria-label="Toggle sound effects" title="Toggle sound effects">
+          <svg width="20" height="20"><use href="#icon-volume"></use></svg>
+        </button>
+        <a href="settings.html" class="profile-pill" aria-label="User profile settings">
+          <span class="profile-avatar-mini" aria-hidden="true">🦊</span>
+          <span class="profile-name">ScriptAdept</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="app-main">
+    <div class="page-container" style="max-width: 1100px;">
+
+      <!-- Profile Career Header & XP Progression -->
+      <section class="card card-raised" style="margin-bottom: 2rem; padding: var(--space-5);" aria-label="Career Rank & XP Progression">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 1.25rem;">
+            <div id="prog-avatar-container" style="width: 76px; height: 76px; border-radius: var(--radius-full); overflow: hidden; border: 3px solid var(--color-primary-edge); background-color: var(--color-neutral); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-elevation-card);">
+              <img id="prog-avatar-img" src="assets/images/cyber_fox.svg" alt="Player Avatar" width="76" height="76">
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <h1 id="prog-callsign-heading" style="font-size: var(--text-2xl); margin-bottom: 0;">ScriptAdept</h1>
+                <span id="prog-level-tag" class="badge badge-cyan">Level 1</span>
+              </div>
+              <p id="prog-rank-text" style="margin-bottom: 0.25rem; font-size: var(--text-base); color: var(--text-secondary);">
+                Rank: <strong id="prog-rank-title" style="color: var(--color-primary);">Script Novice</strong>
+              </p>
+              <div id="prog-xp-detail-text" style="font-size: var(--text-xs); color: var(--text-muted); font-family: var(--font-mono);">
+                0 / 250 XP (250 XP to Level 2)
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="settings.html" class="btn-arcade btn-neutral btn-sm">Customize Profile →</a>
+            <a href="game.html" class="btn-arcade btn-primary btn-sm">Enter Arena →</a>
+          </div>
+        </div>
+
+        <!-- Accessible XP Progress Bar -->
+        <div style="margin-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); margin-bottom: 0.35rem;">
+            <span style="font-weight: 700; color: var(--text-secondary);">PROGRESSION TO NEXT RANK</span>
+            <span id="prog-xp-percent-label" style="font-family: var(--font-mono); font-weight: 700; color: var(--color-primary);">0%</span>
+          </div>
+          <div id="prog-xp-bar-container" class="progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="XP level progression" style="height: 12px;">
+            <div id="prog-xp-fill" class="progress-bar-fill" style="width: 0%; background: linear-gradient(90deg, var(--color-primary-edge), var(--color-primary));"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Career Metrics Strip -->
+      <section style="margin-bottom: 2.5rem;" aria-label="Career Statistics">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem;">
+          <div class="card" style="padding: 1.25rem; text-align: center;">
+            <div style="font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Total Career XP</div>
+            <div id="stat-total-xp" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-violet); margin-top: 0.25rem;">0 XP</div>
+          </div>
+          <div class="card" style="padding: 1.25rem; text-align: center;">
+            <div style="font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Best Streak</div>
+            <div id="stat-best-streak" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-warning); margin-top: 0.25rem;">0🔥</div>
+          </div>
+          <div class="card" style="padding: 1.25rem; text-align: center;">
+            <div style="font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Questions Solved</div>
+            <div id="stat-questions-solved" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-primary); margin-top: 0.25rem;">0</div>
+          </div>
+          <div class="card" style="padding: 1.25rem; text-align: center;">
+            <div style="font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Accuracy Rate</div>
+            <div id="stat-accuracy-rate" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-success); margin-top: 0.25rem;">100%</div>
+          </div>
+          <div class="card" style="padding: 1.25rem; text-align: center;">
+            <div style="font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Badges Earned</div>
+            <div id="stat-badges-earned" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-emerald); margin-top: 0.25rem;">0 / 20</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Language Performance Breakdown (Python, C, C++, Java) -->
+      <section style="margin-bottom: 2.5rem;" aria-label="Language Mastery Breakdown">
+        <div class="page-title-row">
+          <div>
+            <h2>Language Track Performance</h2>
+            <p class="page-subtitle">Aggregated accuracy, attempts, and topic insights across all 4 programming tracks.</p>
+          </div>
+          <span class="badge badge-cyan">4 Languages Tracked</span>
+        </div>
+
+        <div id="language-performance-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+          <!-- Dynamically populated 4 language cards -->
+        </div>
+      </section>
+
+      <!-- Section: Difficulty Tier Performance (Beginner, Intermediate, Expert) -->
+      <section style="margin-bottom: 2.5rem;" aria-label="Difficulty Performance">
+        <div class="page-title-row">
+          <div>
+            <h2>Difficulty Tier Performance</h2>
+            <p class="page-subtitle">Evaluation across Beginner syntax, Intermediate mechanics, and Expert compiler edge-cases.</p>
+          </div>
+          <span class="badge badge-emerald">3 Challenge Tiers</span>
+        </div>
+
+        <div id="difficulty-performance-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+          <!-- Dynamically populated 3 difficulty cards -->
+        </div>
+      </section>
+
+      <!-- Section: Historical Progress & Accuracy Trend Visualization -->
+      <section style="margin-bottom: 2.5rem;" aria-label="Historical Progress and Trend Analytics">
+        <div class="card">
+          <div class="card-header" style="flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h3 class="card-title">Historical Progress &amp; Accuracy Trajectory</h3>
+              <p class="form-help" style="margin-bottom: 0;">Interactive session log and visual trend line across recent verified challenge runs.</p>
+            </div>
+            
+            <!-- Real-Time Interactive Filters -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+              <select id="filter-history-lang" class="form-select" style="padding: 0.35rem 0.6rem; font-size: 12px; min-width: 120px;">
+                <option value="all">All Languages</option>
+                <option value="python">Python 3</option>
+                <option value="c">C (C99)</option>
+                <option value="cpp">C++ (C++20)</option>
+                <option value="java">Java (SE 17)</option>
+              </select>
+
+              <select id="filter-history-diff" class="form-select" style="padding: 0.35rem 0.6rem; font-size: 12px; min-width: 110px;">
+                <option value="all">All Tiers</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="expert">Expert</option>
+              </select>
+
+              <select id="filter-history-range" class="form-select" style="padding: 0.35rem 0.6rem; font-size: 12px; min-width: 100px;">
+                <option value="10">Last 10 Runs</option>
+                <option value="5">Last 5 Runs</option>
+                <option value="all">All Sessions</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Native Responsive SVG Line Trend Chart -->
+            <div id="trend-chart-wrapper" style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-surface-raised); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; font-size: var(--text-xs);">
+                <strong style="color: var(--text-primary); text-transform: uppercase;">Accuracy Trajectory Over Time</strong>
+                <span id="trend-status-badge" class="badge badge-cyan">Calculating Trend...</span>
+              </div>
+              <div id="trend-svg-container" style="width: 100%; height: 160px; display: flex; align-items: center; justify-content: center;">
+                <!-- Dynamically rendered SVG chart -->
+              </div>
+            </div>
+
+            <!-- Historical Session Table -->
+            <div style="overflow-x: auto;">
+              <table id="history-table" style="width: 100%; border-collapse: collapse; font-size: var(--text-xs); text-align: left;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border-subtle); color: var(--text-muted); text-transform: uppercase;">
+                    <th style="padding: 0.6rem 0.5rem;">Date / Time</th>
+                    <th style="padding: 0.6rem 0.5rem;">Language</th>
+                    <th style="padding: 0.6rem 0.5rem;">Tier</th>
+                    <th style="padding: 0.6rem 0.5rem;">Score</th>
+                    <th style="padding: 0.6rem 0.5rem;">Accuracy</th>
+                    <th style="padding: 0.6rem 0.5rem;">Status</th>
+                    <th style="padding: 0.6rem 0.5rem; text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="history-table-body">
+                  <!-- Dynamically populated session rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trophy Room & Achievement Showcase (Batch 6 Verified) -->
+      <section style="margin-bottom: 2.5rem;" aria-label="Trophy Room and Achievements">
+        <div class="page-title-row">
+          <div>
+            <h2>Trophy Room &amp; Badges</h2>
+            <p class="page-subtitle">20 verifiable arcade achievements across Milestones, Streaks, Accuracy, Speed, and Challenge Modes.</p>
+          </div>
+          <span id="badge-counter-pill" class="badge badge-violet">0 / 20 Unlocked</span>
+        </div>
+
+        <div id="trophy-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1rem;">
+          <!-- Dynamically populated 20 achievement cards -->
+        </div>
+      </section>
+
+      <!-- Rewards Wardrobe: Themes & Avatars -->
+      <section style="margin-bottom: 2.5rem;" aria-label="Unlockable Cosmetics">
+        <div class="page-title-row">
+          <div>
+            <h2>Cosmetic Rewards &amp; Themes</h2>
+            <p class="page-subtitle">Level-gated studio palettes and avatar icons earned through verified gameplay.</p>
+          </div>
+          <a href="settings.html" class="btn-arcade btn-neutral btn-sm">Equip in Settings →</a>
+        </div>
+
+        <!-- Themes Showcase -->
+        <h3 style="font-size: var(--text-base); margin-top: 1.25rem; margin-bottom: 0.75rem; color: var(--text-secondary); text-transform: uppercase;">
+          Palette Themes
+        </h3>
+        <div id="themes-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Avatars Showcase -->
+        <h3 style="font-size: var(--text-base); margin-bottom: 0.75rem; color: var(--text-secondary); text-transform: uppercase;">
+          Avatar Icon Collection
+        </h3>
+        <div id="avatars-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- Challenge Modes Roadmap -->
+      <section style="margin-bottom: 2.5rem;" aria-label="Challenge Modes Roadmap">
+        <div class="page-title-row">
+          <div>
+            <h2>Challenge Modes Roadmap</h2>
+            <p class="page-subtitle">Unlock specialized gameplay modes as you ascend through player ranks.</p>
+          </div>
+          <span class="badge badge-cyan">4 Arcade Modes</span>
+        </div>
+
+        <div id="modes-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- Campaign Track Stages -->
+      <section style="margin-bottom: 2.5rem;" aria-label="Language Tracks">
+        <div class="page-title-row">
+          <div>
+            <h2>Campaign Stages</h2>
+            <p class="page-subtitle">Select any track to jump directly into verified challenge questions.</p>
+          </div>
+          <span class="badge badge-emerald">4 Tracks Ready</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+          <!-- Python Track Card -->
+          <article class="card card-interactive" onclick="window.location.href='game.html?lang=python&mode=campaign'">
+            <div class="card-header">
+              <span class="tag-lang tag-python">Python Track</span>
+              <span class="badge badge-emerald">Active</span>
+            </div>
+            <div style="font-size: var(--text-sm); line-height: 2;">
+              <div>• Beginner (20 Questions) — <span style="color: var(--color-success); font-weight: 700;">Play Now →</span></div>
+              <div style="color: var(--text-muted);">• Intermediate (20 Questions)</div>
+              <div style="color: var(--text-muted);">• Expert (20 Questions)</div>
+            </div>
+          </article>
+
+          <!-- C Track Card -->
+          <article class="card card-interactive" onclick="window.location.href='game.html?lang=c&mode=campaign'">
+            <div class="card-header">
+              <span class="tag-lang tag-c">C Track</span>
+              <span class="badge badge-emerald">Active</span>
+            </div>
+            <div style="font-size: var(--text-sm); line-height: 2;">
+              <div>• Beginner (20 Questions) — <span style="color: var(--color-success); font-weight: 700;">Play Now →</span></div>
+              <div style="color: var(--text-muted);">• Intermediate (20 Questions)</div>
+              <div style="color: var(--text-muted);">• Expert (20 Questions)</div>
+            </div>
+          </article>
+
+          <!-- C++ Track Card -->
+          <article class="card card-interactive" onclick="window.location.href='game.html?lang=cpp&mode=campaign'">
+            <div class="card-header">
+              <span class="tag-lang tag-cpp">C++ Track</span>
+              <span class="badge badge-emerald">Active</span>
+            </div>
+            <div style="font-size: var(--text-sm); line-height: 2;">
+              <div>• Beginner (20 Questions) — <span style="color: var(--color-success); font-weight: 700;">Play Now →</span></div>
+              <div style="color: var(--text-muted);">• Intermediate (20 Questions)</div>
+              <div style="color: var(--text-muted);">• Expert (20 Questions)</div>
+            </div>
+          </article>
+
+          <!-- Java Track Card -->
+          <article class="card card-interactive" onclick="window.location.href='game.html?lang=java&mode=campaign'">
+            <div class="card-header">
+              <span class="tag-lang tag-java">Java Track</span>
+              <span class="badge badge-emerald">Active</span>
+            </div>
+            <div style="font-size: var(--text-sm); line-height: 2;">
+              <div>• Beginner (20 Questions) — <span style="color: var(--color-success); font-weight: 700;">Play Now →</span></div>
+              <div style="color: var(--text-muted);">• Intermediate (20 Questions)</div>
+              <div style="color: var(--text-muted);">• Expert (20 Questions)</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div>SyntaxArena • Career Progression &amp; Learning Analytics</div>
+      <nav class="footer-nav" aria-label="Footer Links">
+        <a href="index.html">Hub</a>
+        <a href="game.html">Arena</a>
+        <a href="results.html">Results</a>
+        <a href="progress.html">Progression</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="js/bundle.js"></script>
+
+  <!-- Live Progression & Analytics Dashboard Script -->
+  <script>
+    (function() {
+      const { Utils, State, Profile, AVATAR_CATALOG, Gamification, ACHIEVEMENTS, UNLOCKABLE_THEMES, CHALLENGE_MODES, Analytics, UI, AudioEngine } = window;
+
+      document.addEventListener('DOMContentLoaded', () => {
+      const activeProf = State.get('activeProfile') || Profile.getActiveProfile();
+      if (!activeProf) return;
+
+      const playerLifetimeXP = typeof activeProf.lifetimeXP === 'number' ? activeProf.lifetimeXP : (activeProf.xp || 0);
+      const levelData = Gamification.getLevelData(playerLifetimeXP);
+      const playerLevel = levelData.level;
+      const playerXP = typeof activeProf.totalScore === 'number' ? activeProf.totalScore : (activeProf.xp || 0);
+      const earnedBadges = new Set([
+        ...(activeProf.badges || []),
+        ...(activeProf.unlockedAchievements || []),
+        ...(activeProf.purchasedBadges || [])
+      ]);
+      const bestStreak = activeProf.bestStreak || (activeProf.stats && activeProf.stats.highestStreak) || 0;
+      const stats = activeProf.stats || {};
+      const gamesPlayed = stats.gamesPlayed || 0;
+      const totalAttempted = stats.questionsAttempted || 0;
+      const totalCorrect = stats.questionsCorrect || 0;
+      const accuracyRate = Analytics.calculateAccuracy(totalCorrect, totalAttempted);
+      const sessionHistory = Array.isArray(activeProf.sessionHistory) ? activeProf.sessionHistory : [];
+
+      // 1. Header Profile & XP Progress
+      const heading = Utils.qs('#prog-callsign-heading');
+      if (heading) heading.textContent = activeProf.username;
+
+      const levelTag = Utils.qs('#prog-level-tag');
+      if (levelTag) levelTag.textContent = `Level ${playerLevel}`;
+
+      const rankTitle = Utils.qs('#prog-rank-title');
+      if (rankTitle) rankTitle.textContent = levelData.title;
+
+      const avatarImg = Utils.qs('#prog-avatar-img');
+      if (avatarImg && activeProf.avatarId) {
+        avatarImg.src = `assets/images/${activeProf.avatarId}.svg`;
+      }
+
+      // Calculate level progress based on career lifetimeXP (level never drops!)
+      const levelProg = Gamification.calculateLevelProgress(playerLifetimeXP);
+      const xpDetail = Utils.qs('#prog-xp-detail-text');
+      const xpBarFill = Utils.qs('#prog-xp-fill');
+      const xpBarContainer = Utils.qs('#prog-xp-bar-container');
+      const xpPercentLabel = Utils.qs('#prog-xp-percent-label');
+
+      if (levelProg.isMaxRank) {
+        if (xpDetail) xpDetail.textContent = `${playerLifetimeXP.toLocaleString()} Lifetime XP (MAX RANK ACHIEVED) • ${playerXP.toLocaleString()} Spendable Points`;
+        if (xpPercentLabel) xpPercentLabel.textContent = '100% (MAX)';
+        if (xpBarFill) xpBarFill.style.width = '100%';
+        if (xpBarContainer) xpBarContainer.setAttribute('aria-valuenow', '100');
+      } else {
+        const pct = Math.round(levelProg.progressPercent * 100);
+        if (xpDetail) {
+          xpDetail.textContent = `${playerLifetimeXP.toLocaleString()} / ${levelProg.nextLevelThreshold.toLocaleString()} Career XP (${levelProg.xpToNextLevel.toLocaleString()} XP to Level ${levelProg.nextLevel}) • ${playerXP.toLocaleString()} Spendable Points`;
+        }
+        if (xpPercentLabel) xpPercentLabel.textContent = `${pct}%`;
+        if (xpBarFill) xpBarFill.style.width = `${pct}%`;
+        if (xpBarContainer) xpBarContainer.setAttribute('aria-valuenow', String(pct));
+      }
+
+      // 2. Metrics Strip
+      const statTotalXP = Utils.qs('#stat-total-xp');
+      if (statTotalXP) statTotalXP.textContent = `${playerXP.toLocaleString()} Pts`;
+
+      const statBestStreak = Utils.qs('#stat-best-streak');
+      if (statBestStreak) statBestStreak.textContent = `${bestStreak}🔥`;
+
+      const statQuestions = Utils.qs('#stat-questions-solved');
+      if (statQuestions) statQuestions.textContent = totalCorrect.toLocaleString();
+
+      const statAccuracy = Utils.qs('#stat-accuracy-rate');
+      if (statAccuracy) statAccuracy.textContent = `${totalAttempted > 0 ? accuracyRate : 100}%`;
+
+      const statBadges = Utils.qs('#stat-badges-earned');
+      if (statBadges) statBadges.textContent = `${earnedBadges.size} / ${ACHIEVEMENTS.length}`;
+
+      const counterPill = Utils.qs('#badge-counter-pill');
+      if (counterPill) counterPill.textContent = `${earnedBadges.size} / ${ACHIEVEMENTS.length} Unlocked`;
+
+      // 3. Language Performance Grid (Python, C, C++, Java)
+      const langGrid = Utils.qs('#language-performance-grid');
+      if (langGrid) {
+        langGrid.innerHTML = '';
+        const langs = [
+          { id: 'python', name: 'Python 3', tag: 'tag-python' },
+          { id: 'c',      name: 'C (C99)',  tag: 'tag-c' },
+          { id: 'cpp',    name: 'C++ (C++20)', tag: 'tag-cpp' },
+          { id: 'java',   name: 'Java 17',  tag: 'tag-java' }
+        ];
+
+        langs.forEach(l => {
+          const lStats = Analytics.aggregateLanguageStats(sessionHistory, l.id);
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.style.padding = '1.25rem';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.justifyContent = 'space-between';
+
+          if (!lStats.hasData) {
+            // Genuine Empty State
+            card.innerHTML = `
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <span class="tag-lang ${l.tag}">${l.name}</span>
+                  <span class="badge badge-neutral">Unplayed</span>
+                </div>
+                <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+                  No recorded challenge sessions in ${l.name} yet. Complete your first run to unlock topic mastery analytics.
+                </p>
+              </div>
+              <a href="game.html?lang=${l.id}&diff=beginner&mode=campaign" class="btn-arcade btn-neutral btn-sm" style="align-self: flex-start;">
+                Begin Track →
+              </a>
+            `;
+          } else {
+            const strongStr = lStats.strongTopics.length > 0
+              ? lStats.strongTopics.map(t => t.topicName).slice(0, 2).join(', ')
+              : 'None identified yet';
+            const weakStr = lStats.weakTopics.length > 0
+              ? lStats.weakTopics.map(t => t.topicName).slice(0, 2).join(', ')
+              : 'None (High mastery)';
+
+            card.innerHTML = `
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <span class="tag-lang ${l.tag}">${l.name}</span>
+                  <span class="badge badge-emerald">${lStats.completedSessions} Run${lStats.completedSessions === 1 ? '' : 's'}</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); margin-bottom: 0.35rem;">
+                  <span style="color: var(--text-muted); font-weight: 700;">ACCURACY</span>
+                  <strong style="color: ${lStats.accuracy >= 80 ? 'var(--color-success)' : 'var(--color-primary)'};">${lStats.accuracy}% (${lStats.questionsCorrect}/${lStats.questionsAttempted})</strong>
+                </div>
+                <div style="height: 8px; background: var(--bg-surface-raised); border-radius: var(--radius-full); overflow: hidden; margin-bottom: 1rem;">
+                  <div style="width: ${lStats.accuracy}%; height: 100%; background: ${lStats.accuracy >= 80 ? 'var(--color-success)' : 'var(--color-primary)'};"></div>
+                </div>
+
+                <div style="font-size: 11px; line-height: 1.6; margin-bottom: 1rem;">
+                  <div><strong style="color: var(--color-success);">Strengths:</strong> <span style="color: var(--text-secondary);">${strongStr}</span></div>
+                  <div><strong style="color: var(--color-danger);">Focus Areas:</strong> <span style="color: var(--text-secondary);">${weakStr}</span></div>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <span style="font-size: 11px; color: var(--text-muted);">Best: ${lStats.bestScore.toLocaleString()} pts</span>
+                <a href="game.html?lang=${l.id}&mode=campaign" class="btn-arcade btn-primary btn-sm" style="font-size: 11px; padding: 0.25rem 0.5rem;">
+                  Play Now →
+                </a>
+              </div>
+            `;
+          }
+          langGrid.appendChild(card);
+        });
+      }
+
+      // 4. Difficulty Tier Performance Grid
+      const diffGrid = Utils.qs('#difficulty-performance-grid');
+      if (diffGrid) {
+        diffGrid.innerHTML = '';
+        ['beginner', 'intermediate', 'expert'].forEach(d => {
+          const dStats = Analytics.aggregateDifficultyStats(sessionHistory, d);
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.style.padding = '1.25rem';
+
+          const title = d.charAt(0).toUpperCase() + d.slice(1);
+          const tierColor = d === 'beginner' ? 'var(--color-success)' : d === 'intermediate' ? 'var(--color-primary)' : 'var(--color-danger)';
+
+          if (!dStats.hasData) {
+            card.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <strong style="color: ${tierColor}; font-family: var(--font-display);">${title} Tier</strong>
+                <span class="badge badge-neutral">0 Sessions</span>
+              </div>
+              <p style="font-size: var(--text-xs); color: var(--text-muted); margin: 0;">
+                No sessions completed in ${title} tier yet.
+              </p>
+            `;
+          } else {
+            card.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <strong style="color: ${tierColor}; font-family: var(--font-display); font-size: var(--text-base);">${title} Tier</strong>
+                <span class="badge badge-cyan">${dStats.completedSessions} Completed</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: var(--text-xs); margin-bottom: 0.75rem;">
+                <div style="background: var(--bg-surface-raised); padding: 0.5rem; border-radius: var(--radius-sm);">
+                  <span style="color: var(--text-muted); display: block; font-size: 10px;">ACCURACY</span>
+                  <strong style="color: var(--color-success); font-size: var(--text-sm);">${dStats.accuracy}%</strong>
+                </div>
+                <div style="background: var(--bg-surface-raised); padding: 0.5rem; border-radius: var(--radius-sm);">
+                  <span style="color: var(--text-muted); display: block; font-size: 10px;">AVERAGE SCORE</span>
+                  <strong style="color: var(--color-primary); font-size: var(--text-sm);">${dStats.avgScore.toLocaleString()}</strong>
+                </div>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between;">
+                <span>Questions: ${dStats.questionsCorrect}/${dStats.questionsAttempted}</span>
+                <span>Best: ${dStats.bestScore.toLocaleString()}</span>
+              </div>
+            `;
+          }
+          diffGrid.appendChild(card);
+        });
+      }
+
+      // 5. Historical Sessions, Filters & SVG Line Chart
+      const historyTableBody = Utils.qs('#history-table-body');
+      const trendContainer = Utils.qs('#trend-svg-container');
+      const trendBadge = Utils.qs('#trend-status-badge');
+
+      const filterLang = Utils.qs('#filter-history-lang');
+      const filterDiff = Utils.qs('#filter-history-diff');
+      const filterRange = Utils.qs('#filter-history-range');
+
+      function renderHistoricalAnalytics() {
+        const langVal = filterLang ? filterLang.value : 'all';
+        const diffVal = filterDiff ? filterDiff.value : 'all';
+        const rangeVal = filterRange ? filterRange.value : '10';
+
+        // Filter sessions
+        let filtered = [...sessionHistory];
+        if (langVal !== 'all') {
+          filtered = filtered.filter(s => (s.language || '').toLowerCase() === langVal);
+        }
+        if (diffVal !== 'all') {
+          filtered = filtered.filter(s => (s.difficulty || '').toLowerCase() === diffVal);
+        }
+
+        const maxCount = rangeVal === 'all' ? filtered.length : parseInt(rangeVal, 10) || 10;
+        const trendData = Analytics.calculateHistoricalTrend(filtered, maxCount);
+
+        // Render Trend Badge
+        if (trendBadge) {
+          if (trendData.trend === 'improving') {
+            trendBadge.className = 'badge badge-emerald';
+            trendBadge.textContent = '📈 Trajectory: Improving (+5% Avg)';
+          } else if (trendData.trend === 'declining') {
+            trendBadge.className = 'badge badge-coral';
+            trendBadge.textContent = '📉 Trajectory: Needs Review';
+          } else if (trendData.points.length >= 2) {
+            trendBadge.className = 'badge badge-cyan';
+            trendBadge.textContent = '📊 Trajectory: Stable Consistency';
+          } else {
+            trendBadge.className = 'badge badge-neutral';
+            trendBadge.textContent = 'More Data Needed (>= 2 Runs)';
+          }
+        }
+
+        // Render Native SVG Trend Chart
+        if (trendContainer) {
+          if (trendData.points.length < 2) {
+            trendContainer.innerHTML = `
+              <div style="text-align: center; color: var(--text-muted); font-size: var(--text-xs); padding: 1rem;">
+                <p style="margin: 0;">Complete at least 2 challenge sessions to plot your accuracy trajectory over time.</p>
+              </div>
+            `;
+          } else {
+            const pts = trendData.points;
+            const w = 600;
+            const h = 130;
+            const padX = 40;
+            const padY = 20;
+
+            const minX = padX;
+            const maxX = w - padX;
+            const minY = padY;
+            const maxY = h - padY;
+
+            const stepX = (maxX - minX) / Math.max(1, pts.length - 1);
+            const coords = pts.map((p, i) => {
+              const cx = minX + i * stepX;
+              // Map accuracy (0-100) to Y (maxY to minY)
+              const cy = maxY - (p.accuracy / 100) * (maxY - minY);
+              return { x: cx, y: cy, ...p };
+            });
+
+            const polylinePoints = coords.map(c => `${c.x},${c.y}`).join(' ');
+            const areaPoints = `${coords[0].x},${maxY} ` + polylinePoints + ` ${coords[coords.length - 1].x},${maxY}`;
+
+            const circlesSvg = coords.map(c => `
+              <circle cx="${c.x}" cy="${c.y}" r="4" fill="var(--color-primary)" stroke="var(--bg-surface)" stroke-width="2" />
+              <text x="${c.x}" y="${c.y - 8}" text-anchor="middle" font-size="9" fill="var(--text-secondary)" font-family="var(--font-mono)">${c.accuracy}%</text>
+            `).join('');
+
+            trendContainer.innerHTML = `
+              <svg viewBox="0 0 ${w} ${h}" style="width: 100%; height: 100%; overflow: visible;" aria-label="Historical accuracy line chart">
+                <defs>
+                  <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.3" />
+                    <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0.0" />
+                  </linearGradient>
+                </defs>
+                <!-- Grid Lines -->
+                <line x1="${padX}" y1="${minY}" x2="${maxX}" y2="${minY}" stroke="var(--border-subtle)" stroke-dasharray="3,3" />
+                <line x1="${padX}" y1="${(minY + maxY) / 2}" x2="${maxX}" y2="${(minY + maxY) / 2}" stroke="var(--border-subtle)" stroke-dasharray="3,3" />
+                <line x1="${padX}" y1="${maxY}" x2="${maxX}" y2="${maxY}" stroke="var(--border-subtle)" />
+
+                <!-- Area Fill -->
+                <polygon points="${areaPoints}" fill="url(#trendGrad)" />
+                <!-- Trend Line -->
+                <polyline points="${polylinePoints}" fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <!-- Data Nodes -->
+                ${circlesSvg}
+              </svg>
+            `;
+          }
+        }
+
+        // Render Table Body
+        if (historyTableBody) {
+          if (filtered.length === 0) {
+            historyTableBody.innerHTML = `
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">
+                  No challenge history matches the selected filters.
+                </td>
+              </tr>
+            `;
+          } else {
+            historyTableBody.innerHTML = '';
+            filtered.slice(0, maxCount).forEach(s => {
+              const tr = document.createElement('tr');
+              tr.style.borderBottom = '1px solid var(--border-subtle)';
+
+              const dateStr = s.timestamp
+                ? new Date(s.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                : 'Recent';
+
+              const statusBadge = s.isGameOver
+                ? '<span class="badge badge-coral">Terminated</span>'
+                : s.isCompleted !== false
+                ? '<span class="badge badge-emerald">Cleared</span>'
+                : '<span class="badge badge-neutral">Incomplete</span>';
+
+              const accVal = s.accuracy !== undefined ? s.accuracy : Analytics.calculateAccuracy(s.questionsCorrect, s.questionsAttempted);
+              const safeLang = ['python', 'c', 'cpp', 'java'].includes(s.language) ? s.language : 'python';
+              const safeDiff = ['beginner', 'intermediate', 'expert'].includes(s.difficulty) ? s.difficulty : 'beginner';
+              const safeScore = (parseInt(s.totalScore, 10) || 0).toLocaleString();
+              const safeDate = Utils.escapeHTML(dateStr);
+
+              tr.innerHTML = `
+                <td style="padding: 0.6rem 0.5rem; font-family: var(--font-mono); color: var(--text-muted);">${safeDate}</td>
+                <td style="padding: 0.6rem 0.5rem;"><strong>${safeLang.toUpperCase()}</strong></td>
+                <td style="padding: 0.6rem 0.5rem; text-transform: capitalize;">${safeDiff}</td>
+                <td style="padding: 0.6rem 0.5rem; font-family: var(--font-mono); color: var(--color-primary);">${safeScore}</td>
+                <td style="padding: 0.6rem 0.5rem;">
+                  <strong style="color: ${accVal >= 80 ? 'var(--color-success)' : accVal >= 50 ? 'var(--color-primary)' : 'var(--color-danger)'};">
+                    ${accVal}%
+                  </strong>
+                </td>
+                <td style="padding: 0.6rem 0.5rem;">${statusBadge}</td>
+                <td style="padding: 0.6rem 0.5rem; text-align: right;">
+                  <a href="game.html?lang=${encodeURIComponent(safeLang)}&diff=${encodeURIComponent(safeDiff)}&mode=campaign"
+                     class="btn-arcade btn-neutral btn-sm" style="padding: 0.2rem 0.4rem; font-size: 10px;">
+                    Replay →
+                  </a>
+                </td>
+              `;
+              historyTableBody.appendChild(tr);
+            });
+          }
+        }
+      }
+
+      // Bind Filter Changes with tactile feedback
+      if (filterLang) filterLang.onchange = () => { AudioEngine.playClick(); renderHistoricalAnalytics(); };
+      if (filterDiff) filterDiff.onchange = () => { AudioEngine.playClick(); renderHistoricalAnalytics(); };
+      if (filterRange) filterRange.onchange = () => { AudioEngine.playClick(); renderHistoricalAnalytics(); };
+
+      // Initial History Render
+      renderHistoricalAnalytics();
+
+      // 6. Render 20 Achievement Badges with Point Unlock support
+      const trophyGrid = Utils.qs('#trophy-grid');
+      function renderTrophyGrid() {
+        if (!trophyGrid) return;
+        trophyGrid.innerHTML = '';
+        const currentProf = State.get('activeProfile') || Profile.getActiveProfile();
+        const curEarnedBadges = new Set([
+          ...(currentProf.badges || []),
+          ...(currentProf.unlockedAchievements || []),
+          ...(currentProf.purchasedBadges || [])
+        ]);
+        const curPoints = typeof currentProf.totalScore === 'number' ? currentProf.totalScore : (currentProf.xp || 0);
+
+        ACHIEVEMENTS.forEach(badge => {
+          const isUnlocked = curEarnedBadges.has(badge.id);
+          const card = document.createElement('div');
+          card.className = `card card-interactive ${isUnlocked ? 'badge-card-unlocked' : 'badge-card-locked'}`;
+          card.style.padding = '1.25rem';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.gap = '0.5rem';
+          card.style.position = 'relative';
+
+          if (!isUnlocked) {
+            card.style.opacity = '0.75';
+            card.style.borderColor = 'var(--border-subtle)';
+          } else {
+            card.style.borderColor = 'var(--color-primary-edge)';
+            card.style.background = 'linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(0, 229, 255, 0.05) 100%)';
+          }
+
+          const catBadgeClass = badge.category === 'streak' ? 'badge-amber' :
+                               badge.category === 'speed' ? 'badge-violet' :
+                               badge.category === 'accuracy' ? 'badge-emerald' :
+                               badge.category === 'polyglot' ? 'badge-coral' : 'badge-cyan';
+
+          const canAfford = curPoints >= 100;
+          const unlockActionHtml = isUnlocked
+            ? `<span style="color: var(--color-success); font-weight: 700;">✓ Unlocked</span>`
+            : `<button type="button" class="btn-arcade btn-primary btn-sm btn-unlock-badge" style="padding: 2px 8px; font-size: 11px; ${!canAfford ? 'opacity: 0.6; cursor: not-allowed;' : ''}">Unlock (100 pts)</button>`;
+
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <span style="font-size: 2rem;" aria-hidden="true">${isUnlocked ? badge.icon : '🔒'}</span>
+              <span class="badge ${catBadgeClass}" style="font-size: 10px;">${badge.category.toUpperCase()}</span>
+            </div>
+            <h4 style="margin: 0.25rem 0 0; font-size: var(--text-base); color: var(--text-primary); font-family: var(--font-display); font-weight: 700;">
+              ${badge.name}
+            </h4>
+            <p style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0; line-height: 1.4; flex: 1;">
+              ${badge.description}
+            </p>
+            <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+              ${unlockActionHtml}
+            </div>
+          `;
+
+          const unlockBtn = card.querySelector('.btn-unlock-badge');
+          if (unlockBtn) {
+            unlockBtn.onclick = (e) => {
+              e.stopPropagation();
+              const latestProf = State.get('activeProfile') || Profile.getActiveProfile();
+              const pointsNow = typeof latestProf.totalScore === 'number' ? latestProf.totalScore : (latestProf.xp || 0);
+              if (pointsNow >= 100) {
+                AudioEngine.playBadge();
+                const res = Profile.purchaseItem(latestProf.id, 'badge', badge.id, 100);
+                if (res.success) {
+                  UI.triggerConfetti();
+                  UI.showToast(`🏆 ${badge.name} badge unlocked for 100 points!`, 'success');
+                  renderTrophyGrid();
+                  const countEl = Utils.qs('#stat-badges-earned');
+                  const pillEl = Utils.qs('#badge-counter-pill');
+                  const updatedBadges = new Set([...(res.profile?.unlockedAchievements || []), ...(res.profile?.purchasedBadges || [])]);
+                  if (countEl) countEl.textContent = `${updatedBadges.size} / ${ACHIEVEMENTS.length}`;
+                  if (pillEl) pillEl.textContent = `${updatedBadges.size} / ${ACHIEVEMENTS.length} Unlocked`;
+                } else {
+                  UI.showToast(res.message, 'error');
+                }
+              } else {
+                AudioEngine.playError();
+                UI.showToast(`Requires 100 points to unlock! You currently have ${pointsNow.toLocaleString()} points.`, 'info');
+              }
+            };
+          }
+
+          card.onclick = () => {
+            AudioEngine.playClick();
+            if (isUnlocked) {
+              UI.showToast(`🏆 ${badge.name}: ${badge.description} (Unlocked!)`, 'success');
+            } else {
+              UI.showToast(`🔒 ${badge.name}: ${badge.description} (Cost: 100 pts to unlock immediately)`, 'info');
+            }
+          };
+
+          trophyGrid.appendChild(card);
+        });
+      }
+      renderTrophyGrid();
+
+      // 7. Render Palette Themes Collection (Preserved from Batch 6)
+      const themesGrid = Utils.qs('#themes-grid');
+      if (themesGrid) {
+        themesGrid.innerHTML = '';
+        UNLOCKABLE_THEMES.forEach(t => {
+          const isUnlocked = playerLevel >= t.requiredLevel;
+          const isCurrent = (State.get('settings') || {}).theme === t.id;
+          const card = document.createElement('div');
+          card.className = `card ${isUnlocked ? '' : 'card-locked'}`;
+          card.style.padding = '1rem';
+          card.style.borderLeft = `4px solid ${t.id === 'amber' ? 'var(--color-warning)' : t.id === 'gold' ? '#FFD700' : 'var(--color-primary)'}`;
+          if (!isUnlocked) {
+            card.style.opacity = '0.55';
+            card.style.filter = 'grayscale(100%)';
+          }
+
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <strong style="font-size: var(--text-sm); font-family: var(--font-display);">${t.name}</strong>
+              <span class="badge ${isCurrent ? 'badge-emerald' : isUnlocked ? 'badge-cyan' : 'badge-neutral'}">
+                ${isCurrent ? 'Equipped' : isUnlocked ? 'Unlocked' : `Lv ${t.requiredLevel}`}
+              </span>
+            </div>
+            <p style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0;">${t.description}</p>
+          `;
+          themesGrid.appendChild(card);
+        });
+      }
+
+      // 8. Render Avatar Icons Collection (Preserved from Batch 6)
+      const avatarsGrid = Utils.qs('#avatars-grid');
+      if (avatarsGrid) {
+        avatarsGrid.innerHTML = '';
+        AVATAR_CATALOG.forEach(av => {
+          const isUnlocked = playerLevel >= (av.requiredLevel || 1);
+          const isCurrent = activeProf.avatarId === av.id;
+          const card = document.createElement('div');
+          card.className = `card ${isUnlocked ? '' : 'card-locked'}`;
+          card.style.padding = '0.75rem';
+          card.style.textAlign = 'center';
+          if (!isUnlocked) {
+            card.style.opacity = '0.55';
+            card.style.filter = 'grayscale(100%)';
+          }
+
+          card.innerHTML = `
+            <img src="assets/images/${av.id}.svg" width="40" height="40" alt="${av.name}" style="margin: 0 auto 0.35rem; display: block;">
+            <div style="font-size: var(--text-xs); font-weight: 700; margin-bottom: 0.25rem;">${av.name}</div>
+            <span class="badge ${isCurrent ? 'badge-emerald' : isUnlocked ? 'badge-cyan' : 'badge-neutral'}" style="font-size: 10px;">
+              ${isCurrent ? 'Active' : isUnlocked ? 'Unlocked' : `Lv ${av.requiredLevel}`}
+            </span>
+          `;
+          avatarsGrid.appendChild(card);
+        });
+      }
+
+      // 9. Render Challenge Modes Roadmap (Preserved from Batch 6)
+      const modesGrid = Utils.qs('#modes-grid');
+      if (modesGrid) {
+        modesGrid.innerHTML = '';
+        CHALLENGE_MODES.forEach(mode => {
+          const isUnlocked = playerLevel >= mode.requiredLevel;
+          const card = document.createElement('div');
+          card.className = `card ${isUnlocked ? 'card-interactive' : 'card-locked'}`;
+          card.style.padding = '1.25rem';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.gap = '0.5rem';
+
+          if (!isUnlocked) {
+            card.style.opacity = '0.55';
+            card.style.filter = 'grayscale(100%)';
+          }
+
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h4 style="margin: 0; font-family: var(--font-display); font-size: var(--text-base);">${mode.name}</h4>
+              <span class="badge ${isUnlocked ? 'badge-emerald' : 'badge-amber'}">
+                ${isUnlocked ? 'Unlocked' : `Level ${mode.requiredLevel} Gate`}
+              </span>
+            </div>
+            <p style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0; flex: 1; line-height: 1.5;">
+              ${mode.description}
+            </p>
+            <div style="margin-top: 0.75rem;">
+              ${isUnlocked
+                ? `<a href="game.html?mode=${mode.id}&lang=${activeProf.preferredLanguage || 'python'}" class="btn-arcade btn-primary btn-sm" style="width: 100%; justify-content: center;">Launch ${mode.name} →</a>`
+                : `<button class="btn-arcade btn-neutral btn-sm" disabled style="width: 100%; justify-content: center; opacity: 0.6;">Reach Level ${mode.requiredLevel} to Unlock</button>`}
+            </div>
+          `;
+          modesGrid.appendChild(card);
+        });
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

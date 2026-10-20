@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SyntaxArena — Studio Settings, Audio Preferences, Profiles, and Local Data Backup.">
+  <title>SyntaxArena — Studio Settings & Preferences</title>
+  
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Embedded SVG Icons -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>
+    </symbol>
+    <symbol id="icon-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="6" x2="10" y1="11" y2="11"></line><line x1="8" x2="8" y1="9" y2="13"></line>
+      <line x1="15" x2="15.01" y1="12" y2="12"></line><line x1="18" x2="18.01" y1="10" y2="10"></line>
+      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
+    </symbol>
+    <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+      <path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+    </symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </symbol>
+    <symbol id="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </symbol>
+    <symbol id="icon-volume-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>
+    </symbol>
+  </svg>
+
+  <header class="app-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-link" aria-label="SyntaxArena Home">
+        <span class="brand-badge" aria-hidden="true" style="padding: 2px;">
+          <img src="assets/images/logo.svg" width="24" height="24" alt="SyntaxArena Logo">
+        </span>
+        <span class="brand-title">SyntaxArena</span>
+      </a>
+
+      <nav class="app-nav" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Hub</span>
+        </a>
+        <a href="game.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
+          <span>Play</span>
+        </a>
+        <a href="results.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-trophy"></use></svg>
+          <span>Results</span>
+        </a>
+        <a href="progress.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-chart"></use></svg>
+          <span>Progress</span>
+        </a>
+        <a href="settings.html" class="nav-link" aria-current="page">
+          <svg class="nav-icon"><use href="#icon-settings"></use></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="btn-theme-toggle" class="btn-icon-toggle" aria-label="Toggle color theme" title="Toggle color theme">
+          <svg width="20" height="20"><use href="#icon-sun"></use></svg>
+        </button>
+        <button id="btn-sound-toggle" class="btn-icon-toggle" aria-label="Toggle sound effects" title="Toggle sound effects">
+          <svg width="20" height="20"><use href="#icon-volume"></use></svg>
+        </button>
+        <a href="settings.html" class="profile-pill" aria-label="User profile settings">
+          <span class="profile-avatar-mini" aria-hidden="true">🦊</span>
+          <span class="profile-name">ScriptAdept</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="app-main">
+    <div class="page-container" style="max-width: 800px;">
+      
+      <div class="page-header">
+        <h1>Studio Settings</h1>
+        <p class="page-subtitle">Configure studio visuals, audio levels, profiles, and local storage backup.</p>
+      </div>
+
+      <!-- Section 1: Appearance & Accessibility -->
+      <section class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size: var(--text-lg);">Visuals & Accessibility</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label" for="setting-theme-select">Theme Mode</label>
+            <select id="setting-theme-select" class="form-select">
+              <option value="dark">Cyber Studio (Dark Mode — Default)</option>
+              <option value="light">Studio Paper (High-Contrast Daylight — Level 2)</option>
+              <option value="amber">Amber Flame CRT (Phosphor Glow — Level 6)</option>
+              <option value="gold">Grandmaster Gold (Champion Gold — Level 10)</option>
+            </select>
+            <span class="form-help">Switches between deep slate, daylight paper, amber phosphor, and grandmaster gold palettes.</span>
+          </div>
+          <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+            <div>
+              <label class="form-label" for="setting-reduced-motion" style="margin-bottom: 0.25rem;">Reduced Motion</label>
+              <span class="form-help" style="margin-bottom: 0;">Minimize transitions and decorative animations across the UI.</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span id="motion-preview-pill" class="badge badge-neutral">Active Motion</span>
+              <input type="checkbox" id="setting-reduced-motion" class="form-checkbox" style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <span style="font-family: var(--font-display); font-weight: 700;">Hardcore Challenge Mode</span>
+              <span id="hardcore-status-badge" class="badge badge-amber">Level 5 Gate</span>
+            </div>
+            <p id="hardcore-status-desc" class="form-help" style="margin-bottom: 0;">
+              Hardcore Mode grants 3 hearts, 30s timers, and disables all hints. Reach Level 5 (Senior Developer) to activate Hardcore Mode in the Arena.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Audio Preferences -->
+      <section class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size: var(--text-lg);">Audio Synthesizer</h2>
+          <span class="badge badge-emerald">Web Audio API</span>
+        </div>
+        <div class="card-body">
+          <!-- SFX Toggle & Slider -->
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0;">
+                <input type="checkbox" id="setting-sound-toggle" checked style="width: 16px; height: 16px;">
+                <span class="form-label" style="margin-bottom: 0;">Sound Effects (SFX)</span>
+              </label>
+              <span id="sfx-vol-display" style="font-family: var(--font-mono); font-weight: 700;">80%</span>
+            </div>
+            <input type="range" id="setting-sfx-slider" min="0" max="100" value="80" style="width: 100%;">
+            <span class="form-help">Procedural chimes, button clicks, streak whooshes, and victory fanfares.</span>
+          </div>
+
+          <!-- Background Music Toggle & Slider -->
+          <div class="form-group" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-subtle);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0;">
+                <input type="checkbox" id="setting-music-toggle" style="width: 16px; height: 16px;">
+                <span class="form-label" style="margin-bottom: 0;">Ambient Background Music</span>
+              </label>
+              <span id="music-vol-display" style="font-family: var(--font-mono); font-weight: 700;">50%</span>
+            </div>
+            <input type="range" id="setting-music-slider" min="0" max="100" value="50" style="width: 100%;">
+            <span class="form-help">Procedural lo-fi cyber ambient pad chords. Enabled by default across the arena.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Profile Management -->
+      <section class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size: var(--text-lg);">Active Profile Configuration</h2>
+          <span class="badge badge-cyan" id="profile-level-badge">Level 1</span>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label" for="profile-callsign-input">Call-sign (Username)</label>
+            <input type="text" id="profile-callsign-input" class="form-input" maxlength="16" placeholder="Enter 2-16 alphanumeric characters">
+            <span class="form-help">2-16 characters. Letters, numbers, hyphens, and underscores only.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Select Avatar Icon</label>
+            <div id="avatar-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem; margin-top: 0.5rem;">
+              <!-- Dynamically populated avatar options with SVG images -->
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem;">
+            <button id="btn-save-profile" class="btn-arcade btn-primary btn-sm">Save Profile Changes</button>
+            <button id="btn-switch-profile" class="btn-arcade btn-neutral btn-sm">Switch / Add Profile</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Data Storage, Backup & Reset -->
+      <section class="card" style="border-color: var(--border-strong);">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size: var(--text-lg);">Local Storage & Backup</h2>
+          <span class="badge badge-amber">Storage Schema v1</span>
+        </div>
+        <div class="card-body">
+          <p style="font-size: var(--text-sm);">
+            All career progress, campaign unlocks, and preferences are stored exclusively on this device via browser <code>localStorage</code>.
+            Export your data to safeguard against browser history clearing or to transfer progress.
+          </p>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem;">
+            <button id="btn-export-data" class="btn-arcade btn-neutral btn-sm">
+              Export Save Data (JSON)
+            </button>
+            <button id="btn-import-trigger" class="btn-arcade btn-neutral btn-sm">
+              Import Save Data
+            </button>
+            <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            <button id="btn-reset-data" class="btn-arcade btn-danger btn-sm" style="margin-left: auto;">
+              Reset All Progress
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Switch Profile Modal -->
+  <div id="modal-profile-switcher" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="modal-prof-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-prof-title" class="card-title">Local Profiles</h3>
+        <button class="btn-arcade btn-neutral btn-sm" data-close-modal="modal-profile-switcher" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-profile-list" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+          <!-- Profile list rows -->
+        </div>
+
+        <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+          <h4 style="font-size: var(--text-sm); margin-bottom: 0.75rem;">Create New Local Profile</h4>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="new-profile-name" class="form-input" placeholder="New Call-Sign" maxlength="16" style="flex: 1;">
+            <button id="btn-create-profile" class="btn-arcade btn-primary btn-sm">Create</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-arcade btn-neutral btn-sm" data-close-modal="modal-profile-switcher">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div>SyntaxArena • Studio Settings & Storage</div>
+      <nav class="footer-nav" aria-label="Footer Links">
+        <a href="index.html">Hub</a>
+        <a href="game.html">Arena</a>
+        <a href="results.html">Results</a>
+        <a href="progress.html">Progression</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="js/bundle.js"></script>
+
+  <!-- Settings Page Script -->
+  <script>
+    (function() {
+      const { Utils, State, Storage, Profile, AVATAR_CATALOG, Gamification, AudioEngine, UI } = window;
+
+      document.addEventListener('DOMContentLoaded', () => {
+      // 1. Initialize Form Fields with State
+      const settings = State.get('settings') || {};
+      const activeProfile = State.get('activeProfile') || {};
+      const playerLevel = activeProfile.level || 1;
+
+      const themeSelect = Utils.qs('#setting-theme-select');
+      if (themeSelect) {
+        themeSelect.value = settings.theme || 'dark';
+
+        // Gate theme options by player level
+        const themeOptions = themeSelect.querySelectorAll('option');
+        themeOptions.forEach(opt => {
+          const tDef = Gamification.UNLOCKABLE_THEMES.find(t => t.id === opt.value);
+          if (tDef && tDef.requiredLevel > playerLevel) {
+            opt.disabled = true;
+            opt.textContent = `${tDef.name} 🔒 (Locked — Level ${tDef.requiredLevel})`;
+          }
+        });
+      }
+
+      // Hardcore Status Badge & Description
+      const hardcoreBadge = Utils.qs('#hardcore-status-badge');
+      const hardcoreDesc = Utils.qs('#hardcore-status-desc');
+      if (playerLevel >= 5) {
+        if (hardcoreBadge) {
+          hardcoreBadge.className = 'badge badge-emerald';
+          hardcoreBadge.textContent = 'Unlocked (Level 5+)';
+        }
+        if (hardcoreDesc) {
+          hardcoreDesc.textContent = 'Hardcore Mode is fully unlocked! Launch challenges in Hardcore mode (3 hearts, 30s timers, no hints) from the Arena or Progression page.';
+        }
+      } else {
+        if (hardcoreBadge) {
+          hardcoreBadge.className = 'badge badge-amber';
+          hardcoreBadge.textContent = 'Level 5 Gate';
+        }
+        if (hardcoreDesc) {
+          hardcoreDesc.textContent = `Hardcore Mode requires Level 5 (Senior Developer). You are currently Level ${playerLevel} (${activeProfile.rank || 'Novice'}).`;
+        }
+      }
+
+
+      const soundToggle = Utils.qs('#setting-sound-toggle');
+      if (soundToggle) soundToggle.checked = settings.soundEnabled !== false && (settings.sfxVolume || 0) > 0;
+
+      const sfxSlider = Utils.qs('#setting-sfx-slider');
+      const sfxDisplay = Utils.qs('#sfx-vol-display');
+      if (sfxSlider && sfxDisplay) {
+        const val = Math.round((settings.sfxVolume ?? 0.8) * 100);
+        sfxSlider.value = val;
+        sfxDisplay.textContent = `${val}%`;
+      }
+
+      const musicToggle = Utils.qs('#setting-music-toggle');
+      if (musicToggle) musicToggle.checked = !!settings.musicEnabled;
+
+      const musicSlider = Utils.qs('#setting-music-slider');
+      const musicDisplay = Utils.qs('#music-vol-display');
+      if (musicSlider && musicDisplay) {
+        const val = Math.round((settings.musicVolume ?? 0.5) * 100);
+        musicSlider.value = val;
+        musicDisplay.textContent = `${val}%`;
+      }
+
+      const callsignInput = Utils.qs('#profile-callsign-input');
+      if (callsignInput) callsignInput.value = activeProfile.username || '';
+
+      const levelBadge = Utils.qs('#profile-level-badge');
+      if (levelBadge) levelBadge.textContent = `Level ${activeProfile.level || 1} • ${activeProfile.rank || 'Script Novice'}`;
+
+      // 2. Populate Avatar Grid with Real SVG Images & Level Gating
+      const avatarGrid = Utils.qs('#avatar-grid');
+      let selectedAvatar = activeProfile.avatarId || 'cyber_fox';
+
+      function renderAvatarGrid() {
+        if (!avatarGrid) return;
+        avatarGrid.innerHTML = '';
+        const currentProf = State.get('activeProfile') || Profile.getActiveProfile();
+        const curPoints = typeof currentProf.totalScore === 'number' ? currentProf.totalScore : (currentProf.xp || 0);
+        const unlockedAvatars = Array.isArray(currentProf.unlockedAvatars) ? currentProf.unlockedAvatars : ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight'];
+
+        AVATAR_CATALOG.forEach(avatar => {
+          const isUnlocked = unlockedAvatars.includes(avatar.id) || (avatar.requiredLevel || 1) <= playerLevel;
+          const isSelected = avatar.id === selectedAvatar;
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `btn-arcade ${isSelected ? 'btn-primary' : 'btn-neutral'}`;
+          btn.style.padding = '0.5rem';
+          btn.style.flexDirection = 'column';
+          btn.style.gap = '0.35rem';
+          btn.style.minHeight = '105px';
+          btn.style.position = 'relative';
+
+          if (!isUnlocked) {
+            btn.style.opacity = '0.75';
+            btn.setAttribute('aria-disabled', 'true');
+            btn.innerHTML = `
+              <div style="position: relative; display: inline-block;">
+                <img src="assets/images/${avatar.id}.svg" width="36" height="36" alt="${avatar.name}">
+                <span style="position: absolute; bottom: -4px; right: -4px; background: var(--bg-surface-overlay); border: 1px solid var(--border-strong); border-radius: 50%; font-size: 10px; padding: 2px;" aria-hidden="true">🔒</span>
+              </div>
+              <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">${avatar.name}</span>
+              <span style="font-size: 9px; color: var(--color-warning); background: var(--bg-surface-raised); padding: 2px 4px; border-radius: 4px;">Unlock: 150 pts</span>
+            `;
+            btn.onclick = () => {
+              if (curPoints >= 150) {
+                AudioEngine.playBadge();
+                const res = Profile.purchaseItem(currentProf.id, 'avatar', avatar.id, 150);
+                if (res.success) {
+                  UI.triggerConfetti();
+                  UI.showToast(`🎉 ${avatar.name} unlocked for 150 points!`, 'success');
+                  selectedAvatar = avatar.id;
+                  renderAvatarGrid();
+                } else {
+                  UI.showToast(res.message, 'error');
+                }
+              } else {
+                AudioEngine.playError();
+                UI.showToast(`🔒 ${avatar.name} is locked! Requires 150 points or Level ${avatar.requiredLevel}. You have ${curPoints.toLocaleString()} points.`, 'info');
+              }
+            };
+          } else {
+            btn.removeAttribute('aria-disabled');
+            btn.innerHTML = `
+              <img src="assets/images/${avatar.id}.svg" width="36" height="36" alt="${avatar.name}">
+              <span style="font-size: 11px; font-weight: 700;">${avatar.name}</span>
+              <span style="font-size: 9px; color: var(--color-success);">✓ Unlocked</span>
+            `;
+            btn.onclick = () => {
+              AudioEngine.playClick();
+              selectedAvatar = avatar.id;
+              renderAvatarGrid();
+            };
+          }
+          avatarGrid.appendChild(btn);
+        });
+      }
+      renderAvatarGrid();
+
+      // 3. Theme Select Change with Gate Validation
+      if (themeSelect) {
+        themeSelect.onchange = (e) => {
+          const next = e.target.value;
+          const tDef = Gamification.UNLOCKABLE_THEMES.find(t => t.id === next);
+          if (tDef && tDef.requiredLevel > playerLevel) {
+            AudioEngine.playError();
+            UI.showToast(`Theme locked! Reach Level ${tDef.requiredLevel} to unlock ${tDef.name}.`, 'error');
+            themeSelect.value = settings.theme || 'dark';
+            return;
+          }
+          AudioEngine.playClick();
+          State.set('settings', { theme: next });
+          UI.applyTheme(next);
+          UI.showToast(`Theme updated to ${tDef ? tDef.name : next}`, 'info');
+        };
+      }
+
+
+
+      // 5. Sound Effects (SFX) Controls
+      if (soundToggle) {
+        soundToggle.onchange = (e) => {
+          AudioEngine.playClick();
+          const enabled = e.target.checked;
+          State.set('settings', { soundEnabled: enabled });
+          if (enabled) {
+            AudioEngine.playSuccess();
+          }
+          UI.showToast(enabled ? 'Sound effects enabled' : 'Sound effects disabled', 'info');
+        };
+      }
+
+      if (sfxSlider && sfxDisplay) {
+        sfxSlider.oninput = (e) => {
+          const val = parseInt(e.target.value, 10);
+          sfxDisplay.textContent = `${val}%`;
+          State.set('settings', { sfxVolume: val / 100, soundEnabled: val > 0 });
+          if (soundToggle) soundToggle.checked = val > 0;
+        };
+      }
+
+      // 6. Background Music Controls
+      if (musicToggle) {
+        musicToggle.onchange = (e) => {
+          AudioEngine.playClick();
+          const enabled = e.target.checked;
+          State.set('settings', { musicEnabled: enabled });
+          if (enabled) {
+            AudioEngine.startMusic();
+            UI.showToast('Ambient music started', 'success');
+          } else {
+            AudioEngine.stopMusic();
+            UI.showToast('Ambient music stopped', 'info');
+          }
+        };
+      }
+
+      if (musicSlider && musicDisplay) {
+        musicSlider.oninput = (e) => {
+          const val = parseInt(e.target.value, 10);
+          musicDisplay.textContent = `${val}%`;
+          State.set('settings', { musicVolume: val / 100 });
+          AudioEngine.setMusicVolume(val / 100);
+        };
+      }
+
+      // Reduced Motion In-App Toggle
+      const motionCheckbox = Utils.qs('#setting-reduced-motion');
+      const motionPill = Utils.qs('#motion-preview-pill');
+
+      function updateMotionUI(reduced) {
+        if (motionCheckbox) motionCheckbox.checked = reduced;
+        if (motionPill) {
+          motionPill.textContent = reduced ? 'Reduced Motion' : 'Active Motion';
+          motionPill.className = reduced ? 'badge badge-amber' : 'badge badge-neutral';
+        }
+        UI.applyReducedMotion(reduced);
+      }
+
+      const initialReduced = Boolean(settings.reducedMotion);
+      updateMotionUI(initialReduced);
+
+      if (motionCheckbox) {
+        motionCheckbox.onchange = (e) => {
+          AudioEngine.playClick();
+          const reduced = e.target.checked;
+          State.set('settings', { reducedMotion: reduced });
+          updateMotionUI(reduced);
+          UI.showToast(reduced ? 'Reduced motion enabled' : 'Standard motion restored', 'info');
+        };
+      }
+
+      // 7. Save Profile Changes
+      const saveProfileBtn = Utils.qs('#btn-save-profile');
+      if (saveProfileBtn) {
+        saveProfileBtn.onclick = () => {
+          AudioEngine.playClick();
+          const newName = callsignInput ? callsignInput.value : '';
+          const valResult = Profile.validateUsername(newName);
+          if (!valResult.valid) {
+            AudioEngine.playError();
+            UI.showToast(valResult.error, 'error');
+            return;
+          }
+
+          // Verify selected avatar is unlocked
+          const avatarDef = AVATAR_CATALOG.find(a => a.id === selectedAvatar);
+          if (avatarDef && (avatarDef.requiredLevel || 1) > playerLevel) {
+            AudioEngine.playError();
+            UI.showToast(`Cannot select locked avatar (${avatarDef.name}). Reach Level ${avatarDef.requiredLevel} first.`, 'error');
+            return;
+          }
+
+          const prof = State.get('activeProfile');
+          if (prof) {
+            const updated = Profile.updateProfile(prof.id, {
+              username: newName.trim(),
+              avatarId: selectedAvatar
+            });
+            if (updated) {
+              State.set('activeProfile', { ...updated });
+              UI.updateHeaderProfile();
+              AudioEngine.playSuccess();
+              UI.showToast('Profile updated successfully!', 'success');
+            }
+          }
+        };
+      }
+
+      // 8. Profile Switcher Modal
+      const switchProfileBtn = Utils.qs('#btn-switch-profile');
+      const modalList = Utils.qs('#modal-profile-list');
+
+      function renderProfileModalList() {
+        if (!modalList) return;
+        modalList.innerHTML = '';
+        const profiles = State.get('profiles') || [];
+        const currentActive = State.get('activeProfile') || {};
+
+        profiles.forEach(p => {
+          const row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.justifyContent = 'space-between';
+          row.style.padding = '0.5rem 0.75rem';
+          row.style.backgroundColor = p.id === currentActive.id ? 'var(--bg-surface-raised)' : 'transparent';
+          row.style.border = '1px solid ' + (p.id === currentActive.id ? 'var(--color-primary-edge)' : 'var(--border-subtle)');
+          row.style.borderRadius = 'var(--radius-md)';
+
+          const safeAvatar = Profile.validateAvatar(p.avatarId) ? p.avatarId : 'cyber_fox';
+          const safeUsername = Utils.escapeHTML(p.username || 'Anonymous');
+          const safeLevel = parseInt(p.level, 10) || 1;
+          const safeId = Utils.escapeHTML(p.id);
+
+          row.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <img src="assets/images/${safeAvatar}.svg" width="28" height="28" alt="avatar">
+              <strong style="color: var(--text-primary);">${safeUsername}</strong>
+              <small style="color: var(--text-muted);">(Lvl ${safeLevel})</small>
+            </div>
+            ${p.id === currentActive.id 
+              ? '<span class="badge badge-emerald">Active</span>' 
+              : `<button class="btn-arcade btn-neutral btn-sm" data-switch-to="${safeId}">Switch</button>`}
+          `;
+
+          const switchBtn = row.querySelector('[data-switch-to]');
+          if (switchBtn) {
+            switchBtn.onclick = () => {
+              AudioEngine.playClick();
+              Profile.switchActive(p.id);
+              if (callsignInput) callsignInput.value = p.username;
+              selectedAvatar = p.avatarId;
+              renderAvatarGrid();
+              renderProfileModalList();
+              UI.showToast(`Switched active profile to ${p.username}`, 'info');
+              UI.closeModal('modal-profile-switcher');
+            };
+          }
+          modalList.appendChild(row);
+        });
+      }
+
+      if (switchProfileBtn) {
+        switchProfileBtn.onclick = () => {
+          AudioEngine.playClick();
+          renderProfileModalList();
+          UI.openModal('modal-profile-switcher');
+        };
+      }
+
+      // Create new profile button in modal
+      const createProfileBtn = Utils.qs('#btn-create-profile');
+      const newProfileInput = Utils.qs('#new-profile-name');
+      if (createProfileBtn && newProfileInput) {
+        createProfileBtn.onclick = () => {
+          const name = newProfileInput.value;
+          const val = Profile.validateUsername(name);
+          if (!val.valid) {
+            AudioEngine.playError();
+            UI.showToast(val.error, 'error');
+            return;
+          }
+          try {
+            const created = Profile.addNew(name, 'cyber_fox');
+            newProfileInput.value = '';
+            if (callsignInput) callsignInput.value = created.username;
+            selectedAvatar = created.avatarId;
+            renderAvatarGrid();
+            renderProfileModalList();
+            AudioEngine.playSuccess();
+            UI.showToast(`Profile "${created.username}" created and active!`, 'success');
+            UI.closeModal('modal-profile-switcher');
+          } catch (err) {
+            AudioEngine.playError();
+            UI.showToast(err.message, 'error');
+          }
+        };
+      }
+
+      // 9. Export Save Data (JSON)
+      const exportBtn = Utils.qs('#btn-export-data');
+      if (exportBtn) {
+        exportBtn.onclick = () => {
+          AudioEngine.playClick();
+          const jsonStr = Storage.exportJSON();
+          const blob = new Blob([jsonStr], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+          a.href = url;
+          a.download = `syntaxarena_backup_${dateStr}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          UI.showToast('Save file downloaded!', 'success');
+        };
+      }
+
+      // 10. Import Save Data
+      const importTrigger = Utils.qs('#btn-import-trigger');
+      const importInput = Utils.qs('#import-file-input');
+      if (importTrigger && importInput) {
+        importTrigger.onclick = () => {
+          AudioEngine.playClick();
+          importInput.click();
+        };
+        importInput.onchange = (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const result = Storage.importJSON(event.target.result);
+            if (result.success) {
+              AudioEngine.playSuccess();
+              UI.showToast(result.message, 'success');
+              setTimeout(() => window.location.reload(), 1000);
+            } else {
+              AudioEngine.playError();
+              UI.showToast(result.message, 'error');
+            }
+          };
+          reader.readAsText(file);
+        };
+      }
+
+      // 11. Reset All Data
+      const resetBtn = Utils.qs('#btn-reset-data');
+      if (resetBtn) {
+        resetBtn.onclick = () => {
+          AudioEngine.playClick();
+          const confirmed = window.confirm(
+            'WARNING: This will erase all local progress, career statistics, and profiles on this browser, restoring factory defaults. Continue?'
+          );
+          if (confirmed) {
+            try {
+              if (typeof window !== 'undefined' && window.localStorage) {
+                window.localStorage.clear();
+              }
+              if (typeof window !== 'undefined' && window.sessionStorage) {
+                window.sessionStorage.clear();
+              }
+            } catch (_) {}
+            Storage.resetAll();
+            UI.showToast('Account data reset complete! Redirecting to setup...', 'info');
+            setTimeout(() => {
+              window.location.href = 'index.html?onboarding=1&reset=1';
+            }, 600);
+          }
+        };
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

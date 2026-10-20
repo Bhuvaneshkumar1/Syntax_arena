@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SyntaxArena — Arcade-grade programming challenge studio. Master Python, C, C++, and Java through code execution tracing, debugging, and output prediction.">
+  <title>SyntaxArena — Master Code Through Play</title>
+  
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <!-- Keyboard Navigation Skip Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Embedded SVG Icon Sprite (Self-contained, zero-network, offline immune) -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"></polyline>
+      <polyline points="8 6 2 12 8 18"></polyline>
+    </symbol>
+    <symbol id="icon-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="6" x2="10" y1="11" y2="11"></line><line x1="8" x2="8" y1="9" y2="13"></line>
+      <line x1="15" x2="15.01" y1="12" y2="12"></line><line x1="18" x2="18.01" y1="10" y2="10"></line>
+      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
+    </symbol>
+    <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+      <path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+    </symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </symbol>
+    <symbol id="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </symbol>
+    <symbol id="icon-volume-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>
+    </symbol>
+    <symbol id="icon-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+    </symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+    </symbol>
+    <symbol id="icon-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path>
+      <path d="M9 18h6"></path><path d="M10 22h4"></path>
+    </symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </symbol>
+    <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+    </symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+    </symbol>
+  </svg>
+
+  <!-- Application Shell Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <!-- Game Branding Wordmark -->
+      <a href="index.html" class="brand-link" aria-label="SyntaxArena Home">
+        <span class="brand-badge" aria-hidden="true">
+          <img src="assets/images/logo.svg" width="24" height="24" alt="SyntaxArena Logo">
+        </span>
+        <span class="brand-title">SyntaxArena</span>
+      </a>
+
+      <!-- Desktop Primary Navigation -->
+      <nav class="app-nav" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link" aria-current="page">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Home</span>
+        </a>
+        <a href="#challenges" class="nav-link" data-scroll-to="#challenges">
+          <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
+          <span>Challenges</span>
+        </a>
+        <a href="#how-to-play" class="nav-link" data-scroll-to="#how-to-play">
+          <svg class="nav-icon"><use href="#icon-bulb"></use></svg>
+          <span>How to Play</span>
+        </a>
+        <a href="progress.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-chart"></use></svg>
+          <span>Progress</span>
+        </a>
+      </nav>
+
+      <!-- Header Action Controls -->
+      <div class="header-actions">
+        <!-- Prominent Play Now Button -->
+        <button id="btn-nav-play" class="btn-arcade btn-primary btn-sm" aria-label="Play Now: Start Challenge Arena">
+          <svg width="16" height="16" aria-hidden="true"><use href="#icon-gamepad"></use></svg>
+          <span>Play Now</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="btn-theme-toggle" class="btn-icon-toggle" aria-label="Toggle color theme" title="Toggle color theme">
+          <svg width="20" height="20" aria-hidden="true"><use href="#icon-sun"></use></svg>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button id="btn-sound-toggle" class="btn-icon-toggle" aria-label="Toggle sound effects" title="Toggle sound effects">
+          <svg width="20" height="20" aria-hidden="true"><use href="#icon-volume"></use></svg>
+        </button>
+
+        <!-- Profile Pill (Reflects current player) -->
+        <a href="settings.html" class="profile-pill" aria-label="User profile and settings">
+          <span class="profile-avatar-mini" aria-hidden="true">
+            <img src="assets/images/cyber_fox.svg" width="22" height="22" alt="avatar" style="border-radius: 50%;">
+          </span>
+          <span class="profile-name">ScriptAdept</span>
+        </a>
+
+        <!-- Mobile Navigation Menu Toggle Button -->
+        <button id="btn-mobile-menu" class="btn-mobile-menu" aria-expanded="false" aria-controls="mobile-nav-drawer" aria-label="Open navigation menu">
+          <svg width="20" height="20" aria-hidden="true"><use href="#icon-menu"></use></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav-drawer" class="mobile-nav-drawer" aria-label="Mobile Navigation Drawer">
+      <a href="index.html" class="nav-link" aria-current="page">
+        <svg class="nav-icon"><use href="#icon-code"></use></svg>
+        <span>Home</span>
+      </a>
+      <a href="#challenges" class="nav-link" data-scroll-to="#challenges">
+        <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
+        <span>Challenges</span>
+      </a>
+      <a href="#how-to-play" class="nav-link" data-scroll-to="#how-to-play">
+        <svg class="nav-icon"><use href="#icon-bulb"></use></svg>
+        <span>How to Play</span>
+      </a>
+      <a href="progress.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-chart"></use></svg>
+        <span>Progress</span>
+      </a>
+      <a href="settings.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-settings"></use></svg>
+        <span>Settings</span>
+      </a>
+      <div style="padding-top: var(--space-2); border-top: 1px solid var(--border-subtle); margin-top: var(--space-2);">
+        <button id="btn-mobile-play" class="btn-arcade btn-primary btn-md" style="width: 100%;">
+          <svg width="18" height="18" aria-hidden="true"><use href="#icon-gamepad"></use></svg>
+          <span>Launch Arena</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Shell -->
+  <main id="main-content" class="app-main">
+    <div class="page-container">
+      
+      <!-- ====================================================================
+           SECTION B: HERO SECTION
+           ==================================================================== -->
+      <section class="page-header" style="text-align: center; max-width: 860px; margin: 1.5rem auto 3.5rem;">
+        <div style="margin-bottom: 1.25rem;">
+          <img src="assets/images/logo.svg" width="76" height="76" alt="SyntaxArena Emblem" style="filter: drop-shadow(0 0 24px rgba(0, 229, 255, 0.45));">
+        </div>
+        <span class="badge badge-cyan" style="margin-bottom: 1rem; letter-spacing: 0.08em;">
+          ARCADE-GRADE CODE REASONING STUDIO
+        </span>
+        <h1 style="font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.15; margin-bottom: 1.25rem; font-weight: 900;">
+          Master Programming Through <span style="color: var(--color-primary);">High-Feedback</span> Tracing
+        </h1>
+        <p style="font-size: var(--text-lg); color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; max-width: 720px; margin-left: auto; margin-right: auto;">
+          Deduce variable states, hunt subtle bugs, and predict console outputs across Python, C, C++, and Java. 
+          Zero backend latency, offline resilient, calibrated for programmers from novice to grandmaster.
+        </p>
+        
+        <!-- Primary & Secondary Hero Actions -->
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.5rem;">
+          <button id="btn-hero-start" class="btn-arcade btn-primary btn-lg" aria-label="Start Playing Now">
+            <svg width="20" height="20" aria-hidden="true"><use href="#icon-zap"></use></svg>
+            <span>Start Playing</span>
+          </button>
+          <button id="btn-hero-explore" class="btn-arcade btn-neutral btn-lg" data-scroll-to="#challenges" aria-label="Explore Challenge Formats">
+            <svg width="20" height="20" aria-hidden="true"><use href="#icon-code"></use></svg>
+            <span>Explore Challenges</span>
+          </button>
+        </div>
+
+        <!-- Hero Arena Feature Showcase (Code-Free Arena Mechanics) -->
+        <div class="hero-features-container" aria-label="Arena Features Showcase" style="max-width: 900px; margin: 2.5rem auto 0;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; text-align: left;">
+            
+            <!-- Feature 1: Speed-Scaled Points -->
+            <div class="card card-raised" style="padding: 1.25rem; border-color: rgba(0, 229, 255, 0.3); background: linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(0, 229, 255, 0.05) 100%);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 24px;">⚡</span>
+                <span class="badge badge-cyan" style="font-size: 10px;">Time Points</span>
+              </div>
+              <h4 style="font-size: var(--text-base); margin-bottom: 0.35rem; color: var(--color-cyan);">Speed Bonus</h4>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0.75rem;">
+                Faster answers yield higher points! Up to +200 bonus pts scaled to remaining timer duration.
+              </p>
+              <div style="font-size: 11px; font-weight: 700; color: var(--color-primary); font-family: var(--font-mono);">
+                Auto-Advance: 2.0s
+              </div>
+            </div>
+
+            <!-- Feature 2: Streak Combos -->
+            <div class="card card-raised" style="padding: 1.25rem; border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(245, 158, 11, 0.05) 100%);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 24px;">🔥</span>
+                <span class="badge badge-amber" style="font-size: 10px;">Row Bonus</span>
+              </div>
+              <h4 style="font-size: var(--text-base); margin-bottom: 0.35rem; color: var(--color-warning);">Streak Multipliers</h4>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0.75rem;">
+                Rack up correct answers in a row: earn +150 bonus for 3-in-a-row and +300 bonus for 5-in-a-row!
+              </p>
+              <div style="font-size: 11px; font-weight: 700; color: var(--color-warning); font-family: var(--font-mono);">
+                Combo: 3x &amp; 5x Row
+              </div>
+            </div>
+
+            <!-- Feature 3: Daily Streaks -->
+            <div class="card card-raised" style="padding: 1.25rem; border-color: rgba(16, 185, 129, 0.3); background: linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(16, 185, 129, 0.05) 100%);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 24px;">🎁</span>
+                <span class="badge badge-emerald" style="font-size: 10px;">Daily Rewards</span>
+              </div>
+              <h4 style="font-size: var(--text-base); margin-bottom: 0.35rem; color: var(--color-success);">Loyalty &amp; Streaks</h4>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0.75rem;">
+                +500 Joining Bonus on day 1! Visit daily to grow your day streak; 3 days in a row triggers confetti &amp; +300 pts!
+              </p>
+              <div style="font-size: 11px; font-weight: 700; color: var(--color-success); font-family: var(--font-mono);">
+                Day Streak + Confetti
+              </div>
+            </div>
+
+            <!-- Feature 4: Flawless Level Victory -->
+            <div class="card card-raised" style="padding: 1.25rem; border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(139, 92, 246, 0.05) 100%);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 24px;">👑</span>
+                <span class="badge badge-violet" style="font-size: 10px;">Zero Error</span>
+              </div>
+              <h4 style="font-size: var(--text-base); margin-bottom: 0.35rem; color: var(--color-violet);">Flawless Victory</h4>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0.75rem;">
+                Conquer an entire arena challenge with zero mistakes to claim +500 Flawless Bonus points &amp; victory confetti.
+              </p>
+              <div style="font-size: 11px; font-weight: 700; color: var(--color-violet); font-family: var(--font-mono);">
+                100% Accuracy Mastery
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SECTION C: PROGRAMMING LANGUAGE SELECTION
+           ==================================================================== -->
+      <section id="language-tracks" class="section-anchor" style="margin-bottom: 4.5rem;">
+        <div class="page-title-row">
+          <div>
+            <span class="badge badge-cyan" style="margin-bottom: 0.5rem;">Curriculum Hub</span>
+            <h2>Select Programming Language</h2>
+            <p class="page-subtitle">Choose your active track. Selection is saved and updates the arena instantly.</p>
+          </div>
+          <span class="badge badge-amber">4 Tracks Available</span>
+        </div>
+
+        <div id="language-tracks-container" class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;" role="radiogroup" aria-label="Programming Language Selection">
+          
+          <!-- Python Track Card -->
+          <div class="card-selectable is-selected" data-lang="python" role="radio" aria-checked="true" tabindex="0" aria-label="Select Python Track">
+            <span class="selection-indicator" aria-hidden="true">✓</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(55, 118, 171, 0.2); border: 1px solid var(--lang-python); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #79C0FF;">
+                  PY
+                </div>
+                <div>
+                  <h3 style="margin-bottom: 0; font-size: var(--text-lg);">Python 3</h3>
+                  <span style="font-size: var(--text-xs); color: var(--text-muted);">Dynamic & Interpreted</span>
+                </div>
+              </div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                Closures, generator expressions, list comprehension mutations, late-binding quirks, and object reference models.
+              </p>
+            </div>
+            <div>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                <span class="badge badge-emerald" style="font-size: 11px;">Beginner</span>
+                <span class="badge badge-amber" style="font-size: 11px;">Intermediate</span>
+                <span class="badge badge-coral" style="font-size: 11px;">Expert</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <span>60 Curated Challenges</span>
+                <span style="color: var(--color-primary); font-weight: 700;">Selected Track</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- C Track Card -->
+          <div class="card-selectable" data-lang="c" role="radio" aria-checked="false" tabindex="0" aria-label="Select C Track">
+            <span class="selection-indicator" aria-hidden="true">✓</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(101, 154, 210, 0.2); border: 1px solid var(--lang-c-accent); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #A5D6FF;">
+                  C
+                </div>
+                <div>
+                  <h3 style="margin-bottom: 0; font-size: var(--text-lg);">C (C99/C11)</h3>
+                  <span style="font-size: var(--text-xs); color: var(--text-muted);">Systems & Memory</span>
+                </div>
+              </div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                Pointer arithmetic, struct padding, stack frame boundaries, integer promotions, and sequence point rules.
+              </p>
+            </div>
+            <div>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                <span class="badge badge-emerald" style="font-size: 11px;">Beginner</span>
+                <span class="badge badge-amber" style="font-size: 11px;">Intermediate</span>
+                <span class="badge badge-coral" style="font-size: 11px;">Expert</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <span>60 Curated Challenges</span>
+                <span style="color: var(--text-muted);">Click to Select</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- C++ Track Card -->
+          <div class="card-selectable" data-lang="cpp" role="radio" aria-checked="false" tabindex="0" aria-label="Select C++ Track">
+            <span class="selection-indicator" aria-hidden="true">✓</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(0, 89, 156, 0.2); border: 1px solid var(--lang-cpp); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #79C0FF;">
+                  C++
+                </div>
+                <div>
+                  <h3 style="margin-bottom: 0; font-size: var(--text-lg);">C++ (C++20)</h3>
+                  <span style="font-size: var(--text-xs); color: var(--text-muted);">Object & Memory Lifecycle</span>
+                </div>
+              </div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                Virtual function dispatch, RAII lifecycle, move semantics, template specialization, and object slicing pitfalls.
+              </p>
+            </div>
+            <div>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                <span class="badge badge-emerald" style="font-size: 11px;">Beginner</span>
+                <span class="badge badge-amber" style="font-size: 11px;">Intermediate</span>
+                <span class="badge badge-coral" style="font-size: 11px;">Expert</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <span>60 Curated Challenges</span>
+                <span style="color: var(--text-muted);">Click to Select</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Java Track Card -->
+          <div class="card-selectable" data-lang="java" role="radio" aria-checked="false" tabindex="0" aria-label="Select Java Track">
+            <span class="selection-indicator" aria-hidden="true">✓</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(234, 45, 46, 0.2); border: 1px solid var(--lang-java); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #FFA657;">
+                  JV
+                </div>
+                <div>
+                  <h3 style="margin-bottom: 0; font-size: var(--text-lg);">Java (SE 17)</h3>
+                  <span style="font-size: var(--text-xs); color: var(--text-muted);">JVM & Managed OOP</span>
+                </div>
+              </div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                String interning pool, pass-by-value reference traps, static initializer ordering, and generic type erasure.
+              </p>
+            </div>
+            <div>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                <span class="badge badge-emerald" style="font-size: 11px;">Beginner</span>
+                <span class="badge badge-amber" style="font-size: 11px;">Intermediate</span>
+                <span class="badge badge-coral" style="font-size: 11px;">Expert</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <span>60 Curated Challenges</span>
+                <span style="color: var(--text-muted);">Click to Select</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SECTION D: DIFFICULTY SELECTION
+           ==================================================================== -->
+      <section id="difficulty-selection" class="section-anchor" style="margin-bottom: 4.5rem;">
+        <div class="page-title-row">
+          <div>
+            <span class="badge badge-emerald" style="margin-bottom: 0.5rem;">Difficulty Tiers</span>
+            <h2>Select Difficulty Starting Point</h2>
+            <p class="page-subtitle">Configure your challenge tier. Can be changed anytime before or between arena runs.</p>
+          </div>
+          <span class="badge badge-neutral">3 Tier Progression</span>
+        </div>
+
+        <div id="difficulty-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;" role="radiogroup" aria-label="Difficulty Selection">
+          
+          <!-- Beginner Option -->
+          <div class="card-selectable is-selected" data-diff="beginner" role="radio" aria-checked="true" tabindex="0" aria-label="Select Beginner Difficulty">
+            <span class="selection-indicator" aria-hidden="true">✓</span>
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; padding-right: 2rem;">
+                <span class="badge badge-emerald">100 Base Points</span>
+                <span id="diff-badge-beginner" style="font-size: var(--text-xs); color: var(--text-muted);">Open Tier</span>
+              </div>
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Beginner: Foundations</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                Fundamentals and straightforward output prediction. Focuses on variable scoping, loop iterations, conditional branches, and basic arithmetic rules.
+              </p>
+            </div>
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; font-size: var(--text-xs); color: var(--text-muted); display: flex; justify-content: space-between;">
+              <span>Focus: Syntax &amp; Output</span>
+              <span id="diff-status-beginner" style="color: var(--color-success); font-weight: 700;">Active Selection</span>
+            </div>
+          </div>
+
+          <!-- Intermediate Option -->
+          <div class="card-selectable is-locked" data-diff="intermediate" role="radio" aria-checked="false" aria-disabled="true" tabindex="0" aria-label="Select Intermediate Difficulty">
+            <span class="selection-indicator" aria-hidden="true">🔒</span>
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; padding-right: 2rem;">
+                <span class="badge badge-amber">200 Base Points</span>
+                <span id="diff-badge-intermediate" style="font-size: var(--text-xs); color: var(--text-muted);">🔒 Gate: Beginner or 1,000 Pts</span>
+              </div>
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Intermediate: Logic &amp; State</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                Logic, functions, data structures, and practical code analysis. Tests mutability, pointer arithmetic, closures, stack frames, and collection mutations.
+              </p>
+            </div>
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; font-size: var(--text-xs); color: var(--text-muted); display: flex; justify-content: space-between;">
+              <span>Focus: Memory &amp; Structures</span>
+              <span id="diff-status-intermediate" style="color: var(--text-muted);">Locked</span>
+            </div>
+          </div>
+
+          <!-- Expert Option -->
+          <div class="card-selectable is-locked" data-diff="expert" role="radio" aria-checked="false" aria-disabled="true" tabindex="0" aria-label="Select Expert Difficulty">
+            <span class="selection-indicator" aria-hidden="true">🔒</span>
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; padding-right: 2rem;">
+                <span class="badge badge-coral">300 Base Points</span>
+                <span id="diff-badge-expert" style="font-size: var(--text-xs); color: var(--text-muted);">🔒 Gate: Intermediate or 2,500 Pts</span>
+              </div>
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Expert: Reasoning &amp; Edge Cases</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                Code tracing, debugging, edge cases, and advanced reasoning. Examines undefined behavior, struct padding, virtual dispatch, and late-binding traps.
+              </p>
+            </div>
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; font-size: var(--text-xs); color: var(--text-muted); display: flex; justify-content: space-between;">
+              <span>Focus: Tracing &amp; Deep Nuance</span>
+              <span id="diff-status-expert" style="color: var(--text-muted);">Locked</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SECTION E: PROGRESSION PREVIEW
+           ==================================================================== -->
+      <section id="progression" class="section-anchor" style="margin-bottom: 4.5rem;">
+        <div class="page-title-row">
+          <div>
+            <span class="badge badge-violet" style="margin-bottom: 0.5rem;">Progression Showcase</span>
+            <h2>Studio Progression & Stage Map</h2>
+            <p class="page-subtitle">Advance through structured difficulty tiers, earn cumulative XP, and unlock rank certifications.</p>
+          </div>
+          <span class="badge badge-cyan">Illustrative Preview</span>
+        </div>
+
+        <!-- 3-Tier Roadmap Preview -->
+        <div class="roadmap-container">
+          
+          <!-- Tier 1: Beginner -->
+          <div class="roadmap-card tier-active">
+            <span class="badge badge-emerald roadmap-badge-watermark">Tier 1: Open</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <span style="font-family: var(--font-display); font-weight: 900; font-size: var(--text-xl); color: var(--color-success);">01</span>
+                <h3 style="margin-bottom: 0; font-size: var(--text-lg);">Beginner Tier</h3>
+              </div>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                20 Foundation challenges. Open immediately upon player setup. Complete checkpoints 01–10 and 11–20 to establish core fluency.
+              </p>
+              <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); margin-bottom: 0.35rem;">
+                  <span>Unlock Requirement:</span>
+                  <span style="color: var(--color-success); font-weight: 700;">Unlocked</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); color: var(--text-muted);">
+                  <span>Checkpoint Length:</span>
+                  <span>2 × 10 Questions</span>
+                </div>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+              Status: Available in Active Arena
+            </div>
+          </div>
+
+          <!-- Tier 2: Intermediate -->
+          <div class="roadmap-card">
+            <span class="badge badge-amber roadmap-badge-watermark">Tier 2: Gate</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <span style="font-family: var(--font-display); font-weight: 900; font-size: var(--text-xl); color: var(--color-warning);">02</span>
+                <h3 style="margin-bottom: 0; font-size: var(--text-lg);">Intermediate Tier</h3>
+              </div>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                20 Systems challenges. Requires achieving at least 14/20 (70%) on Beginner Tier in that language track.
+              </p>
+              <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); margin-bottom: 0.35rem;">
+                  <span>Unlock Requirement:</span>
+                  <span style="color: var(--color-warning); font-weight: 700;">14/20 Stars (70%)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); color: var(--text-muted);">
+                  <span>Checkpoint Length:</span>
+                  <span>2 × 10 Questions</span>
+                </div>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+              Status: Illustrative Progression Gate
+            </div>
+          </div>
+
+          <!-- Tier 3: Expert -->
+          <div class="roadmap-card tier-locked">
+            <span class="badge badge-coral roadmap-badge-watermark">Tier 3: Mastery</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <span style="font-family: var(--font-display); font-weight: 900; font-size: var(--text-xl); color: var(--color-danger);">03</span>
+                <h3 style="margin-bottom: 0; font-size: var(--text-lg);">Expert Tier</h3>
+              </div>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                20 Master challenges. Requires earning at least 15/20 (75%) on Intermediate Tier. Conquering unlocks Grandmaster honors.
+              </p>
+              <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); margin-bottom: 0.35rem;">
+                  <span>Unlock Requirement:</span>
+                  <span style="color: var(--color-danger); font-weight: 700;">15/20 Stars (75%)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); color: var(--text-muted);">
+                  <span>Reward:</span>
+                  <span>Grandmaster Trophy</span>
+                </div>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+              Status: Illustrative Progression Gate
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Rank & Badge Illustrative Previews -->
+        <div class="card card-raised" style="margin-top: 1.5rem; padding: var(--space-5);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <h4 style="margin-bottom: 0.25rem;">Illustrative Rank Ladder & Badges</h4>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: 0;">
+                All progression stats are neutral until earned in live arena play.
+              </p>
+            </div>
+            <span class="badge badge-neutral">0 Fabricated Stats</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="background-color: var(--bg-surface-base); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Rank 1</div>
+              <div style="font-family: var(--font-display); font-weight: 800; color: var(--text-primary);">Script Novice</div>
+              <div style="font-size: 11px; color: var(--color-primary);">0–1,499 XP</div>
+            </div>
+            <div style="background-color: var(--bg-surface-base); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Rank 2</div>
+              <div style="font-family: var(--font-display); font-weight: 800; color: var(--text-primary);">Syntax Practitioner</div>
+              <div style="font-size: 11px; color: var(--color-primary);">1,500–3,999 XP</div>
+            </div>
+            <div style="background-color: var(--bg-surface-base); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Rank 3</div>
+              <div style="font-family: var(--font-display); font-weight: 800; color: var(--text-primary);">Logic Architect</div>
+              <div style="font-size: 11px; color: var(--color-primary);">4,000–9,999 XP</div>
+            </div>
+            <div style="background-color: var(--bg-surface-base); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Rank 4</div>
+              <div style="font-family: var(--font-display); font-weight: 800; color: var(--text-primary);">Language Grandmaster</div>
+              <div style="font-size: 11px; color: var(--color-primary);">10,000+ XP</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SECTION F: CHALLENGE SHOWCASE
+           ==================================================================== -->
+      <section id="challenges" class="section-anchor" style="margin-bottom: 4.5rem;">
+        <div class="page-title-row">
+          <div>
+            <span class="badge badge-coral" style="margin-bottom: 0.5rem;">Question Archetypes</span>
+            <h2>Challenge Showcase</h2>
+            <p class="page-subtitle">Demonstrating the five cognitive activity formats featured throughout the curriculum.</p>
+          </div>
+          <span class="badge badge-neutral">Preview Only</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+          
+          <!-- Type 1: Predict Output -->
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="card-header" style="padding-bottom: 0.5rem;">
+                <span class="badge badge-violet">01 • Predict Output</span>
+                <span class="badge badge-emerald">Beginner+</span>
+              </div>
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Mental Execution Tracing</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+                Trace variables, loop counters, recursion, and object references line-by-line to deduce exact terminal output without a compiler.
+              </p>
+            </div>
+            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 1rem;">
+              🎯 Standard Output Prediction Engine
+            </div>
+          </article>
+
+          <!-- Type 2: Find the Bug -->
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="card-header" style="padding-bottom: 0.5rem;">
+                <span class="badge badge-coral">02 • Find the Bug</span>
+                <span class="badge badge-amber">Intermediate+</span>
+              </div>
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Interactive Debugger</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+                Inspect realistic code blocks and isolate the exact line responsible for off-by-one errors, memory leaks, or null dereferences.
+              </p>
+            </div>
+            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 1rem;">
+              🔍 Precise Defect Coordinate Pinpointing
+            </div>
+          </article>
+
+          <!-- Type 3: Complete the Code -->
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="card-header" style="padding-bottom: 0.5rem;">
+                <span class="badge badge-cyan">03 • Complete the Code</span>
+                <span class="badge badge-emerald">Beginner+</span>
+              </div>
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Token Slotting & Syntax Fill</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+                Fill missing operators, keywords, or method calls in incomplete code skeletons to satisfy the target execution contract.
+              </p>
+            </div>
+            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 1rem;">
+              🧩 Token Slotting & Contract Assembly
+            </div>
+          </article>
+
+          <!-- Type 4: Explain the Logic -->
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="card-header" style="padding-bottom: 0.5rem;">
+                <span class="badge badge-amber">04 • Explain the Logic</span>
+                <span class="badge badge-amber">Intermediate+</span>
+              </div>
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Conceptual Architectural Deep-Dive</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+                Analyze why a specific compiler rule, sequence point, or memory model optimization behaves the way it does.
+              </p>
+            </div>
+            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 1rem;">
+              📖 Language Standard & Memory Optimization
+            </div>
+          </article>
+
+          <!-- Type 5: Trace Execution -->
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="card-header" style="padding-bottom: 0.5rem;">
+                <span class="badge badge-violet">05 • Trace Execution</span>
+                <span class="badge badge-coral">Expert</span>
+              </div>
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Call Stack & State Flow</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+                Follow recursive function call stacks, struct member alignment, and heap pointers step-by-step through execution flow.
+              </p>
+            </div>
+            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 1rem;">
+              🧠 Deep Execution Stack & Memory Verification
+            </div>
+          </article>
+
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+          <button id="btn-challenges-start" class="btn-arcade btn-primary btn-md">
+            Launch Arena with Selected Track →
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SECTION G: HOW TO PLAY
+           ==================================================================== -->
+      <section id="how-to-play" class="section-anchor" style="margin-bottom: 4.5rem;">
+        <div class="page-title-row">
+          <div>
+            <span class="badge badge-cyan" style="margin-bottom: 0.5rem;">Gameplay Rules</span>
+            <h2>How to Play SyntaxArena</h2>
+            <p class="page-subtitle">A quick four-step overview of scoring, multipliers, hints, and retries.</p>
+          </div>
+          <span class="badge badge-emerald">Verified Rules</span>
+        </div>
+
+        <!-- 4 Steps Explanation -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 1.5rem; margin-bottom: 2rem;">
+          
+          <div class="card" style="padding: var(--space-4);">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <span class="badge badge-cyan" style="font-size: 12px; font-weight: 900;">STEP 1</span>
+              <h4 style="margin-bottom: 0; font-size: var(--text-base);">Choose Language</h4>
+            </div>
+            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0;">
+              Pick between Python 3, C, C++, or Java. You can switch tracks anytime without losing progress in other tracks.
+            </p>
+          </div>
+
+          <div class="card" style="padding: var(--space-4);">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <span class="badge badge-cyan" style="font-size: 12px; font-weight: 900;">STEP 2</span>
+              <h4 style="margin-bottom: 0; font-size: var(--text-base);">Select Difficulty</h4>
+            </div>
+            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0;">
+              Start with Beginner foundations, or test your skills on Intermediate state logic and Expert edge cases.
+            </p>
+          </div>
+
+          <div class="card" style="padding: var(--space-4);">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <span class="badge badge-cyan" style="font-size: 12px; font-weight: 900;">STEP 3</span>
+              <h4 style="margin-bottom: 0; font-size: var(--text-base);">Solve Challenges</h4>
+            </div>
+            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0;">
+              Answer output predictions, pinpoint bugs, and complete missing code. Keyboard shortcuts (1–4, A–D) supported.
+            </p>
+          </div>
+
+          <div class="card" style="padding: var(--space-4);">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <span class="badge badge-cyan" style="font-size: 12px; font-weight: 900;">STEP 4</span>
+              <h4 style="margin-bottom: 0; font-size: var(--text-base);">Review & Progress</h4>
+            </div>
+            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0;">
+              Read detailed technical explanations after each question to build deep conceptual understanding and earn XP.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Scoring, Hints, Streaks and Retries Mechanics Grid -->
+        <div class="card card-raised" style="padding: var(--space-5);">
+          <h4 style="margin-bottom: 1rem;">Core Game Mechanics & Scoring Engine</h4>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
+            
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-primary); font-weight: 700; margin-bottom: 0.25rem;">
+                <svg width="18" height="18" aria-hidden="true"><use href="#icon-trophy"></use></svg>
+                <span>Base Scoring</span>
+              </div>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0;">
+                Points scale by cognitive complexity: <strong>100 pts</strong> (Beginner), <strong>200 pts</strong> (Intermediate), and <strong>300 pts</strong> (Expert).
+              </p>
+            </div>
+
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-warning); font-weight: 700; margin-bottom: 0.25rem;">
+                <svg width="18" height="18" aria-hidden="true"><use href="#icon-flame"></use></svg>
+                <span>Streak Multipliers</span>
+              </div>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0;">
+                Consecutive correct deductions add <strong>+0.25x</strong> up to a maximum <strong>3.0x multiplier</strong> (8-streak). Incorrect answers reset the streak to 1.0x.
+              </p>
+            </div>
+
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-violet); font-weight: 700; margin-bottom: 0.25rem;">
+                <svg width="18" height="18" aria-hidden="true"><use href="#icon-bulb"></use></svg>
+                <span>Pedagogical Hints</span>
+              </div>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0;">
+                Hints provide targeted architectural clues with a fixed deduction (-25 pts Beginner, -60 pts Intermediate, -100 pts Expert).
+              </p>
+            </div>
+
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-success); font-weight: 700; margin-bottom: 0.25rem;">
+                <svg width="18" height="18" aria-hidden="true"><use href="#icon-shield"></use></svg>
+                <span>Second Chance Retries</span>
+              </div>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0;">
+                If a hint was activated prior to answering, an incorrect submission grants <strong>one Second Chance retry</strong> awarding 50% base points while freezing streak.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SECTION H: DAILY CHALLENGE PREVIEW
+           ==================================================================== -->
+      <section id="daily-preview" class="section-anchor" style="margin-bottom: 4.5rem;">
+        <div class="card card-raised" style="padding: var(--space-6); background: linear-gradient(135deg, var(--bg-surface-raised) 0%, rgba(139, 92, 246, 0.08) 100%);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span class="brand-badge" style="background-color: rgba(139, 92, 246, 0.15); border-color: var(--color-violet-edge); color: var(--color-violet);">
+                <svg width="20" height="20" aria-hidden="true"><use href="#icon-zap"></use></svg>
+              </span>
+              <div>
+                <h3 style="margin-bottom: 0.25rem;">Daily Studio Challenge</h3>
+                <span style="font-size: var(--text-xs); color: var(--text-muted);">Synchronized 10-Question Daily Puzzle</span>
+              </div>
+            </div>
+            <span class="badge badge-amber">Upcoming Feature Preview — Coming in Batch 5</span>
+          </div>
+
+          <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; max-width: 720px; margin-bottom: 1.5rem;">
+            Every calendar day at 00:00 UTC, a fresh 10-question challenge sequence is deterministically generated using an offline 32-bit Mulberry32 PRNG.
+            All players globally receive the identical puzzle sequence for community comparison, with zero remote server dependency.
+          </p>
+
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button id="btn-daily-cta" class="btn-arcade btn-primary btn-sm">
+              Configure Profile & Enter Arena →
+            </button>
+            <a href="progress.html" class="btn-arcade btn-neutral btn-sm">
+              View Trophy & Badge Room
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ====================================================================
+       SECTION I: APPLICATION FOOTER
+       ==================================================================== -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+        <span class="brand-title" style="font-size: var(--text-base);">SyntaxArena</span>
+        <span>•</span>
+        <span>Pure Static Vanilla Architecture</span>
+        <span>•</span>
+        <span>© <span id="copyright-year">2026</span> SyntaxArena</span>
+      </div>
+
+      <nav class="footer-nav" aria-label="Footer Links">
+        <a href="index.html">Home</a>
+        <a href="#challenges" data-scroll-to="#challenges">Challenges</a>
+        <a href="#how-to-play" data-scroll-to="#how-to-play">How to Play</a>
+        <a href="progress.html">Progression</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ====================================================================
+       FIRST-TIME PLAYER ONBOARDING MODAL (BATCH 3)
+       ==================================================================== -->
+  <div class="modal-backdrop" id="modal-onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-modal-title" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 580px;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div>
+          <span class="badge badge-cyan" style="margin-bottom: 0.25rem;">First-Time Setup</span>
+          <h2 id="onboarding-modal-title" style="margin-bottom: 0; font-size: var(--text-lg);">Welcome to SyntaxArena</h2>
+        </div>
+        <button type="button" class="btn-icon-toggle" data-onboarding-cancel aria-label="Close onboarding modal" title="Close">
+          <svg width="18" height="18" aria-hidden="true"><use href="#icon-x"></use></svg>
+        </button>
+      </div>
+
+      <!-- Modal Body (Wizard) -->
+      <div class="modal-body">
+        
+        <!-- Wizard Step Progress Indicator -->
+        <div class="wizard-progress" aria-label="Onboarding Steps">
+          <div class="wizard-step-node is-active" id="wizard-node-1">
+            <div class="wizard-step-circle">1</div>
+            <span class="wizard-step-label">Profile</span>
+          </div>
+          <div class="wizard-step-node" id="wizard-node-2">
+            <div class="wizard-step-circle">2</div>
+            <span class="wizard-step-label">Language</span>
+          </div>
+          <div class="wizard-step-node" id="wizard-node-3">
+            <div class="wizard-step-circle">3</div>
+            <span class="wizard-step-label">Difficulty</span>
+          </div>
+          <div class="wizard-step-node" id="wizard-node-4">
+            <div class="wizard-step-circle">4</div>
+            <span class="wizard-step-label">Confirm</span>
+          </div>
+        </div>
+
+        <!-- Step 1: Identity & Avatar -->
+        <div class="wizard-pane is-active" id="wizard-pane-1">
+          <div class="form-group">
+            <label for="onboarding-username" class="form-label">
+              Player Call-Sign / Username <span style="color: var(--color-danger);">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="onboarding-username" 
+              class="form-input" 
+              placeholder="e.g. HexCoder_99" 
+              maxlength="20" 
+              autocomplete="off" 
+              spellcheck="false"
+              aria-describedby="onboarding-username-feedback"
+            >
+            <span id="onboarding-username-feedback" class="form-help" aria-live="polite">
+              2–20 characters. Letters, numbers, underscores, and hyphens only.
+            </span>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Select Your Studio Avatar</label>
+            <div id="onboarding-avatar-grid" class="avatar-grid" role="radiogroup" aria-label="Choose Player Avatar">
+              <!-- Rendered dynamically by Onboarding module -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Preferred Language -->
+        <div class="wizard-pane" id="wizard-pane-2">
+          <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Select Your Preferred Track</h3>
+          <p style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: 1rem;">
+            Choose your primary language track. You can explore other tracks anytime.
+          </p>
+
+          <div id="wizard-lang-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;" role="radiogroup" aria-label="Choose Preferred Language">
+            <div class="card-selectable is-selected" data-lang="python" role="radio" aria-checked="true" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">✓</span>
+              <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-base);">Python 3</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem;">Closures, generators, late-binding</div>
+            </div>
+
+            <div class="card-selectable" data-lang="c" role="radio" aria-checked="false" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">✓</span>
+              <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-base);">C (C99)</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem;">Pointers, memory, sequence points</div>
+            </div>
+
+            <div class="card-selectable" data-lang="cpp" role="radio" aria-checked="false" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">✓</span>
+              <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-base);">C++ (C++20)</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem;">Virtual dispatch, RAII, slicing</div>
+            </div>
+
+            <div class="card-selectable" data-lang="java" role="radio" aria-checked="false" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">✓</span>
+              <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-base);">Java 17</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem;">String pools, references, JVM</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Preferred Difficulty -->
+        <div class="wizard-pane" id="wizard-pane-3">
+          <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Select Preferred Difficulty</h3>
+          <p style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: 1rem;">
+            Choose where to begin your training in the challenge arena.
+          </p>
+
+          <div id="wizard-diff-grid" style="display: flex; flex-direction: column; gap: 0.75rem;" role="radiogroup" aria-label="Choose Preferred Difficulty">
+            <div class="card-selectable is-selected" data-diff="beginner" role="radio" aria-checked="true" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">✓</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                <span style="font-family: var(--font-display); font-weight: 800;">Beginner</span>
+                <span class="badge badge-emerald">100 Base Pts</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-secondary);">Fundamentals, loops, branching, and output prediction.</div>
+            </div>
+
+            <div class="card-selectable is-locked" data-diff="intermediate" role="radio" aria-checked="false" aria-disabled="true" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">🔒</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                <span style="font-family: var(--font-display); font-weight: 800;">Intermediate</span>
+                <span class="badge badge-amber">🔒 Gate: Beginner or 1,000 Pts</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-secondary);">Logic, functions, data structures, and practical code analysis.</div>
+            </div>
+
+            <div class="card-selectable is-locked" data-diff="expert" role="radio" aria-checked="false" aria-disabled="true" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">🔒</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                <span style="font-family: var(--font-display); font-weight: 800;">Expert</span>
+                <span class="badge badge-coral">🔒 Gate: Intermediate or 2,500 Pts</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-secondary);">Code tracing, debugging, edge cases, and advanced reasoning.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Confirmation Summary -->
+        <div class="wizard-pane" id="wizard-pane-4">
+          <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Review & Confirm Profile</h3>
+          <p style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: 1rem;">
+            Verify your call-sign and training configuration before saving.
+          </p>
+
+          <div style="background-color: var(--bg-surface-raised); border: 2px solid var(--border-strong); border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+              <div class="avatar-preview-lg" style="width: 58px; height: 58px;">
+                <img id="summary-avatar-img" src="assets/images/cyber_fox.svg" width="40" height="40" alt="Avatar">
+              </div>
+              <div>
+                <div id="summary-username" style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-lg);">ScriptAdept</div>
+                <div id="summary-avatar-name" style="font-size: var(--text-xs); color: var(--text-muted);">Cyber Fox</div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+              <div>
+                <span style="font-size: 11px; color: var(--text-muted); display: block;">Preferred Language</span>
+                <strong id="summary-language" style="color: var(--color-primary); font-size: var(--text-sm);">Python 3</strong>
+              </div>
+              <div>
+                <span style="font-size: 11px; color: var(--text-muted); display: block;">Starting Difficulty</span>
+                <strong id="summary-difficulty" style="color: var(--color-success); font-size: var(--text-sm);">Beginner</strong>
+              </div>
+            </div>
+          </div>
+
+          <div style="background-color: rgba(0, 229, 255, 0.06); border: 1px solid var(--color-primary-edge); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
+            🔒 <strong>100% Client-Side Privacy:</strong> Your profile and preferences are stored exclusively on this device using local browser storage. No external accounts, passwords, or emails required.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer (Step Controls) -->
+      <div class="modal-footer" style="justify-content: space-between;">
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button type="button" class="btn-arcade btn-neutral btn-sm" data-onboarding-cancel>
+            Cancel
+          </button>
+          <button type="button" id="btn-skip-to-game" class="btn-arcade btn-neutral btn-sm" title="Skip setup and jump straight into challenge arena">
+            Skip Setup &amp; Play →
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <!-- Step 1 Controls -->
+          <button type="button" id="btn-wizard-to-step2" class="btn-arcade btn-primary btn-sm wizard-step-btn" style="display: inline-flex;">
+            Next: Language →
+          </button>
+
+          <!-- Step 2 Controls (Managed dynamically) -->
+          <button type="button" id="btn-wizard-back-to-1" class="btn-arcade btn-neutral btn-sm" style="display: none;">
+            ← Back
+          </button>
+          <button type="button" id="btn-wizard-to-step3" class="btn-arcade btn-primary btn-sm" style="display: none;">
+            Next: Difficulty →
+          </button>
+
+          <!-- Step 3 Controls -->
+          <button type="button" id="btn-wizard-back-to-2" class="btn-arcade btn-neutral btn-sm" style="display: none;">
+            ← Back
+          </button>
+          <button type="button" id="btn-wizard-to-step4" class="btn-arcade btn-primary btn-sm" style="display: none;">
+            Review Summary →
+          </button>
+
+          <!-- Step 4 Controls -->
+          <button type="button" id="btn-wizard-back-to-3" class="btn-arcade btn-neutral btn-sm" style="display: none;">
+            ← Back
+          </button>
+          <button type="button" id="btn-wizard-edit-choices" class="btn-arcade btn-neutral btn-sm" style="display: none;">
+            Edit Choices
+          </button>
+          <button type="button" id="btn-wizard-confirm-save" class="btn-arcade btn-neutral btn-sm" style="display: none;">
+            Save & Close
+          </button>
+          <button type="button" id="btn-wizard-confirm-play" class="btn-arcade btn-primary btn-sm" style="display: none;">
+            Confirm & Play Now →
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Application Coordinator Script (zero-server file:/// & http compatible) -->
+  <script src="js/bundle.js"></script>
+</body>
+</html>
