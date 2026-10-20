@@ -90,8 +90,9 @@ export const Gameplay = {
    * Restores existing in-progress session if valid and matches requested track.
    */
   async init() {
-    console.info('[Gameplay] Initializing SyntaxArena gameplay interface...');
-    this.isCompleted = false;
+    try {
+      console.info('[Gameplay] Initializing SyntaxArena gameplay interface...');
+      this.isCompleted = false;
 
     // Listen for storage degradation warnings
     Storage.onDegradation(() => {
@@ -332,7 +333,26 @@ export const Gameplay = {
 
     console.info(`[Gameplay] Session initialized (${language} • ${difficulty} • ${questions.length} questions)`);
     return true;
-  },
+  } catch (err) {
+    console.error('[Gameplay] Critical error during gameplay initialization:', err);
+    const promptEl = Utils.qs('#q-prompt-text');
+    if (promptEl) {
+      promptEl.textContent = 'Unable to initialize gameplay challenge. Please return to the Hub or retry.';
+      promptEl.style.color = 'var(--color-danger)';
+    }
+    const ansContainer = Utils.qs('#answer-interface-container');
+    if (ansContainer) {
+      ansContainer.innerHTML = `
+        <div style="text-align: center; padding: 1.5rem 0;">
+          <button class="btn-arcade btn-primary btn-sm" onclick="window.location.reload()">Retry Loading</button>
+          <a href="index.html" class="btn-arcade btn-neutral btn-sm" style="margin-left: 0.5rem;">Return to Hub</a>
+        </div>
+      `;
+    }
+    UI.showToast('Gameplay initialization failed. Check console for details.', 'error');
+    return false;
+  }
+},
 
   /**
    * Render question data safely into the DOM.

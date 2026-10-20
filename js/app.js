@@ -78,11 +78,19 @@ export const App = {
 
       // 9. Page-specific controllers
       if (currentPage === 'index') {
-        const { LandingPage } = await import('./landing.js');
-        LandingPage.init();
+        const controller = (typeof window !== 'undefined' && window.LandingPage)
+          ? window.LandingPage
+          : (await import('./landing.js')).LandingPage;
+        if (controller && typeof controller.init === 'function') {
+          controller.init();
+        }
       } else if (currentPage === 'game') {
-        const { Gameplay } = await import('./gameplay.js');
-        Gameplay.init();
+        const controller = (typeof window !== 'undefined' && window.Gameplay)
+          ? window.Gameplay
+          : (await import('./gameplay.js')).Gameplay;
+        if (controller && typeof controller.init === 'function') {
+          await controller.init();
+        }
       }
 
       // 10. Mask URL with UUID replacing .html filename in address bar

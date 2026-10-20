@@ -8,21 +8,93 @@ import { State } from './state.js';
 
 export const Router = {
   /**
-   * Determine the current page identifier from the window URL.
+   * Determine the current page identifier from DOM landmarks, data-page, or the window URL.
+   * Fully robust across local file://, clean URLs, and Vercel server rewrites.
    * @returns {'index'|'game'|'results'|'progress'|'settings'}
    */
   getCurrentPage() {
-    const path = window.location.pathname.toLowerCase();
-    const hash = window.location.hash.toLowerCase();
-    if (path.endsWith('game.html') || path.includes('/arena/') || hash.includes('/arena/')) return 'game';
-    if (path.endsWith('results.html') || path.includes('/results/') || hash.includes('/results/')) return 'results';
-    if (path.endsWith('progress.html') || path.includes('/progression/') || hash.includes('/progression/')) return 'progress';
-    if (path.endsWith('settings.html') || path.includes('/settings/') || hash.includes('/settings/')) return 'settings';
-    return 'index'; // Default to index.html
+    // 1. Authoritative check: data-page on body tag
+    if (typeof document !== 'undefined' && document.body) {
+      const bodyPage = document.body.getAttribute('data-page');
+      if (bodyPage && ['index', 'game', 'results', 'progress', 'settings'].includes(bodyPage)) {
+        return bodyPage;
+      }
+    }
+
+    // 2. Unambiguous DOM landmark checks
+    if (typeof document !== 'undefined') {
+      if (document.getElementById('answer-interface-container') ||
+          document.getElementById('code-terminal-container') ||
+          document.getElementById('q-prompt-text') ||
+          document.getElementById('gameplay-live-announcer')) {
+        return 'game';
+      }
+      if (document.getElementById('results-progress-ring') ||
+          document.getElementById('results-grade-display') ||
+          document.getElementById('question-review-list')) {
+        return 'results';
+      }
+      if (document.getElementById('trend-svg-container') ||
+          document.getElementById('language-performance-grid') ||
+          document.getElementById('badges-grid-container')) {
+        return 'progress';
+      }
+      if (document.getElementById('setting-theme-dark') ||
+          document.getElementById('btn-reset-account') ||
+          document.getElementById('setting-reduced-motion') ||
+          document.getElementById('setting-audio-sfx')) {
+        return 'settings';
+      }
+      if (document.getElementById('language-tracks-container') ||
+          document.getElementById('difficulty-cards-container') ||
+          document.getElementById('hero-preview-code')) {
+        return 'index';
+      }
+    }
+
+    // 3. Robust URL Pathname & Clean URL Check
+    if (typeof window !== 'undefined' && window.location) {
+      const path = (window.location.pathname || '').toLowerCase().replace(/\/+$/, '');
+      const segments = path.split('/').filter(Boolean);
+      const last = segments.length > 0 ? segments[segments.length - 1] : '';
+      const hash = (window.location.hash || '').toLowerCase();
+
+      if (last === 'game' || last === 'game.html' || last === 'arena' ||
+          path.endsWith('game.html') || path.endsWith('/game') || path.includes('/arena') ||
+          hash.includes('/arena')) {
+        return 'game';
+      }
+
+      if (last === 'results' || last === 'results.html' ||
+          path.endsWith('results.html') || path.endsWith('/results') || path.includes('/results') ||
+          hash.includes('/results')) {
+        return 'results';
+      }
+
+      if (last === 'progress' || last === 'progress.html' || last === 'progression' ||
+          path.endsWith('progress.html') || path.endsWith('/progress') || path.includes('/progression') ||
+          hash.includes('/progression') || hash.includes('/progress')) {
+        return 'progress';
+      }
+
+      if (last === 'settings' || last === 'settings.html' ||
+          path.endsWith('settings.html') || path.endsWith('/settings') || path.includes('/settings') ||
+          hash.includes('/settings')) {
+        return 'settings';
+      }
+
+      if (last === 'index' || last === 'index.html' || last === 'hub' ||
+          path === '' || path === '/' || hash.includes('/hub')) {
+        return 'index';
+      }
+    }
+
+    return 'index'; // Default fallback
   },
 
   /**
    * Mask the browser address bar with a UUID session path instead of raw HTML file names.
+   * Preserves query parameters from window.location.search or existing hash.
    * @param {string} pageType ('index'|'game'|'results'|'progress'|'settings')
    */
   maskUrlWithUUID(pageType) {
@@ -41,7 +113,13 @@ export const Router = {
       };
 
       const segment = routeSegments[pageType] || 'arena';
-      const search = window.location.search || '';
+
+      // Preserve search query params from window.location.search OR from existing hash
+      let search = window.location.search || '';
+      if (!search && window.location.hash && window.location.hash.includes('?')) {
+        search = '?' + window.location.hash.split('?')[1];
+      }
+
       const maskedUrl = `#/${segment}/${uuid}${search}`;
 
       window.history.replaceState({ page: pageType, uuid }, '', maskedUrl);
@@ -49,24 +127,35 @@ export const Router = {
   },
 
   /**
-   * Extract search query parameters from current URL.
+   * Extract search query parameters from current URL (supports search and hash).
    * @returns {Record<string, string>}
    */
   getQueryParams() {
-    const params = new URLSearchParams(window.location.search);
     const result = {};
-    for (const [key, value] of params.entries()) {
-      result[key] = value;
+    if (typeof window === 'undefined') return result;
+
+    // 1. Standard URL search parameters
+    if (window.location.search) {
+      const params = new URLSearchParams(window.location.search);
+      for (const [key, value] of params.entries()) {
+        result[key.toLowerCase()] = value;
+      }
     }
+
+    // 2. Query parameters embedded inside the hash
     if (window.location.hash && window.location.hash.includes('?')) {
       const hashSearch = window.location.hash.split('?')[1];
-      const hashParams = new URLSearchParams(hashSearch);
-      for (const [key, value] of hashParams.entries()) {
-        if (!result[key]) {
-          result[key] = value;
+      if (hashSearch) {
+        const hashParams = new URLSearchParams(hashSearch);
+        for (const [key, value] of hashParams.entries()) {
+          const lowerKey = key.toLowerCase();
+          if (!result[lowerKey]) {
+            result[lowerKey] = value;
+          }
         }
       }
     }
+
     return result;
   },
 
