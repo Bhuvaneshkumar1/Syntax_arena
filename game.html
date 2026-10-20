@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SyntaxArena — Active Challenge Arena. Trace code execution and solve programming challenges.">
+  <title>SyntaxArena — Active Challenge Arena</title>
+  
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Accessible Screen Reader Live Announcer -->
+  <div id="gameplay-live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Embedded SVG Icons -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>
+    </symbol>
+    <symbol id="icon-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="6" x2="10" y1="11" y2="11"></line><line x1="8" x2="8" y1="9" y2="13"></line>
+      <line x1="15" x2="15.01" y1="12" y2="12"></line><line x1="18" x2="18.01" y1="10" y2="10"></line>
+      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
+    </symbol>
+    <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+      <path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+    </symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </symbol>
+    <symbol id="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </symbol>
+    <symbol id="icon-volume-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>
+    </symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+    </symbol>
+    <symbol id="icon-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+    </symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+    </symbol>
+    <symbol id="icon-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path>
+      <path d="M9 18h6"></path><path d="M10 22h4"></path>
+    </symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+    </symbol>
+  </svg>
+
+  <!-- Header Shell -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-link" aria-label="SyntaxArena Home">
+        <span class="brand-badge" aria-hidden="true" style="padding: 2px;">
+          <img src="assets/images/logo.svg" width="24" height="24" alt="SyntaxArena Logo">
+        </span>
+        <span class="brand-title">SyntaxArena</span>
+      </a>
+
+      <nav class="app-nav" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Hub</span>
+        </a>
+        <a href="game.html" class="nav-link" aria-current="page">
+          <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
+          <span>Arena</span>
+        </a>
+        <a href="results.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-trophy"></use></svg>
+          <span>Results</span>
+        </a>
+        <a href="progress.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-chart"></use></svg>
+          <span>Progress</span>
+        </a>
+        <a href="settings.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-settings"></use></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="btn-theme-toggle" class="btn-icon-toggle" aria-label="Toggle color theme" title="Toggle color theme">
+          <svg width="20" height="20"><use href="#icon-sun"></use></svg>
+        </button>
+        <button id="btn-sound-toggle" class="btn-icon-toggle" aria-label="Toggle sound effects" title="Toggle sound effects">
+          <svg width="20" height="20"><use href="#icon-volume"></use></svg>
+        </button>
+        <a href="settings.html" class="profile-pill" aria-label="User profile settings">
+          <span class="profile-avatar-mini" aria-hidden="true">🦊</span>
+          <span class="profile-name">ScriptAdept</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Game Arena Shell -->
+  <main id="main-content" class="app-main">
+    <div class="page-container" style="max-width: 1050px;">
+
+
+      <!-- Arcade HUD -->
+      <section class="card card-raised" style="padding: var(--space-4); margin-bottom: var(--space-5);" aria-label="Challenge session HUD">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span class="tag-lang tag-python" id="hud-lang-tag">Python 3</span>
+            <span class="badge badge-cyan" id="hud-step-counter">Question 1 of 20</span>
+          </div>
+
+          <!-- Streaks & Multiplier -->
+          <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.35rem; color: var(--color-warning);">
+              <svg width="20" height="20" fill="currentColor"><use href="#icon-flame"></use></svg>
+              <span id="hud-streak-text" style="font-family: var(--font-display); font-weight: 800;">x1.00 Streak (0🔥)</span>
+            </div>
+          </div>
+
+          <!-- Hardcore Lives Container (Visible only in Hardcore Mode) -->
+          <div id="hud-lives-container" style="display: none; align-items: center; gap: 0.35rem; color: var(--color-danger);" aria-label="Hardcore Lives">
+            <span id="hud-hearts-display" style="display: flex; gap: 0.25rem;"></span>
+            <span id="hud-lives-text" style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-sm); margin-left: 0.25rem;">3/3</span>
+          </div>
+
+          <!-- Score & Timer -->
+          <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.4rem; color: var(--color-primary);">
+              <svg width="18" height="18"><use href="#icon-clock"></use></svg>
+              <span id="hud-timer-display" style="font-family: var(--font-mono); font-weight: 700; font-size: var(--text-lg);" aria-label="Time remaining">00:45</span>
+            </div>
+            <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-lg);">
+              Score: <span id="hud-score-display" style="color: var(--color-primary);">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessible Session Progress Bar -->
+        <div id="hud-progress-container" class="progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Session challenge progression">
+          <div id="hud-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+        </div>
+      </section>
+
+      <!-- Active Question Arena Workspace -->
+      <section class="card" id="arena-card" style="margin-bottom: var(--space-6);" aria-labelledby="q-topic-title">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-violet" id="q-format-badge">Predict Output</span>
+            <h1 class="card-title" id="q-topic-title" style="margin-top: 0.25rem; font-size: var(--text-xl);">Execution Tracing</h1>
+          </div>
+          <span class="badge badge-emerald" id="q-diff-badge">BEGINNER</span>
+        </div>
+
+        <div class="card-body">
+          <p id="q-prompt-text" style="font-size: var(--text-base); margin-bottom: 1.25rem; color: var(--text-primary); font-weight: 500; line-height: 1.5;">
+            Loading challenge prompt...
+          </p>
+
+          <!-- Interactive Code Terminal -->
+          <div id="code-terminal-container" class="code-terminal" style="display: none;">
+            <div class="code-terminal-header">
+              <span id="terminal-filename">solution.py</span>
+              <span id="terminal-version">Python 3.10+</span>
+            </div>
+            <pre class="code-terminal-pre" tabindex="0" aria-label="Code snippet"><code id="terminal-code-body"></code></pre>
+          </div>
+
+          <!-- Dynamic Answer Interface Container -->
+          <div id="answer-interface-container" style="min-height: 80px; margin-bottom: 1.25rem;">
+            <!-- Populated dynamically: Multiple Choice options, Bug line selector, or Fill-in code input -->
+          </div>
+
+          <!-- Pedagogical Hint Drawer -->
+          <div id="hint-drawer" class="hint-drawer" style="display: none;" role="region" aria-label="Pedagogical clue">
+            <div class="hint-drawer-header">
+              <svg width="18" height="18"><use href="#icon-bulb"></use></svg>
+              <span>Pedagogical Clue:</span>
+            </div>
+            <p id="hint-drawer-text" class="hint-drawer-body"></p>
+          </div>
+
+          <!-- Pedagogical Feedback & Explanation Panel -->
+          <div id="feedback-panel" class="feedback-panel" style="display: none;" role="region" aria-label="Answer evaluation feedback">
+            <div class="feedback-header">
+              <span id="feedback-badge" class="badge"></span>
+              <h2 id="feedback-title" class="feedback-title"></h2>
+            </div>
+            <p id="feedback-body" style="font-size: var(--text-sm); font-weight: 600; margin-bottom: 0.5rem;"></p>
+            <p id="feedback-explanation-text" class="feedback-explanation" style="display: none;"></p>
+          </div>
+
+          <!-- Action Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding-top: var(--space-4); border-top: 1px solid var(--border-subtle);">
+            <button id="btn-use-hint" class="btn-arcade btn-neutral btn-sm" type="button">
+              <svg width="16" height="16" style="margin-right: 0.35rem;"><use href="#icon-bulb"></use></svg>
+              Use Hint (-25 pts)
+            </button>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+              <button id="btn-exit-game" class="btn-arcade btn-neutral btn-sm" type="button">Abandon Run</button>
+              <button id="btn-submit-answer" class="btn-arcade btn-primary btn-sm" type="button" disabled>
+                Submit Answer
+              </button>
+              <button id="btn-retry-question" class="btn-arcade btn-warning btn-sm" type="button" style="display: none;">
+                ↺ Retry Question
+              </button>
+              <button id="btn-next-question" class="btn-arcade btn-success btn-sm" type="button" style="display: none;">
+                Next Question →
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Navigation & Practice Links -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <button id="btn-return-hub-bottom" class="btn-arcade btn-neutral btn-sm">← Return to Hub</button>
+        <div style="display: flex; gap: 0.5rem;">
+          <a href="progress.html" class="btn-arcade btn-neutral btn-sm">View Progression</a>
+          <a href="results.html" class="btn-arcade btn-neutral btn-sm">View Results</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Exit Run Confirmation Modal Dialog -->
+  <div id="modal-confirm-exit" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-exit-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-exit-title" class="modal-title" style="color: var(--color-danger);">Abandon Challenge?</h3>
+        <button class="btn-icon-toggle" id="btn-cancel-exit-x" aria-label="Close dialog">
+          <svg width="18" height="18"><use href="#icon-x"></use></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-4);">
+          An active challenge session is currently in progress. Exiting now will forfeit your current run, and uncommitted question answers will be lost.
+        </p>
+        <p style="font-weight: 700; color: var(--text-primary); margin-bottom: 0;">
+          Are you sure you want to abandon this session and return to the Hub?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel-exit" class="btn-arcade btn-neutral btn-sm" type="button">Resume Challenge</button>
+        <button id="btn-confirm-exit" class="btn-arcade btn-danger btn-sm" type="button">Forfeit &amp; Exit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hardcore Game Over Modal Dialog -->
+  <div id="modal-game-over" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-gameover-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-gameover-title" class="modal-title" style="color: var(--color-danger);">💀 RUN TERMINATED</h3>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-4);">
+          You ran out of hearts in Hardcore Mode! All progress, scores, and XP earned during this run have been committed to your permanent career profile.
+        </p>
+        <div class="card" style="padding: 1rem; margin-bottom: 1rem; background: var(--bg-surface-raised);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: var(--text-sm);">
+            <span>Questions Solved:</span>
+            <strong id="gameover-solved-count">0</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: var(--text-sm);">
+            <span>Final Score:</span>
+            <strong id="gameover-score-count" style="color: var(--color-primary);">0</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
+            <span>Best Streak:</span>
+            <strong id="gameover-streak-count" style="color: var(--color-warning);">0🔥</strong>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-gameover-results" class="btn-arcade btn-primary btn-sm" type="button">View Stage Results →</button>
+        <button id="btn-gameover-hub" class="btn-arcade btn-neutral btn-sm" type="button">Return to Hub</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Shell -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div>SyntaxArena • Multi-Language Challenge Arena</div>
+      <nav class="footer-nav" aria-label="Footer Links">
+        <a href="index.html">Hub</a>
+        <a href="game.html">Arena</a>
+        <a href="results.html">Results</a>
+        <a href="progress.html">Progression</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Application Script (zero-server file:/// & http compatible) -->
+  <script src="js/bundle.js"></script>
+</body>
+</html>

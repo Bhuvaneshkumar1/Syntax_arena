@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SyntaxArena — Stage Results & Learning Analytics. Detailed accuracy, topic mastery, and question review.">
+  <title>SyntaxArena — Stage Results & Learning Analytics</title>
+  
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Embedded SVG Icons -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>
+    </symbol>
+    <symbol id="icon-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="6" x2="10" y1="11" y2="11"></line><line x1="8" x2="8" y1="9" y2="13"></line>
+      <line x1="15" x2="15.01" y1="12" y2="12"></line><line x1="18" x2="18.01" y1="10" y2="10"></line>
+      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
+    </symbol>
+    <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+      <path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+    </symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </symbol>
+    <symbol id="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </symbol>
+    <symbol id="icon-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+    </symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+    </symbol>
+  </svg>
+
+  <header class="app-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-link" aria-label="SyntaxArena Home">
+        <span class="brand-badge" aria-hidden="true" style="padding: 2px;">
+          <img src="assets/images/logo.svg" width="24" height="24" alt="SyntaxArena Logo">
+        </span>
+        <span class="brand-title">SyntaxArena</span>
+      </a>
+
+      <nav class="app-nav" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Hub</span>
+        </a>
+        <a href="game.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
+          <span>Play</span>
+        </a>
+        <a href="results.html" class="nav-link" aria-current="page">
+          <svg class="nav-icon"><use href="#icon-trophy"></use></svg>
+          <span>Results</span>
+        </a>
+        <a href="progress.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-chart"></use></svg>
+          <span>Progress</span>
+        </a>
+        <a href="settings.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-settings"></use></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="btn-theme-toggle" class="btn-icon-toggle" aria-label="Toggle color theme" title="Toggle color theme">
+          <svg width="20" height="20"><use href="#icon-sun"></use></svg>
+        </button>
+        <button id="btn-sound-toggle" class="btn-icon-toggle" aria-label="Toggle sound effects" title="Toggle sound effects">
+          <svg width="20" height="20"><use href="#icon-volume"></use></svg>
+        </button>
+        <a href="settings.html" class="profile-pill" aria-label="User profile settings">
+          <span class="profile-avatar-mini" aria-hidden="true">🦊</span>
+          <span class="profile-name">ScriptAdept</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="app-main">
+    <div class="page-container" style="max-width: 960px;">
+      
+      <!-- Stage Result Hero Card -->
+      <section class="card card-raised" style="text-align: center; margin-bottom: 2rem; padding: 2.5rem 1.5rem;" aria-label="Session Performance Summary">
+        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+          <span class="badge badge-emerald" id="results-stage-badge">Stage Cleared</span>
+          <span class="badge badge-cyan" id="results-track-badge">Python 3</span>
+          <span class="badge badge-neutral" id="results-mode-badge">Campaign Mode</span>
+        </div>
+
+        <!-- Circular Visual Performance Ring (SVG) -->
+        <div style="position: relative; width: 150px; height: 150px; margin: 0 auto 1.25rem;">
+          <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+            <!-- Background track ring -->
+            <circle cx="50" cy="50" r="42" fill="none" stroke="var(--bg-surface-raised)" stroke-width="10" />
+            <!-- Animated progress ring -->
+            <circle id="results-svg-ring" cx="50" cy="50" r="42" fill="none" stroke="var(--color-primary)" stroke-width="10"
+                    stroke-dasharray="264" stroke-dashoffset="0" stroke-linecap="round"
+                    style="transition: stroke-dashoffset 1s ease-out, stroke 0.4s ease;" />
+          </svg>
+          <!-- Center Grade & Percentage Display -->
+          <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div id="results-grade-display" style="font-family: var(--font-display); font-size: 2.75rem; font-weight: 900; color: var(--color-primary); line-height: 1;">
+              --
+            </div>
+            <div id="results-ring-percent" style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-top: 2px;">
+              0%
+            </div>
+          </div>
+        </div>
+
+        <p id="results-grade-subtitle" style="font-size: var(--text-lg); color: var(--text-secondary); margin-top: 0.25rem; margin-bottom: 1.75rem;">
+          Session Performance Analytics
+        </p>
+
+        <!-- Stats Grid (8 Verified Metrics) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; max-width: 820px; margin: 0 auto 2rem;">
+          <div class="card" style="padding: 0.85rem; text-align: center;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Final Score</div>
+            <div id="res-score-val" style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; color: var(--color-primary); margin-top: 2px;">0</div>
+          </div>
+          <div class="card" style="padding: 0.85rem; text-align: center;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Accuracy</div>
+            <div id="res-acc-val" style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; color: var(--color-success); margin-top: 2px;">0%</div>
+          </div>
+          <div class="card" style="padding: 0.85rem; text-align: center;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Questions</div>
+            <div id="res-counts-val" style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; color: var(--color-cyan); margin-top: 2px;">0 / 0</div>
+          </div>
+          <div class="card" style="padding: 0.85rem; text-align: center;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">XP Earned</div>
+            <div id="res-xp-val" style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; color: var(--color-violet); margin-top: 2px;">+0 XP</div>
+          </div>
+          <div class="card" style="padding: 0.85rem; text-align: center;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Best Streak</div>
+            <div id="res-streak-val" style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; color: var(--color-warning); margin-top: 2px;">0🔥</div>
+          </div>
+          <div class="card" style="padding: 0.85rem; text-align: center;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Time Taken</div>
+            <div id="res-time-val" style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; color: var(--text-primary); margin-top: 2px;">00:00</div>
+          </div>
+          <div class="card" style="padding: 0.85rem; text-align: center;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Hints / Retries</div>
+            <div id="res-hints-val" style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; color: var(--text-secondary); margin-top: 2px;">0 / 0</div>
+          </div>
+          <div class="card" style="padding: 0.85rem; text-align: center;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Completed</div>
+            <div id="res-date-val" style="font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 6px;">--</div>
+          </div>
+        </div>
+
+        <!-- Action Workflow Bar -->
+        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+          <a id="btn-play-again" href="game.html" class="btn-arcade btn-primary btn-md">Play Track Again</a>
+          <button id="btn-retry-missed" class="btn-arcade btn-warning btn-md">
+            Retry Missed Questions
+          </button>
+          <button id="btn-open-review" class="btn-arcade btn-neutral btn-md" onclick="import('./js/ui.js').then(m => m.UI.openModal('modal-review-preview'))">
+            Review Missed Questions
+          </button>
+          <a href="progress.html" class="btn-arcade btn-neutral btn-md">View Career Progress →</a>
+          <a href="index.html" class="btn-arcade btn-outline btn-md">Return to Hub</a>
+        </div>
+      </section>
+
+      <!-- Rewards Celebration Banner (Level-Up & Badges) -->
+      <section id="results-rewards-banner" class="card card-raised" style="display: none; margin-bottom: 2rem; border-color: var(--color-warning); background: linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(245, 158, 11, 0.08) 100%);">
+        <div class="card-header">
+          <h3 class="card-title" id="rewards-banner-title" style="color: var(--color-warning);">🎉 LEVEL UP ACHIEVED!</h3>
+          <span class="badge badge-amber" id="rewards-banner-badge">Rank Promotion</span>
+        </div>
+        <div class="card-body">
+          <p id="rewards-banner-desc" style="font-size: var(--text-base); margin-bottom: 1rem; color: var(--text-primary); font-weight: 600;"></p>
+          <div id="rewards-badges-list" style="display: flex; gap: 0.75rem; flex-wrap: wrap;"></div>
+        </div>
+      </section>
+
+      <!-- Personalized Recommendations Section -->
+      <section class="card" style="margin-bottom: 2rem;" aria-label="Personalized Recommendations">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Personalized Recommendations</h3>
+            <p class="form-help" style="margin-bottom: 0;">Traceable, evidence-backed next steps based on your actual performance in this challenge.</p>
+          </div>
+          <span class="badge badge-emerald">Deterministic Rules</span>
+        </div>
+        <div class="card-body">
+          <div id="recommendations-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+            <!-- Dynamically populated recommendations -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Topic Mastery Breakdown Section -->
+      <section class="card" style="margin-bottom: 2rem;" aria-label="Topic Mastery Breakdown">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Topic Strengths &amp; Weaknesses</h3>
+            <p class="form-help" style="margin-bottom: 0;">Evaluated from verified question metadata. Strong (&ge;80%), Developing (50–79%), Needs Practice (&lt;50%).</p>
+          </div>
+          <span class="badge badge-cyan" id="results-topic-count-badge">0 Topics Analyzed</span>
+        </div>
+        <div class="card-body" id="topic-breakdown-body">
+          <!-- Dynamically populated topic progress bars -->
+        </div>
+      </section>
+
+      <!-- Detailed Question-by-Question Review (On-Page Accordion) -->
+      <section class="card" style="margin-bottom: 2rem;" aria-label="Question by Question Inspection">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Complete Question Review</h3>
+            <p class="form-help" style="margin-bottom: 0;">Inspect your submitted answer, correct stdout, and full pedagogical explanation for every question.</p>
+          </div>
+          <button id="btn-toggle-all-explanations" class="btn-arcade btn-neutral btn-sm">Expand All Explanations</button>
+        </div>
+        <div class="card-body" id="question-review-list" style="display: flex; flex-direction: column; gap: 1rem;">
+          <!-- Dynamically populated question cards -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Question Review Drawer Modal (Preserved for compatibility) -->
+  <div id="modal-review-preview" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="review-modal-title">
+    <div class="modal-dialog" style="max-width: 720px; max-height: 85vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 id="review-modal-title" class="card-title">Question Review Drawer</h3>
+        <button class="btn-arcade btn-neutral btn-sm" data-close-modal="modal-review-preview" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1rem;">
+          Quick inspection of all questions attempted in this challenge run:
+        </p>
+        <div id="modal-review-container" style="display: flex; flex-direction: column; gap: 1rem;">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-arcade btn-primary btn-sm" data-close-modal="modal-review-preview">Close Inspection</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div>SyntaxArena • Stage Results &amp; Learning Analytics</div>
+      <nav class="footer-nav" aria-label="Footer Links">
+        <a href="index.html">Hub</a>
+        <a href="game.html">Arena</a>
+        <a href="results.html">Results</a>
+        <a href="progress.html">Progression</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="js/bundle.js"></script>
+
+  <!-- Dynamic Results & Analytics Populator -->
+  <script>
+    (function() {
+      const { Utils, Router, State, Profile, QuestionRepository, Gamification, ACHIEVEMENTS, Analytics, AudioEngine, UI } = window;
+
+      document.addEventListener('DOMContentLoaded', () => {
+      const params = Router.getQueryParams();
+      const activeProf = State.get('activeProfile') || Profile.getActiveProfile();
+
+      let summary = null;
+      try {
+        const stored = sessionStorage.getItem('syntaxarena_last_session_summary');
+        if (stored) summary = JSON.parse(stored);
+      } catch (e) {}
+
+      let rewards = null;
+      try {
+        const storedRewards = sessionStorage.getItem('syntaxarena_last_session_rewards');
+        if (storedRewards) rewards = JSON.parse(storedRewards);
+      } catch (e) {}
+
+      // Fallback extraction from profile history if sessionStorage is unavailable or expired
+      if (!summary && activeProf && Array.isArray(activeProf.sessionHistory) && activeProf.sessionHistory.length > 0) {
+        if (params.sessionId) {
+          summary = activeProf.sessionHistory.find(s => s.sessionId === params.sessionId);
+        }
+        if (!summary && !params.score && !params.correct) {
+          summary = activeProf.sessionHistory[0];
+        }
+      }
+
+      // Fallback extraction
+      const lang = ((summary && summary.language) || params.lang || 'python').toLowerCase();
+      const diff = ((summary && summary.difficulty) || params.diff || 'beginner').toLowerCase();
+      const mode = ((summary && summary.mode) || params.mode || 'campaign').toLowerCase();
+      const score = (summary && typeof summary.totalScore === 'number') ? summary.totalScore : parseInt(params.score || '0', 10);
+      const correct = (summary && typeof summary.questionsCorrect === 'number') ? summary.questionsCorrect : parseInt(params.correct || '0', 10);
+      const total = (summary && typeof summary.totalQuestions === 'number')
+        ? summary.totalQuestions
+        : parseInt(params.total || '20', 10);
+      const attempted = (summary && typeof summary.questionsAttempted === 'number')
+        ? summary.questionsAttempted
+        : parseInt(params.attempted || params.total || '20', 10);
+      const incorrect = Math.max(0, attempted - correct);
+      const bestStreak = (summary && typeof summary.bestStreak === 'number') ? summary.bestStreak : (summary && summary.highestStreak) || 0;
+      const elapsedSec = (summary && typeof summary.elapsedSeconds === 'number') ? summary.elapsedSeconds : null;
+      const hintsUsed = (summary && typeof summary.hintsUsed === 'number') ? summary.hintsUsed : 0;
+      const retriesUsed = (summary && typeof summary.retriesUsed === 'number') ? summary.retriesUsed : 0;
+      const timestamp = (summary && summary.timestamp) ? summary.timestamp : Date.now();
+      const isGameOver = Boolean(summary && summary.isGameOver);
+
+      const langMeta = QuestionRepository.getLanguageMeta(lang);
+      const accuracy = Analytics.calculateAccuracy(correct, attempted);
+      const gradeData = Analytics.getGradeData(accuracy, isGameOver);
+
+      // 1. Hero Ring & Grade Updates
+      const gradeEl = Utils.qs('#results-grade-display');
+      if (gradeEl) {
+        gradeEl.textContent = `GRADE ${gradeData.grade}`;
+        gradeEl.style.color = gradeData.colorVar;
+      }
+
+      const ringPercent = Utils.qs('#results-ring-percent');
+      if (ringPercent) {
+        UI.animateValue(ringPercent, 0, accuracy, 500, (val) => `${Math.round(val)}%`);
+      }
+
+      const svgRing = Utils.qs('#results-svg-ring');
+      if (svgRing) {
+        // Circumference for r=42 is 2 * PI * 42 ~= 263.89
+        const circumference = 264;
+        const targetOffset = circumference - (accuracy / 100) * circumference;
+        if (UI.isMotionReduced()) {
+          svgRing.style.strokeDashoffset = targetOffset;
+        } else {
+          svgRing.style.strokeDashoffset = circumference;
+          requestAnimationFrame(() => {
+            svgRing.style.transition = 'stroke-dashoffset 0.65s cubic-bezier(0.16, 1, 0.3, 1)';
+            svgRing.style.strokeDashoffset = targetOffset;
+          });
+        }
+        svgRing.style.stroke = gradeData.colorVar;
+      }
+
+      const subEl = Utils.qs('#results-grade-subtitle');
+      if (subEl) subEl.textContent = gradeData.subtitle;
+
+      const stageBadge = Utils.qs('#results-stage-badge');
+      if (stageBadge) {
+        if (isGameOver) {
+          stageBadge.textContent = '💀 Hardcore Run Terminated';
+          stageBadge.className = 'badge badge-coral';
+        } else {
+          stageBadge.textContent = accuracy >= 80 ? 'Stage Cleared' : 'Stage Completed';
+          stageBadge.className = gradeData.badgeClass;
+        }
+      }
+
+      const trackBadge = Utils.qs('#results-track-badge');
+      if (trackBadge) {
+        trackBadge.textContent = `${langMeta.name} • ${diff.charAt(0).toUpperCase() + diff.slice(1)}`;
+        trackBadge.className = `tag-lang ${langMeta.tagClass}`;
+      }
+
+      const modeBadge = Utils.qs('#results-mode-badge');
+      if (modeBadge) {
+        modeBadge.textContent = mode === 'hardcore' ? 'Hardcore Mode' : mode === 'practice' ? 'Practice Mode' : mode === 'speedrun' ? 'Speedrun Mode' : 'Campaign Track';
+        modeBadge.className = mode === 'hardcore' ? 'badge badge-coral' : 'badge badge-neutral';
+      }
+
+      // 2. Metrics Grid
+      const scoreEl = Utils.qs('#res-score-val');
+      if (scoreEl) {
+        UI.animateValue(scoreEl, 0, score, 500, (val) => Math.round(val).toLocaleString());
+      }
+
+      const accEl = Utils.qs('#res-acc-val');
+      if (accEl) accEl.textContent = `${accuracy}%`;
+
+      const countsEl = Utils.qs('#res-counts-val');
+      if (countsEl) countsEl.textContent = `${correct} / ${attempted}`;
+
+      const streakEl = Utils.qs('#res-streak-val');
+      if (streakEl) streakEl.textContent = `${bestStreak}🔥`;
+
+      const timeEl = Utils.qs('#res-time-val');
+      if (timeEl) {
+        if (elapsedSec !== null && elapsedSec >= 0) {
+          const mins = Math.floor(elapsedSec / 60);
+          const secs = elapsedSec % 60;
+          timeEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        } else {
+          timeEl.textContent = 'Untimed';
+        }
+      }
+
+      const hintsEl = Utils.qs('#res-hints-val');
+      if (hintsEl) hintsEl.textContent = `${hintsUsed} / ${retriesUsed}`;
+
+      const dateEl = Utils.qs('#res-date-val');
+      if (dateEl) {
+        dateEl.textContent = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+
+      // Exact deterministic XP earned
+      const xpEarned = (rewards && typeof rewards.xpEarned === 'number')
+        ? rewards.xpEarned
+        : (summary ? Gamification.calculateSessionXP(summary) : Math.round(correct * 50));
+
+      const xpEl = Utils.qs('#res-xp-val');
+      if (xpEl) xpEl.textContent = `+${xpEarned} XP`;
+
+      // 3. Rewards Celebration Banner (Level-Up & New Badges)
+      const rewardsBanner = Utils.qs('#results-rewards-banner');
+      const rewardsTitle = Utils.qs('#rewards-banner-title');
+      const rewardsDesc = Utils.qs('#rewards-banner-desc');
+      const rewardsBadge = Utils.qs('#rewards-banner-badge');
+      const rewardsBadgesList = Utils.qs('#rewards-badges-list');
+
+      const hasLevelUp = rewards && rewards.levelUp;
+      const newBadges = (rewards && Array.isArray(rewards.newBadges)) ? rewards.newBadges : [];
+
+      if (hasLevelUp || newBadges.length > 0) {
+        if (rewardsBanner) {
+          rewardsBanner.style.display = 'block';
+          rewardsBanner.classList.add('animate-celebrate');
+        }
+
+        if (hasLevelUp) {
+          AudioEngine.playLevelUp();
+          if (rewardsTitle) rewardsTitle.textContent = `🎉 LEVEL UP: LEVEL ${rewards.newLevel}!`;
+          if (rewardsBadge) rewardsBadge.textContent = Gamification.getLevelTitle(rewards.newLevel);
+          if (rewardsDesc) {
+            rewardsDesc.textContent = `Outstanding work! You advanced to Level ${rewards.newLevel} (${Gamification.getLevelTitle(rewards.newLevel)}). New studio rewards have unlocked!`;
+          }
+        } else if (newBadges.length > 0) {
+          AudioEngine.playBadge();
+          if (rewardsTitle) rewardsTitle.textContent = `🏆 NEW BADGES UNLOCKED!`;
+          if (rewardsBadge) rewardsBadge.textContent = `${newBadges.length} Earned`;
+          if (rewardsDesc) {
+            rewardsDesc.textContent = `You achieved new arcade milestones in this challenge session!`;
+          }
+        }
+
+        if (rewardsBadgesList && newBadges.length > 0) {
+          rewardsBadgesList.innerHTML = '';
+          newBadges.forEach(bId => {
+            const bDef = ACHIEVEMENTS.find(b => b.id === bId);
+            if (bDef) {
+              const bCard = document.createElement('div');
+              bCard.className = 'badge badge-violet';
+              bCard.style.padding = '0.5rem 0.75rem';
+              bCard.style.fontSize = 'var(--text-xs)';
+              bCard.style.display = 'inline-flex';
+              bCard.style.alignItems = 'center';
+              bCard.style.gap = '0.4rem';
+              bCard.innerHTML = `<span style="font-size: 1.1rem;">${bDef.icon}</span> <strong>${bDef.name}</strong>`;
+              rewardsBadgesList.appendChild(bCard);
+            }
+          });
+        }
+      }
+
+      // Check Flawless Level Completion: ONLY if entire level completed with 100% accuracy, zero errors, and zero retries
+      const isFlawless = Boolean(
+        (summary && summary.isFlawless) ||
+        (attempted > 0 && attempted === total && correct === total && incorrect === 0 && retriesUsed === 0)
+      );
+
+      if (isFlawless) {
+        UI.triggerConfetti();
+        if (rewardsBanner && (!hasLevelUp && newBadges.length === 0)) {
+          rewardsBanner.style.display = 'block';
+          rewardsBanner.classList.add('animate-celebrate');
+          if (rewardsTitle) rewardsTitle.textContent = '🌟 FLAWLESS VICTORY (+500 BONUS POINTS)!';
+          if (rewardsBadge) rewardsBadge.textContent = '100% Accuracy';
+          if (rewardsDesc) {
+            rewardsDesc.textContent = 'Spectacular execution! You completed the challenge without a single mistake. +500 Flawless Bonus points awarded!';
+          }
+        }
+      } else if (!hasLevelUp && newBadges.length === 0 && rewardsBanner) {
+        rewardsBanner.style.display = 'none';
+      }
+
+      // 4. Action Buttons
+      const playAgainBtn = Utils.qs('#btn-play-again');
+      if (playAgainBtn) {
+        playAgainBtn.href = `game.html?lang=${lang}&diff=${diff}&mode=${mode}`;
+      }
+
+      // Retry Missed Questions workflow
+      const retryMissedBtn = Utils.qs('#btn-retry-missed');
+      const missedIds = (summary && Array.isArray(summary.missedQuestionIds)) ? summary.missedQuestionIds : [];
+
+      if (retryMissedBtn) {
+        if (missedIds.length > 0) {
+          retryMissedBtn.textContent = `Retry ${missedIds.length} Missed Question${missedIds.length > 1 ? 's' : ''}`;
+          retryMissedBtn.onclick = () => {
+            AudioEngine.playClick();
+            try {
+              sessionStorage.setItem('syntaxarena_retry_question_ids', JSON.stringify(missedIds));
+            } catch (e) {}
+            Router.navigateTo('game', { lang, diff, mode: 'retry_missed' });
+          };
+        } else {
+          retryMissedBtn.textContent = 'All Questions Correct!';
+          retryMissedBtn.setAttribute('disabled', 'true');
+          retryMissedBtn.className = 'btn-arcade btn-neutral btn-md';
+          retryMissedBtn.style.opacity = '0.5';
+          retryMissedBtn.style.cursor = 'not-allowed';
+        }
+      }
+
+      // 5. Topic Mastery Breakdown (Real Data)
+      const resultsList = (summary && Array.isArray(summary.results)) ? summary.results : [];
+      const topicStats = Analytics.groupResultsByTopic(resultsList);
+      const topicBody = Utils.qs('#topic-breakdown-body');
+      const topicCountBadge = Utils.qs('#results-topic-count-badge');
+
+      if (topicCountBadge) {
+        topicCountBadge.textContent = `${topicStats.length} Topic${topicStats.length === 1 ? '' : 's'} Analyzed`;
+      }
+
+      if (topicBody) {
+        if (topicStats.length === 0) {
+          topicBody.innerHTML = `
+            <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted);">
+              <p>No topic breakdown data recorded for this session.</p>
+              <a href="game.html?lang=${lang}&diff=${diff}" class="btn-arcade btn-primary btn-sm">Start Challenge Run</a>
+            </div>
+          `;
+        } else {
+          topicBody.innerHTML = '';
+          topicStats.forEach(t => {
+            const row = document.createElement('div');
+            row.style.marginBottom = '1.25rem';
+
+            let badgeHtml = '';
+            let barColor = 'var(--color-primary)';
+            if (t.classification === 'strong') {
+              badgeHtml = '<span class="badge badge-emerald">Strong (&ge;80%)</span>';
+              barColor = 'var(--color-success)';
+            } else if (t.classification === 'developing') {
+              badgeHtml = '<span class="badge badge-cyan">Developing (50–79%)</span>';
+              barColor = 'var(--color-primary)';
+            } else if (t.classification === 'needs_practice') {
+              badgeHtml = '<span class="badge badge-coral">Needs Practice (&lt;50%)</span>';
+              barColor = 'var(--color-danger)';
+            } else {
+              badgeHtml = '<span class="badge badge-neutral">Insufficient Data (&lt;2)</span>';
+              barColor = 'var(--text-muted)';
+            }
+
+            const safeTopicName = Utils.escapeHTML(t.topicName);
+            const safeTopicParam = encodeURIComponent(t.topic || '');
+            const safeLang = ['python', 'c', 'cpp', 'java'].includes(lang) ? lang : 'python';
+            const safeDiff = ['beginner', 'intermediate', 'expert'].includes(diff) ? diff : 'beginner';
+
+            row.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-sm); margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <strong style="color: var(--text-primary); font-size: var(--text-base);">${safeTopicName}</strong>
+                  <span style="font-size: var(--text-xs); color: var(--text-muted); margin-left: 0.5rem;">(${t.correct}/${t.attempted} correct)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  ${badgeHtml}
+                  <a href="game.html?lang=${safeLang}&diff=${safeDiff}&topic=${safeTopicParam}&mode=practice"
+                     class="btn-arcade btn-neutral btn-sm" style="padding: 0.25rem 0.5rem; font-size: 11px;">
+                    Practice Topic →
+                  </a>
+                </div>
+              </div>
+              <div style="height: 10px; background: var(--bg-surface-raised); border-radius: var(--radius-full); overflow: hidden; border: 1px solid var(--border-subtle);">
+                <div style="width: ${t.accuracy}%; height: 100%; background: ${barColor}; transition: width 0.6s ease-out;"></div>
+              </div>
+            `;
+            topicBody.appendChild(row);
+          });
+        }
+      }
+
+      // 6. Personalized Recommendations (Deterministic & Evidence-Backed)
+      const recs = Analytics.generateRecommendations(summary || { language: lang, difficulty: diff, accuracy, questionsAttempted: attempted, questionsCorrect: correct, results: resultsList }, activeProf);
+      const recsContainer = Utils.qs('#recommendations-container');
+      if (recsContainer) {
+        recsContainer.innerHTML = '';
+        recs.forEach(rec => {
+          const card = document.createElement('div');
+          card.className = 'card card-interactive';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.justifyContent = 'space-between';
+          card.style.padding = '1.25rem';
+          card.style.borderLeft = '4px solid var(--color-primary-edge)';
+
+          const safeTitle = Utils.escapeHTML(rec.title);
+          const safeReason = Utils.escapeHTML(rec.reason);
+          const safeActionLabel = Utils.escapeHTML(rec.actionLabel);
+          const safeActionUrl = Utils.escapeHTML(rec.actionUrl);
+
+          card.innerHTML = `
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <span class="badge ${rec.type === 'weak_topic' ? 'badge-coral' : rec.type === 'tier_advance' ? 'badge-emerald' : 'badge-cyan'}">
+                  ${rec.type === 'weak_topic' ? 'Focus Area' : rec.type === 'tier_advance' ? 'Tier Promotion' : 'Suggested Action'}
+                </span>
+              </div>
+              <h4 style="font-size: var(--text-base); margin-bottom: 0.5rem; color: var(--text-primary); font-family: var(--font-display);">${safeTitle}</h4>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 1.25rem;">${safeReason}</p>
+            </div>
+            <a href="${safeActionUrl}" class="btn-arcade btn-primary btn-sm" style="align-self: flex-start;">
+              ${safeActionLabel} →
+            </a>
+          `;
+          recsContainer.appendChild(card);
+        });
+      }
+
+      // 7. Detailed Question Review Accordion & Drawer Modal
+      const reviewList = Utils.qs('#question-review-list');
+      const modalReviewContainer = Utils.qs('#modal-review-container');
+
+      function buildQuestionReviewItem(res, idx) {
+        const isCorrect = Boolean(res.isCorrect || res.correct);
+        const item = document.createElement('div');
+        item.className = 'card';
+        item.style.padding = '1.25rem';
+        item.style.borderLeft = `4px solid ${isCorrect ? 'var(--color-success)' : 'var(--color-danger)'}`;
+
+        const statusBadge = isCorrect
+          ? '<span class="badge badge-emerald" style="display: inline-flex; align-items: center; gap: 4px;"><svg width="12" height="12"><use href="#icon-check"></use></svg> Correct</span>'
+          : '<span class="badge badge-coral" style="display: inline-flex; align-items: center; gap: 4px;"><svg width="12" height="12"><use href="#icon-x"></use></svg> Incorrect</span>';
+
+        const attemptsBadge = res.attempts > 1
+          ? `<span class="badge badge-amber">${res.attempts} Attempts (Retry)</span>`
+          : '<span class="badge badge-neutral">1 Attempt</span>';
+
+        const hintBadge = res.usedHint
+          ? '<span class="badge badge-violet">💡 Hint Activated</span>'
+          : '';
+
+        const codeSnippet = res.code ? `
+          <div style="background-color: var(--bg-surface-raised); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.75rem; margin: 0.75rem 0; overflow-x: auto;">
+            <pre style="margin: 0; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-primary); line-height: 1.5;"><code>${Utils.escapeHtml(res.code)}</code></pre>
+          </div>
+        ` : '';
+
+        const subText = res.submission !== undefined && res.submission !== null
+          ? Utils.escapeHtml(String(res.submission))
+          : '<em style="color: var(--text-muted);">(No submission)</em>';
+
+        const corrText = res.correctAnswer !== undefined && res.correctAnswer !== null
+          ? Utils.escapeHtml(String(res.correctAnswer))
+          : '—';
+
+        const explanationText = res.explanation
+          ? Utils.escapeHtml(res.explanation)
+          : 'Review the language standard and syntactic rules for this execution trace.';
+
+        const expId = `exp-item-${idx}`;
+
+        item.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <strong style="color: var(--text-primary); font-size: var(--text-base);">Question ${idx + 1}</strong>
+              ${statusBadge}
+              ${hintBadge}
+              ${attemptsBadge}
+            </div>
+            <span class="badge badge-cyan">${Analytics.formatTopicName(res.topic || 'General')}</span>
+          </div>
+
+          <p style="font-size: var(--text-sm); color: var(--text-primary); font-weight: 600; margin-bottom: 0.5rem;">
+            ${Utils.escapeHtml(res.prompt || 'Code Tracing Evaluation')}
+          </p>
+
+          ${codeSnippet}
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin: 0.75rem 0; font-size: var(--text-xs); font-family: var(--font-mono);">
+            <div style="background: var(--bg-surface-raised); padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <span style="color: var(--text-muted); display: block; font-size: 10px; text-transform: uppercase;">Your Submitted Answer</span>
+              <strong style="color: ${isCorrect ? 'var(--color-success)' : 'var(--color-danger)'};">${subText}</strong>
+            </div>
+            <div style="background: var(--bg-surface-raised); padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <span style="color: var(--text-muted); display: block; font-size: 10px; text-transform: uppercase;">Correct Answer</span>
+              <strong style="color: var(--color-success);">${corrText}</strong>
+            </div>
+          </div>
+
+          <!-- Explanation Accordion -->
+          <div style="margin-top: 0.75rem;">
+            <button type="button" class="btn-arcade btn-neutral btn-sm btn-exp-toggle" data-target="${expId}" style="font-size: 11px; padding: 0.25rem 0.5rem;">
+              Show Explanation ▾
+            </button>
+            <div id="${expId}" class="exp-drawer" style="display: none; margin-top: 0.5rem; padding: 0.75rem; background: var(--bg-surface-raised); border-radius: var(--radius-sm); border-left: 3px solid var(--color-primary-edge); font-size: var(--text-xs); line-height: 1.6; color: var(--text-secondary);">
+              <strong style="color: var(--color-primary); display: block; margin-bottom: 0.25rem;">Pedagogical Breakdown:</strong>
+              ${explanationText}
+            </div>
+          </div>
+        `;
+
+        // Bind accordion click
+        const btn = item.querySelector('.btn-exp-toggle');
+        const drawer = item.querySelector(`#${expId}`);
+        if (btn && drawer) {
+          btn.onclick = () => {
+            const isHidden = drawer.style.display === 'none';
+            drawer.style.display = isHidden ? 'block' : 'none';
+            btn.textContent = isHidden ? 'Hide Explanation ▴' : 'Show Explanation ▾';
+          };
+        }
+
+        return item;
+      }
+
+      if (resultsList.length === 0) {
+        if (reviewList) {
+          reviewList.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+              <p>No itemized question records available for this session preview.</p>
+            </div>
+          `;
+        }
+        if (modalReviewContainer) {
+          modalReviewContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No questions to review.</p>';
+        }
+      } else {
+        if (reviewList) {
+          reviewList.innerHTML = '';
+          resultsList.forEach((r, idx) => {
+            reviewList.appendChild(buildQuestionReviewItem(r, idx));
+          });
+        }
+        if (modalReviewContainer) {
+          modalReviewContainer.innerHTML = '';
+          resultsList.forEach((r, idx) => {
+            modalReviewContainer.appendChild(buildQuestionReviewItem(r, idx));
+          });
+        }
+      }
+
+      // 8. Toggle All Explanations Button
+      const toggleAllBtn = Utils.qs('#btn-toggle-all-explanations');
+      let allExpanded = false;
+      if (toggleAllBtn) {
+        toggleAllBtn.onclick = () => {
+          allExpanded = !allExpanded;
+          const drawers = document.querySelectorAll('.exp-drawer');
+          const toggles = document.querySelectorAll('.btn-exp-toggle');
+          drawers.forEach(d => d.style.display = allExpanded ? 'block' : 'none');
+          toggles.forEach(t => t.textContent = allExpanded ? 'Hide Explanation ▴' : 'Show Explanation ▾');
+          toggleAllBtn.textContent = allExpanded ? 'Collapse All Explanations' : 'Expand All Explanations';
+        };
+      }
+
+      // Play audio feedback
+      setTimeout(() => {
+        if (isGameOver) {
+          AudioEngine.playError();
+        } else if (accuracy >= 80) {
+          AudioEngine.playFanfare();
+        } else {
+          AudioEngine.playSuccess();
+        }
+      }, 300);
+    });
+  })();
+  </script>
+</body>
+</html>

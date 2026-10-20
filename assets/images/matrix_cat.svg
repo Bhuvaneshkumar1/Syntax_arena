@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="cat-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Disc -->
+  <circle cx="50" cy="50" r="48" fill="#111827" stroke="#10B981" stroke-width="3"/>
+  <!-- Pointy Cat Ears -->
+  <polygon points="20,16 38,40 16,42" fill="#1E293B" stroke="#10B981" stroke-width="1.5"/>
+  <polygon points="26,24 36,38 22,39" fill="#10B981" opacity="0.4"/>
+  <polygon points="80,16 62,40 84,42" fill="#1E293B" stroke="#10B981" stroke-width="1.5"/>
+  <polygon points="74,24 64,38 78,39" fill="#10B981" opacity="0.4"/>
+  <!-- Head Shape -->
+  <path d="M 22 46 C 22 30, 78 30, 78 46 C 82 70, 70 86, 50 86 C 30 86, 18 70, 22 46 Z" fill="url(#cat-grad)" stroke="#334155" stroke-width="2"/>
+  <!-- Glowing Matrix Eyes -->
+  <ellipse cx="36" cy="52" rx="7" ry="9" fill="#10B981"/>
+  <line x1="36" y1="44" x2="36" y2="60" stroke="#047857" stroke-width="2.5"/>
+  <ellipse cx="64" cy="52" rx="7" ry="9" fill="#10B981"/>
+  <line x1="64" y1="44" x2="64" y2="60" stroke="#047857" stroke-width="2.5"/>
+  <!-- Nose & Mouth -->
+  <polygon points="47,68 53,68 50,72" fill="#10B981"/>
+  <path d="M 45 74 Q 50 78 55 74" fill="none" stroke="#10B981" stroke-width="1.5"/>
+  <!-- Neon Whiskers -->
+  <line x1="14" y1="62" x2="30" y2="66" stroke="#10B981" stroke-width="1.5"/>
+  <line x1="12" y1="70" x2="28" y2="70" stroke="#10B981" stroke-width="1.5"/>
+  <line x1="86" y1="62" x2="70" y2="66" stroke="#10B981" stroke-width="1.5"/>
+  <line x1="88" y1="70" x2="72" y2="70" stroke="#10B981" stroke-width="1.5"/>
+</svg>

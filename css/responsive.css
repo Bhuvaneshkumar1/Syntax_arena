@@ -1,0 +1,172 @@
+/**
+ * SyntaxArena Responsive Breakpoints
+ * Source of truth: docs/DESIGN_SYSTEM.md & docs/ACCEPTANCE_CRITERIA.md
+ */
+
+/* ==========================================================================
+   TABLET ADAPTATIONS (641px - 1024px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .header-container {
+    padding: 0 var(--space-3);
+  }
+
+  .page-container {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .nav-link {
+    padding: var(--space-2) var(--space-2);
+    font-size: var(--text-xs);
+  }
+
+  .brand-title {
+    font-size: var(--text-lg);
+  }
+}
+
+/* ==========================================================================
+   MOBILE PORTRAIT (<= 640px)
+   ========================================================================== */
+@media (max-width: 640px) {
+  .header-container {
+    height: 56px;
+    padding: 0 var(--space-2);
+  }
+
+  .brand-title {
+    display: none; /* Icon badge only on narrow screens */
+  }
+
+  .app-nav {
+    gap: 2px;
+  }
+
+  .nav-link {
+    padding: 6px 8px;
+    font-size: 11px;
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .profile-pill span.profile-name {
+    display: none; /* Avatar circle only */
+  }
+
+  .profile-pill {
+    padding: 4px;
+  }
+
+  .page-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-header h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .page-container {
+    padding: var(--space-4) var(--space-2);
+  }
+
+  .card {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .card-header > * {
+    max-width: 100%;
+  }
+
+  /* Minimum 48px touch targets for mobile accessibility (AC-RSP-01) */
+  .btn-arcade {
+    min-height: 48px;
+    padding: 0.75rem 1.0rem;
+    font-size: var(--text-sm);
+  }
+
+  .btn-icon-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .footer-container {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-2);
+  }
+
+  .footer-nav {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+/* ==========================================================================
+   MOBILE LANDSCAPE (Height <= 500px)
+   ========================================================================== */
+@media (max-height: 500px) {
+  .app-header {
+    height: 48px;
+  }
+
+  .header-container {
+    height: 48px;
+  }
+
+  .page-header {
+    margin-bottom: var(--space-4);
+  }
+
+  .placeholder-card {
+    padding: var(--space-4);
+  }
+
+  .placeholder-icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: var(--space-2);
+  }
+}
+
+/* ==========================================================================
+   EXTRA-NARROW MOBILE (<= 400px, e.g. 360x800, 390x844)
+   ========================================================================== */
+@media (max-width: 400px) {
+  .header-actions {
+    gap: 2px;
+  }
+
+  .app-nav {
+    gap: 1px;
+  }
+
+  .nav-link {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+
+  .page-container {
+    padding: var(--space-3) var(--space-2);
+  }
+
+  .card {
+    padding: var(--space-3) var(--space-2);
+  }
+
+  .btn-arcade {
+    padding: 0.6rem 0.85rem;
+    font-size: var(--text-xs);
+  }
+}
+

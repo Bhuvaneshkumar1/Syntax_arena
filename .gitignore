@@ -1,0 +1,50 @@
+# ==============================================================================
+# SyntaxArena — Git Ignore Configuration
+# ==============================================================================
+
+# Dependencies & Node Package Files (per project specifications)
+node_modules/
+package.json
+package-lock.json
+
+# Scratch Scripts & Temporary Development Utilities
+scratch/
+*.tmp
+*.temp
+
+# Test Automation Outputs, Traces & Reports
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Operating System Files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# IDE & Editor Configurations
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Local Environment Variables
+.env
+.env.local
+.env.*.local

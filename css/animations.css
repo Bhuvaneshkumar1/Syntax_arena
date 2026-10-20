@@ -1,0 +1,272 @@
+/**
+ * SyntaxArena Animation & Motion System
+ * Source of truth: docs/DESIGN_SYSTEM.md & docs/BATCH_8_PLAN.md
+ */
+
+/* ==========================================================================
+   FEEDBACK & INTERACTION ANIMATIONS
+   ========================================================================== */
+
+/* Card Pop on Correct Submission */
+@keyframes cardSuccessPop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.025) translateY(-3px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Horizontal Shake on Error (Restrained) */
+@keyframes cardErrorShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-5px);
+  }
+  40%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+/* Pulsing Timer Critical Warning (< 25% remaining) */
+@keyframes timerPulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px var(--color-danger));
+  }
+  50% {
+    opacity: 0.6;
+    filter: drop-shadow(0 0 10px var(--color-danger));
+  }
+}
+
+/* Heart Shatter Animation */
+@keyframes heartLost {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.25) rotate(-12deg);
+    color: var(--color-danger);
+  }
+  100% {
+    transform: scale(0.7) translateY(8px);
+    opacity: 0.25;
+    filter: grayscale(1);
+  }
+}
+
+/* Fade In */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade In & Slide Up (Section / Modal / Card Entrance) */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth Page & Section Cross-Fade */
+@keyframes slideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Quick Question Transition */
+@keyframes questionCrossFade {
+  0% {
+    opacity: 0.2;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Score Ticker Numerical Pulse */
+@keyframes scorePulse {
+  0% {
+    transform: scale(1);
+    color: var(--text-primary);
+  }
+  40% {
+    transform: scale(1.1);
+    color: var(--color-primary);
+    text-shadow: 0 0 8px var(--color-primary-glow);
+  }
+  100% {
+    transform: scale(1);
+    color: var(--text-primary);
+  }
+}
+
+/* Streak Flame Highlight */
+@keyframes streakPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 8px var(--color-violet-glow));
+  }
+}
+
+/* Badge & Rank Unlock Celebration Flourish */
+@keyframes celebrationPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(10px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Slide Down (Dropdowns / Hints) */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Option Selected Spring Pop */
+@keyframes optionSelectedSpring {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.015) translateX(2px);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Toast Entry / Exit */
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================================
+   ANIMATION UTILITY CLASSES
+   ========================================================================== */
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp var(--transition-slow) forwards;
+}
+
+.animate-page-entrance {
+  animation: slideFadeIn 0.25s var(--ease-smooth) forwards;
+}
+
+.animate-question-in {
+  animation: questionCrossFade 0.18s ease-out forwards;
+}
+
+.animate-pop {
+  animation: cardSuccessPop 0.32s var(--ease-spring) forwards;
+}
+
+.animate-shake {
+  animation: cardErrorShake 0.35s ease-in-out forwards;
+}
+
+.animate-score-pulse {
+  animation: scorePulse 0.4s var(--ease-spring);
+}
+
+.animate-streak-pulse {
+  animation: streakPulse 0.45s var(--ease-spring);
+}
+
+.animate-celebrate {
+  animation: celebrationPop 0.5s var(--ease-spring) forwards;
+}
+
+.animate-hint-expand {
+  animation: slideDown 0.22s var(--ease-smooth) forwards;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY: REDUCED MOTION SUPPORT
+   Handles both OS preference AND user-toggled settings in Studio Settings
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .btn-arcade:hover,
+  .btn-arcade:active,
+  .card-interactive:hover,
+  .brand-link:hover .brand-badge {
+    transform: none !important;
+  }
+}
+
+/* Explicit User Setting via [data-reduced-motion="true"] on root <html> */
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-reduced-motion="true"] .btn-arcade:hover,
+html[data-reduced-motion="true"] .btn-arcade:active,
+html[data-reduced-motion="true"] .card-interactive:hover,
+html[data-reduced-motion="true"] .brand-link:hover .brand-badge {
+  transform: none !important;
+}
