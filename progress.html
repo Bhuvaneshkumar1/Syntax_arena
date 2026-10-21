@@ -75,6 +75,10 @@
           <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
           <span>Play</span>
         </a>
+        <a href="sandbox.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Sandbox</span>
+        </a>
         <a href="results.html" class="nav-link">
           <svg class="nav-icon"><use href="#icon-trophy"></use></svg>
           <span>Results</span>
@@ -925,13 +929,15 @@
       const avatarsGrid = Utils.qs('#avatars-grid');
       if (avatarsGrid) {
         avatarsGrid.innerHTML = '';
+        const unlockedAvatars = Array.isArray(activeProf.unlockedAvatars) ? activeProf.unlockedAvatars : ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight'];
         AVATAR_CATALOG.forEach(av => {
-          const isUnlocked = playerLevel >= (av.requiredLevel || 1);
+          const isUnlocked = unlockedAvatars.includes(av.id) || playerLevel >= (av.requiredLevel || 1);
           const isCurrent = activeProf.avatarId === av.id;
           const card = document.createElement('div');
-          card.className = `card ${isUnlocked ? '' : 'card-locked'}`;
+          card.className = `card ${isUnlocked ? 'card-interactive' : 'card-locked'}`;
           card.style.padding = '0.75rem';
           card.style.textAlign = 'center';
+          card.style.cursor = isUnlocked ? 'pointer' : 'default';
           if (!isUnlocked) {
             card.style.opacity = '0.55';
             card.style.filter = 'grayscale(100%)';
@@ -941,9 +947,21 @@
             <img src="assets/images/${av.id}.svg" width="40" height="40" alt="${av.name}" style="margin: 0 auto 0.35rem; display: block;">
             <div style="font-size: var(--text-xs); font-weight: 700; margin-bottom: 0.25rem;">${av.name}</div>
             <span class="badge ${isCurrent ? 'badge-emerald' : isUnlocked ? 'badge-cyan' : 'badge-neutral'}" style="font-size: 10px;">
-              ${isCurrent ? 'Active' : isUnlocked ? 'Unlocked' : `Lv ${av.requiredLevel}`}
+              ${isCurrent ? 'Equipped' : isUnlocked ? 'Equip' : `Lv ${av.requiredLevel}`}
             </span>
           `;
+
+          if (isUnlocked && !isCurrent) {
+            card.onclick = () => {
+              AudioEngine.playClick();
+              Profile.updateProfile(activeProf.id, { avatarId: av.id });
+              activeProf = Profile.getActiveProfile();
+              UI.updateHeaderProfile();
+              UI.showToast(`Equipped ${av.name} as active avatar!`, 'success');
+              renderProgressDashboard();
+            };
+          }
+
           avatarsGrid.appendChild(card);
         });
       }

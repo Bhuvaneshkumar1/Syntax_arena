@@ -587,18 +587,18 @@ export const Gamification = {
     const tierKey = `${(summary.language || 'python').toLowerCase()}_${(summary.difficulty || 'beginner').toLowerCase()}`;
     const alreadyCleared = Boolean(profile.completedTiers && profile.completedTiers[tierKey]);
 
-    // If the stage was already cleared, repeat plays do not grant repeat milestone clear bonuses/points!
-    // Player will get points only after playing another game (an uncompleted level).
+    // On first clears, player receives 100% full milestone clear XP.
+    // On repeat clears of an already completed tier, award 50% replay practice XP so players always progress!
     let rawEarnedXP = this.calculateSessionXP(summary);
     const isRepeatClear = alreadyCleared && summary.mode !== 'practice';
-    const earnedXP = isRepeatClear ? 0 : rawEarnedXP;
+    const earnedXP = isRepeatClear ? Math.max(50, Math.round(rawEarnedXP * 0.5)) : rawEarnedXP;
 
     const initialSpendableXP = Math.max(0, profile.xp || 0);
     const initialLifetimeXP = typeof profile.lifetimeXP === 'number' ? profile.lifetimeXP : initialSpendableXP;
 
     const totalLifetimeXP = initialLifetimeXP + earnedXP;
     const totalSpendableXP = initialSpendableXP + earnedXP;
-    const totalScore = (profile.totalScore || 0) + (isRepeatClear ? 0 : (summary.totalScore || 0));
+    const totalScore = (profile.totalScore || 0) + (summary.totalScore || 0);
 
     // 3. Derive Rank & Level based on LIFETIME XP (never decreases when points are spent on badges/avatars!)
     const prevLevelData = this.getLevelData(initialLifetimeXP);

@@ -76,6 +76,10 @@
           <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
           <span>Play</span>
         </a>
+        <a href="sandbox.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Sandbox</span>
+        </a>
         <a href="results.html" class="nav-link">
           <svg class="nav-icon"><use href="#icon-trophy"></use></svg>
           <span>Results</span>
@@ -400,9 +404,11 @@
                 const res = Profile.purchaseItem(currentProf.id, 'avatar', avatar.id, 150);
                 if (res.success) {
                   UI.triggerConfetti();
-                  UI.showToast(`🎉 ${avatar.name} unlocked for 150 points!`, 'success');
                   selectedAvatar = avatar.id;
+                  Profile.updateProfile(currentProf.id, { avatarId: avatar.id });
+                  UI.updateHeaderProfile();
                   renderAvatarGrid();
+                  UI.showToast(`🎉 ${avatar.name} unlocked and equipped as active avatar!`, 'success');
                 } else {
                   UI.showToast(res.message, 'error');
                 }
@@ -535,15 +541,18 @@
             return;
           }
 
-          // Verify selected avatar is unlocked
+          // Verify selected avatar is unlocked (either by level or purchased with points)
           const avatarDef = AVATAR_CATALOG.find(a => a.id === selectedAvatar);
-          if (avatarDef && (avatarDef.requiredLevel || 1) > playerLevel) {
+          const prof = State.get('activeProfile') || Profile.getActiveProfile();
+          const unlockedAvatars = Array.isArray(prof?.unlockedAvatars) ? prof.unlockedAvatars : ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight'];
+          const isAvatarUnlocked = unlockedAvatars.includes(selectedAvatar) || (avatarDef && (avatarDef.requiredLevel || 1) <= playerLevel);
+
+          if (!isAvatarUnlocked) {
             AudioEngine.playError();
-            UI.showToast(`Cannot select locked avatar (${avatarDef.name}). Reach Level ${avatarDef.requiredLevel} first.`, 'error');
+            UI.showToast(`Cannot select locked avatar (${avatarDef ? avatarDef.name : selectedAvatar}). Unlock it with points or reach Level ${avatarDef ? avatarDef.requiredLevel : 1} first.`, 'error');
             return;
           }
 
-          const prof = State.get('activeProfile');
           if (prof) {
             const updated = Profile.updateProfile(prof.id, {
               username: newName.trim(),

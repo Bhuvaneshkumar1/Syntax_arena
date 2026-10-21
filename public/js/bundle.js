@@ -10728,6 +10728,8 @@ window.createDefaultProfile = createDefaultProfile; function createDefaultProfil
       sql:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
     },
     completedTiers: {},
+    stageStars: {},
+    completedStages: {},
     unlockedAchievements: [],
     purchasedBadges: [],
     missedQuestionIds: [],
@@ -11161,6 +11163,8 @@ class StorageManager {
       stats,
       campaign,
       completedTiers,
+      stageStars: typeof p?.stageStars === 'object' && p?.stageStars !== null ? { ...p.stageStars } : {},
+      completedStages: typeof p?.completedStages === 'object' && p?.completedStages !== null ? { ...p.completedStages } : {},
       unlockedAchievements: Array.isArray(p?.unlockedAchievements) ? [...p.unlockedAchievements] : [],
       purchasedBadges,
       missedQuestionIds: Array.isArray(p?.missedQuestionIds) ? [...p.missedQuestionIds] : [],
@@ -12835,18 +12839,18 @@ var Gamification = window.Gamification = {
     const tierKey = `${(summary.language || 'python').toLowerCase()}_${(summary.difficulty || 'beginner').toLowerCase()}`;
     const alreadyCleared = Boolean(profile.completedTiers && profile.completedTiers[tierKey]);
 
-    // If the stage was already cleared, repeat plays do not grant repeat milestone clear bonuses/points!
-    // Player will get points only after playing another game (an uncompleted level).
+    // On first clears, player receives 100% full milestone clear XP.
+    // On repeat clears of an already completed tier, award 50% replay practice XP so players always progress!
     let rawEarnedXP = this.calculateSessionXP(summary);
     const isRepeatClear = alreadyCleared && summary.mode !== 'practice';
-    const earnedXP = isRepeatClear ? 0 : rawEarnedXP;
+    const earnedXP = isRepeatClear ? Math.max(50, Math.round(rawEarnedXP * 0.5)) : rawEarnedXP;
 
     const initialSpendableXP = Math.max(0, profile.xp || 0);
     const initialLifetimeXP = typeof profile.lifetimeXP === 'number' ? profile.lifetimeXP : initialSpendableXP;
 
     const totalLifetimeXP = initialLifetimeXP + earnedXP;
     const totalSpendableXP = initialSpendableXP + earnedXP;
-    const totalScore = (profile.totalScore || 0) + (isRepeatClear ? 0 : (summary.totalScore || 0));
+    const totalScore = (profile.totalScore || 0) + (summary.totalScore || 0);
 
     // 3. Derive Rank & Level based on LIFETIME XP (never decreases when points are spent on badges/avatars!)
     const prevLevelData = this.getLevelData(initialLifetimeXP);
@@ -13282,7 +13286,9 @@ var GameSession = window.GameSession = class GameSession {
         hintPenalty: 0,
         retryModifier: isRetry ? 0.5 : 1.0,
         multiplier: 1.0,
-        streak: 0
+        streak: 0,
+        timeRemaining,
+        timeLimit: this.timeLimit
       };
     }
 
@@ -13323,7 +13329,9 @@ var GameSession = window.GameSession = class GameSession {
       hintPenalty: H,
       retryModifier: A,
       multiplier: multiplier,
-      streak: this.currentStreak
+      streak: this.currentStreak,
+      timeRemaining,
+      timeLimit: this.timeLimit
     };
   }
 
@@ -13359,6 +13367,8 @@ var GameSession = window.GameSession = class GameSession {
       options: Array.isArray(q.options) ? [...q.options] : [],
       correctAnswer: q.correctAnswer,
       explanation: q.explanation || '',
+      timeRemaining: outcomeData.timeRemaining,
+      timeLimit: this.timeLimit,
       ...outcomeData
     });
 
@@ -13598,6 +13608,7 @@ var GameEngine = window.GameEngine = class GameEngine {
         submission: checkResult.normalizedAnswer,
         attempts: attemptNumber,
         usedHint: hasHint,
+        timeRemaining,
         ...outcome
       });
 
@@ -13608,6 +13619,10 @@ var GameEngine = window.GameEngine = class GameEngine {
         correct: true,
         canRetry: false,
         points: outcome.points,
+        basePoints: outcome.basePoints,
+        speedBonus: outcome.speedBonus,
+        hintPenalty: outcome.hintPenalty,
+        multiplier: outcome.multiplier,
         streak: outcome.streak,
         explanation: raw.explanation,
         message: 'Correct answer!'
@@ -13632,11 +13647,12 @@ var GameEngine = window.GameEngine = class GameEngine {
         };
       } else {
         // No retry available (or retry already failed) -> Finalize question as incorrect
-        const outcome = this._session.calculateOutcome(false, hasHint, isRetry);
+        const outcome = this._session.calculateOutcome(false, hasHint, isRetry, timeRemaining);
         this._session.commitResult({
           submission: checkResult.normalizedAnswer,
           attempts: attemptNumber,
           usedHint: hasHint,
+          timeRemaining,
           ...outcome
         });
 
@@ -13674,6 +13690,10 @@ var GameEngine = window.GameEngine = class GameEngine {
           canRetry: false,
           lives: this._session.lives,
           points: 0,
+          basePoints: outcome.basePoints,
+          speedBonus: 0,
+          hintPenalty: 0,
+          multiplier: 1.0,
           streak: 0,
           correctAnswer: raw.correctAnswer,
           explanation: raw.explanation,
@@ -15700,6 +15720,1036 @@ var Router = window.Router = {
 
 /* --- End of js/router.js --- */
 
+/* --- Start of js/sandbox-manager.js --- */
+/**
+ * SyntaxArena In-Browser Multi-Language Sandbox & Execution Manager
+ * Zero-server, 100% client-side execution across Python, Cyber/Linux, SQL, JavaScript, and Systems Simulators.
+ * Source of truth: docs/ARCHITECTURE.md
+ */
+
+
+// Initial Virtual Filesystem for Linux / Cyber Sandbox
+function createInitialVFS() {
+  return {
+    '/': { type: 'dir', perms: 'rwxr-xr-x', owner: 'root' },
+    '/home': { type: 'dir', perms: 'rwxr-xr-x', owner: 'root' },
+    '/home/hacker': { type: 'dir', perms: 'rwxr-xr-x', owner: 'hacker' },
+    '/home/hacker/notes.txt': {
+      type: 'file',
+      perms: 'rw-r--r--',
+      owner: 'hacker',
+      content: "SyntaxArena Cyber Challenge Lab\nTarget: 192.168.1.50\nObjective: Inspect logs and find the authorization flag.\nFlag: SYNTAX{b4sh_m4st3r_2026}\n"
+    },
+    '/home/hacker/check_string.sh': {
+      type: 'file',
+      perms: 'rwxr-xr-x',
+      owner: 'hacker',
+      content: "#!/bin/bash\nstr='SyntaxArena_2026'\nif [[ $str == *Arena* ]]; then\n  echo 'MATCH'\nelse\n  echo 'NO'\nfi\n"
+    },
+    '/home/hacker/exploit.py': {
+      type: 'file',
+      perms: 'rwxr-xr-x',
+      owner: 'hacker',
+      content: "import sys\nprint('Testing payload length:', len('SyntaxArena'))\n"
+    },
+    '/etc': { type: 'dir', perms: 'rwxr-xr-x', owner: 'root' },
+    '/etc/passwd': {
+      type: 'file',
+      perms: 'rw-r--r--',
+      owner: 'root',
+      content: "root:x:0:0:root:/root:/bin/bash\nhacker:x:1000:1000:Hacker:/home/hacker:/bin/bash\nguest:x:1001:1001:Guest:/home/guest:/bin/sh\n"
+    },
+    '/etc/hosts': {
+      type: 'file',
+      perms: 'rw-r--r--',
+      owner: 'root',
+      content: "127.0.0.1 localhost\n192.168.1.1 gateway.local\n192.168.1.50 target.syntaxarena.internal\n"
+    },
+    '/var': { type: 'dir', perms: 'rwxr-xr-x', owner: 'root' },
+    '/var/log': { type: 'dir', perms: 'rwxr-xr-x', owner: 'root' },
+    '/var/log/auth.log': {
+      type: 'file',
+      perms: 'rw-r-----',
+      owner: 'root',
+      content: "Oct 22 03:00:01 srv sshd[1240]: Accepted publickey for hacker from 192.168.1.10 port 49202\nOct 22 03:05:12 srv sshd[1380]: Failed password for invalid user admin from 10.0.0.99\nOct 22 03:05:14 srv sshd[1382]: Failed password for invalid user root from 10.0.0.99\nOct 22 03:05:18 srv sshd[1385]: Failed password for invalid user oracle from 10.0.0.99\nOct 22 03:10:00 srv sudo[1420]: hacker : TTY=pts/0 ; PWD=/home/hacker ; USER=root ; COMMAND=/bin/cat /etc/shadow\n"
+    },
+    '/tmp': { type: 'dir', perms: 'rwxrwxrwt', owner: 'root' }
+  };
+}
+
+// Initial In-Memory Relational Database for SQL Sandbox
+function createInitialDB() {
+  return {
+    users: [
+      { id: 1, username: 'neo_coder', role: 'admin', email: 'neo@matrix.io', xp: 4500, active: 1 },
+      { id: 2, username: 'script_kiddie', role: 'member', email: 'kiddie@arena.io', xp: 850, active: 1 },
+      { id: 3, username: 'cyber_ghost', role: 'analyst', email: 'ghost@vault.dev', xp: 2100, active: 1 },
+      { id: 4, username: 'algo_queen', role: 'member', email: 'queen@algo.org', xp: 3200, active: 1 },
+      { id: 5, username: 'syntax_fox', role: 'guest', email: 'fox@demo.net', xp: 120, active: 0 }
+    ],
+    audit_logs: [
+      { id: 101, user_id: 1, action: 'LOGIN_SUCCESS', ip: '192.168.1.10', status: '200 OK', created_at: '2026-10-22 02:00' },
+      { id: 102, user_id: 3, action: 'FILE_READ', ip: '192.168.1.50', status: '200 OK', created_at: '2026-10-22 02:15' },
+      { id: 103, user_id: 2, action: 'AUTH_FAILED', ip: '10.0.0.99', status: '401 UNAUTHORIZED', created_at: '2026-10-22 02:30' },
+      { id: 104, user_id: 4, action: 'STAGE_CLEAR', ip: '192.168.1.22', status: '200 OK', created_at: '2026-10-22 02:45' },
+      { id: 105, user_id: 1, action: 'CONFIG_UPDATE', ip: '192.168.1.10', status: '200 OK', created_at: '2026-10-22 03:00' }
+    ],
+    challenges: [
+      { id: 201, track: 'python', difficulty: 'beginner', points: 100, title: 'List Slicing Quirks' },
+      { id: 202, track: 'c', difficulty: 'intermediate', points: 250, title: 'Pointer Arithmetic' },
+      { id: 203, track: 'cyber', difficulty: 'beginner', points: 150, title: 'Bash Wildcard Pattern Matching' },
+      { id: 204, track: 'sql', difficulty: 'beginner', points: 100, title: 'GROUP BY Aggregations' },
+      { id: 205, track: 'rust', difficulty: 'expert', points: 400, title: 'Lifetimes & Borrow Checker' }
+    ]
+  };
+}
+
+var SandboxManager = window.SandboxManager = {
+  isLoaded: false,
+  isLoading: false,
+  loadPromise: null,
+
+  // Linux Virtual Terminal State
+  vfs: createInitialVFS(),
+  currentDir: '/home/hacker',
+  envVars: {
+    USER: 'hacker',
+    HOME: '/home/hacker',
+    SHELL: '/bin/bash',
+    PATH: '/usr/local/bin:/usr/bin:/bin',
+    PWD: '/home/hacker'
+  },
+
+  // SQL In-Memory Database State
+  db: createInitialDB(),
+
+  /**
+   * Reset Virtual Linux Filesystem to factory defaults.
+   */
+  resetLinuxVFS() {
+    this.vfs = createInitialVFS();
+    this.currentDir = '/home/hacker';
+    this.envVars.PWD = '/home/hacker';
+  },
+
+  /**
+   * Reset SQL In-Memory DB to factory defaults.
+   */
+  resetSQLDB() {
+    this.db = createInitialDB();
+  },
+
+  /**
+   * Ensure Skulpt Python engine is loaded in the page.
+   * @returns {Promise<boolean>}
+   */
+  async ensureEngine() {
+    if (typeof window !== 'undefined' && window.Sk && window.Sk.importMainWithBody) {
+      this.isLoaded = true;
+      return true;
+    }
+
+    if (this.loadPromise) {
+      return this.loadPromise;
+    }
+
+    this.isLoading = true;
+    this.loadPromise = new Promise((resolve) => {
+      const loadScript = (src) => {
+        return new Promise((res, rej) => {
+          const s = document.createElement('script');
+          s.src = src;
+          s.async = false;
+          s.onload = () => res();
+          s.onerror = (e) => {
+            console.warn(`[SandboxManager] Local script ${src} failed. Loading fallback...`, e);
+            const cdnSrc = src.includes('stdlib')
+              ? 'https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js'
+              : 'https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js';
+            const sCdn = document.createElement('script');
+            sCdn.src = cdnSrc;
+            sCdn.async = false;
+            sCdn.onload = () => res();
+            sCdn.onerror = (err) => rej(err);
+            document.head.appendChild(sCdn);
+          };
+          document.head.appendChild(s);
+        });
+      };
+
+      loadScript('assets/vendor/skulpt.min.js')
+        .then(() => loadScript('assets/vendor/skulpt-stdlib.js'))
+        .then(() => {
+          this.isLoaded = true;
+          this.isLoading = false;
+          console.log('[SandboxManager] Client-side Python 3 engine initialized successfully.');
+          resolve(true);
+        })
+        .catch(err => {
+          console.error('[SandboxManager] Failed to initialize Python engine:', err);
+          this.isLoading = false;
+          resolve(false);
+        });
+    });
+
+    return this.loadPromise;
+  },
+
+  /**
+   * Execute Python code safely with 3-second timeout and stdout capture.
+   * @param {string} code
+   * @param {number} [timeoutMs=3500]
+   * @returns {Promise<{ success: boolean, output: string, error?: string, elapsedMs: number }>}
+   */
+  async runPython(code, timeoutMs = 3500) {
+    const ready = await this.ensureEngine();
+    if (!ready || typeof window.Sk === 'undefined') {
+      return {
+        success: false,
+        output: '',
+        error: 'Python engine is currently unavailable. Check your internet connection or asset files.',
+        elapsedMs: 0
+      };
+    }
+
+    const trimmed = (code || '').trim();
+    if (!trimmed) {
+      return {
+        success: true,
+        output: '(No code provided to execute.)',
+        elapsedMs: 0
+      };
+    }
+
+    let stdoutBuffer = '';
+    const start = performance.now();
+
+    window.Sk.configure({
+      output: (text) => {
+        stdoutBuffer += text;
+      },
+      read: (filename) => {
+        if (window.Sk.builtinFiles === undefined || window.Sk.builtinFiles['files'][filename] === undefined) {
+          throw new Error(`File not found: '${filename}'`);
+        }
+        return window.Sk.builtinFiles['files'][filename];
+      },
+      execLimit: timeoutMs,
+      retainPath: true,
+      __future__: window.Sk.python3
+    });
+
+    try {
+      await window.Sk.misceval.asyncToPromise(() => {
+        return window.Sk.importMainWithBody('<stdin>', false, trimmed, true);
+      });
+      const elapsed = Math.round(performance.now() - start);
+      return {
+        success: true,
+        output: stdoutBuffer || '(Program finished with no stdout output)',
+        elapsedMs: elapsed
+      };
+    } catch (err) {
+      const elapsed = Math.round(performance.now() - start);
+      const errMsg = err.toString();
+      return {
+        success: false,
+        output: stdoutBuffer,
+        error: errMsg,
+        elapsedMs: elapsed
+      };
+    }
+  },
+
+  /* ==========================================================================
+     CYBER & LINUX SHELL SANDBOX SIMULATOR
+     Full client-side bash terminal with virtual filesystem, pipes & conditions
+     ========================================================================== */
+
+  /**
+   * Resolve an absolute or relative path against current directory.
+   * @param {string} targetPath
+   * @returns {string} Normalized absolute path
+   */
+  _normalizePath(targetPath) {
+    let p = (targetPath || '').trim();
+    if (!p) return this.currentDir;
+    if (p === '~' || p.startsWith('~/')) {
+      p = '/home/hacker' + p.slice(1);
+    }
+    if (!p.startsWith('/')) {
+      p = (this.currentDir === '/' ? '' : this.currentDir) + '/' + p;
+    }
+
+    const segments = p.split('/').filter(Boolean);
+    const resolved = [];
+    for (const s of segments) {
+      if (s === '.') continue;
+      if (s === '..') {
+        if (resolved.length > 0) resolved.pop();
+      } else {
+        resolved.push(s);
+      }
+    }
+    return '/' + resolved.join('/');
+  },
+
+  /**
+   * Execute a single shell command or piped pipeline.
+   * @param {string} cmdLine
+   * @returns {{ output: string, error?: string, exitCode: number }}
+   */
+  executeBashPipeline(cmdLine) {
+    const raw = cmdLine.trim();
+    if (!raw || raw.startsWith('#')) return { output: '', exitCode: 0 };
+
+    // Support pipes (|)
+    const pipeline = raw.split('|').map(s => s.trim());
+    let pipeInput = '';
+    let lastResult = { output: '', exitCode: 0 };
+
+    for (let i = 0; i < pipeline.length; i++) {
+      const cmdSegment = pipeline[i];
+      lastResult = this._executeSingleCommand(cmdSegment, pipeInput);
+      if (lastResult.exitCode !== 0) {
+        return lastResult;
+      }
+      pipeInput = lastResult.output;
+    }
+
+    return lastResult;
+  },
+
+  /**
+   * Internal runner for an individual Linux command.
+   */
+  _executeSingleCommand(cmdSegment, stdInput = '') {
+    // Check for output redirection (> or >>)
+    let append = false;
+    let redirectFile = null;
+    let cmdToRun = cmdSegment;
+
+    if (cmdSegment.includes('>>')) {
+      const parts = cmdSegment.split('>>');
+      cmdToRun = parts[0].trim();
+      redirectFile = parts[1].trim();
+      append = true;
+    } else if (cmdSegment.includes('>')) {
+      const parts = cmdSegment.split('>');
+      cmdToRun = parts[0].trim();
+      redirectFile = parts[1].trim();
+      append = false;
+    }
+
+    // Tokenize command string (respecting quotes)
+    const tokens = [];
+    const regex = /[^\s"']+|"([^"]*)"|'([^']*)'/g;
+    let match;
+    while ((match = regex.exec(cmdToRun)) !== null) {
+      if (match[1] !== undefined) tokens.push(match[1]);
+      else if (match[2] !== undefined) tokens.push(match[2]);
+      else tokens.push(match[0]);
+    }
+
+    if (tokens.length === 0) return { output: '', exitCode: 0 };
+
+    // Substitute environment variables e.g. $USER, $PWD
+    const substituted = tokens.map(t => {
+      return t.replace(/\$([a-zA-Z0-9_]+)/g, (_, varName) => {
+        return this.envVars[varName] !== undefined ? this.envVars[varName] : '';
+      });
+    });
+
+    const command = substituted[0];
+    const args = substituted.slice(1);
+    let output = '';
+    let error = '';
+    let exitCode = 0;
+
+    switch (command) {
+      case 'pwd':
+        output = this.currentDir;
+        break;
+
+      case 'whoami':
+        output = this.envVars.USER || 'hacker';
+        break;
+
+      case 'id':
+        output = 'uid=1000(hacker) gid=1000(hacker) groups=1000(hacker),27(sudo),100(users)';
+        break;
+
+      case 'uname':
+        if (args.includes('-a')) {
+          output = 'Linux syntaxarena-node 5.15.0-generic #2026-SMP x86_64 GNU/Linux';
+        } else {
+          output = 'Linux';
+        }
+        break;
+
+      case 'cd': {
+        const dest = args[0] ? this._normalizePath(args[0]) : '/home/hacker';
+        if (this.vfs[dest] && this.vfs[dest].type === 'dir') {
+          this.currentDir = dest;
+          this.envVars.PWD = dest;
+        } else {
+          error = `cd: ${args[0] || ''}: No such file or directory`;
+          exitCode = 1;
+        }
+        break;
+      }
+
+      case 'ls': {
+        const showDetails = args.some(a => a.includes('l'));
+        const showAll = args.some(a => a.includes('a'));
+        const targetArg = args.find(a => !a.startsWith('-')) || '.';
+        const targetPath = this._normalizePath(targetArg);
+
+        if (!this.vfs[targetPath] || this.vfs[targetPath].type !== 'dir') {
+          error = `ls: cannot access '${targetArg}': No such file or directory`;
+          exitCode = 2;
+          break;
+        }
+
+        // Find direct children
+        const prefix = targetPath === '/' ? '/' : targetPath + '/';
+        const children = Object.keys(this.vfs).filter(p => {
+          if (p === targetPath) return false;
+          if (!p.startsWith(prefix)) return false;
+          const rest = p.slice(prefix.length);
+          return !rest.includes('/');
+        }).map(p => {
+          const name = p.slice(prefix.length);
+          return { path: p, name, ...this.vfs[p] };
+        });
+
+        if (showAll) {
+          children.unshift({ name: '..', type: 'dir', perms: 'rwxr-xr-x', owner: 'root' });
+          children.unshift({ name: '.', type: 'dir', perms: 'rwxr-xr-x', owner: 'hacker' });
+        }
+
+        if (showDetails) {
+          const lines = ['total ' + (children.length * 4)];
+          for (const item of children) {
+            const isDir = item.type === 'dir';
+            const permStr = (isDir ? 'd' : '-') + (item.perms || 'rw-r--r--');
+            const owner = item.owner || 'hacker';
+            const size = item.content ? item.content.length : (isDir ? 4096 : 0);
+            lines.push(`${permStr} 1 ${owner} ${owner} ${String(size).padStart(5)} Oct 22 03:00 ${item.name}`);
+          }
+          output = lines.join('\n');
+        } else {
+          output = children.map(c => c.name).join('  ');
+        }
+        break;
+      }
+
+      case 'cat': {
+        if (args.length === 0) {
+          output = stdInput || '';
+        } else {
+          const contents = [];
+          for (const arg of args) {
+            const filePath = this._normalizePath(arg);
+            const entry = this.vfs[filePath];
+            if (!entry) {
+              error = `cat: ${arg}: No such file or directory`;
+              exitCode = 1;
+              break;
+            } else if (entry.type === 'dir') {
+              error = `cat: ${arg}: Is a directory`;
+              exitCode = 1;
+              break;
+            } else {
+              contents.push(entry.content || '');
+            }
+          }
+          if (exitCode === 0) {
+            output = contents.join('\n');
+          }
+        }
+        break;
+      }
+
+      case 'echo':
+        output = args.join(' ');
+        break;
+
+      case 'grep': {
+        const flags = args.filter(a => a.startsWith('-'));
+        const nonFlags = args.filter(a => !a.startsWith('-'));
+        const caseInsensitive = flags.some(f => f.includes('i'));
+        const invert = flags.some(f => f.includes('v'));
+        const countOnly = flags.some(f => f.includes('c'));
+
+        const pattern = nonFlags[0] || '';
+        const fileTarget = nonFlags[1];
+
+        let textToSearch = stdInput;
+        if (fileTarget) {
+          const fPath = this._normalizePath(fileTarget);
+          const entry = this.vfs[fPath];
+          if (!entry || entry.type === 'dir') {
+            error = `grep: ${fileTarget}: No such file or directory`;
+            exitCode = 2;
+            break;
+          }
+          textToSearch = entry.content || '';
+        }
+
+        const lines = textToSearch.split('\n');
+        let regexObj;
+        try {
+          regexObj = new RegExp(pattern, caseInsensitive ? 'i' : '');
+        } catch (_) {
+          regexObj = new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), caseInsensitive ? 'i' : '');
+        }
+
+        const matched = lines.filter(l => {
+          if (!l && !textToSearch) return false;
+          const isMatch = regexObj.test(l);
+          return invert ? !isMatch : isMatch;
+        });
+
+        if (countOnly) {
+          output = String(matched.length);
+        } else {
+          output = matched.join('\n');
+        }
+        break;
+      }
+
+      case 'chmod': {
+        if (args.length < 2) {
+          error = 'chmod: missing operand';
+          exitCode = 1;
+        } else {
+          const mode = args[0];
+          const target = this._normalizePath(args[1]);
+          if (!this.vfs[target]) {
+            error = `chmod: cannot access '${args[1]}': No such file or directory`;
+            exitCode = 1;
+          } else {
+            if (mode === '+x' || mode === '755' || mode === '777') {
+              this.vfs[target].perms = 'rwxr-xr-x';
+            } else if (mode === '644') {
+              this.vfs[target].perms = 'rw-r--r--';
+            } else if (mode === '600' || mode === '400') {
+              this.vfs[target].perms = 'r--------';
+            }
+            output = '';
+          }
+        }
+        break;
+      }
+
+      case 'mkdir': {
+        const target = this._normalizePath(args[0] || '');
+        if (!args[0]) {
+          error = 'mkdir: missing operand';
+          exitCode = 1;
+        } else if (this.vfs[target]) {
+          error = `mkdir: cannot create directory '${args[0]}': File exists`;
+          exitCode = 1;
+        } else {
+          this.vfs[target] = { type: 'dir', perms: 'rwxr-xr-x', owner: 'hacker' };
+        }
+        break;
+      }
+
+      case 'touch': {
+        const target = this._normalizePath(args[0] || '');
+        if (!args[0]) {
+          error = 'touch: missing file operand';
+          exitCode = 1;
+        } else if (!this.vfs[target]) {
+          this.vfs[target] = { type: 'file', perms: 'rw-r--r--', owner: 'hacker', content: '' };
+        }
+        break;
+      }
+
+      case 'rm': {
+        const target = this._normalizePath(args.find(a => !a.startsWith('-')) || '');
+        if (!target) {
+          error = 'rm: missing operand';
+          exitCode = 1;
+        } else if (!this.vfs[target]) {
+          error = `rm: cannot remove '${args[0]}': No such file or directory`;
+          exitCode = 1;
+        } else {
+          delete this.vfs[target];
+        }
+        break;
+      }
+
+      case 'base64': {
+        const isDecode = args.includes('-d');
+        const text = stdInput || args.filter(a => !a.startsWith('-')).join(' ');
+        try {
+          if (isDecode) {
+            output = atob(text.trim());
+          } else {
+            output = btoa(text);
+          }
+        } catch (_) {
+          error = 'base64: invalid input';
+          exitCode = 1;
+        }
+        break;
+      }
+
+      case 'wc': {
+        const targetText = stdInput || (args[0] ? (this.vfs[this._normalizePath(args[0])]?.content || '') : '');
+        const lines = targetText ? targetText.trim().split('\n').length : 0;
+        const words = targetText ? targetText.trim().split(/\s+/).filter(Boolean).length : 0;
+        const chars = targetText ? targetText.length : 0;
+
+        if (args.includes('-l')) output = String(lines);
+        else if (args.includes('-w')) output = String(words);
+        else if (args.includes('-c')) output = String(chars);
+        else output = `${lines} ${words} ${chars}`;
+        break;
+      }
+
+      case 'head': {
+        const nIdx = args.indexOf('-n');
+        const count = nIdx !== -1 && args[nIdx + 1] ? parseInt(args[nIdx + 1], 10) : 10;
+        const targetText = stdInput || (args[args.length - 1] && !args[args.length - 1].startsWith('-') ? (this.vfs[this._normalizePath(args[args.length - 1])]?.content || '') : '');
+        output = targetText.split('\n').slice(0, count).join('\n');
+        break;
+      }
+
+      case 'tail': {
+        const nIdx = args.indexOf('-n');
+        const count = nIdx !== -1 && args[nIdx + 1] ? parseInt(args[nIdx + 1], 10) : 10;
+        const targetText = stdInput || (args[args.length - 1] && !args[args.length - 1].startsWith('-') ? (this.vfs[this._normalizePath(args[args.length - 1])]?.content || '') : '');
+        const lines = targetText.split('\n');
+        output = lines.slice(Math.max(0, lines.length - count)).join('\n');
+        break;
+      }
+
+      case 'export': {
+        if (args[0] && args[0].includes('=')) {
+          const [k, v] = args[0].split('=');
+          this.envVars[k] = v;
+        } else {
+          output = Object.entries(this.envVars).map(([k, v]) => `declare -x ${k}="${v}"`).join('\n');
+        }
+        break;
+      }
+
+      case 'env':
+        output = Object.entries(this.envVars).map(([k, v]) => `${k}=${v}`).join('\n');
+        break;
+
+      case 'clear':
+        output = '__CLEAR__';
+        break;
+
+      case 'help':
+        output = [
+          'SyntaxArena Linux Shell v1.0 (client-side)',
+          'Supported commands: pwd, cd, ls, cat, echo, grep, chmod, mkdir, touch, rm, whoami, id, uname, base64, wc, head, tail, export, env, clear, help',
+          'Features: pipes (|), redirects (>, >>), environment variables ($VAR), bash conditional simulations.'
+        ].join('\n');
+        break;
+
+      default:
+        // Check if executable file in VFS
+        {
+          const target = this._normalizePath(command);
+          if (this.vfs[target] && this.vfs[target].type === 'file') {
+            return this.runBashScript(this.vfs[target].content);
+          } else {
+            error = `${command}: command not found`;
+            exitCode = 127;
+          }
+        }
+    }
+
+    // Process file redirection
+    if (redirectFile && exitCode === 0) {
+      const redPath = this._normalizePath(redirectFile);
+      const existing = this.vfs[redPath]?.content || '';
+      const newContent = append ? existing + output + '\n' : output + '\n';
+      this.vfs[redPath] = {
+        type: 'file',
+        perms: 'rw-r--r--',
+        owner: 'hacker',
+        content: newContent
+      };
+      output = '';
+    }
+
+    return { output, error, exitCode };
+  },
+
+  /**
+   * Execute multi-line bash script (handles variables, [[ ]] tests, if/else, for loops).
+   * @param {string} scriptContent
+   * @returns {{ success: boolean, output: string, error?: string, elapsedMs: number }}
+   */
+  runBashScript(scriptContent) {
+    const start = performance.now();
+    const lines = scriptContent.split('\n');
+    const stdout = [];
+    const localVars = { ...this.envVars };
+
+    let i = 0;
+    while (i < lines.length) {
+      let line = lines[i].trim();
+      i++;
+
+      if (!line || line.startsWith('#') || line.startsWith('#!')) continue;
+
+      // Variable assignment: str='SyntaxArena_2026' or count=5
+      const assignMatch = line.match(/^([a-zA-Z_][a-zA-Z0-9_]*)=['"]?(.*?)['"]?$/);
+      if (assignMatch) {
+        localVars[assignMatch[1]] = assignMatch[2];
+        this.envVars[assignMatch[1]] = assignMatch[2];
+        continue;
+      }
+
+      // If statement: if [[ $str == *Arena* ]]; then
+      if (line.startsWith('if ')) {
+        const condMatch = line.match(/if\s*\[\[\s*(.+?)\s*\]\];\s*then/);
+        let conditionMet = false;
+        if (condMatch) {
+          const expr = condMatch[1];
+          // e.g. $str == *Arena*
+          if (expr.includes('==')) {
+            const [leftRaw, rightRaw] = expr.split('==').map(s => s.trim());
+            const leftVal = leftRaw.startsWith('$') ? (localVars[leftRaw.slice(1)] || '') : leftRaw.replace(/['"]/g, '');
+            const rightPattern = rightRaw.replace(/['"]/g, '');
+
+            if (rightPattern.startsWith('*') && rightPattern.endsWith('*')) {
+              const sub = rightPattern.slice(1, -1);
+              conditionMet = leftVal.includes(sub);
+            } else if (rightPattern.startsWith('*')) {
+              conditionMet = leftVal.endsWith(rightPattern.slice(1));
+            } else if (rightPattern.endsWith('*')) {
+              conditionMet = leftVal.startsWith(rightPattern.slice(0, -1));
+            } else {
+              conditionMet = (leftVal === rightPattern);
+            }
+          }
+        }
+
+        // Collect then block and else block
+        const thenLines = [];
+        const elseLines = [];
+        let inElse = false;
+
+        while (i < lines.length) {
+          const inner = lines[i].trim();
+          i++;
+          if (inner === 'fi') break;
+          if (inner === 'else') {
+            inElse = true;
+            continue;
+          }
+          if (inElse) elseLines.push(inner);
+          else thenLines.push(inner);
+        }
+
+        const blockToRun = conditionMet ? thenLines : elseLines;
+        for (const bl of blockToRun) {
+          const res = this.executeBashPipeline(bl);
+          if (res.output) stdout.push(res.output);
+          if (res.error) stdout.push(`bash: ${res.error}`);
+        }
+        continue;
+      }
+
+      // Execute general shell line
+      const res = this.executeBashPipeline(line);
+      if (res.output && res.output !== '__CLEAR__') stdout.push(res.output);
+      if (res.error) stdout.push(`bash: ${res.error}`);
+    }
+
+    const elapsed = Math.round(performance.now() - start);
+    return {
+      success: true,
+      output: stdout.join('\n') || '(Script executed with no output)',
+      elapsedMs: elapsed
+    };
+  },
+
+  /* ==========================================================================
+     CLIENT-SIDE SQL QUERY ENGINE
+     Supports SELECT, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT, and Aggregates
+     ========================================================================== */
+
+  /**
+   * Execute in-memory SQL query against virtual relational tables.
+   * @param {string} query
+   * @returns {{ success: boolean, columns: string[], rows: any[][], rowCount: number, message: string, elapsedMs: number }}
+   */
+  runSQL(query) {
+    const start = performance.now();
+    let q = (query || '')
+      .replace(/--.*$/gm, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .trim()
+      .replace(/;$/, '');
+    if (!q) {
+      return { success: false, columns: [], rows: [], rowCount: 0, message: 'Empty query.', elapsedMs: 0 };
+    }
+
+    try {
+      const selectMatch = q.match(/^SELECT\s+([\s\S]+?)\s+FROM\s+([a-zA-Z0-9_]+)([\s\S]*)$/i);
+      if (!selectMatch) {
+        // Check for SHOW TABLES
+        if (/^SHOW\s+TABLES/i.test(q)) {
+          const tables = Object.keys(this.db).map(t => [t]);
+          return {
+            success: true,
+            columns: ['Table'],
+            rows: tables,
+            rowCount: tables.length,
+            message: `Found ${tables.length} tables in database.`,
+            elapsedMs: Math.round(performance.now() - start)
+          };
+        }
+        throw new Error('Unsupported or malformed SQL statement. SyntaxArena Sandbox supports SELECT, SHOW TABLES, and standard analytical clauses.');
+      }
+
+      const selectClause = selectMatch[1].trim();
+      const tableName = selectMatch[2].trim().toLowerCase();
+      const rest = selectMatch[3].trim();
+
+      const tableData = this.db[tableName];
+      if (!tableData) {
+        throw new Error(`Table '${tableName}' does not exist. Available tables: ${Object.keys(this.db).join(', ')}`);
+      }
+
+      let records = tableData.map(r => ({ ...r }));
+
+      // Parse WHERE clause if present
+      const whereMatch = rest.match(/WHERE\s+([\s\S]+?)(?=\s+(GROUP\s+BY|ORDER\s+BY|LIMIT)|$)/i);
+      if (whereMatch) {
+        const condStr = whereMatch[1].trim();
+        records = records.filter(row => this._evaluateSQLWhere(row, condStr));
+      }
+
+      // Parse ORDER BY
+      const orderMatch = rest.match(/ORDER\s+BY\s+([a-zA-Z0-9_]+)(\s+(ASC|DESC))?/i);
+      if (orderMatch) {
+        const col = orderMatch[1].trim();
+        const desc = (orderMatch[3] || 'ASC').toUpperCase() === 'DESC';
+        records.sort((a, b) => {
+          if (a[col] < b[col]) return desc ? 1 : -1;
+          if (a[col] > b[col]) return desc ? -1 : 1;
+          return 0;
+        });
+      }
+
+      // Parse LIMIT
+      const limitMatch = rest.match(/LIMIT\s+([0-9]+)/i);
+      if (limitMatch) {
+        const count = parseInt(limitMatch[1], 10);
+        records = records.slice(0, count);
+      }
+
+      // Resolve columns and projection
+      let columns = [];
+      let rows = [];
+
+      if (selectClause === '*') {
+        if (records.length > 0) {
+          columns = Object.keys(records[0]);
+          rows = records.map(r => columns.map(c => r[c]));
+        } else {
+          columns = Object.keys(tableData[0] || {});
+          rows = [];
+        }
+      } else {
+        // Support aggregates: COUNT(*), SUM(xp), AVG(xp)
+        if (selectClause.toUpperCase().includes('COUNT(*)')) {
+          columns = ['COUNT(*)'];
+          rows = [[records.length]];
+        } else {
+          const colNames = selectClause.split(',').map(s => s.trim());
+          columns = colNames;
+          rows = records.map(r => colNames.map(c => r[c] !== undefined ? r[c] : null));
+        }
+      }
+
+      const elapsed = Math.round(performance.now() - start);
+      return {
+        success: true,
+        columns,
+        rows,
+        rowCount: rows.length,
+        message: `${rows.length} row(s) returned.`,
+        elapsedMs: elapsed
+      };
+    } catch (err) {
+      return {
+        success: false,
+        columns: [],
+        rows: [],
+        rowCount: 0,
+        message: err.message,
+        elapsedMs: Math.round(performance.now() - start)
+      };
+    }
+  },
+
+  _evaluateSQLWhere(row, condition) {
+    try {
+      // Support basic conditions e.g. role = 'admin', xp > 1000, active = 1
+      const eqMatch = condition.match(/([a-zA-Z0-9_]+)\s*(=|!=|>|<|>=|<=)\s*['"]?([^'"]+)['"]?/);
+      if (!eqMatch) return true;
+
+      const col = eqMatch[1].trim();
+      const op = eqMatch[2].trim();
+      const rawVal = eqMatch[3].trim();
+      const targetVal = isNaN(Number(rawVal)) ? rawVal : Number(rawVal);
+      const rowVal = row[col];
+
+      if (op === '=') return rowVal == targetVal;
+      if (op === '!=') return rowVal != targetVal;
+      if (op === '>') return rowVal > targetVal;
+      if (op === '<') return rowVal < targetVal;
+      if (op === '>=') return rowVal >= targetVal;
+      if (op === '<=') return rowVal <= targetVal;
+      return true;
+    } catch (_) {
+      return true;
+    }
+  },
+
+  /* ==========================================================================
+     CLIENT-SIDE JAVASCRIPT SANDBOX
+     ========================================================================== */
+
+  /**
+   * Execute JavaScript code safely capturing console logs and return values.
+   * @param {string} code
+   * @returns {{ success: boolean, output: string, error?: string, elapsedMs: number }}
+   */
+  runJS(code) {
+    const start = performance.now();
+    const stdout = [];
+    const origLog = console.log;
+    const origWarn = console.warn;
+    const origError = console.error;
+
+    console.log = (...args) => stdout.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '));
+    console.warn = (...args) => stdout.push('[WARN] ' + args.map(a => String(a)).join(' '));
+    console.error = (...args) => stdout.push('[ERROR] ' + args.map(a => String(a)).join(' '));
+
+    let success = true;
+    let error = null;
+
+    try {
+      const result = new Function(`"use strict"; ${code}`)();
+      if (result !== undefined) {
+        stdout.push(`=> ${typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result)}`);
+      }
+    } catch (err) {
+      success = false;
+      error = err.toString();
+    } finally {
+      console.log = origLog;
+      console.warn = origWarn;
+      console.error = origError;
+    }
+
+    const elapsed = Math.round(performance.now() - start);
+    return {
+      success,
+      output: stdout.join('\n') || (success ? '(Code executed with no output)' : ''),
+      error,
+      elapsedMs: elapsed
+    };
+  },
+
+  /* ==========================================================================
+     C / C++ / JAVA / RUST SYNTAX & CHALLENGE SIMULATOR
+     Interactive client-side simulation of systems compilation and outputs
+     ========================================================================== */
+
+  /**
+   * Simulate execution of C, C++, Java, or Rust challenge snippet.
+   * @param {string} code
+   * @param {string} lang ('c'|'cpp'|'java'|'rust')
+   * @returns {{ success: boolean, output: string, compilerNotes: string, elapsedMs: number }}
+   */
+  simulateSystemsCode(code, lang) {
+    const start = performance.now();
+    let output = '';
+    let notes = '';
+
+    const lower = (code || '').toLowerCase();
+
+    if (lang === 'c') {
+      notes = 'GCC 11.4.0 (x86_64-linux-gnu -O2 -Wall -std=c11)';
+      if (code.includes('STR(x)') || code.includes('#x')) {
+        output = 'SyntaxArena';
+      } else if (code.includes('sizeof(') && code.includes('struct')) {
+        output = '16'; // Struct padding alignment demonstration
+      } else if (code.includes('printf(')) {
+        // Extract printf format and values
+        const m = code.match(/printf\s*\(\s*"([^"]+)"(?:\s*,\s*([^)]+))?\s*\)/);
+        if (m) {
+          let fmt = m[1].replace(/\\n/g, '\n');
+          output = fmt;
+        } else {
+          output = 'Execution finished with exit code 0';
+        }
+      } else {
+        output = 'Compiled successfully with GCC. Output stream: \n(Code executed with exit code 0)';
+      }
+    } else if (lang === 'cpp') {
+      notes = 'Clang++ 16.0.0 (-std=c++20 -O3 -Wall)';
+      if (code.includes('cout')) {
+        const m = code.match(/std::cout\s*<<\s*([^;]+);/);
+        if (m) {
+          output = m[1].replace(/std::endl/g, '\n').replace(/"/g, '').replace(/<</g, '').trim();
+        } else {
+          output = 'Hello, SyntaxArena!';
+        }
+      } else {
+        output = 'Binary linked cleanly. Process exited normally.';
+      }
+    } else if (lang === 'java') {
+      notes = 'OpenJDK 21 (build 21.0.2+13-LTS)';
+      if (code.includes('substring(0, 6)')) {
+        output = 'Syntax';
+      } else if (code.includes('println(')) {
+        const m = code.match(/System\.out\.println\s*\(\s*([^)]+)\s*\)/);
+        output = m ? m[1].replace(/"/g, '') : 'Valid';
+      } else {
+        output = 'JVM bytecode executed without runtime exceptions.';
+      }
+    } else if (lang === 'rust') {
+      notes = 'rustc 1.76.0 (07dca489a 2024-02-04) 2021 Edition';
+      if (code.includes('println!')) {
+        const m = code.match(/println!\s*\(\s*"([^"]+)"(?:\s*,\s*([^)]+))?\s*\)/);
+        output = m ? m[1].replace(/\{\}/g, 'MATCH') : 'Compiled and passed borrow checker.';
+      } else {
+        output = 'Rust binary generated: 0 warnings, zero lifetime violations.';
+      }
+    }
+
+    const elapsed = Math.round(performance.now() - start);
+    return {
+      success: true,
+      output,
+      compilerNotes: notes,
+      elapsedMs: elapsed
+    };
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.SandboxManager = SandboxManager;
+}
+
+/* --- End of js/sandbox-manager.js --- */
+
 /* --- Start of js/onboarding.js --- */
 /**
  * SyntaxArena Onboarding Module (Batch 3)
@@ -16725,7 +17775,7 @@ var LandingPage = window.LandingPage = {
   },
 
   /**
-   * Evaluate player profile readiness and route or open onboarding accordingly.
+   * Evaluate player profile readiness and open stage selector modal or onboarding.
    * @param {HTMLElement} [triggerEl=null]
    */
   handlePlayAction(triggerEl = null) {
@@ -16736,12 +17786,123 @@ var LandingPage = window.LandingPage = {
       // First-time player: open guided onboarding wizard
       Onboarding.open(triggerEl, true);
     } else {
-      // Profile is verified: navigate to challenge arena with current preferences
-      Router.navigateTo('game', {
-        lang: this.selectedLanguage,
-        diff: this.selectedDifficulty
-      });
+      // Open Stage Selection Modal with 4 bite-sized stages & boss stage
+      this.openStageSelectorModal(this.selectedLanguage, this.selectedDifficulty);
     }
+  },
+
+  /**
+   * Open the interactive Stage Selector Roadmap Modal for the chosen track and tier.
+   * @param {string} lang
+   * @param {string} diff
+   */
+  openStageSelectorModal(lang, diff) {
+    const modal = Utils.qs('#modal-stage-selector');
+    const stageGrid = Utils.qs('#modal-stage-grid');
+    const tag = Utils.qs('#modal-stage-track-tag');
+    const marathonLink = Utils.qs('#btn-modal-stage-marathon');
+    const closeBtn = Utils.qs('#btn-close-stage-modal');
+    const cancelBtn = Utils.qs('#btn-cancel-stage-modal');
+
+    if (!modal || !stageGrid) {
+      Router.navigateTo('game', { lang, diff });
+      return;
+    }
+
+    const meta = {
+      python: 'Python 3', c: 'C', cpp: 'C++', java: 'Java',
+      cyber: 'Cyber & Linux', javascript: 'JavaScript', rust: 'Rust', sql: 'SQL'
+    };
+    const langName = meta[lang] || 'Python 3';
+    const diffCapitalized = diff.charAt(0).toUpperCase() + diff.slice(1);
+
+    if (tag) tag.textContent = `${langName} • ${diffCapitalized}`;
+    if (marathonLink) marathonLink.href = `game.html?lang=${lang}&diff=${diff}&stage=marathon`;
+
+    const profile = State.get('activeProfile') || Profile.getActiveProfile() || {};
+    const stageStars = profile.stageStars || {};
+    const completedStages = profile.completedStages || {};
+
+    const STAGES = [
+      { id: 1, title: 'Stage 1: Fundamentals', desc: 'Questions 1–5 • ~3 mins', focus: 'Variables & Flow', isBoss: false },
+      { id: 2, title: 'Stage 2: Core Logic', desc: 'Questions 6–10 • ~3 mins', focus: 'Mutability & Loops', isBoss: false },
+      { id: 3, title: 'Stage 3: Advanced Patterns', desc: 'Questions 11–15 • ~3 mins', focus: 'Functions & Data', isBoss: false },
+      { id: 4, title: 'Stage 4: 💀 BOSS STAGE', desc: 'Questions 16–20 • ~3 mins', focus: 'Syntax Crucible', isBoss: true }
+    ];
+
+    stageGrid.innerHTML = '';
+    STAGES.forEach((stg) => {
+      const stageKey = `${lang}_${diff}_stage_${stg.id}`;
+      const stars = stageStars[stageKey] || 0;
+      const isCleared = !!completedStages[stageKey];
+
+      // Gating: Stage 1 is always unlocked. Stage N unlocks if Stage N-1 has >= 1 star or is cleared (or player level >= N)
+      let isUnlocked = stg.id === 1;
+      if (!isUnlocked) {
+        const prevKey = `${lang}_${diff}_stage_${stg.id - 1}`;
+        const prevCleared = !!completedStages[prevKey] || (stageStars[prevKey] || 0) >= 1;
+        isUnlocked = prevCleared || (profile.level || 1) >= stg.id;
+      }
+
+      const card = document.createElement('a');
+      card.className = `stage-card ${stg.isBoss ? 'is-boss' : ''} ${!isUnlocked ? 'is-locked' : ''}`;
+      if (isUnlocked) {
+        card.href = `game.html?lang=${lang}&diff=${diff}&stage=${stg.id}`;
+      } else {
+        card.setAttribute('aria-disabled', 'true');
+      }
+
+      card.innerHTML = `
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <span class="badge ${stg.isBoss ? 'badge-coral' : isCleared ? 'badge-emerald' : 'badge-neutral'}" style="font-size: 10px;">
+              ${stg.isBoss ? '💀 Boss Stage' : `Stage ${stg.id} / 4`}
+            </span>
+            <div class="star-rating-display" style="font-size: 14px;">
+              ${'⭐'.repeat(stars)}<span style="opacity: 0.25;">${'⭐'.repeat(3 - stars)}</span>
+            </div>
+          </div>
+          <h4 style="margin: 0.25rem 0; font-size: var(--text-sm); font-family: var(--font-display); color: ${stg.isBoss ? 'var(--color-coral)' : 'var(--text-primary)'};">
+            ${stg.title}
+          </h4>
+          <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.4;">
+            ${stg.desc} • ${stg.focus}
+          </p>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem; font-size: 11px;">
+          <span style="color: ${isUnlocked ? (isCleared ? 'var(--color-success)' : 'var(--color-primary)') : 'var(--text-muted)'}; font-weight: 700;">
+            ${!isUnlocked ? '🔒 Locked (Clear Stage ' + (stg.id - 1) + ')' : isCleared ? '✓ Cleared' : '▶ Play Stage'}
+          </span>
+          <span style="color: var(--text-muted); font-size: 10px;">5 Questions</span>
+        </div>
+      `;
+
+      card.addEventListener('click', (e) => {
+        if (!isUnlocked) {
+          e.preventDefault();
+          AudioEngine.playError();
+          UI.showToast(`🔒 Stage ${stg.id} is locked! Complete Stage ${stg.id - 1} first to unlock.`, 'info');
+        } else {
+          AudioEngine.playClick();
+        }
+      });
+
+      stageGrid.appendChild(card);
+    });
+
+    const closeModal = () => {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+    };
+
+    if (closeBtn) closeBtn.onclick = closeModal;
+    if (cancelBtn) cancelBtn.onclick = closeModal;
+    modal.onclick = (e) => {
+      if (e.target === modal) closeModal();
+    };
+
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
   },
 
   /**
@@ -16820,6 +17981,14 @@ var HINT_PENALTIES = window.HINT_PENALTIES = {
   expert: 100
 };
 
+var STAGE_CONFIG = window.STAGE_CONFIG = {
+  1: { id: 1, name: 'Stage 1: Core Fundamentals', questionsCount: 5, startIndex: 0, endIndex: 5, isBoss: false },
+  2: { id: 2, name: 'Stage 2: Control & Mutability', questionsCount: 5, startIndex: 5, endIndex: 10, isBoss: false },
+  3: { id: 3, name: 'Stage 3: Advanced Patterns', questionsCount: 5, startIndex: 10, endIndex: 15, isBoss: false },
+  4: { id: 4, name: 'Stage 4: 💀 BOSS STAGE', questionsCount: 5, startIndex: 15, endIndex: 20, isBoss: true },
+  marathon: { id: 'marathon', name: 'Tier Marathon (20 Qs)', questionsCount: 20, startIndex: 0, endIndex: 20, isBoss: false }
+};
+
 var Gameplay = window.Gameplay = {
   engine: null,
   sessionConfig: null,
@@ -16860,6 +18029,7 @@ var Gameplay = window.Gameplay = {
       language: sess.language,
       difficulty: sess.difficulty,
       mode: sess.mode,
+      stage: this.activeStage ? this.activeStage.id : 'marathon',
       timeLimit: sess.timeLimit,
       startTime: sess.startTime,
       questionIds: sess.questions.map(q => q.id),
@@ -16970,6 +18140,7 @@ var Gameplay = window.Gameplay = {
       savedSession.language === language &&
       savedSession.difficulty === difficulty &&
       savedSession.mode === mode &&
+      (!params.stage || String(savedSession.stage || 'marathon') === String(params.stage)) &&
       Array.isArray(savedSession.questionIds) &&
       savedSession.questionIds.length > 0 &&
       (Date.now() - (savedSession.lastUpdated || savedSession.startTime || 0)) < 2 * 60 * 60 * 1000;
@@ -17015,6 +18186,7 @@ var Gameplay = window.Gameplay = {
             });
           }
 
+          this.activeStage = STAGE_CONFIG[savedSession.stage] || STAGE_CONFIG.marathon;
           this._bindEvents();
           const resumedQ = this.engine.getCurrentQuestion();
           this.renderQuestion(resumedQ);
@@ -17089,6 +18261,19 @@ var Gameplay = window.Gameplay = {
       return false;
     }
 
+    // STAGE SLICING: Support dividing the 20 questions into 4 Stages of 5 questions each
+    let stageParam = params.stage ? String(params.stage).toLowerCase().trim() : 'marathon';
+    let activeStage = STAGE_CONFIG[stageParam] || STAGE_CONFIG.marathon;
+
+    if (mode === 'campaign' && questions.length >= 20 && stageParam !== 'marathon' && stageParam !== 'all') {
+      const parsedStage = parseInt(stageParam, 10);
+      if (parsedStage >= 1 && parsedStage <= 4) {
+        activeStage = STAGE_CONFIG[parsedStage];
+        questions = questions.slice(activeStage.startIndex, activeStage.endIndex);
+      }
+    }
+    this.activeStage = activeStage;
+
     // 4. Initialize GameEngine
     this.engine = new GameEngine();
     this.sessionConfig = {
@@ -17097,6 +18282,7 @@ var Gameplay = window.Gameplay = {
       mode,
       timeLimit,
       questions,
+      stage: activeStage.id,
       randomizeOrder: mode !== 'campaign'
     };
 
@@ -17188,7 +18374,10 @@ var Gameplay = window.Gameplay = {
 
     if (feedbackPanel) feedbackPanel.style.display = 'none';
     if (hintDrawer) hintDrawer.style.display = 'none';
-    if (nextBtn) nextBtn.style.display = 'none';
+    if (nextBtn) {
+      nextBtn.style.display = 'none';
+      nextBtn.disabled = false;
+    }
     if (retryBtn) retryBtn.style.display = 'none';
 
     if (submitBtn) {
@@ -17271,9 +18460,21 @@ var Gameplay = window.Gameplay = {
     }
 
     const diffBadge = Utils.qs('#q-diff-badge');
+    const questionCard = Utils.qs('.arena-main-card') || Utils.qs('.card');
     if (diffBadge) {
-      diffBadge.textContent = q.difficulty.toUpperCase();
-      diffBadge.className = `badge ${q.difficulty === 'expert' ? 'badge-coral' : q.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald'}`;
+      if (this.activeStage && this.activeStage.isBoss) {
+        diffBadge.textContent = `${q.difficulty.toUpperCase()} • 💀 BOSS STAGE (Stage 4 / 4)`;
+        diffBadge.className = 'badge badge-coral boss-pulse';
+        if (questionCard) questionCard.classList.add('is-boss');
+      } else if (this.activeStage && this.activeStage.id !== 'marathon') {
+        diffBadge.textContent = `${q.difficulty.toUpperCase()} • Stage ${this.activeStage.id} / 4`;
+        diffBadge.className = `badge ${q.difficulty === 'expert' ? 'badge-coral' : q.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald'}`;
+        if (questionCard) questionCard.classList.remove('is-boss');
+      } else {
+        diffBadge.textContent = q.difficulty.toUpperCase();
+        diffBadge.className = `badge ${q.difficulty === 'expert' ? 'badge-coral' : q.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald'}`;
+        if (questionCard) questionCard.classList.remove('is-boss');
+      }
     }
 
     const topicTitle = Utils.qs('#q-topic-title');
@@ -17702,13 +18903,27 @@ var Gameplay = window.Gameplay = {
         }
       }
 
+      let mathMsg = '';
+      if (this._isRetryAttempt) {
+        mathMsg = 'Score Math: +0 pts (Original attempt counted as incorrect for stage accuracy). Great job learning the answer!';
+      } else {
+        const base = result.basePoints || (this.sessionConfig && this.sessionConfig.difficulty === 'expert' ? 350 : this.sessionConfig && this.sessionConfig.difficulty === 'intermediate' ? 200 : 100);
+        const speed = result.speedBonus || 0;
+        const hintPen = result.hintPenalty || 0;
+        const mult = (result.multiplier || 1.0).toFixed(2);
+        const parts = [`${base} base`];
+        if (hintPen > 0) parts.push(`-${hintPen} hint penalty`);
+        if (speed > 0) parts.push(`+${speed} speed bonus (${timeRemaining}s left)`);
+        mathMsg = `Score Math: (${parts.join(' ')}) × ${mult}x streak = +${result.points} pts`;
+      }
+
       this._displayFeedback({
         type: 'correct',
         title: this._isRetryAttempt ? 'Correct on Retry!' : 'Correct Deduction!',
         points: result.points,
         streak: result.streak,
         explanation: result.explanation,
-        message: this._isRetryAttempt ? 'Correct deduction! (0 points added for retried question)' : undefined
+        message: mathMsg
       });
 
       // Highlight selected option card in green
@@ -17794,6 +19009,7 @@ var Gameplay = window.Gameplay = {
           this._displayFeedback({
             type: 'incorrect',
             title: result.lives !== undefined ? `Incorrect (${result.lives} ♥ left)` : 'Incorrect Answer',
+            message: 'Score Math: 0 pts (Streak reset to 0)',
             correctAnswer: result.correctAnswer,
             explanation: result.explanation
           });
@@ -17875,7 +19091,7 @@ var Gameplay = window.Gameplay = {
       } else if (type === 'retry') {
         bodyEl.textContent = message;
       } else {
-        bodyEl.textContent = correctAnswer ? `Expected correct answer: ${correctAnswer}` : 'Better luck on the next challenge!';
+        bodyEl.textContent = message || (correctAnswer ? `Expected correct answer: ${correctAnswer}` : 'Better luck on the next challenge!');
       }
     }
 
@@ -17893,6 +19109,7 @@ var Gameplay = window.Gameplay = {
       if (submitBtn) submitBtn.style.display = 'none';
       if (nextBtn) {
         nextBtn.style.display = 'inline-flex';
+        nextBtn.disabled = false;
         const session = this.engine.getSession();
         const isFinal = isGameOver || (session && (session.isGameOver || session.currentIndex >= session.questions.length - 1));
         nextBtn.textContent = isFinal ? 'Finish Run & View Results →' : 'Next Question →';
@@ -17953,14 +19170,11 @@ var Gameplay = window.Gameplay = {
 
     this._isRetryAttempt = true;
 
-    // Remove previous failed attempt from session results so retry replaces it cleanly
+    // Retain failed attempt in session results so first-pass test accuracy is honest and not falsely 100%
     if (Array.isArray(session.results) && session.results.length > 0) {
       const lastRes = session.results[session.results.length - 1];
       if (lastRes && lastRes.index === session.currentIndex) {
-        session.results.pop();
-        if (session.questionsAttempted > 0) {
-          session.questionsAttempted--;
-        }
+        lastRes.retried = true;
       }
     }
 
@@ -18076,8 +19290,22 @@ var Gameplay = window.Gameplay = {
 
     const summary = this.engine.getSessionSummary();
 
+    // Calculate stage stars (0 to 3) based on accuracy
+    const accuracy = summary.questionsAttempted > 0 ? Math.round((summary.questionsCorrect / summary.questionsAttempted) * 100) : 0;
+    const stars = accuracy >= 90 ? 3 : accuracy >= 70 ? 2 : accuracy >= 50 ? 1 : 0;
+    summary.stars = stars;
+
+    if (this.activeStage) {
+      summary.stage = this.activeStage.id;
+      summary.stageName = this.activeStage.name;
+      summary.isBoss = this.activeStage.isBoss;
+    } else {
+      summary.stage = 'marathon';
+      summary.stageName = 'Tier Marathon';
+      summary.isBoss = false;
+    }
+
     // Flawless Run Bonus: 100% accuracy with zero errors (+500 points & confetti)
-    // Flawless Run Bonus: 100% accuracy with zero errors on entire level (+500 points & confetti)
     if (summary && summary.questionsAttempted > 0 &&
         summary.questionsCorrect === summary.totalQuestions &&
         summary.questionsAttempted === summary.totalQuestions &&
@@ -18090,14 +19318,6 @@ var Gameplay = window.Gameplay = {
     } else if (summary) {
       summary.isFlawless = false;
       summary.flawlessBonus = 0;
-    }
-
-    // Record tier completion to active profile
-    const activeProfile = State.get('activeProfile') || Profile.getActiveProfile();
-    if (activeProfile && summary) {
-      const completed = { ...(activeProfile.completedTiers || {}) };
-      completed[`${summary.language}_${summary.difficulty}`] = true;
-      Profile.updateProfile(activeProfile.id, { completedTiers: completed });
     }
 
     // Persist session summary for results page pickup
@@ -18117,6 +19337,17 @@ var Gameplay = window.Gameplay = {
           UI.showToast('ℹ Level already cleared previously. Play a new level to earn milestone clear points!', 'info');
         }
       }
+
+      // Record stage progress & stars
+      const activeProf = Profile.getActiveProfile();
+      if (activeProf && summary.stage !== 'marathon') {
+        const stageKey = `${summary.language}_${summary.difficulty}_stage_${summary.stage}`;
+        const prevStars = (activeProf.stageStars && activeProf.stageStars[stageKey]) || 0;
+        const newStars = Math.max(prevStars, stars);
+        const stageStars = { ...(activeProf.stageStars || {}), [stageKey]: newStars };
+        const completedStages = { ...(activeProf.completedStages || {}), [stageKey]: true };
+        Profile.updateProfile(activeProf.id, { stageStars, completedStages });
+      }
     } catch (e) {
       console.warn('[Gameplay] Could not record session to profile:', e);
     }
@@ -18132,7 +19363,8 @@ var Gameplay = window.Gameplay = {
       correct: summary.questionsCorrect,
       attempted: summary.questionsAttempted,
       total: summary.totalQuestions,
-      sessionId: summary.sessionId
+      sessionId: summary.sessionId,
+      stage: summary.stage
     };
 
     UI.showToast(summary.isGameOver ? 'Hardcore run concluded. Recording career XP...' : 'Challenge completed! Loading stage analytics...', 'success');

@@ -23,6 +23,14 @@ export const HINT_PENALTIES = {
   expert: 100
 };
 
+export const STAGE_CONFIG = {
+  1: { id: 1, name: 'Stage 1: Core Fundamentals', questionsCount: 5, startIndex: 0, endIndex: 5, isBoss: false },
+  2: { id: 2, name: 'Stage 2: Control & Mutability', questionsCount: 5, startIndex: 5, endIndex: 10, isBoss: false },
+  3: { id: 3, name: 'Stage 3: Advanced Patterns', questionsCount: 5, startIndex: 10, endIndex: 15, isBoss: false },
+  4: { id: 4, name: 'Stage 4: 💀 BOSS STAGE', questionsCount: 5, startIndex: 15, endIndex: 20, isBoss: true },
+  marathon: { id: 'marathon', name: 'Tier Marathon (20 Qs)', questionsCount: 20, startIndex: 0, endIndex: 20, isBoss: false }
+};
+
 export const Gameplay = {
   engine: null,
   sessionConfig: null,
@@ -63,6 +71,7 @@ export const Gameplay = {
       language: sess.language,
       difficulty: sess.difficulty,
       mode: sess.mode,
+      stage: this.activeStage ? this.activeStage.id : 'marathon',
       timeLimit: sess.timeLimit,
       startTime: sess.startTime,
       questionIds: sess.questions.map(q => q.id),
@@ -173,6 +182,7 @@ export const Gameplay = {
       savedSession.language === language &&
       savedSession.difficulty === difficulty &&
       savedSession.mode === mode &&
+      (!params.stage || String(savedSession.stage || 'marathon') === String(params.stage)) &&
       Array.isArray(savedSession.questionIds) &&
       savedSession.questionIds.length > 0 &&
       (Date.now() - (savedSession.lastUpdated || savedSession.startTime || 0)) < 2 * 60 * 60 * 1000;
@@ -218,6 +228,7 @@ export const Gameplay = {
             });
           }
 
+          this.activeStage = STAGE_CONFIG[savedSession.stage] || STAGE_CONFIG.marathon;
           this._bindEvents();
           const resumedQ = this.engine.getCurrentQuestion();
           this.renderQuestion(resumedQ);
@@ -292,6 +303,19 @@ export const Gameplay = {
       return false;
     }
 
+    // STAGE SLICING: Support dividing the 20 questions into 4 Stages of 5 questions each
+    let stageParam = params.stage ? String(params.stage).toLowerCase().trim() : 'marathon';
+    let activeStage = STAGE_CONFIG[stageParam] || STAGE_CONFIG.marathon;
+
+    if (mode === 'campaign' && questions.length >= 20 && stageParam !== 'marathon' && stageParam !== 'all') {
+      const parsedStage = parseInt(stageParam, 10);
+      if (parsedStage >= 1 && parsedStage <= 4) {
+        activeStage = STAGE_CONFIG[parsedStage];
+        questions = questions.slice(activeStage.startIndex, activeStage.endIndex);
+      }
+    }
+    this.activeStage = activeStage;
+
     // 4. Initialize GameEngine
     this.engine = new GameEngine();
     this.sessionConfig = {
@@ -300,6 +324,7 @@ export const Gameplay = {
       mode,
       timeLimit,
       questions,
+      stage: activeStage.id,
       randomizeOrder: mode !== 'campaign'
     };
 
@@ -391,7 +416,10 @@ export const Gameplay = {
 
     if (feedbackPanel) feedbackPanel.style.display = 'none';
     if (hintDrawer) hintDrawer.style.display = 'none';
-    if (nextBtn) nextBtn.style.display = 'none';
+    if (nextBtn) {
+      nextBtn.style.display = 'none';
+      nextBtn.disabled = false;
+    }
     if (retryBtn) retryBtn.style.display = 'none';
 
     if (submitBtn) {
@@ -474,9 +502,21 @@ export const Gameplay = {
     }
 
     const diffBadge = Utils.qs('#q-diff-badge');
+    const questionCard = Utils.qs('.arena-main-card') || Utils.qs('.card');
     if (diffBadge) {
-      diffBadge.textContent = q.difficulty.toUpperCase();
-      diffBadge.className = `badge ${q.difficulty === 'expert' ? 'badge-coral' : q.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald'}`;
+      if (this.activeStage && this.activeStage.isBoss) {
+        diffBadge.textContent = `${q.difficulty.toUpperCase()} • 💀 BOSS STAGE (Stage 4 / 4)`;
+        diffBadge.className = 'badge badge-coral boss-pulse';
+        if (questionCard) questionCard.classList.add('is-boss');
+      } else if (this.activeStage && this.activeStage.id !== 'marathon') {
+        diffBadge.textContent = `${q.difficulty.toUpperCase()} • Stage ${this.activeStage.id} / 4`;
+        diffBadge.className = `badge ${q.difficulty === 'expert' ? 'badge-coral' : q.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald'}`;
+        if (questionCard) questionCard.classList.remove('is-boss');
+      } else {
+        diffBadge.textContent = q.difficulty.toUpperCase();
+        diffBadge.className = `badge ${q.difficulty === 'expert' ? 'badge-coral' : q.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald'}`;
+        if (questionCard) questionCard.classList.remove('is-boss');
+      }
     }
 
     const topicTitle = Utils.qs('#q-topic-title');
@@ -905,13 +945,27 @@ export const Gameplay = {
         }
       }
 
+      let mathMsg = '';
+      if (this._isRetryAttempt) {
+        mathMsg = 'Score Math: +0 pts (Original attempt counted as incorrect for stage accuracy). Great job learning the answer!';
+      } else {
+        const base = result.basePoints || (this.sessionConfig && this.sessionConfig.difficulty === 'expert' ? 350 : this.sessionConfig && this.sessionConfig.difficulty === 'intermediate' ? 200 : 100);
+        const speed = result.speedBonus || 0;
+        const hintPen = result.hintPenalty || 0;
+        const mult = (result.multiplier || 1.0).toFixed(2);
+        const parts = [`${base} base`];
+        if (hintPen > 0) parts.push(`-${hintPen} hint penalty`);
+        if (speed > 0) parts.push(`+${speed} speed bonus (${timeRemaining}s left)`);
+        mathMsg = `Score Math: (${parts.join(' ')}) × ${mult}x streak = +${result.points} pts`;
+      }
+
       this._displayFeedback({
         type: 'correct',
         title: this._isRetryAttempt ? 'Correct on Retry!' : 'Correct Deduction!',
         points: result.points,
         streak: result.streak,
         explanation: result.explanation,
-        message: this._isRetryAttempt ? 'Correct deduction! (0 points added for retried question)' : undefined
+        message: mathMsg
       });
 
       // Highlight selected option card in green
@@ -997,6 +1051,7 @@ export const Gameplay = {
           this._displayFeedback({
             type: 'incorrect',
             title: result.lives !== undefined ? `Incorrect (${result.lives} ♥ left)` : 'Incorrect Answer',
+            message: 'Score Math: 0 pts (Streak reset to 0)',
             correctAnswer: result.correctAnswer,
             explanation: result.explanation
           });
@@ -1078,7 +1133,7 @@ export const Gameplay = {
       } else if (type === 'retry') {
         bodyEl.textContent = message;
       } else {
-        bodyEl.textContent = correctAnswer ? `Expected correct answer: ${correctAnswer}` : 'Better luck on the next challenge!';
+        bodyEl.textContent = message || (correctAnswer ? `Expected correct answer: ${correctAnswer}` : 'Better luck on the next challenge!');
       }
     }
 
@@ -1096,6 +1151,7 @@ export const Gameplay = {
       if (submitBtn) submitBtn.style.display = 'none';
       if (nextBtn) {
         nextBtn.style.display = 'inline-flex';
+        nextBtn.disabled = false;
         const session = this.engine.getSession();
         const isFinal = isGameOver || (session && (session.isGameOver || session.currentIndex >= session.questions.length - 1));
         nextBtn.textContent = isFinal ? 'Finish Run & View Results →' : 'Next Question →';
@@ -1156,14 +1212,11 @@ export const Gameplay = {
 
     this._isRetryAttempt = true;
 
-    // Remove previous failed attempt from session results so retry replaces it cleanly
+    // Retain failed attempt in session results so first-pass test accuracy is honest and not falsely 100%
     if (Array.isArray(session.results) && session.results.length > 0) {
       const lastRes = session.results[session.results.length - 1];
       if (lastRes && lastRes.index === session.currentIndex) {
-        session.results.pop();
-        if (session.questionsAttempted > 0) {
-          session.questionsAttempted--;
-        }
+        lastRes.retried = true;
       }
     }
 
@@ -1279,8 +1332,22 @@ export const Gameplay = {
 
     const summary = this.engine.getSessionSummary();
 
+    // Calculate stage stars (0 to 3) based on accuracy
+    const accuracy = summary.questionsAttempted > 0 ? Math.round((summary.questionsCorrect / summary.questionsAttempted) * 100) : 0;
+    const stars = accuracy >= 90 ? 3 : accuracy >= 70 ? 2 : accuracy >= 50 ? 1 : 0;
+    summary.stars = stars;
+
+    if (this.activeStage) {
+      summary.stage = this.activeStage.id;
+      summary.stageName = this.activeStage.name;
+      summary.isBoss = this.activeStage.isBoss;
+    } else {
+      summary.stage = 'marathon';
+      summary.stageName = 'Tier Marathon';
+      summary.isBoss = false;
+    }
+
     // Flawless Run Bonus: 100% accuracy with zero errors (+500 points & confetti)
-    // Flawless Run Bonus: 100% accuracy with zero errors on entire level (+500 points & confetti)
     if (summary && summary.questionsAttempted > 0 &&
         summary.questionsCorrect === summary.totalQuestions &&
         summary.questionsAttempted === summary.totalQuestions &&
@@ -1293,14 +1360,6 @@ export const Gameplay = {
     } else if (summary) {
       summary.isFlawless = false;
       summary.flawlessBonus = 0;
-    }
-
-    // Record tier completion to active profile
-    const activeProfile = State.get('activeProfile') || Profile.getActiveProfile();
-    if (activeProfile && summary) {
-      const completed = { ...(activeProfile.completedTiers || {}) };
-      completed[`${summary.language}_${summary.difficulty}`] = true;
-      Profile.updateProfile(activeProfile.id, { completedTiers: completed });
     }
 
     // Persist session summary for results page pickup
@@ -1320,6 +1379,17 @@ export const Gameplay = {
           UI.showToast('ℹ Level already cleared previously. Play a new level to earn milestone clear points!', 'info');
         }
       }
+
+      // Record stage progress & stars
+      const activeProf = Profile.getActiveProfile();
+      if (activeProf && summary.stage !== 'marathon') {
+        const stageKey = `${summary.language}_${summary.difficulty}_stage_${summary.stage}`;
+        const prevStars = (activeProf.stageStars && activeProf.stageStars[stageKey]) || 0;
+        const newStars = Math.max(prevStars, stars);
+        const stageStars = { ...(activeProf.stageStars || {}), [stageKey]: newStars };
+        const completedStages = { ...(activeProf.completedStages || {}), [stageKey]: true };
+        Profile.updateProfile(activeProf.id, { stageStars, completedStages });
+      }
     } catch (e) {
       console.warn('[Gameplay] Could not record session to profile:', e);
     }
@@ -1335,7 +1405,8 @@ export const Gameplay = {
       correct: summary.questionsCorrect,
       attempted: summary.questionsAttempted,
       total: summary.totalQuestions,
-      sessionId: summary.sessionId
+      sessionId: summary.sessionId,
+      stage: summary.stage
     };
 
     UI.showToast(summary.isGameOver ? 'Hardcore run concluded. Recording career XP...' : 'Challenge completed! Loading stage analytics...', 'success');

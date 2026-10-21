@@ -32,6 +32,7 @@ const files = [
   'js/state.js',
   'js/ui.js',
   'js/router.js',
+  'js/sandbox-manager.js',
   'js/onboarding.js',
   'js/landing.js',
   'js/gameplay.js',
@@ -83,6 +84,7 @@ if (!fs.existsSync(publicDir)) {
 const staticEntries = [
   'index.html',
   'game.html',
+  'sandbox.html',
   'results.html',
   'progress.html',
   'settings.html',

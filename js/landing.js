@@ -386,7 +386,7 @@ export const LandingPage = {
   },
 
   /**
-   * Evaluate player profile readiness and route or open onboarding accordingly.
+   * Evaluate player profile readiness and open stage selector modal or onboarding.
    * @param {HTMLElement} [triggerEl=null]
    */
   handlePlayAction(triggerEl = null) {
@@ -397,12 +397,123 @@ export const LandingPage = {
       // First-time player: open guided onboarding wizard
       Onboarding.open(triggerEl, true);
     } else {
-      // Profile is verified: navigate to challenge arena with current preferences
-      Router.navigateTo('game', {
-        lang: this.selectedLanguage,
-        diff: this.selectedDifficulty
-      });
+      // Open Stage Selection Modal with 4 bite-sized stages & boss stage
+      this.openStageSelectorModal(this.selectedLanguage, this.selectedDifficulty);
     }
+  },
+
+  /**
+   * Open the interactive Stage Selector Roadmap Modal for the chosen track and tier.
+   * @param {string} lang
+   * @param {string} diff
+   */
+  openStageSelectorModal(lang, diff) {
+    const modal = Utils.qs('#modal-stage-selector');
+    const stageGrid = Utils.qs('#modal-stage-grid');
+    const tag = Utils.qs('#modal-stage-track-tag');
+    const marathonLink = Utils.qs('#btn-modal-stage-marathon');
+    const closeBtn = Utils.qs('#btn-close-stage-modal');
+    const cancelBtn = Utils.qs('#btn-cancel-stage-modal');
+
+    if (!modal || !stageGrid) {
+      Router.navigateTo('game', { lang, diff });
+      return;
+    }
+
+    const meta = {
+      python: 'Python 3', c: 'C', cpp: 'C++', java: 'Java',
+      cyber: 'Cyber & Linux', javascript: 'JavaScript', rust: 'Rust', sql: 'SQL'
+    };
+    const langName = meta[lang] || 'Python 3';
+    const diffCapitalized = diff.charAt(0).toUpperCase() + diff.slice(1);
+
+    if (tag) tag.textContent = `${langName} • ${diffCapitalized}`;
+    if (marathonLink) marathonLink.href = `game.html?lang=${lang}&diff=${diff}&stage=marathon`;
+
+    const profile = State.get('activeProfile') || Profile.getActiveProfile() || {};
+    const stageStars = profile.stageStars || {};
+    const completedStages = profile.completedStages || {};
+
+    const STAGES = [
+      { id: 1, title: 'Stage 1: Fundamentals', desc: 'Questions 1–5 • ~3 mins', focus: 'Variables & Flow', isBoss: false },
+      { id: 2, title: 'Stage 2: Core Logic', desc: 'Questions 6–10 • ~3 mins', focus: 'Mutability & Loops', isBoss: false },
+      { id: 3, title: 'Stage 3: Advanced Patterns', desc: 'Questions 11–15 • ~3 mins', focus: 'Functions & Data', isBoss: false },
+      { id: 4, title: 'Stage 4: 💀 BOSS STAGE', desc: 'Questions 16–20 • ~3 mins', focus: 'Syntax Crucible', isBoss: true }
+    ];
+
+    stageGrid.innerHTML = '';
+    STAGES.forEach((stg) => {
+      const stageKey = `${lang}_${diff}_stage_${stg.id}`;
+      const stars = stageStars[stageKey] || 0;
+      const isCleared = !!completedStages[stageKey];
+
+      // Gating: Stage 1 is always unlocked. Stage N unlocks if Stage N-1 has >= 1 star or is cleared (or player level >= N)
+      let isUnlocked = stg.id === 1;
+      if (!isUnlocked) {
+        const prevKey = `${lang}_${diff}_stage_${stg.id - 1}`;
+        const prevCleared = !!completedStages[prevKey] || (stageStars[prevKey] || 0) >= 1;
+        isUnlocked = prevCleared || (profile.level || 1) >= stg.id;
+      }
+
+      const card = document.createElement('a');
+      card.className = `stage-card ${stg.isBoss ? 'is-boss' : ''} ${!isUnlocked ? 'is-locked' : ''}`;
+      if (isUnlocked) {
+        card.href = `game.html?lang=${lang}&diff=${diff}&stage=${stg.id}`;
+      } else {
+        card.setAttribute('aria-disabled', 'true');
+      }
+
+      card.innerHTML = `
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <span class="badge ${stg.isBoss ? 'badge-coral' : isCleared ? 'badge-emerald' : 'badge-neutral'}" style="font-size: 10px;">
+              ${stg.isBoss ? '💀 Boss Stage' : `Stage ${stg.id} / 4`}
+            </span>
+            <div class="star-rating-display" style="font-size: 14px;">
+              ${'⭐'.repeat(stars)}<span style="opacity: 0.25;">${'⭐'.repeat(3 - stars)}</span>
+            </div>
+          </div>
+          <h4 style="margin: 0.25rem 0; font-size: var(--text-sm); font-family: var(--font-display); color: ${stg.isBoss ? 'var(--color-coral)' : 'var(--text-primary)'};">
+            ${stg.title}
+          </h4>
+          <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.4;">
+            ${stg.desc} • ${stg.focus}
+          </p>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem; font-size: 11px;">
+          <span style="color: ${isUnlocked ? (isCleared ? 'var(--color-success)' : 'var(--color-primary)') : 'var(--text-muted)'}; font-weight: 700;">
+            ${!isUnlocked ? '🔒 Locked (Clear Stage ' + (stg.id - 1) + ')' : isCleared ? '✓ Cleared' : '▶ Play Stage'}
+          </span>
+          <span style="color: var(--text-muted); font-size: 10px;">5 Questions</span>
+        </div>
+      `;
+
+      card.addEventListener('click', (e) => {
+        if (!isUnlocked) {
+          e.preventDefault();
+          AudioEngine.playError();
+          UI.showToast(`🔒 Stage ${stg.id} is locked! Complete Stage ${stg.id - 1} first to unlock.`, 'info');
+        } else {
+          AudioEngine.playClick();
+        }
+      });
+
+      stageGrid.appendChild(card);
+    });
+
+    const closeModal = () => {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+    };
+
+    if (closeBtn) closeBtn.onclick = closeModal;
+    if (cancelBtn) cancelBtn.onclick = closeModal;
+    modal.onclick = (e) => {
+      if (e.target === modal) closeModal();
+    };
+
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
   },
 
   /**

@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SyntaxArena — In-Browser Multi-Language Sandbox, Linux Shell Simulator & Code Playground.">
+  <title>SyntaxArena — Live Sandbox &amp; Multi-Language Playground</title>
+  
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body data-page="sandbox">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Embedded SVG Icons -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>
+    </symbol>
+    <symbol id="icon-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="6" x2="10" y1="11" y2="11"></line><line x1="8" x2="8" y1="9" y2="13"></line>
+      <line x1="15" x2="15.01" y1="12" y2="12"></line><line x1="18" x2="18.01" y1="10" y2="10"></line>
+      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
+    </symbol>
+    <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+      <path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+    </symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </symbol>
+    <symbol id="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+    </symbol>
+  </svg>
+
+  <!-- Header Shell -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-link" aria-label="SyntaxArena Home">
+        <span class="brand-badge" aria-hidden="true" style="padding: 2px;">
+          <img src="assets/images/logo.svg" width="24" height="24" alt="SyntaxArena Logo">
+        </span>
+        <span class="brand-title">SyntaxArena</span>
+      </a>
+
+      <nav class="app-nav" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Hub</span>
+        </a>
+        <a href="game.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
+          <span>Play</span>
+        </a>
+        <a href="sandbox.html" class="nav-link" aria-current="page">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Sandbox</span>
+        </a>
+        <a href="results.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-trophy"></use></svg>
+          <span>Results</span>
+        </a>
+        <a href="progress.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-chart"></use></svg>
+          <span>Progress</span>
+        </a>
+        <a href="settings.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-settings"></use></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="btn-theme-toggle" class="btn-icon-toggle" aria-label="Toggle color theme" title="Toggle color theme">
+          <svg width="20" height="20"><use href="#icon-sun"></use></svg>
+        </button>
+        <button id="btn-sound-toggle" class="btn-icon-toggle" aria-label="Toggle sound effects" title="Toggle sound effects">
+          <svg width="20" height="20"><use href="#icon-volume"></use></svg>
+        </button>
+        <a href="settings.html" class="profile-pill" aria-label="User profile settings">
+          <span class="profile-avatar-mini" aria-hidden="true">🦊</span>
+          <span class="profile-name">ScriptAdept</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Shell -->
+  <main id="main-content" class="app-main">
+    <div class="page-container" style="max-width: 1080px;">
+      
+      <!-- Page Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+            <span class="badge badge-emerald" id="active-env-badge">🐍 Python 3.10 Engine</span>
+            <span class="badge badge-cyan" id="engine-status-badge">⚡ 100% Client-Side Active</span>
+          </div>
+          <h1 id="sandbox-page-title" style="margin: 0; font-family: var(--font-display); font-size: 1.75rem; font-weight: 800;">
+            Live Code Sandbox &amp; Shell Simulator
+          </h1>
+          <p id="sandbox-page-subtitle" class="page-subtitle" style="margin-top: 0.25rem;">
+            Run code, test commands, and inspect execution output directly in your browser with zero server latency.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <a href="game.html" class="btn-arcade btn-primary btn-sm">
+            <svg width="16" height="16"><use href="#icon-gamepad"></use></svg>
+            <span>Launch Arena</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Environment Selector Tabs -->
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; padding-bottom: 4px;">
+        <button type="button" class="btn-arcade btn-primary btn-sm env-tab-btn is-active" data-env="python">
+          🐍 Python 3
+        </button>
+        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="cyber">
+          🐧 Cyber &amp; Linux Shell
+        </button>
+        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="sql">
+          🗄️ SQL Engine
+        </button>
+        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="javascript">
+          🌐 JavaScript
+        </button>
+        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="systems">
+          ⚡ C / C++ / Java / Rust
+        </button>
+      </div>
+
+      <!-- IDE Workspace Card -->
+      <div class="card card-raised" style="padding: 1.25rem; margin-bottom: 1.5rem;">
+        
+        <!-- Toolbar Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <label for="template-select" style="font-size: var(--text-xs); font-family: var(--font-display); font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
+              Starter Snippets:
+            </label>
+            <select id="template-select" class="form-select" style="padding: 4px 10px; font-size: 12px; width: auto; min-width: 240px;">
+              <!-- Populated dynamically based on active environment -->
+            </select>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button id="btn-page-reset" class="btn-arcade btn-neutral btn-sm" type="button" title="Reset current snippet">
+              ↺ Reset
+            </button>
+            <button id="btn-page-clear-terminal" class="btn-arcade btn-neutral btn-sm" type="button" title="Clear console output">
+              🧹 Clear Output
+            </button>
+            <button id="btn-page-run" class="btn-arcade btn-primary btn-sm" type="button" style="display: flex; align-items: center; gap: 0.4rem;">
+              <svg width="14" height="14"><use href="#icon-play"></use></svg>
+              <span id="btn-run-text">Run Code</span>
+              <span style="font-size: 10px; opacity: 0.75;">(Ctrl+Enter)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Editor & Terminal Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          
+          <!-- Code Editor Side -->
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); border-bottom: none; border-radius: var(--radius-md) var(--radius-md) 0 0; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">
+              <span id="editor-filename">editor.py</span>
+              <span id="editor-hint">Tab = 4 Spaces</span>
+            </div>
+            <textarea id="page-code-editor" class="sandbox-code-editor" style="min-height: 400px; border: 1px solid var(--border-strong); border-radius: 0 0 var(--radius-md) var(--radius-md); background: var(--bg-code-terminal);" spellcheck="false"></textarea>
+          </div>
+
+          <!-- Console Terminal Side -->
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); border-bottom: none; border-radius: var(--radius-md) var(--radius-md) 0 0; font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+              <span id="console-header-title">Standard Output (stdout)</span>
+              <span id="page-time-pill" class="badge badge-neutral" style="font-size: 10px;">0ms</span>
+            </div>
+            <div id="page-console-output" class="sandbox-terminal" style="min-height: 400px; max-height: 400px; border: 1px solid var(--border-strong); border-radius: 0 0 var(--radius-md) var(--radius-md); background: var(--bg-surface-sunken); padding: 1rem; overflow-y: auto;" role="region" aria-label="Console Output">
+              <span style="color: var(--text-muted);">Terminal initialized. Click <strong>Run Code (Ctrl+Enter)</strong> to execute code and stream standard output.</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Interactive Linux Terminal CLI (Shown when Cyber / Linux tab is active) -->
+        <div id="linux-cli-interactive" style="display: none; margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.5); border: 1px solid var(--border-strong); border-radius: var(--radius-md);">
+          <div style="font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--color-cyan); margin-bottom: 0.35rem;">
+            🐧 QUICK SHELL COMMAND PROMPT (VIRTUAL LINUX FILESYSTEM)
+          </div>
+          <form id="linux-cli-form" style="display: flex; gap: 0.5rem; align-items: center;">
+            <span style="font-family: var(--font-mono); font-size: 12px; color: var(--color-success); font-weight: 700;">hacker@syntaxarena:~$</span>
+            <input type="text" id="linux-cli-input" class="form-input" placeholder="Try: ls -la, cat /etc/passwd, cat /var/log/auth.log | grep Failed, whoami, uname -a" style="flex: 1; font-family: var(--font-mono); font-size: 12px; padding: 4px 8px;">
+            <button type="submit" class="btn-arcade btn-primary btn-sm" style="padding: 4px 10px; font-size: 11px;">Send</button>
+          </form>
+        </div>
+
+        <!-- Help Info Footer -->
+        <div id="sandbox-footer-tip" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-size: var(--text-xs); color: var(--text-muted);">
+          <div>
+            💡 <strong>Sandbox Tip:</strong> 100% Client-Side. No external network request or server is used.
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+            <span>Shortcuts: <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (Run)</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer Shell -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div>SyntaxArena • Multi-Language Challenge Arena</div>
+      <nav class="footer-nav" aria-label="Footer Links">
+        <a href="index.html">Hub</a>
+        <a href="game.html">Play</a>
+        <a href="sandbox.html">Sandbox</a>
+        <a href="results.html">Results</a>
+        <a href="progress.html">Progression</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/bundle.js"></script>
+  <script type="module">
+    import { SandboxManager } from './js/sandbox-manager.js';
+    import { Utils } from './js/utils.js';
+
+    // Multi-Language Snippet Registry
+    const ENV_TEMPLATES = {
+      python: {
+        title: 'Python 3 Live Sandbox & REPL',
+        subtitle: 'Execute Python 3 snippets instantly in your browser with zero server latency.',
+        badge: '🐍 Python 3.10 Engine',
+        filename: 'script.py',
+        templates: {
+          mutability: `# 1. List Mutability & References
+a = [1, 2, 3]
+b = a
+b.append(4)
+
+print("a:", a)
+print("b:", b)
+print("len(a):", len(a))
+print("Is b the exact same object as a?", a is b)
+`,
+          slicing: `# 2. String Slicing & Steps
+msg = 'SyntaxArena'
+print("Reversed:", msg[::-1])
+print("First 4 of reversed:", msg[::-1][:4])
+print("Every 2nd char:", msg[::2])
+`,
+          dict_comp: `# 3. Dictionary Comprehension
+words = ["python", "arena", "syntax", "code"]
+lengths = {w: len(w) for w in words if len(w) > 4}
+print("Filtered lengths:", lengths)
+`,
+          scope: `# 4. Variable Scope & Closures
+def make_counter(start=0):
+    count = [start]
+    def increment():
+        count[0] += 1
+        return count[0]
+    return increment
+
+c = make_counter(10)
+print("Call 1:", c())
+print("Call 2:", c())
+print("Call 3:", c())
+`,
+          recursion: `# 5. Recursion & Fibonacci
+def fib(n):
+    return n if n <= 1 else fib(n-1) + fib(n-2)
+
+for i in range(8):
+    print(f"fib({i}) = {fib(i)}")
+`,
+          blank: `# Python 3 Scratchpad\nprint("Hello from SyntaxArena!")\n`
+        }
+      },
+
+      cyber: {
+        title: 'Cyber & Linux Shell Sandbox',
+        subtitle: 'Virtual Linux filesystem with bash commands, pipes, permissions, and script conditions.',
+        badge: '🐧 Linux / Bash VFS',
+        filename: 'exploit.sh',
+        templates: {
+          wildcard: `#!/bin/bash
+# Test string matching in bash
+str='SyntaxArena_2026'
+
+if [[ $str == *Arena* ]]; then
+  echo 'MATCH'
+else
+  echo 'NO'
+fi
+`,
+          pipes: `#!/bin/bash
+# Inspect auth logs for failed SSH logins
+echo "--- Searching for Failed Passwords ---"
+cat /var/log/auth.log | grep Failed
+
+echo ""
+echo "--- Count of Failed Attacks ---"
+cat /var/log/auth.log | grep Failed | wc -l
+`,
+          perms: `#!/bin/bash
+# Inspecting file permissions and flags
+echo "--- Home Directory ---"
+ls -la /home/hacker
+
+echo ""
+echo "--- Reading Notes File ---"
+cat /home/hacker/notes.txt
+`,
+          base64: `#!/bin/bash
+# Encoding and decoding secret tokens
+token='SyntaxArena_Admin_2026'
+encoded=$(echo $token | base64)
+echo "Encoded: $encoded"
+
+decoded=$(echo $encoded | base64 -d)
+echo "Decoded: $decoded"
+`
+        }
+      },
+
+      sql: {
+        title: 'SQL Relational Database Engine',
+        subtitle: 'Execute SQL queries against pre-seeded users, audit logs, and challenge tables.',
+        badge: '🗄️ In-Memory SQL Engine',
+        filename: 'query.sql',
+        templates: {
+          select_all: `-- 1. Select all active players
+SELECT username, role, xp, email
+FROM users
+WHERE active = 1
+ORDER BY xp DESC;
+`,
+          aggregates: `-- 2. Aggregations and Counts
+SELECT COUNT(*)
+FROM audit_logs
+WHERE status = '200 OK';
+`,
+          challenges: `-- 3. Challenges Filtered by Points
+SELECT track, difficulty, points, title
+FROM challenges
+WHERE points >= 150
+ORDER BY points DESC;
+`,
+          show_tables: `-- 4. Inspect Available Database Tables
+SHOW TABLES;
+`
+        }
+      },
+
+      javascript: {
+        title: 'JavaScript Sandbox Console',
+        subtitle: 'Sandboxed modern ES2024 runtime capturing console logs and return expressions.',
+        badge: '🌐 ES2024 JavaScript',
+        filename: 'script.js',
+        templates: {
+          array_quirks: `// Array methods & mutation quirks
+const arr = [10, 20, 30, 40];
+const mapped = arr.map(x => x * 2);
+console.log("Original:", arr);
+console.log("Mapped:", mapped);
+
+const [first, ...rest] = arr;
+console.log("Destructured:", first, rest);
+`,
+          async_closure: `// Closures and Scope
+function createMultiplier(factor) {
+  return function(num) {
+    return num * factor;
+  };
+}
+
+const double = createMultiplier(2);
+const triple = createMultiplier(3);
+console.log("Double 21:", double(21));
+console.log("Triple 14:", triple(14));
+`,
+          blank: `console.log("Hello from JavaScript Engine!");\n`
+        }
+      },
+
+      systems: {
+        title: 'C / C++ / Java / Rust Challenge Simulator',
+        subtitle: 'Interactive compiler and memory-model simulation for systems programming tracks.',
+        badge: '⚡ Systems Simulators',
+        filename: 'main.c',
+        templates: {
+          c_macro: `// C Preprocessor Macro Challenge
+#include <stdio.h>
+#define STR(x) #x
+
+int main(void) {
+    printf("%s", STR(SyntaxArena));
+    return 0;
+}
+`,
+          c_struct: `// C Struct Padding Alignment
+#include <stdio.h>
+
+struct Packet {
+    char flag;      // 1 byte (+ 3 padding)
+    int payload;    // 4 bytes
+    double latency; // 8 bytes
+};
+
+int main(void) {
+    printf("%zu", sizeof(struct Packet));
+    return 0;
+}
+`,
+          java_sub: `// Java String Substring & Immutability
+public class Main {
+    public static void main(String[] args) {
+        String s = "SyntaxArena";
+        System.out.println(s.substring(0, 6));
+    }
+}
+`,
+          rust_borrow: `// Rust Ownership & Pattern Matching
+fn main() {
+    let text = String::from("SyntaxArena");
+    if text.contains("Arena") {
+        println!("MATCH");
+    }
+}
+`
+        }
+      }
+    };
+
+    let currentEnv = 'python';
+
+    function setEnvironment(envKey) {
+      if (!ENV_TEMPLATES[envKey]) return;
+      currentEnv = envKey;
+      const conf = ENV_TEMPLATES[envKey];
+
+      // Update Header Text & Badges
+      const titleEl = Utils.qs('#sandbox-page-title');
+      const subtitleEl = Utils.qs('#sandbox-page-subtitle');
+      const badgeEl = Utils.qs('#active-env-badge');
+      const filenameEl = Utils.qs('#editor-filename');
+      const linuxCli = Utils.qs('#linux-cli-interactive');
+      const consoleTitle = Utils.qs('#console-header-title');
+
+      if (titleEl) titleEl.textContent = conf.title;
+      if (subtitleEl) subtitleEl.textContent = conf.subtitle;
+      if (badgeEl) badgeEl.textContent = conf.badge;
+      if (filenameEl) filenameEl.textContent = conf.filename;
+
+      if (linuxCli) {
+        linuxCli.style.display = (envKey === 'cyber') ? 'block' : 'none';
+      }
+
+      if (consoleTitle) {
+        consoleTitle.textContent = (envKey === 'sql') ? 'Query Results Table' : 'Standard Output (stdout)';
+      }
+
+      // Update Tab Buttons
+      const tabBtns = Utils.qsa('.env-tab-btn');
+      tabBtns.forEach(b => {
+        const isActive = b.getAttribute('data-env') === envKey;
+        b.classList.toggle('is-active', isActive);
+        b.classList.toggle('btn-primary', isActive);
+        b.classList.toggle('btn-neutral', !isActive);
+      });
+
+      // Populate Template Select
+      const select = Utils.qs('#template-select');
+      if (select) {
+        select.innerHTML = '';
+        Object.entries(conf.templates).forEach(([k, snippet]) => {
+          const opt = document.createElement('option');
+          opt.value = k;
+          opt.textContent = k.replace(/_/g, ' ').toUpperCase();
+          select.appendChild(opt);
+        });
+      }
+
+      // Load initial template
+      const editor = Utils.qs('#page-code-editor');
+      const firstKey = Object.keys(conf.templates)[0];
+      if (editor && firstKey) {
+        editor.value = conf.templates[firstKey];
+      }
+
+      // Clear Console
+      const consoleOutput = Utils.qs('#page-console-output');
+      if (consoleOutput) {
+        consoleOutput.innerHTML = `<span style="color: var(--text-muted);">${conf.title} ready. Press <strong>Run Code (Ctrl+Enter)</strong> to execute.</span>`;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const editor = Utils.qs('#page-code-editor');
+      const consoleOutput = Utils.qs('#page-console-output');
+      const runBtn = Utils.qs('#btn-page-run');
+      const resetBtn = Utils.qs('#btn-page-reset');
+      const clearBtn = Utils.qs('#btn-page-clear-terminal');
+      const templateSelect = Utils.qs('#template-select');
+      const timePill = Utils.qs('#page-time-pill');
+      const linuxForm = Utils.qs('#linux-cli-form');
+      const linuxInput = Utils.qs('#linux-cli-input');
+
+      // Initialize Python engine in background
+      SandboxManager.ensureEngine();
+
+      // Environment Tab Click Handler
+      Utils.qsa('.env-tab-btn').forEach(btn => {
+        btn.onclick = () => {
+          const env = btn.getAttribute('data-env');
+          setEnvironment(env);
+        };
+      });
+
+      // Initialize default Python environment
+      setEnvironment('python');
+
+      // Tab key indent in editor
+      if (editor) {
+        editor.addEventListener('keydown', (e) => {
+          if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + 4;
+          } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            if (runBtn) runBtn.click();
+          }
+        });
+      }
+
+      if (templateSelect) {
+        templateSelect.onchange = (e) => {
+          const val = e.target.value;
+          const conf = ENV_TEMPLATES[currentEnv];
+          if (editor && conf && conf.templates[val]) {
+            editor.value = conf.templates[val];
+            editor.focus();
+          }
+        };
+      }
+
+      if (resetBtn) {
+        resetBtn.onclick = () => {
+          const val = templateSelect ? templateSelect.value : '';
+          const conf = ENV_TEMPLATES[currentEnv];
+          if (editor && conf && conf.templates[val]) {
+            editor.value = conf.templates[val];
+            editor.focus();
+          }
+        };
+      }
+
+      if (clearBtn) {
+        clearBtn.onclick = () => {
+          if (consoleOutput) {
+            consoleOutput.innerHTML = '<span style="color: var(--text-muted);">Output cleared.</span>';
+          }
+          if (timePill) timePill.textContent = '0ms';
+        };
+      }
+
+      // Interactive Linux CLI Prompt
+      if (linuxForm && linuxInput) {
+        linuxForm.onsubmit = (e) => {
+          e.preventDefault();
+          const cmd = linuxInput.value.trim();
+          if (!cmd) return;
+          linuxInput.value = '';
+
+          const res = SandboxManager.executeBashPipeline(cmd);
+          if (consoleOutput) {
+            if (res.output === '__CLEAR__') {
+              consoleOutput.innerHTML = '';
+            } else {
+              const entry = document.createElement('div');
+              entry.style.marginBottom = '0.5rem';
+              entry.innerHTML = `
+                <div style="color: var(--color-success); font-weight: 700;">hacker@syntaxarena:~$ ${Utils.escapeHTML(cmd)}</div>
+                <div style="color: ${res.exitCode === 0 ? 'var(--color-primary-light)' : 'var(--color-coral)'}; white-space: pre-wrap;">${Utils.escapeHTML(res.output || res.error || '')}</div>
+              `;
+              consoleOutput.appendChild(entry);
+              consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+          }
+        };
+      }
+
+      // Run Button Execution
+      if (runBtn) {
+        runBtn.onclick = async () => {
+          const code = editor ? editor.value : '';
+          runBtn.disabled = true;
+
+          if (consoleOutput) {
+            consoleOutput.innerHTML = '<span style="color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;"><span class="spinner" style="width: 14px; height: 14px;"></span> Executing...</span>';
+          }
+
+          if (currentEnv === 'python') {
+            const res = await SandboxManager.runPython(code, 4000);
+            runBtn.disabled = false;
+            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
+            if (consoleOutput) {
+              consoleOutput.innerHTML = '';
+              if (res.output) {
+                const outEl = document.createElement('div');
+                outEl.style.whiteSpace = 'pre-wrap';
+                outEl.style.color = 'var(--color-primary-light, #38bdf8)';
+                outEl.textContent = res.output;
+                consoleOutput.appendChild(outEl);
+              }
+              if (res.error) {
+                const errEl = document.createElement('div');
+                errEl.style.whiteSpace = 'pre-wrap';
+                errEl.style.color = 'var(--color-coral, #f43f5e)';
+                errEl.style.fontFamily = 'var(--font-mono)';
+                errEl.innerHTML = `⚠️ <strong>Python Exception:</strong>\n${Utils.escapeHTML(res.error)}`;
+                consoleOutput.appendChild(errEl);
+              }
+            }
+          } else if (currentEnv === 'cyber') {
+            const res = SandboxManager.runBashScript(code);
+            runBtn.disabled = false;
+            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
+            if (consoleOutput) {
+              consoleOutput.innerHTML = '';
+              const outEl = document.createElement('div');
+              outEl.style.whiteSpace = 'pre-wrap';
+              outEl.style.color = 'var(--color-primary-light, #38bdf8)';
+              outEl.textContent = res.output;
+              consoleOutput.appendChild(outEl);
+            }
+          } else if (currentEnv === 'sql') {
+            const res = SandboxManager.runSQL(code);
+            runBtn.disabled = false;
+            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
+            if (consoleOutput) {
+              consoleOutput.innerHTML = '';
+              if (!res.success) {
+                const errEl = document.createElement('div');
+                errEl.style.color = 'var(--color-coral, #f43f5e)';
+                errEl.innerHTML = `⚠️ <strong>SQL Syntax Error:</strong>\n${Utils.escapeHTML(res.message)}`;
+                consoleOutput.appendChild(errEl);
+              } else {
+                const statusEl = document.createElement('div');
+                statusEl.style.fontSize = '11px';
+                statusEl.style.color = 'var(--color-success)';
+                statusEl.style.marginBottom = '0.5rem';
+                statusEl.textContent = `✓ ${res.message} (${res.elapsedMs}ms)`;
+                consoleOutput.appendChild(statusEl);
+
+                // Render Table
+                const table = document.createElement('table');
+                table.style.width = '100%';
+                table.style.borderCollapse = 'collapse';
+                table.style.fontSize = '12px';
+                table.style.fontFamily = 'var(--font-mono)';
+
+                // Table Head
+                const thead = document.createElement('thead');
+                const headRow = document.createElement('tr');
+                headRow.style.background = 'rgba(255,255,255,0.06)';
+                headRow.style.borderBottom = '1px solid var(--border-strong)';
+                res.columns.forEach(col => {
+                  const th = document.createElement('th');
+                  th.style.padding = '6px 10px';
+                  th.style.textAlign = 'left';
+                  th.style.color = 'var(--color-cyan)';
+                  th.textContent = col;
+                  headRow.appendChild(th);
+                });
+                thead.appendChild(headRow);
+                table.appendChild(thead);
+
+                // Table Body
+                const tbody = document.createElement('tbody');
+                res.rows.forEach(r => {
+                  const tr = document.createElement('tr');
+                  tr.style.borderBottom = '1px solid var(--border-subtle)';
+                  r.forEach(val => {
+                    const td = document.createElement('td');
+                    td.style.padding = '6px 10px';
+                    td.textContent = val !== null ? String(val) : 'NULL';
+                    tr.appendChild(td);
+                  });
+                  tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+                consoleOutput.appendChild(table);
+              }
+            }
+          } else if (currentEnv === 'javascript') {
+            const res = SandboxManager.runJS(code);
+            runBtn.disabled = false;
+            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
+            if (consoleOutput) {
+              consoleOutput.innerHTML = '';
+              if (res.output) {
+                const outEl = document.createElement('div');
+                outEl.style.whiteSpace = 'pre-wrap';
+                outEl.style.color = 'var(--color-primary-light, #38bdf8)';
+                outEl.textContent = res.output;
+                consoleOutput.appendChild(outEl);
+              }
+              if (res.error) {
+                const errEl = document.createElement('div');
+                errEl.style.color = 'var(--color-coral, #f43f5e)';
+                errEl.innerHTML = `⚠️ <strong>JavaScript Runtime Error:</strong>\n${Utils.escapeHTML(res.error)}`;
+                consoleOutput.appendChild(errEl);
+              }
+            }
+          } else if (currentEnv === 'systems') {
+            // Check language from snippet
+            let lang = 'c';
+            if (code.includes('cout') || code.includes('std::')) lang = 'cpp';
+            else if (code.includes('class Main') || code.includes('System.out')) lang = 'java';
+            else if (code.includes('fn main()') || code.includes('println!')) lang = 'rust';
+
+            const res = SandboxManager.simulateSystemsCode(code, lang);
+            runBtn.disabled = false;
+            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
+            if (consoleOutput) {
+              consoleOutput.innerHTML = '';
+              const notesEl = document.createElement('div');
+              notesEl.style.fontSize = '11px';
+              notesEl.style.color = 'var(--text-muted)';
+              notesEl.style.marginBottom = '0.5rem';
+              notesEl.textContent = `Target Compiler: ${res.compilerNotes}`;
+              consoleOutput.appendChild(notesEl);
+
+              const outEl = document.createElement('div');
+              outEl.style.whiteSpace = 'pre-wrap';
+              outEl.style.color = 'var(--color-primary-light, #38bdf8)';
+              outEl.textContent = res.output;
+              consoleOutput.appendChild(outEl);
+            }
+          }
+        };
+      }
+    });
+  </script>
+</body>
+</html>

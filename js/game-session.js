@@ -133,7 +133,9 @@ export class GameSession {
         hintPenalty: 0,
         retryModifier: isRetry ? 0.5 : 1.0,
         multiplier: 1.0,
-        streak: 0
+        streak: 0,
+        timeRemaining,
+        timeLimit: this.timeLimit
       };
     }
 
@@ -174,7 +176,9 @@ export class GameSession {
       hintPenalty: H,
       retryModifier: A,
       multiplier: multiplier,
-      streak: this.currentStreak
+      streak: this.currentStreak,
+      timeRemaining,
+      timeLimit: this.timeLimit
     };
   }
 
@@ -210,6 +214,8 @@ export class GameSession {
       options: Array.isArray(q.options) ? [...q.options] : [],
       correctAnswer: q.correctAnswer,
       explanation: q.explanation || '',
+      timeRemaining: outcomeData.timeRemaining,
+      timeLimit: this.timeLimit,
       ...outcomeData
     });
 

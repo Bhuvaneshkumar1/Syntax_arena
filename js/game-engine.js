@@ -154,6 +154,7 @@ export class GameEngine {
         submission: checkResult.normalizedAnswer,
         attempts: attemptNumber,
         usedHint: hasHint,
+        timeRemaining,
         ...outcome
       });
 
@@ -164,6 +165,10 @@ export class GameEngine {
         correct: true,
         canRetry: false,
         points: outcome.points,
+        basePoints: outcome.basePoints,
+        speedBonus: outcome.speedBonus,
+        hintPenalty: outcome.hintPenalty,
+        multiplier: outcome.multiplier,
         streak: outcome.streak,
         explanation: raw.explanation,
         message: 'Correct answer!'
@@ -188,11 +193,12 @@ export class GameEngine {
         };
       } else {
         // No retry available (or retry already failed) -> Finalize question as incorrect
-        const outcome = this._session.calculateOutcome(false, hasHint, isRetry);
+        const outcome = this._session.calculateOutcome(false, hasHint, isRetry, timeRemaining);
         this._session.commitResult({
           submission: checkResult.normalizedAnswer,
           attempts: attemptNumber,
           usedHint: hasHint,
+          timeRemaining,
           ...outcome
         });
 
@@ -230,6 +236,10 @@ export class GameEngine {
           canRetry: false,
           lives: this._session.lives,
           points: 0,
+          basePoints: outcome.basePoints,
+          speedBonus: 0,
+          hintPenalty: 0,
+          multiplier: 1.0,
           streak: 0,
           correctAnswer: raw.correctAnswer,
           explanation: raw.explanation,

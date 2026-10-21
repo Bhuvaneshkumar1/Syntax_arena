@@ -112,6 +112,10 @@
           <svg class="nav-icon"><use href="#icon-bulb"></use></svg>
           <span>How to Play</span>
         </a>
+        <a href="sandbox.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Sandbox</span>
+        </a>
         <a href="progress.html" class="nav-link">
           <svg class="nav-icon"><use href="#icon-chart"></use></svg>
           <span>Progress</span>
@@ -121,10 +125,7 @@
       <!-- Header Action Controls -->
       <div class="header-actions">
         <!-- Prominent Play Now Button -->
-        <button id="btn-nav-play" class="btn-arcade btn-primary btn-sm" aria-label="Play Now: Start Challenge Arena">
-          <svg width="16" height="16" aria-hidden="true"><use href="#icon-gamepad"></use></svg>
-          <span>Play Now</span>
-        </button>
+      
 
         <!-- Theme Toggle -->
         <button id="btn-theme-toggle" class="btn-icon-toggle" aria-label="Toggle color theme" title="Toggle color theme">
@@ -1015,8 +1016,6 @@
       <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
         <span class="brand-title" style="font-size: var(--text-base);">SyntaxArena</span>
         <span>•</span>
-        <span>Pure Static Vanilla Architecture</span>
-        <span>•</span>
         <span>© <span id="copyright-year">2026</span> SyntaxArena</span>
       </div>
 
@@ -1280,6 +1279,36 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Stage Selector & Progression Modal Dialog -->
+  <div id="modal-stage-selector" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-stage-title">
+    <div class="modal-dialog modal-lg" style="max-width: 680px;">
+      <div class="modal-header">
+        <div>
+          <span id="modal-stage-track-tag" class="badge badge-cyan" style="margin-bottom: 0.35rem;">Python 3 • Beginner</span>
+          <h2 id="modal-stage-title" class="modal-title">Select Challenge Stage</h2>
+        </div>
+        <button type="button" class="btn-icon-toggle" id="btn-close-stage-modal" aria-label="Close stage selector">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1.25rem;">
+          Each difficulty tier is split into 4 bite-sized stages (5 questions each, ~3 mins). Clear each stage to earn stars and unlock the <strong>Boss Stage</strong>! Or test your endurance with the Full Marathon.
+        </p>
+
+        <div id="modal-stage-grid" class="stage-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.85rem;">
+          <!-- Dynamically populated 4 stages -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+        <button type="button" class="btn-arcade btn-neutral btn-sm" id="btn-cancel-stage-modal">Close</button>
+        <a id="btn-modal-stage-marathon" href="game.html" class="btn-arcade btn-neutral btn-sm" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+          <span>🏆 Play All 20 Questions (Marathon)</span>
+        </a>
+      </div>
     </div>
   </div>
 

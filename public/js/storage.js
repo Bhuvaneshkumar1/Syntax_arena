@@ -52,6 +52,8 @@ export function createDefaultProfile(id = 'prof-default01', username = 'ScriptAd
       sql:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
     },
     completedTiers: {},
+    stageStars: {},
+    completedStages: {},
     unlockedAchievements: [],
     purchasedBadges: [],
     missedQuestionIds: [],
@@ -485,6 +487,8 @@ class StorageManager {
       stats,
       campaign,
       completedTiers,
+      stageStars: typeof p?.stageStars === 'object' && p?.stageStars !== null ? { ...p.stageStars } : {},
+      completedStages: typeof p?.completedStages === 'object' && p?.completedStages !== null ? { ...p.completedStages } : {},
       unlockedAchievements: Array.isArray(p?.unlockedAchievements) ? [...p.unlockedAchievements] : [],
       purchasedBadges,
       missedQuestionIds: Array.isArray(p?.missedQuestionIds) ? [...p.missedQuestionIds] : [],
