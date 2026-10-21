@@ -32,7 +32,7 @@ export const XP_RULES = Object.freeze({
   beginnerCorrect: 50,
   intermediateCorrect: 100,
   expertCorrect: 150,
-  flawlessBonus: 200,    // 100% accuracy in >= 10 questions
+  flawlessBonus: 100,    // 100% accuracy in >= 10 questions
   dailyClearBonus: 300   // Daily challenge clear
 });
 

@@ -1347,16 +1347,16 @@ export const Gameplay = {
       summary.isBoss = false;
     }
 
-    // Flawless Run Bonus: 100% accuracy with zero errors (+500 points & confetti)
+    // Flawless Run Bonus: 100% accuracy with zero errors (+100 points & confetti)
     if (summary && summary.questionsAttempted > 0 &&
         summary.questionsCorrect === summary.totalQuestions &&
         summary.questionsAttempted === summary.totalQuestions &&
         (summary.retriesUsedCount || 0) === 0) {
       summary.isFlawless = true;
-      summary.flawlessBonus = 500;
-      summary.totalScore = (summary.totalScore || 0) + 500;
+      summary.flawlessBonus = 100;
+      summary.totalScore = (summary.totalScore || 0) + 100;
       UI.triggerConfetti();
-      UI.showToast('🎯 FLAWLESS RUN BONUS! +500 Points for zero errors!', 'success');
+      UI.showToast('🎯 FLAWLESS RUN BONUS! +100 Points for zero errors!', 'success');
     } else if (summary) {
       summary.isFlawless = false;
       summary.flawlessBonus = 0;

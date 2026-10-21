@@ -623,10 +623,10 @@
         if (rewardsBanner && (!hasLevelUp && newBadges.length === 0)) {
           rewardsBanner.style.display = 'block';
           rewardsBanner.classList.add('animate-celebrate');
-          if (rewardsTitle) rewardsTitle.textContent = '🌟 FLAWLESS VICTORY (+500 BONUS POINTS)!';
+          if (rewardsTitle) rewardsTitle.textContent = '🌟 FLAWLESS VICTORY (+100 BONUS POINTS)!';
           if (rewardsBadge) rewardsBadge.textContent = '100% Accuracy';
           if (rewardsDesc) {
-            rewardsDesc.textContent = 'Spectacular execution! You completed the challenge without a single mistake. +500 Flawless Bonus points awarded!';
+            rewardsDesc.textContent = 'Spectacular execution! You completed the challenge without a single mistake. +100 Flawless Bonus points awarded!';
           }
         }
       } else if (!hasLevelUp && newBadges.length === 0 && rewardsBanner) {

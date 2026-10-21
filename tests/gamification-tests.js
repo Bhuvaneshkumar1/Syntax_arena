@@ -96,7 +96,7 @@ export async function runGamificationTests() {
   const expXP = Gamification.calculateSessionXP(expSummary);
   assert(expXP === 300, 'Expert track awards +150 XP per correct question (2 * 150 = 300 XP)', `Got: ${expXP}`);
 
-  // Flawless Clear Bonus (+200 XP)
+  // Flawless Clear Bonus (+100 XP)
   const flawlessSummary = {
     sessionId: 'test-sess-004',
     difficulty: 'beginner',
@@ -109,7 +109,7 @@ export async function runGamificationTests() {
     ]
   };
   const flawlessXP = Gamification.calculateSessionXP(flawlessSummary);
-  assert(flawlessXP === 350, 'Flawless run awards base XP (150) + 200 flawless bonus = 350 XP', `Got: ${flawlessXP}`);
+  assert(flawlessXP === 250, 'Flawless run awards base XP (150) + 100 flawless bonus = 250 XP', `Got: ${flawlessXP}`);
 
   // Daily Challenge Bonus (+300 XP)
   const dailySummary = {
@@ -126,7 +126,7 @@ export async function runGamificationTests() {
     ]
   };
   const dailyXP = Gamification.calculateSessionXP(dailySummary);
-  assert(dailyXP === 800, 'Daily flawless run awards 300 (base) + 200 (flawless) + 300 (daily clear) = 800 XP', `Got: ${dailyXP}`);
+  assert(dailyXP === 700, 'Daily flawless run awards 300 (base) + 100 (flawless) + 300 (daily clear) = 700 XP', `Got: ${dailyXP}`);
 
   // Invalid / Zero correct yields 0 XP
   const zeroSummary = {

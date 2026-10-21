@@ -197,13 +197,13 @@ export const Profile = {
       }
     };
 
-    // Grant first-time joining bonus (+500 points) on onboarding completion
+    // Grant first-time joining bonus (+100 points) on onboarding completion
     const profile = (State.get('profiles') || []).find(p => p.id === profileId) || this.getActiveProfile();
     if (profile && !profile.hasReceivedJoiningBonus) {
       updates.hasReceivedJoiningBonus = true;
-      updates.totalScore = (profile.totalScore || 0) + 500;
-      updates.xp = (profile.xp || 0) + 500;
-      updates.lifetimeXP = (profile.lifetimeXP || 0) + 500;
+      updates.totalScore = (profile.totalScore || 0) + 100;
+      updates.xp = (profile.xp || 0) + 100;
+      updates.lifetimeXP = (profile.lifetimeXP || 0) + 100;
     }
 
     return this.updateProfile(profileId, updates);
@@ -282,14 +282,14 @@ export const Profile = {
     let streakBonus = false;
     let message = null;
 
-    // 1. First-time Joining Bonus (+500 points) - ONLY awarded if onboarding is completed
+    // 1. First-time Joining Bonus (+100 points) - ONLY awarded if onboarding is completed
     if (profile.onboardingComplete && !profile.hasReceivedJoiningBonus) {
       updates.hasReceivedJoiningBonus = true;
-      updates.totalScore = (profile.totalScore || 0) + 500;
-      updates.xp = (profile.xp || 0) + 500;
-      updates.lifetimeXP = (profile.lifetimeXP || 0) + 500;
+      updates.totalScore = (profile.totalScore || 0) + 100;
+      updates.xp = (profile.xp || 0) + 100;
+      updates.lifetimeXP = (profile.lifetimeXP || 0) + 100;
       joiningBonus = true;
-      message = '🎉 Welcome to SyntaxArena! +500 Joining Bonus XP granted!';
+      message = '🎉 Welcome to SyntaxArena! +100 Joining Bonus XP granted!';
     }
 
     // 2. Daily Streak Calculation
@@ -311,12 +311,12 @@ export const Profile = {
         updates.lastLoginDate = today;
 
         if (nextStreak === 3) {
-          // 3-Day Loyalty Streak (+300 points) & confetti
-          updates.totalScore = (updates.totalScore !== undefined ? updates.totalScore : (profile.totalScore || 0)) + 300;
-          updates.xp = (updates.xp !== undefined ? updates.xp : (profile.xp || 0)) + 300;
-          updates.lifetimeXP = (updates.lifetimeXP !== undefined ? updates.lifetimeXP : (profile.lifetimeXP || 0)) + 300;
+          // 3-Day Loyalty Streak (+50 points) & confetti
+          updates.totalScore = (updates.totalScore !== undefined ? updates.totalScore : (profile.totalScore || 0)) + 50;
+          updates.xp = (updates.xp !== undefined ? updates.xp : (profile.xp || 0)) + 50;
+          updates.lifetimeXP = (updates.lifetimeXP !== undefined ? updates.lifetimeXP : (profile.lifetimeXP || 0)) + 50;
           streakBonus = true;
-          message = '🏆 3-Day Loyalty Streak! +300 Points awarded!';
+          message = '🏆 3-Day Loyalty Streak! +50 Points awarded!';
         } else {
           message = `🔥 ${nextStreak}-Day Login Streak active!`;
         }

@@ -11391,13 +11391,13 @@ var Profile = window.Profile = {
       }
     };
 
-    // Grant first-time joining bonus (+500 points) on onboarding completion
+    // Grant first-time joining bonus (+100 points) on onboarding completion
     const profile = (State.get('profiles') || []).find(p => p.id === profileId) || this.getActiveProfile();
     if (profile && !profile.hasReceivedJoiningBonus) {
       updates.hasReceivedJoiningBonus = true;
-      updates.totalScore = (profile.totalScore || 0) + 500;
-      updates.xp = (profile.xp || 0) + 500;
-      updates.lifetimeXP = (profile.lifetimeXP || 0) + 500;
+      updates.totalScore = (profile.totalScore || 0) + 100;
+      updates.xp = (profile.xp || 0) + 100;
+      updates.lifetimeXP = (profile.lifetimeXP || 0) + 100;
     }
 
     return this.updateProfile(profileId, updates);
@@ -11476,14 +11476,14 @@ var Profile = window.Profile = {
     let streakBonus = false;
     let message = null;
 
-    // 1. First-time Joining Bonus (+500 points) - ONLY awarded if onboarding is completed
+    // 1. First-time Joining Bonus (+100 points) - ONLY awarded if onboarding is completed
     if (profile.onboardingComplete && !profile.hasReceivedJoiningBonus) {
       updates.hasReceivedJoiningBonus = true;
-      updates.totalScore = (profile.totalScore || 0) + 500;
-      updates.xp = (profile.xp || 0) + 500;
-      updates.lifetimeXP = (profile.lifetimeXP || 0) + 500;
+      updates.totalScore = (profile.totalScore || 0) + 100;
+      updates.xp = (profile.xp || 0) + 100;
+      updates.lifetimeXP = (profile.lifetimeXP || 0) + 100;
       joiningBonus = true;
-      message = '🎉 Welcome to SyntaxArena! +500 Joining Bonus XP granted!';
+      message = '🎉 Welcome to SyntaxArena! +100 Joining Bonus XP granted!';
     }
 
     // 2. Daily Streak Calculation
@@ -11505,12 +11505,12 @@ var Profile = window.Profile = {
         updates.lastLoginDate = today;
 
         if (nextStreak === 3) {
-          // 3-Day Loyalty Streak (+300 points) & confetti
-          updates.totalScore = (updates.totalScore !== undefined ? updates.totalScore : (profile.totalScore || 0)) + 300;
-          updates.xp = (updates.xp !== undefined ? updates.xp : (profile.xp || 0)) + 300;
-          updates.lifetimeXP = (updates.lifetimeXP !== undefined ? updates.lifetimeXP : (profile.lifetimeXP || 0)) + 300;
+          // 3-Day Loyalty Streak (+50 points) & confetti
+          updates.totalScore = (updates.totalScore !== undefined ? updates.totalScore : (profile.totalScore || 0)) + 50;
+          updates.xp = (updates.xp !== undefined ? updates.xp : (profile.xp || 0)) + 50;
+          updates.lifetimeXP = (updates.lifetimeXP !== undefined ? updates.lifetimeXP : (profile.lifetimeXP || 0)) + 50;
           streakBonus = true;
-          message = '🏆 3-Day Loyalty Streak! +300 Points awarded!';
+          message = '🏆 3-Day Loyalty Streak! +50 Points awarded!';
         } else {
           message = `🔥 ${nextStreak}-Day Login Streak active!`;
         }
@@ -12284,7 +12284,7 @@ var XP_RULES = window.XP_RULES = Object.freeze({
   beginnerCorrect: 50,
   intermediateCorrect: 100,
   expertCorrect: 150,
-  flawlessBonus: 200,    // 100% accuracy in >= 10 questions
+  flawlessBonus: 100,    // 100% accuracy in >= 10 questions
   dailyClearBonus: 300   // Daily challenge clear
 });
 
@@ -19365,16 +19365,16 @@ var Gameplay = window.Gameplay = {
       summary.isBoss = false;
     }
 
-    // Flawless Run Bonus: 100% accuracy with zero errors (+500 points & confetti)
+    // Flawless Run Bonus: 100% accuracy with zero errors (+100 points & confetti)
     if (summary && summary.questionsAttempted > 0 &&
         summary.questionsCorrect === summary.totalQuestions &&
         summary.questionsAttempted === summary.totalQuestions &&
         (summary.retriesUsedCount || 0) === 0) {
       summary.isFlawless = true;
-      summary.flawlessBonus = 500;
-      summary.totalScore = (summary.totalScore || 0) + 500;
+      summary.flawlessBonus = 100;
+      summary.totalScore = (summary.totalScore || 0) + 100;
       UI.triggerConfetti();
-      UI.showToast('🎯 FLAWLESS RUN BONUS! +500 Points for zero errors!', 'success');
+      UI.showToast('🎯 FLAWLESS RUN BONUS! +100 Points for zero errors!', 'success');
     } else if (summary) {
       summary.isFlawless = false;
       summary.flawlessBonus = 0;
