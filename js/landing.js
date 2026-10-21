@@ -435,10 +435,14 @@ export const LandingPage = {
     const completedStages = profile.completedStages || {};
 
     const STAGES = [
-      { id: 1, title: 'Stage 1: Fundamentals', desc: 'Questions 1–5 • ~3 mins', focus: 'Variables & Flow', isBoss: false },
+      { id: 1, title: 'Stage 1: Core Fundamentals', desc: 'Questions 1–5 • ~3 mins', focus: 'Variables & Flow', isBoss: false },
       { id: 2, title: 'Stage 2: Core Logic', desc: 'Questions 6–10 • ~3 mins', focus: 'Mutability & Loops', isBoss: false },
-      { id: 3, title: 'Stage 3: Advanced Patterns', desc: 'Questions 11–15 • ~3 mins', focus: 'Functions & Data', isBoss: false },
-      { id: 4, title: 'Stage 4: 💀 BOSS STAGE', desc: 'Questions 16–20 • ~3 mins', focus: 'Syntax Crucible', isBoss: true }
+      { id: 3, title: 'Stage 3: Control Flow', desc: 'Questions 11–15 • ~3 mins', focus: 'Conditionals & Branching', isBoss: false },
+      { id: 4, title: 'Stage 4: 💀 MINI-BOSS', desc: 'Questions 16–20 • ~3 mins', focus: 'Syntax Crucible I', isBoss: true },
+      { id: 5, title: 'Stage 5: Data Structures', desc: 'Questions 21–25 • ~3 mins', focus: 'Collections & Memory', isBoss: false },
+      { id: 6, title: 'Stage 6: Systems Logic', desc: 'Questions 26–30 • ~3 mins', focus: 'Algorithms & State', isBoss: false },
+      { id: 7, title: 'Stage 7: Advanced Patterns', desc: 'Questions 31–35 • ~3 mins', focus: 'Architecture & OOP', isBoss: false },
+      { id: 8, title: 'Stage 8: 💀 APEX FINAL BOSS', desc: 'Questions 36–40 • ~3 mins', focus: 'The Master Crucible', isBoss: true }
     ];
 
     stageGrid.innerHTML = '';
@@ -447,12 +451,12 @@ export const LandingPage = {
       const stars = stageStars[stageKey] || 0;
       const isCleared = !!completedStages[stageKey];
 
-      // Gating: Stage 1 is always unlocked. Stage N unlocks if Stage N-1 has >= 1 star or is cleared (or player level >= N)
+      // Gating: Stage 1 is always unlocked. Stage N unlocks strictly when Stage N-1 has all 3 stars (no level bypass)
       let isUnlocked = stg.id === 1;
       if (!isUnlocked) {
         const prevKey = `${lang}_${diff}_stage_${stg.id - 1}`;
-        const prevCleared = !!completedStages[prevKey] || (stageStars[prevKey] || 0) >= 1;
-        isUnlocked = prevCleared || (profile.level || 1) >= stg.id;
+        const prevStars = stageStars[prevKey] || 0;
+        isUnlocked = prevStars >= 3;
       }
 
       const card = document.createElement('a');
@@ -467,7 +471,7 @@ export const LandingPage = {
         <div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
             <span class="badge ${stg.isBoss ? 'badge-coral' : isCleared ? 'badge-emerald' : 'badge-neutral'}" style="font-size: 10px;">
-              ${stg.isBoss ? '💀 Boss Stage' : `Stage ${stg.id} / 4`}
+              ${stg.isBoss ? (stg.id === 8 ? '💀 Apex Boss' : '💀 Mini-Boss') : `Stage ${stg.id} / 8`}
             </span>
             <div class="star-rating-display" style="font-size: 14px;">
               ${'⭐'.repeat(stars)}<span style="opacity: 0.25;">${'⭐'.repeat(3 - stars)}</span>
@@ -482,7 +486,7 @@ export const LandingPage = {
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem; font-size: 11px;">
           <span style="color: ${isUnlocked ? (isCleared ? 'var(--color-success)' : 'var(--color-primary)') : 'var(--text-muted)'}; font-weight: 700;">
-            ${!isUnlocked ? '🔒 Locked (Clear Stage ' + (stg.id - 1) + ')' : isCleared ? '✓ Cleared' : '▶ Play Stage'}
+            ${!isUnlocked ? '🔒 Locked (Need 3★ on Stage ' + (stg.id - 1) + ')' : isCleared ? '✓ Cleared' : '▶ Play Stage'}
           </span>
           <span style="color: var(--text-muted); font-size: 10px;">5 Questions</span>
         </div>
@@ -492,7 +496,7 @@ export const LandingPage = {
         if (!isUnlocked) {
           e.preventDefault();
           AudioEngine.playError();
-          UI.showToast(`🔒 Stage ${stg.id} is locked! Complete Stage ${stg.id - 1} first to unlock.`, 'info');
+          UI.showToast(`🔒 Stage ${stg.id} is locked! Earn all 3 stars (⭐⭐⭐) on Stage ${stg.id - 1} to unlock.`, 'info');
         } else {
           AudioEngine.playClick();
         }

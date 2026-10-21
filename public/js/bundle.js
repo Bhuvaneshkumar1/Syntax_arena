@@ -17910,10 +17910,14 @@ var LandingPage = window.LandingPage = {
     const completedStages = profile.completedStages || {};
 
     const STAGES = [
-      { id: 1, title: 'Stage 1: Fundamentals', desc: 'Questions 1–5 • ~3 mins', focus: 'Variables & Flow', isBoss: false },
+      { id: 1, title: 'Stage 1: Core Fundamentals', desc: 'Questions 1–5 • ~3 mins', focus: 'Variables & Flow', isBoss: false },
       { id: 2, title: 'Stage 2: Core Logic', desc: 'Questions 6–10 • ~3 mins', focus: 'Mutability & Loops', isBoss: false },
-      { id: 3, title: 'Stage 3: Advanced Patterns', desc: 'Questions 11–15 • ~3 mins', focus: 'Functions & Data', isBoss: false },
-      { id: 4, title: 'Stage 4: 💀 BOSS STAGE', desc: 'Questions 16–20 • ~3 mins', focus: 'Syntax Crucible', isBoss: true }
+      { id: 3, title: 'Stage 3: Control Flow', desc: 'Questions 11–15 • ~3 mins', focus: 'Conditionals & Branching', isBoss: false },
+      { id: 4, title: 'Stage 4: 💀 MINI-BOSS', desc: 'Questions 16–20 • ~3 mins', focus: 'Syntax Crucible I', isBoss: true },
+      { id: 5, title: 'Stage 5: Data Structures', desc: 'Questions 21–25 • ~3 mins', focus: 'Collections & Memory', isBoss: false },
+      { id: 6, title: 'Stage 6: Systems Logic', desc: 'Questions 26–30 • ~3 mins', focus: 'Algorithms & State', isBoss: false },
+      { id: 7, title: 'Stage 7: Advanced Patterns', desc: 'Questions 31–35 • ~3 mins', focus: 'Architecture & OOP', isBoss: false },
+      { id: 8, title: 'Stage 8: 💀 APEX FINAL BOSS', desc: 'Questions 36–40 • ~3 mins', focus: 'The Master Crucible', isBoss: true }
     ];
 
     stageGrid.innerHTML = '';
@@ -17922,12 +17926,12 @@ var LandingPage = window.LandingPage = {
       const stars = stageStars[stageKey] || 0;
       const isCleared = !!completedStages[stageKey];
 
-      // Gating: Stage 1 is always unlocked. Stage N unlocks if Stage N-1 has >= 1 star or is cleared (or player level >= N)
+      // Gating: Stage 1 is always unlocked. Stage N unlocks strictly when Stage N-1 has all 3 stars (no level bypass)
       let isUnlocked = stg.id === 1;
       if (!isUnlocked) {
         const prevKey = `${lang}_${diff}_stage_${stg.id - 1}`;
-        const prevCleared = !!completedStages[prevKey] || (stageStars[prevKey] || 0) >= 1;
-        isUnlocked = prevCleared || (profile.level || 1) >= stg.id;
+        const prevStars = stageStars[prevKey] || 0;
+        isUnlocked = prevStars >= 3;
       }
 
       const card = document.createElement('a');
@@ -17942,7 +17946,7 @@ var LandingPage = window.LandingPage = {
         <div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
             <span class="badge ${stg.isBoss ? 'badge-coral' : isCleared ? 'badge-emerald' : 'badge-neutral'}" style="font-size: 10px;">
-              ${stg.isBoss ? '💀 Boss Stage' : `Stage ${stg.id} / 4`}
+              ${stg.isBoss ? (stg.id === 8 ? '💀 Apex Boss' : '💀 Mini-Boss') : `Stage ${stg.id} / 8`}
             </span>
             <div class="star-rating-display" style="font-size: 14px;">
               ${'⭐'.repeat(stars)}<span style="opacity: 0.25;">${'⭐'.repeat(3 - stars)}</span>
@@ -17957,7 +17961,7 @@ var LandingPage = window.LandingPage = {
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem; font-size: 11px;">
           <span style="color: ${isUnlocked ? (isCleared ? 'var(--color-success)' : 'var(--color-primary)') : 'var(--text-muted)'}; font-weight: 700;">
-            ${!isUnlocked ? '🔒 Locked (Clear Stage ' + (stg.id - 1) + ')' : isCleared ? '✓ Cleared' : '▶ Play Stage'}
+            ${!isUnlocked ? '🔒 Locked (Need 3★ on Stage ' + (stg.id - 1) + ')' : isCleared ? '✓ Cleared' : '▶ Play Stage'}
           </span>
           <span style="color: var(--text-muted); font-size: 10px;">5 Questions</span>
         </div>
@@ -17967,7 +17971,7 @@ var LandingPage = window.LandingPage = {
         if (!isUnlocked) {
           e.preventDefault();
           AudioEngine.playError();
-          UI.showToast(`🔒 Stage ${stg.id} is locked! Complete Stage ${stg.id - 1} first to unlock.`, 'info');
+          UI.showToast(`🔒 Stage ${stg.id} is locked! Earn all 3 stars (⭐⭐⭐) on Stage ${stg.id - 1} to unlock.`, 'info');
         } else {
           AudioEngine.playClick();
         }
@@ -18069,9 +18073,13 @@ var HINT_PENALTIES = window.HINT_PENALTIES = {
 
 var STAGE_CONFIG = window.STAGE_CONFIG = {
   1: { id: 1, name: 'Stage 1: Core Fundamentals', questionsCount: 5, startIndex: 0, endIndex: 5, isBoss: false },
-  2: { id: 2, name: 'Stage 2: Control & Mutability', questionsCount: 5, startIndex: 5, endIndex: 10, isBoss: false },
-  3: { id: 3, name: 'Stage 3: Advanced Patterns', questionsCount: 5, startIndex: 10, endIndex: 15, isBoss: false },
-  4: { id: 4, name: 'Stage 4: 💀 BOSS STAGE', questionsCount: 5, startIndex: 15, endIndex: 20, isBoss: true },
+  2: { id: 2, name: 'Stage 2: Core Logic', questionsCount: 5, startIndex: 5, endIndex: 10, isBoss: false },
+  3: { id: 3, name: 'Stage 3: Control Flow', questionsCount: 5, startIndex: 10, endIndex: 15, isBoss: false },
+  4: { id: 4, name: 'Stage 4: 💀 MINI-BOSS', questionsCount: 5, startIndex: 15, endIndex: 20, isBoss: true },
+  5: { id: 5, name: 'Stage 5: Data Structures', questionsCount: 5, startIndex: 20, endIndex: 25, isBoss: false },
+  6: { id: 6, name: 'Stage 6: Systems Logic', questionsCount: 5, startIndex: 25, endIndex: 30, isBoss: false },
+  7: { id: 7, name: 'Stage 7: Advanced Patterns', questionsCount: 5, startIndex: 30, endIndex: 35, isBoss: false },
+  8: { id: 8, name: 'Stage 8: 💀 FINAL APEX BOSS', questionsCount: 5, startIndex: 35, endIndex: 40, isBoss: true },
   marathon: { id: 'marathon', name: 'Tier Marathon (20 Qs)', questionsCount: 20, startIndex: 0, endIndex: 20, isBoss: false }
 };
 
@@ -18347,14 +18355,17 @@ var Gameplay = window.Gameplay = {
       return false;
     }
 
-    // STAGE SLICING: Support dividing the 20 questions into 4 Stages of 5 questions each
+    // STAGE SLICING: Support dividing the campaign into 8 Stages of 5 questions each
     let stageParam = params.stage ? String(params.stage).toLowerCase().trim() : 'marathon';
     let activeStage = STAGE_CONFIG[stageParam] || STAGE_CONFIG.marathon;
 
-    if (mode === 'campaign' && questions.length >= 20 && stageParam !== 'marathon' && stageParam !== 'all') {
+    if (mode === 'campaign' && stageParam !== 'marathon' && stageParam !== 'all') {
       const parsedStage = parseInt(stageParam, 10);
-      if (parsedStage >= 1 && parsedStage <= 4) {
+      if (parsedStage >= 1 && parsedStage <= 8) {
         activeStage = STAGE_CONFIG[parsedStage];
+        if (questions.length < activeStage.endIndex) {
+          questions = QuestionBank.getByLanguage(language);
+        }
         questions = questions.slice(activeStage.startIndex, activeStage.endIndex);
       }
     }
@@ -18549,11 +18560,12 @@ var Gameplay = window.Gameplay = {
     const questionCard = Utils.qs('.arena-main-card') || Utils.qs('.card');
     if (diffBadge) {
       if (this.activeStage && this.activeStage.isBoss) {
-        diffBadge.textContent = `${q.difficulty.toUpperCase()} • 💀 BOSS STAGE (Stage 4 / 4)`;
+        const bossTitle = this.activeStage.id === 8 ? 'FINAL APEX BOSS' : 'MINI-BOSS STAGE';
+        diffBadge.textContent = `${q.difficulty.toUpperCase()} • 💀 ${bossTitle} (Stage ${this.activeStage.id} / 8)`;
         diffBadge.className = 'badge badge-coral boss-pulse';
         if (questionCard) questionCard.classList.add('is-boss');
       } else if (this.activeStage && this.activeStage.id !== 'marathon') {
-        diffBadge.textContent = `${q.difficulty.toUpperCase()} • Stage ${this.activeStage.id} / 4`;
+        diffBadge.textContent = `${q.difficulty.toUpperCase()} • Stage ${this.activeStage.id} / 8`;
         diffBadge.className = `badge ${q.difficulty === 'expert' ? 'badge-coral' : q.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald'}`;
         if (questionCard) questionCard.classList.remove('is-boss');
       } else {

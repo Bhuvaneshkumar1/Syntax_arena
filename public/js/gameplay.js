@@ -25,9 +25,13 @@ export const HINT_PENALTIES = {
 
 export const STAGE_CONFIG = {
   1: { id: 1, name: 'Stage 1: Core Fundamentals', questionsCount: 5, startIndex: 0, endIndex: 5, isBoss: false },
-  2: { id: 2, name: 'Stage 2: Control & Mutability', questionsCount: 5, startIndex: 5, endIndex: 10, isBoss: false },
-  3: { id: 3, name: 'Stage 3: Advanced Patterns', questionsCount: 5, startIndex: 10, endIndex: 15, isBoss: false },
-  4: { id: 4, name: 'Stage 4: 💀 BOSS STAGE', questionsCount: 5, startIndex: 15, endIndex: 20, isBoss: true },
+  2: { id: 2, name: 'Stage 2: Core Logic', questionsCount: 5, startIndex: 5, endIndex: 10, isBoss: false },
+  3: { id: 3, name: 'Stage 3: Control Flow', questionsCount: 5, startIndex: 10, endIndex: 15, isBoss: false },
+  4: { id: 4, name: 'Stage 4: 💀 MINI-BOSS', questionsCount: 5, startIndex: 15, endIndex: 20, isBoss: true },
+  5: { id: 5, name: 'Stage 5: Data Structures', questionsCount: 5, startIndex: 20, endIndex: 25, isBoss: false },
+  6: { id: 6, name: 'Stage 6: Systems Logic', questionsCount: 5, startIndex: 25, endIndex: 30, isBoss: false },
+  7: { id: 7, name: 'Stage 7: Advanced Patterns', questionsCount: 5, startIndex: 30, endIndex: 35, isBoss: false },
+  8: { id: 8, name: 'Stage 8: 💀 FINAL APEX BOSS', questionsCount: 5, startIndex: 35, endIndex: 40, isBoss: true },
   marathon: { id: 'marathon', name: 'Tier Marathon (20 Qs)', questionsCount: 20, startIndex: 0, endIndex: 20, isBoss: false }
 };
 
@@ -303,14 +307,17 @@ export const Gameplay = {
       return false;
     }
 
-    // STAGE SLICING: Support dividing the 20 questions into 4 Stages of 5 questions each
+    // STAGE SLICING: Support dividing the campaign into 8 Stages of 5 questions each
     let stageParam = params.stage ? String(params.stage).toLowerCase().trim() : 'marathon';
     let activeStage = STAGE_CONFIG[stageParam] || STAGE_CONFIG.marathon;
 
-    if (mode === 'campaign' && questions.length >= 20 && stageParam !== 'marathon' && stageParam !== 'all') {
+    if (mode === 'campaign' && stageParam !== 'marathon' && stageParam !== 'all') {
       const parsedStage = parseInt(stageParam, 10);
-      if (parsedStage >= 1 && parsedStage <= 4) {
+      if (parsedStage >= 1 && parsedStage <= 8) {
         activeStage = STAGE_CONFIG[parsedStage];
+        if (questions.length < activeStage.endIndex) {
+          questions = QuestionBank.getByLanguage(language);
+        }
         questions = questions.slice(activeStage.startIndex, activeStage.endIndex);
       }
     }
@@ -505,11 +512,12 @@ export const Gameplay = {
     const questionCard = Utils.qs('.arena-main-card') || Utils.qs('.card');
     if (diffBadge) {
       if (this.activeStage && this.activeStage.isBoss) {
-        diffBadge.textContent = `${q.difficulty.toUpperCase()} • 💀 BOSS STAGE (Stage 4 / 4)`;
+        const bossTitle = this.activeStage.id === 8 ? 'FINAL APEX BOSS' : 'MINI-BOSS STAGE';
+        diffBadge.textContent = `${q.difficulty.toUpperCase()} • 💀 ${bossTitle} (Stage ${this.activeStage.id} / 8)`;
         diffBadge.className = 'badge badge-coral boss-pulse';
         if (questionCard) questionCard.classList.add('is-boss');
       } else if (this.activeStage && this.activeStage.id !== 'marathon') {
-        diffBadge.textContent = `${q.difficulty.toUpperCase()} • Stage ${this.activeStage.id} / 4`;
+        diffBadge.textContent = `${q.difficulty.toUpperCase()} • Stage ${this.activeStage.id} / 8`;
         diffBadge.className = `badge ${q.difficulty === 'expert' ? 'badge-coral' : q.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald'}`;
         if (questionCard) questionCard.classList.remove('is-boss');
       } else {

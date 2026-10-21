@@ -447,11 +447,11 @@
           stageBadge.textContent = '💀 Hardcore Run Terminated';
           stageBadge.className = 'badge badge-coral';
         } else if (stageVal && stageVal !== 'marathon') {
-          if (stageVal == 4 || isBoss) {
-            stageBadge.textContent = '💀 BOSS STAGE CONQUERED!';
+          if (stageVal == 8 || (stageVal == 4 && isBoss)) {
+            stageBadge.textContent = stageVal == 8 ? '💀 APEX BOSS CONQUERED!' : '💀 MINI-BOSS CONQUERED!';
             stageBadge.className = 'badge badge-coral boss-pulse';
           } else {
-            stageBadge.textContent = `Stage ${stageVal} / 4 Cleared!`;
+            stageBadge.textContent = `Stage ${stageVal} / 8 Cleared!`;
             stageBadge.className = gradeData.badgeClass;
           }
         } else {
@@ -656,12 +656,21 @@
       const playAgainBtn = Utils.qs('#btn-play-again');
       const parsedStage = stageVal ? parseInt(stageVal, 10) : null;
       if (playAgainBtn) {
-        if (parsedStage && parsedStage < 4) {
-          playAgainBtn.textContent = `Play Stage ${parsedStage + 1} →`;
-          playAgainBtn.href = `game.html?lang=${lang}&diff=${diff}&stage=${parsedStage + 1}&mode=${mode}`;
-        } else if (parsedStage === 4) {
-          playAgainBtn.textContent = 'Tier Mastered! Replay Stage 4';
-          playAgainBtn.href = `game.html?lang=${lang}&diff=${diff}&stage=4&mode=${mode}`;
+        const earnedStars = (summary && typeof summary.stars === 'number')
+          ? summary.stars
+          : (accuracy >= 90 ? 3 : accuracy >= 70 ? 2 : accuracy >= 50 ? 1 : 0);
+
+        if (parsedStage && parsedStage < 8) {
+          if (earnedStars >= 3) {
+            playAgainBtn.textContent = `Play Stage ${parsedStage + 1} →`;
+            playAgainBtn.href = `game.html?lang=${lang}&diff=${diff}&stage=${parsedStage + 1}&mode=${mode}`;
+          } else {
+            playAgainBtn.textContent = `Replay Stage ${parsedStage} (Earn 3★ to Unlock Stage ${parsedStage + 1})`;
+            playAgainBtn.href = `game.html?lang=${lang}&diff=${diff}&stage=${parsedStage}&mode=${mode}`;
+          }
+        } else if (parsedStage === 8) {
+          playAgainBtn.textContent = 'Campaign Mastered! Replay Stage 8';
+          playAgainBtn.href = `game.html?lang=${lang}&diff=${diff}&stage=8&mode=${mode}`;
         } else {
           playAgainBtn.textContent = 'Play Track Again';
           playAgainBtn.href = `game.html?lang=${lang}&diff=${diff}&mode=${mode}`;

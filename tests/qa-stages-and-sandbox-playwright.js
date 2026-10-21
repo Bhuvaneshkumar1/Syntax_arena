@@ -73,7 +73,7 @@ async function runStagesAndSandboxTest() {
     // Verify stage badge in card header
     const diffBadge = await page.locator('#q-diff-badge').textContent();
     console.log('Stage 1 Diff Badge:', diffBadge);
-    assert(diffBadge.includes('Stage 1 / 4'), 'Diff badge reflects Stage 1 / 4');
+    assert(diffBadge.includes('Stage 1 / 8'), 'Diff badge reflects Stage 1 / 8');
 
     console.log('\n--- 2. Testing Boss Stage (Stage 4) Styling ---');
     await page.goto(`${BASE_URL}/game.html?lang=python&diff=beginner&stage=4`);
@@ -126,7 +126,7 @@ async function runStagesAndSandboxTest() {
     // Check Stage Cleared badge
     const stageBadgeText = await page.locator('#results-stage-badge').textContent();
     console.log('Results Stage Badge:', stageBadgeText);
-    assert(stageBadgeText.includes('Stage 1 / 4 Cleared!'), 'Results header announces Stage 1 Cleared');
+    assert(stageBadgeText.includes('Stage 1 / 8 Cleared!'), 'Results header announces Stage 1 Cleared');
 
     // Check Star Rating
     const starRatingText = await page.locator('#results-star-rating').textContent();
@@ -199,12 +199,28 @@ async function runStagesAndSandboxTest() {
     const stageCards = await page.locator('#modal-stage-grid .stage-card');
     const cardCount = await stageCards.count();
     console.log('Stage Cards in Modal:', cardCount);
-    assert(cardCount === 4, 'Modal shows 4 Stage Cards (Stage 1 to 4)');
+    assert(cardCount === 8, 'Modal shows 8 Stage Cards (Stage 1 to 8)');
+
+    // Verify strict 3-star unlock gating:
+    // With python_beginner_stage_1: 3, Stage 1 and 2 are unlocked, while Stage 3 is locked
+    const stage1Locked = await stageCards.nth(0).getAttribute('class');
+    const stage2Locked = await stageCards.nth(1).getAttribute('class');
+    const stage3Locked = await stageCards.nth(2).getAttribute('class');
+    assert(!stage1Locked.includes('is-locked'), 'Stage 1 is unlocked');
+    assert(!stage2Locked.includes('is-locked'), 'Stage 2 is unlocked because Stage 1 has 3 stars');
+    assert(stage3Locked.includes('is-locked'), 'Stage 3 is locked because Stage 2 has not earned 3 stars');
+
+    // Click locked Stage 3 to verify toast notification
+    await stageCards.nth(2).click();
+    await page.waitForTimeout(300);
+    const toastText = await page.locator('.toast').last().textContent();
+    console.log('Locked Stage Click Toast:', toastText);
+    assert(toastText.includes('Stage 3 is locked'), 'Clicking locked stage displays informative 3-star requirement toast');
 
     const marathonBtn = page.locator('#btn-modal-stage-marathon');
     assert(await marathonBtn.isVisible(), 'Tier Marathon 20-question link is available');
 
-    console.log('\n🎉 ALL STAGE & LIVE PYTHON SANDBOX CHECKS PASSED!');
+    console.log('\n🎉 ALL 8-STAGE CAMPAIGN & STRICT 3-STAR GATING CHECKS PASSED!');
   } finally {
     await browser.close();
     server.close();
