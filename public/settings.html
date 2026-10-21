@@ -124,7 +124,16 @@
         </div>
         <div class="card-body">
           <div class="form-group">
-            <label class="form-label" for="setting-theme-select">Theme Mode</label>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <label class="form-label" for="setting-theme-select" style="margin-bottom: 0;">Theme Mode</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <select id="filter-settings-theme-status" class="form-select" style="padding: 0.25rem 0.5rem; font-size: 11px;" aria-label="Filter Theme Palettes">
+                  <option value="all">All Palettes</option>
+                  <option value="gained">✓ Unlocked Only</option>
+                  <option value="unclaimed">🔒 Locked Only</option>
+                </select>
+              </div>
+            </div>
             <select id="setting-theme-select" class="form-select">
               <option value="dark">Cyber Studio (Dark Mode — Default)</option>
               <option value="light">Studio Paper (High-Contrast Daylight — Level 2)</option>
@@ -204,7 +213,21 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Select Avatar Icon</label>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <label class="form-label" style="margin-bottom: 0;">Select Avatar Icon</label>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                <select id="filter-settings-avatar-subject" class="form-select" style="padding: 0.25rem 0.5rem; font-size: 11px; min-width: 110px;" aria-label="Filter Avatars by Class">
+                  <option value="all">All Classes</option>
+                  <option value="beasts">Cyber Beasts</option>
+                  <option value="mechs">Guardians &amp; Mechs</option>
+                </select>
+                <select id="filter-settings-avatar-status" class="form-select" style="padding: 0.25rem 0.5rem; font-size: 11px; min-width: 110px;" aria-label="Filter Avatars by Status">
+                  <option value="all">All Statuses</option>
+                  <option value="gained">✓ Gained Avatars</option>
+                  <option value="unclaimed">🔒 Unclaimed</option>
+                </select>
+              </div>
+            </div>
             <div id="avatar-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem; margin-top: 0.5rem;">
               <!-- Dynamically populated avatar options with SVG images -->
             </div>
@@ -363,8 +386,10 @@
       const levelBadge = Utils.qs('#profile-level-badge');
       if (levelBadge) levelBadge.textContent = `Level ${activeProfile.level || 1} • ${activeProfile.rank || 'Script Novice'}`;
 
-      // 2. Populate Avatar Grid with Real SVG Images & Level Gating
+      // 2. Populate Avatar Grid with Real SVG Images & Level Gating & Filters
       const avatarGrid = Utils.qs('#avatar-grid');
+      const filterAvatarSubject = Utils.qs('#filter-settings-avatar-subject');
+      const filterAvatarStatus = Utils.qs('#filter-settings-avatar-status');
       let selectedAvatar = activeProfile.avatarId || 'cyber_fox';
 
       function renderAvatarGrid() {
@@ -374,7 +399,33 @@
         const curPoints = typeof currentProf.totalScore === 'number' ? currentProf.totalScore : (currentProf.xp || 0);
         const unlockedAvatars = Array.isArray(currentProf.unlockedAvatars) ? currentProf.unlockedAvatars : ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight'];
 
-        AVATAR_CATALOG.forEach(avatar => {
+        const subjectVal = filterAvatarSubject ? filterAvatarSubject.value : 'all';
+        const statusVal = filterAvatarStatus ? filterAvatarStatus.value : 'all';
+
+        const filteredAvatars = AVATAR_CATALOG.filter(avatar => {
+          const isUnlocked = unlockedAvatars.includes(avatar.id) || (avatar.requiredLevel || 1) <= playerLevel;
+          const isBeast = ['cyber_fox', 'terminal_owl', 'matrix_cat'].includes(avatar.id);
+          const isMech = ['bit_knight', 'hex_dragon', 'glitch_bot'].includes(avatar.id);
+
+          const subjectMatch = (subjectVal === 'all') ||
+            (subjectVal === 'beasts' && isBeast) ||
+            (subjectVal === 'mechs' && isMech);
+          const statusMatch = (statusVal === 'all') ||
+            (statusVal === 'gained' && isUnlocked) ||
+            (statusVal === 'unclaimed' && !isUnlocked);
+          return subjectMatch && statusMatch;
+        });
+
+        if (filteredAvatars.length === 0) {
+          avatarGrid.innerHTML = `
+            <div class="card" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--text-muted);">
+              No avatars match the selected filters.
+            </div>
+          `;
+          return;
+        }
+
+        filteredAvatars.forEach(avatar => {
           const isUnlocked = unlockedAvatars.includes(avatar.id) || (avatar.requiredLevel || 1) <= playerLevel;
           const isSelected = avatar.id === selectedAvatar;
 
@@ -433,9 +484,51 @@
           avatarGrid.appendChild(btn);
         });
       }
+
+      if (filterAvatarSubject) filterAvatarSubject.onchange = () => { AudioEngine.playClick(); renderAvatarGrid(); };
+      if (filterAvatarStatus) filterAvatarStatus.onchange = () => { AudioEngine.playClick(); renderAvatarGrid(); };
       renderAvatarGrid();
 
-      // 3. Theme Select Change with Gate Validation
+      // 3. Theme Select Change with Gate Validation & Filter
+      const filterThemeStatus = Utils.qs('#filter-settings-theme-status');
+      const ALL_THEME_OPTIONS = [
+        { id: 'dark', name: 'Cyber Studio (Dark Mode — Default)', level: 1 },
+        { id: 'light', name: 'Studio Paper (High-Contrast Daylight — Level 2)', level: 2 },
+        { id: 'amber', name: 'Retro CRT Amber (Monochrome Terminal — Level 3)', level: 3 },
+        { id: 'gold', name: 'Champion Gold (Master Prestige — Level 4)', level: 4 }
+      ];
+
+      function renderThemeOptions() {
+        if (!themeSelect) return;
+        const statusVal = filterThemeStatus ? filterThemeStatus.value : 'all';
+        const currentTheme = (State.get('settings') || {}).theme || settings.theme || 'dark';
+        themeSelect.innerHTML = '';
+
+        const filtered = ALL_THEME_OPTIONS.filter(opt => {
+          const isUnlocked = playerLevel >= opt.level;
+          if (statusVal === 'gained') return isUnlocked;
+          if (statusVal === 'unclaimed') return !isUnlocked;
+          return true;
+        });
+
+        filtered.forEach(opt => {
+          const el = document.createElement('option');
+          el.value = opt.id;
+          const isUnlocked = playerLevel >= opt.level;
+          el.textContent = `${isUnlocked ? '✓ ' : '🔒 '}${opt.name}`;
+          if (opt.id === currentTheme) el.selected = true;
+          themeSelect.appendChild(el);
+        });
+      }
+
+      if (filterThemeStatus) {
+        filterThemeStatus.onchange = () => {
+          AudioEngine.playClick();
+          renderThemeOptions();
+        };
+      }
+      renderThemeOptions();
+
       if (themeSelect) {
         themeSelect.onchange = (e) => {
           const next = e.target.value;

@@ -288,6 +288,23 @@
           <span id="badge-counter-pill" class="badge badge-violet">0 / 20 Unlocked</span>
         </div>
 
+        <!-- Badges Real-Time Dropdown Filters -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-top: 0.75rem;">
+          <select id="filter-badges-subject" class="form-select" style="padding: 0.35rem 0.6rem; font-size: 12px; min-width: 140px;" aria-label="Filter Badges by Subject">
+            <option value="all">All Subjects</option>
+            <option value="milestones">Milestones &amp; Career</option>
+            <option value="streaks">Streak &amp; Multipliers</option>
+            <option value="accuracy">Accuracy &amp; Mastery</option>
+            <option value="speed">Speed &amp; Deduction</option>
+            <option value="polyglot">Language Mastery</option>
+          </select>
+          <select id="filter-badges-status" class="form-select" style="padding: 0.35rem 0.6rem; font-size: 12px; min-width: 140px;" aria-label="Filter Badges by Unlock Status">
+            <option value="all">All Statuses</option>
+            <option value="gained">✓ Gained Badges</option>
+            <option value="unclaimed">🔒 Unclaimed Badges</option>
+          </select>
+        </div>
+
         <div id="trophy-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1rem;">
           <!-- Dynamically populated 20 achievement cards -->
         </div>
@@ -303,18 +320,48 @@
           <a href="settings.html" class="btn-arcade btn-neutral btn-sm">Equip in Settings →</a>
         </div>
 
-        <!-- Themes Showcase -->
-        <h3 style="font-size: var(--text-base); margin-top: 1.25rem; margin-bottom: 0.75rem; color: var(--text-secondary); text-transform: uppercase;">
-          Palette Themes
-        </h3>
+        <!-- Themes Showcase Header & Filters -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; margin-bottom: 0.75rem;">
+          <h3 style="font-size: var(--text-base); margin: 0; color: var(--text-secondary); text-transform: uppercase;">
+            Palette Themes
+          </h3>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <select id="filter-themes-subject" class="form-select" style="padding: 0.3rem 0.5rem; font-size: 11px; min-width: 120px;" aria-label="Filter Themes by Subject">
+              <option value="all">All Theme Styles</option>
+              <option value="cyber">Cyber &amp; Dark</option>
+              <option value="paper">Light &amp; Paper</option>
+              <option value="crt">Retro CRT Amber</option>
+              <option value="prestige">Grandmaster Gold</option>
+            </select>
+            <select id="filter-themes-status" class="form-select" style="padding: 0.3rem 0.5rem; font-size: 11px; min-width: 120px;" aria-label="Filter Themes by Unlock Status">
+              <option value="all">All Statuses</option>
+              <option value="gained">✓ Gained Themes</option>
+              <option value="unclaimed">🔒 Unclaimed Themes</option>
+            </select>
+          </div>
+        </div>
         <div id="themes-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
           <!-- Populated dynamically -->
         </div>
 
-        <!-- Avatars Showcase -->
-        <h3 style="font-size: var(--text-base); margin-bottom: 0.75rem; color: var(--text-secondary); text-transform: uppercase;">
-          Avatar Icon Collection
-        </h3>
+        <!-- Avatars Showcase Header & Filters -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; margin-bottom: 0.75rem;">
+          <h3 style="font-size: var(--text-base); margin: 0; color: var(--text-secondary); text-transform: uppercase;">
+            Avatar Icon Collection
+          </h3>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <select id="filter-avatars-subject" class="form-select" style="padding: 0.3rem 0.5rem; font-size: 11px; min-width: 120px;" aria-label="Filter Avatars by Subject">
+              <option value="all">All Classes</option>
+              <option value="beasts">Cyber Beasts</option>
+              <option value="mechs">Guardians &amp; Mechs</option>
+            </select>
+            <select id="filter-avatars-status" class="form-select" style="padding: 0.3rem 0.5rem; font-size: 11px; min-width: 120px;" aria-label="Filter Avatars by Unlock Status">
+              <option value="all">All Statuses</option>
+              <option value="gained">✓ Gained Avatars</option>
+              <option value="unclaimed">🔒 Unclaimed Avatars</option>
+            </select>
+          </div>
+        </div>
         <div id="avatars-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
           <!-- Populated dynamically -->
         </div>
@@ -328,6 +375,22 @@
             <p class="page-subtitle">Unlock specialized gameplay modes as you ascend through player ranks.</p>
           </div>
           <span class="badge badge-cyan">4 Arcade Modes</span>
+        </div>
+
+        <!-- Modes Real-Time Dropdown Filters -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-top: 0.75rem;">
+          <select id="filter-modes-subject" class="form-select" style="padding: 0.35rem 0.6rem; font-size: 12px; min-width: 130px;" aria-label="Filter Challenge Modes by Subject">
+            <option value="all">All Modes</option>
+            <option value="campaign">Campaign Track</option>
+            <option value="practice">Free Practice</option>
+            <option value="speedrun">Speedrun (Timed)</option>
+            <option value="hardcore">Hardcore Crucible</option>
+          </select>
+          <select id="filter-modes-status" class="form-select" style="padding: 0.35rem 0.6rem; font-size: 12px; min-width: 130px;" aria-label="Filter Challenge Modes by Status">
+            <option value="all">All Statuses</option>
+            <option value="gained">✓ Unlocked Modes</option>
+            <option value="unclaimed">🔒 Level Gated</option>
+          </select>
         </div>
 
         <div id="modes-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
@@ -797,8 +860,11 @@
       // Initial History Render
       renderHistoricalAnalytics();
 
-      // 6. Render 20 Achievement Badges with Point Unlock support
+      // 6. Render 20 Achievement Badges with Subject & Gained/Unclaimed Filters
       const trophyGrid = Utils.qs('#trophy-grid');
+      const filterBadgesSubject = Utils.qs('#filter-badges-subject');
+      const filterBadgesStatus = Utils.qs('#filter-badges-status');
+
       function renderTrophyGrid() {
         if (!trophyGrid) return;
         trophyGrid.innerHTML = '';
@@ -810,7 +876,30 @@
         ]);
         const curPoints = typeof currentProf.totalScore === 'number' ? currentProf.totalScore : (currentProf.xp || 0);
 
-        ACHIEVEMENTS.forEach(badge => {
+        const subjectVal = filterBadgesSubject ? filterBadgesSubject.value : 'all';
+        const statusVal = filterBadgesStatus ? filterBadgesStatus.value : 'all';
+
+        const filteredBadges = ACHIEVEMENTS.filter(badge => {
+          const subjectMatch = (subjectVal === 'all') || (badge.category === subjectVal);
+          const isUnlocked = curEarnedBadges.has(badge.id);
+          const statusMatch = (statusVal === 'all') ||
+            (statusVal === 'gained' && isUnlocked) ||
+            (statusVal === 'unclaimed' && !isUnlocked);
+          return subjectMatch && statusMatch;
+        });
+
+        if (filteredBadges.length === 0) {
+          trophyGrid.innerHTML = `
+            <div class="card" style="grid-column: 1 / -1; padding: 2rem; text-align: center; color: var(--text-muted);">
+              <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;" aria-hidden="true">🔍</span>
+              <strong>No achievement badges match the selected filters.</strong>
+              <p style="margin: 0.25rem 0 0; font-size: 11px;">Try selecting 'All Subjects' or 'All Statuses'.</p>
+            </div>
+          `;
+          return;
+        }
+
+        filteredBadges.forEach(badge => {
           const isUnlocked = curEarnedBadges.has(badge.id);
           const card = document.createElement('div');
           card.className = `card card-interactive ${isUnlocked ? 'badge-card-unlocked' : 'badge-card-locked'}`;
@@ -828,7 +917,7 @@
             card.style.background = 'linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(0, 229, 255, 0.05) 100%)';
           }
 
-          const catBadgeClass = badge.category === 'streak' ? 'badge-amber' :
+          const catBadgeClass = badge.category === 'streak' || badge.category === 'streaks' ? 'badge-amber' :
                                badge.category === 'speed' ? 'badge-violet' :
                                badge.category === 'accuracy' ? 'badge-emerald' :
                                badge.category === 'polyglot' ? 'badge-coral' : 'badge-cyan';
@@ -894,15 +983,51 @@
           trophyGrid.appendChild(card);
         });
       }
+
+      if (filterBadgesSubject) filterBadgesSubject.onchange = () => { AudioEngine.playClick(); renderTrophyGrid(); };
+      if (filterBadgesStatus) filterBadgesStatus.onchange = () => { AudioEngine.playClick(); renderTrophyGrid(); };
       renderTrophyGrid();
 
-      // 7. Render Palette Themes Collection (Preserved from Batch 6)
+      // 7. Render Palette Themes Collection with Subject & Gained/Unclaimed Filters
       const themesGrid = Utils.qs('#themes-grid');
-      if (themesGrid) {
+      const filterThemesSubject = Utils.qs('#filter-themes-subject');
+      const filterThemesStatus = Utils.qs('#filter-themes-status');
+
+      function renderThemesGrid() {
+        if (!themesGrid) return;
         themesGrid.innerHTML = '';
-        UNLOCKABLE_THEMES.forEach(t => {
-          const isUnlocked = playerLevel >= t.requiredLevel;
-          const isCurrent = (State.get('settings') || {}).theme === t.id;
+        const currentProf = State.get('activeProfile') || Profile.getActiveProfile();
+        const pLevel = currentProf.level || 1;
+        const currentTheme = (State.get('settings') || {}).theme || 'dark';
+
+        const subjectVal = filterThemesSubject ? filterThemesSubject.value : 'all';
+        const statusVal = filterThemesStatus ? filterThemesStatus.value : 'all';
+
+        const filteredThemes = UNLOCKABLE_THEMES.filter(t => {
+          const isUnlocked = pLevel >= t.requiredLevel;
+          const subjectMatch = (subjectVal === 'all') ||
+            (subjectVal === 'cyber' && t.id === 'dark') ||
+            (subjectVal === 'paper' && t.id === 'light') ||
+            (subjectVal === 'crt' && t.id === 'amber') ||
+            (subjectVal === 'prestige' && t.id === 'gold');
+          const statusMatch = (statusVal === 'all') ||
+            (statusVal === 'gained' && isUnlocked) ||
+            (statusVal === 'unclaimed' && !isUnlocked);
+          return subjectMatch && statusMatch;
+        });
+
+        if (filteredThemes.length === 0) {
+          themesGrid.innerHTML = `
+            <div class="card" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--text-muted);">
+              No palette themes match the selected filters.
+            </div>
+          `;
+          return;
+        }
+
+        filteredThemes.forEach(t => {
+          const isUnlocked = pLevel >= t.requiredLevel;
+          const isCurrent = currentTheme === t.id;
           const card = document.createElement('div');
           card.className = `card ${isUnlocked ? '' : 'card-locked'}`;
           card.style.padding = '1rem';
@@ -925,14 +1050,51 @@
         });
       }
 
-      // 8. Render Avatar Icons Collection (Preserved from Batch 6)
+      if (filterThemesSubject) filterThemesSubject.onchange = () => { AudioEngine.playClick(); renderThemesGrid(); };
+      if (filterThemesStatus) filterThemesStatus.onchange = () => { AudioEngine.playClick(); renderThemesGrid(); };
+      renderThemesGrid();
+
+      // 8. Render Avatar Icons Collection with Subject & Gained/Unclaimed Filters
       const avatarsGrid = Utils.qs('#avatars-grid');
-      if (avatarsGrid) {
+      const filterAvatarsSubject = Utils.qs('#filter-avatars-subject');
+      const filterAvatarsStatus = Utils.qs('#filter-avatars-status');
+
+      function renderAvatarsGrid() {
+        if (!avatarsGrid) return;
         avatarsGrid.innerHTML = '';
-        const unlockedAvatars = Array.isArray(activeProf.unlockedAvatars) ? activeProf.unlockedAvatars : ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight'];
-        AVATAR_CATALOG.forEach(av => {
-          const isUnlocked = unlockedAvatars.includes(av.id) || playerLevel >= (av.requiredLevel || 1);
-          const isCurrent = activeProf.avatarId === av.id;
+        const currentProf = State.get('activeProfile') || Profile.getActiveProfile();
+        const pLevel = currentProf.level || 1;
+        const unlockedAvatars = Array.isArray(currentProf.unlockedAvatars) ? currentProf.unlockedAvatars : ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight'];
+
+        const subjectVal = filterAvatarsSubject ? filterAvatarsSubject.value : 'all';
+        const statusVal = filterAvatarsStatus ? filterAvatarsStatus.value : 'all';
+
+        const filteredAvatars = AVATAR_CATALOG.filter(av => {
+          const isUnlocked = unlockedAvatars.includes(av.id) || pLevel >= (av.requiredLevel || 1);
+          const isBeast = ['cyber_fox', 'terminal_owl', 'matrix_cat'].includes(av.id);
+          const isMech = ['bit_knight', 'hex_dragon', 'glitch_bot'].includes(av.id);
+
+          const subjectMatch = (subjectVal === 'all') ||
+            (subjectVal === 'beasts' && isBeast) ||
+            (subjectVal === 'mechs' && isMech);
+          const statusMatch = (statusVal === 'all') ||
+            (statusVal === 'gained' && isUnlocked) ||
+            (statusVal === 'unclaimed' && !isUnlocked);
+          return subjectMatch && statusMatch;
+        });
+
+        if (filteredAvatars.length === 0) {
+          avatarsGrid.innerHTML = `
+            <div class="card" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--text-muted);">
+              No avatars match the selected filters.
+            </div>
+          `;
+          return;
+        }
+
+        filteredAvatars.forEach(av => {
+          const isUnlocked = unlockedAvatars.includes(av.id) || pLevel >= (av.requiredLevel || 1);
+          const isCurrent = currentProf.avatarId === av.id;
           const card = document.createElement('div');
           card.className = `card ${isUnlocked ? 'card-interactive' : 'card-locked'}`;
           card.style.padding = '0.75rem';
@@ -954,11 +1116,10 @@
           if (isUnlocked && !isCurrent) {
             card.onclick = () => {
               AudioEngine.playClick();
-              Profile.updateProfile(activeProf.id, { avatarId: av.id });
-              activeProf = Profile.getActiveProfile();
+              Profile.updateProfile(currentProf.id, { avatarId: av.id });
               UI.updateHeaderProfile();
               UI.showToast(`Equipped ${av.name} as active avatar!`, 'success');
-              renderProgressDashboard();
+              renderAvatarsGrid();
             };
           }
 
@@ -966,12 +1127,44 @@
         });
       }
 
-      // 9. Render Challenge Modes Roadmap (Preserved from Batch 6)
+      if (filterAvatarsSubject) filterAvatarsSubject.onchange = () => { AudioEngine.playClick(); renderAvatarsGrid(); };
+      if (filterAvatarsStatus) filterAvatarsStatus.onchange = () => { AudioEngine.playClick(); renderAvatarsGrid(); };
+      renderAvatarsGrid();
+
+      // 9. Render Challenge Modes Roadmap with Subject & Status Filters
       const modesGrid = Utils.qs('#modes-grid');
-      if (modesGrid) {
+      const filterModesSubject = Utils.qs('#filter-modes-subject');
+      const filterModesStatus = Utils.qs('#filter-modes-status');
+
+      function renderModesGrid() {
+        if (!modesGrid) return;
         modesGrid.innerHTML = '';
-        CHALLENGE_MODES.forEach(mode => {
-          const isUnlocked = playerLevel >= mode.requiredLevel;
+        const currentProf = State.get('activeProfile') || Profile.getActiveProfile();
+        const pLevel = currentProf.level || 1;
+
+        const subjectVal = filterModesSubject ? filterModesSubject.value : 'all';
+        const statusVal = filterModesStatus ? filterModesStatus.value : 'all';
+
+        const filteredModes = CHALLENGE_MODES.filter(mode => {
+          const isUnlocked = pLevel >= mode.requiredLevel;
+          const subjectMatch = (subjectVal === 'all') || (mode.id === subjectVal);
+          const statusMatch = (statusVal === 'all') ||
+            (statusVal === 'gained' && isUnlocked) ||
+            (statusVal === 'unclaimed' && !isUnlocked);
+          return subjectMatch && statusMatch;
+        });
+
+        if (filteredModes.length === 0) {
+          modesGrid.innerHTML = `
+            <div class="card" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--text-muted);">
+              No challenge modes match the selected filters.
+            </div>
+          `;
+          return;
+        }
+
+        filteredModes.forEach(mode => {
+          const isUnlocked = pLevel >= mode.requiredLevel;
           const card = document.createElement('div');
           card.className = `card ${isUnlocked ? 'card-interactive' : 'card-locked'}`;
           card.style.padding = '1.25rem';
@@ -996,13 +1189,17 @@
             </p>
             <div style="margin-top: 0.75rem;">
               ${isUnlocked
-                ? `<a href="game.html?mode=${mode.id}&lang=${activeProf.preferredLanguage || 'python'}" class="btn-arcade btn-primary btn-sm" style="width: 100%; justify-content: center;">Launch ${mode.name} →</a>`
+                ? `<a href="game.html?mode=${mode.id}&lang=${currentProf.preferences?.language || 'python'}" class="btn-arcade btn-primary btn-sm" style="width: 100%; justify-content: center;">Launch ${mode.name} →</a>`
                 : `<button class="btn-arcade btn-neutral btn-sm" disabled style="width: 100%; justify-content: center; opacity: 0.6;">Reach Level ${mode.requiredLevel} to Unlock</button>`}
             </div>
           `;
           modesGrid.appendChild(card);
         });
       }
+
+      if (filterModesSubject) filterModesSubject.onchange = () => { AudioEngine.playClick(); renderModesGrid(); };
+      if (filterModesStatus) filterModesStatus.onchange = () => { AudioEngine.playClick(); renderModesGrid(); };
+      renderModesGrid();
     });
   })();
   </script>
