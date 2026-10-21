@@ -930,17 +930,17 @@ export const Gameplay = {
         result.points = 0;
         result.streak = 0;
       } else {
-        // Streak milestone bonuses (3 in a row -> +150 pts, 5 in a row -> +300 pts)
+        // Streak milestone bonuses (3 in a row -> +30 pts, 5 in a row -> +50 pts)
         const session = this.engine ? this.engine.getSession() : null;
         if (session) {
           if (session.currentStreak === 3) {
-            session.totalScore += 150;
-            result.points += 150;
-            UI.showToast('🔥 3-in-a-Row Streak Bonus! +150 Points!', 'success');
+            session.totalScore += 30;
+            result.points += 30;
+            UI.showToast('🔥 3-in-a-Row Streak Bonus! +30 Points!', 'success');
           } else if (session.currentStreak === 5) {
-            session.totalScore += 300;
-            result.points += 300;
-            UI.showToast('⚡ 5-in-a-Row Mega Streak Bonus! +300 Points!', 'success');
+            session.totalScore += 50;
+            result.points += 50;
+            UI.showToast('⚡ 5-in-a-Row Mega Streak Bonus! +50 Points!', 'success');
           }
         }
       }
@@ -1406,7 +1406,9 @@ export const Gameplay = {
       attempted: summary.questionsAttempted,
       total: summary.totalQuestions,
       sessionId: summary.sessionId,
-      stage: summary.stage
+      stage: summary.stage,
+      streak: summary.bestStreak || summary.highestStreak || 0,
+      bestStreak: summary.bestStreak || summary.highestStreak || 0
     };
 
     UI.showToast(summary.isGameOver ? 'Hardcore run concluded. Recording career XP...' : 'Challenge completed! Loading stage analytics...', 'success');

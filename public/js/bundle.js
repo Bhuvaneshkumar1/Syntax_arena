@@ -12921,7 +12921,20 @@ var Gamification = window.Gamification = {
     const prevStats = profile.stats || {};
     const attempted = summary.questionsAttempted || summary.totalQuestions || 0;
     const correct = summary.questionsCorrect || 0;
-    const sessionHighestStreak = summary.highestStreak || summary.bestStreak || 0;
+    // Derive best streak strictly based on continuous correct answers (Item 7)
+    let maxContStreak = 0;
+    if (Array.isArray(summary.results) && summary.results.length > 0) {
+      let curCont = 0;
+      for (const r of summary.results) {
+        if (r && (r.isCorrect || r.correct) && !r.retried && (r.attempts === undefined || r.attempts <= 1)) {
+          curCont++;
+          if (curCont > maxContStreak) maxContStreak = curCont;
+        } else {
+          curCont = 0;
+        }
+      }
+    }
+    const sessionHighestStreak = maxContStreak > 0 ? maxContStreak : (summary.highestStreak || summary.bestStreak || 0);
     const currentHighestStreak = prevStats.highestStreak || profile.bestStreak || 0;
     const bestStreak = Math.max(currentHighestStreak, sessionHighestStreak);
 
@@ -18961,17 +18974,17 @@ var Gameplay = window.Gameplay = {
         result.points = 0;
         result.streak = 0;
       } else {
-        // Streak milestone bonuses (3 in a row -> +150 pts, 5 in a row -> +300 pts)
+        // Streak milestone bonuses (3 in a row -> +30 pts, 5 in a row -> +50 pts)
         const session = this.engine ? this.engine.getSession() : null;
         if (session) {
           if (session.currentStreak === 3) {
-            session.totalScore += 150;
-            result.points += 150;
-            UI.showToast('🔥 3-in-a-Row Streak Bonus! +150 Points!', 'success');
+            session.totalScore += 30;
+            result.points += 30;
+            UI.showToast('🔥 3-in-a-Row Streak Bonus! +30 Points!', 'success');
           } else if (session.currentStreak === 5) {
-            session.totalScore += 300;
-            result.points += 300;
-            UI.showToast('⚡ 5-in-a-Row Mega Streak Bonus! +300 Points!', 'success');
+            session.totalScore += 50;
+            result.points += 50;
+            UI.showToast('⚡ 5-in-a-Row Mega Streak Bonus! +50 Points!', 'success');
           }
         }
       }
@@ -19437,7 +19450,9 @@ var Gameplay = window.Gameplay = {
       attempted: summary.questionsAttempted,
       total: summary.totalQuestions,
       sessionId: summary.sessionId,
-      stage: summary.stage
+      stage: summary.stage,
+      streak: summary.bestStreak || summary.highestStreak || 0,
+      bestStreak: summary.bestStreak || summary.highestStreak || 0
     };
 
     UI.showToast(summary.isGameOver ? 'Hardcore run concluded. Recording career XP...' : 'Challenge completed! Loading stage analytics...', 'success');

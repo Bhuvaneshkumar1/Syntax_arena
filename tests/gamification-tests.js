@@ -230,6 +230,24 @@ export async function runGamificationTests() {
   const resHigher = Gamification.processSessionSummary(baseProfile, higherStreakSummary);
   assert(resHigher.updatedProfile.stats.highestStreak === 7, 'Profile updates bestStreak to 7 when session best exceeds current record');
 
+  // Continuous streak verification (Item 7): Run with Q1 correct, Q2 wrong, Q3-Q5 correct has continuous best streak 3, NOT whole 4
+  const discontinuousSummary = {
+    sessionId: 'sess-streak-discontinuous',
+    questionsAttempted: 5,
+    questionsCorrect: 4,
+    totalQuestions: 5,
+    results: [
+      { isCorrect: true, attempts: 1 },
+      { isCorrect: false, attempts: 1 },
+      { isCorrect: true, attempts: 1 },
+      { isCorrect: true, attempts: 1 },
+      { isCorrect: true, attempts: 1 }
+    ]
+  };
+  const blankProfile = { ...baseProfile, bestStreak: 0, stats: { ...baseProfile.stats, highestStreak: 0 } };
+  const resDiscont = Gamification.processSessionSummary(blankProfile, discontinuousSummary);
+  assert(resDiscont.updatedProfile.bestStreak === 3, `Continuous best streak is strictly 3, got: ${resDiscont.updatedProfile.bestStreak}`);
+
   // ------------------------------------------------------------------------
   // 4. Achievement Badges Registry (20 Badges)
   // ------------------------------------------------------------------------

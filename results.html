@@ -374,7 +374,26 @@
         ? summary.questionsAttempted
         : parseInt(params.attempted || params.total || '20', 10);
       const incorrect = Math.max(0, attempted - correct);
-      const bestStreak = (summary && typeof summary.bestStreak === 'number') ? summary.bestStreak : (summary && summary.highestStreak) || 0;
+
+      // Best streak based strictly on continuous correct answers (Item 7)
+      let bestStreak = 0;
+      if (summary && Array.isArray(summary.results) && summary.results.length > 0) {
+        let curCont = 0;
+        summary.results.forEach(r => {
+          if (r && (r.isCorrect || r.correct) && !r.retried && (r.attempts === undefined || r.attempts <= 1)) {
+            curCont++;
+            if (curCont > bestStreak) bestStreak = curCont;
+          } else {
+            curCont = 0;
+          }
+        });
+      } else if (summary && typeof summary.bestStreak === 'number') {
+        bestStreak = summary.bestStreak;
+      } else if (summary && typeof summary.highestStreak === 'number') {
+        bestStreak = summary.highestStreak;
+      } else if (params.bestStreak || params.streak) {
+        bestStreak = parseInt(params.bestStreak || params.streak || '0', 10);
+      }
       const elapsedSec = (summary && typeof summary.elapsedSeconds === 'number') ? summary.elapsedSeconds : null;
       const hintsUsed = (summary && typeof summary.hintsUsed === 'number') ? summary.hintsUsed : 0;
       const retriesUsed = (summary && typeof summary.retriesUsed === 'number') ? summary.retriesUsed : 0;

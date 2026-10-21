@@ -669,7 +669,20 @@ export const Gamification = {
     const prevStats = profile.stats || {};
     const attempted = summary.questionsAttempted || summary.totalQuestions || 0;
     const correct = summary.questionsCorrect || 0;
-    const sessionHighestStreak = summary.highestStreak || summary.bestStreak || 0;
+    // Derive best streak strictly based on continuous correct answers (Item 7)
+    let maxContStreak = 0;
+    if (Array.isArray(summary.results) && summary.results.length > 0) {
+      let curCont = 0;
+      for (const r of summary.results) {
+        if (r && (r.isCorrect || r.correct) && !r.retried && (r.attempts === undefined || r.attempts <= 1)) {
+          curCont++;
+          if (curCont > maxContStreak) maxContStreak = curCont;
+        } else {
+          curCont = 0;
+        }
+      }
+    }
+    const sessionHighestStreak = maxContStreak > 0 ? maxContStreak : (summary.highestStreak || summary.bestStreak || 0);
     const currentHighestStreak = prevStats.highestStreak || profile.bestStreak || 0;
     const bestStreak = Math.max(currentHighestStreak, sessionHighestStreak);
 

@@ -499,13 +499,35 @@
         ...(activeProf.unlockedAchievements || []),
         ...(activeProf.purchasedBadges || [])
       ]);
-      const bestStreak = activeProf.bestStreak || (activeProf.stats && activeProf.stats.highestStreak) || 0;
+      const sessionHistory = Array.isArray(activeProf.sessionHistory) ? activeProf.sessionHistory : [];
+      // Derive continuous best streak strictly from contiguous correct answers (Item 7)
+      let bestStreak = activeProf.bestStreak || (activeProf.stats && activeProf.stats.highestStreak) || 0;
+      if (sessionHistory.length > 0) {
+        sessionHistory.forEach(s => {
+          let sStreak = 0;
+          if (Array.isArray(s.results) && s.results.length > 0) {
+            let curr = 0;
+            s.results.forEach(r => {
+              if (r && (r.isCorrect || r.correct) && !r.retried && (r.attempts === undefined || r.attempts <= 1)) {
+                curr++;
+                if (curr > sStreak) sStreak = curr;
+              } else {
+                curr = 0;
+              }
+            });
+          } else if (typeof s.bestStreak === 'number') {
+            sStreak = s.bestStreak;
+          } else if (typeof s.highestStreak === 'number') {
+            sStreak = s.highestStreak;
+          }
+          if (sStreak > bestStreak) bestStreak = sStreak;
+        });
+      }
       const stats = activeProf.stats || {};
       const gamesPlayed = stats.gamesPlayed || 0;
       const totalAttempted = stats.questionsAttempted || 0;
       const totalCorrect = stats.questionsCorrect || 0;
       const accuracyRate = Analytics.calculateAccuracy(totalCorrect, totalAttempted);
-      const sessionHistory = Array.isArray(activeProf.sessionHistory) ? activeProf.sessionHistory : [];
 
       // 1. Header Profile & XP Progress
       const heading = Utils.qs('#prog-callsign-heading');
