@@ -65,11 +65,21 @@ export const LandingPage = {
    * Determine initial selections from active profile or defaults.
    */
   _initSelections() {
+    const params = Router.getQueryParams();
+    const isReset = params.reset === '1';
+
     const profile = State.get('activeProfile');
     const prefs = profile && profile.preferences ? profile.preferences : {};
 
     this.selectedLanguage = prefs.language || State.get('selectedLanguage') || 'python';
-    this.selectedDifficulty = prefs.difficulty || State.get('selectedDifficulty') || 'beginner';
+    this.selectedDifficulty = isReset ? 'beginner' : (prefs.difficulty || State.get('selectedDifficulty') || 'beginner');
+
+    // Ensure selectedDifficulty is strictly unlocked
+    const lockCheck = this.isDifficultyUnlocked(this.selectedDifficulty, this.selectedLanguage);
+    if (!lockCheck.unlocked) {
+      this.selectedDifficulty = 'beginner';
+      State.set('selectedDifficulty', 'beginner');
+    }
 
     this.selectLanguage(this.selectedLanguage, false);
     this.selectDifficulty(this.selectedDifficulty, false);
@@ -249,6 +259,40 @@ export const LandingPage = {
     if (needResetToBeginner) {
       this.selectDifficulty('beginner', true);
     }
+
+    this._updateRoadmapTiers();
+  },
+
+  /**
+   * Update visual lock state on Section E Progression Roadmap tier cards.
+   */
+  _updateRoadmapTiers() {
+    const intCard = Utils.qs('#roadmap-tier-intermediate');
+    const expCard = Utils.qs('#roadmap-tier-expert');
+    const intWatermark = Utils.qs('#roadmap-watermark-intermediate');
+    const expWatermark = Utils.qs('#roadmap-watermark-expert');
+    const intStatus = Utils.qs('#roadmap-status-intermediate');
+    const expStatus = Utils.qs('#roadmap-status-expert');
+
+    const intLock = this.isDifficultyUnlocked('intermediate', this.selectedLanguage);
+    if (intCard) {
+      intCard.classList.toggle('tier-locked', !intLock.unlocked);
+      intCard.classList.toggle('tier-active', intLock.unlocked && this.selectedDifficulty === 'intermediate');
+      if (intWatermark) intWatermark.textContent = intLock.unlocked ? 'Tier 2: Unlocked' : 'Tier 2: Locked';
+      if (intStatus) {
+        intStatus.textContent = intLock.unlocked ? 'Status: ✓ Available in Active Arena' : 'Status: 🔒 Locked (Requires Beginner Clear or 1,000 Pts)';
+      }
+    }
+
+    const expLock = this.isDifficultyUnlocked('expert', this.selectedLanguage);
+    if (expCard) {
+      expCard.classList.toggle('tier-locked', !expLock.unlocked);
+      expCard.classList.toggle('tier-active', expLock.unlocked && this.selectedDifficulty === 'expert');
+      if (expWatermark) expWatermark.textContent = expLock.unlocked ? 'Tier 3: Unlocked' : 'Tier 3: Locked';
+      if (expStatus) {
+        expStatus.textContent = expLock.unlocked ? 'Status: ✓ Available in Active Arena' : 'Status: 🔒 Locked (Requires Intermediate Clear or 2,500 Pts)';
+      }
+    }
   },
 
   /**
@@ -414,6 +458,14 @@ export const LandingPage = {
     const marathonLink = Utils.qs('#btn-modal-stage-marathon');
     const closeBtn = Utils.qs('#btn-close-stage-modal');
     const cancelBtn = Utils.qs('#btn-cancel-stage-modal');
+
+    const lockInfo = this.isDifficultyUnlocked(diff, lang);
+    if (!lockInfo.unlocked) {
+      AudioEngine.playError();
+      UI.showToast(lockInfo.reason || `🔒 ${diff.charAt(0).toUpperCase() + diff.slice(1)} tier is locked!`, 'info');
+      this.selectDifficulty('beginner', true);
+      diff = 'beginner';
+    }
 
     if (!modal || !stageGrid) {
       Router.navigateTo('game', { lang, diff });

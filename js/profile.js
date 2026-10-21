@@ -94,10 +94,14 @@ export const Profile = {
         lastDailyDate: null
       },
       campaign: {
-        python: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
-        c:      { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
-        cpp:    { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
-        java:   { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
+        python:     { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+        c:          { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+        cpp:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+        java:       { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+        cyber:      { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+        javascript: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+        rust:       { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+        sql:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
       },
       completedTiers: {},
       unlockedAchievements: [],

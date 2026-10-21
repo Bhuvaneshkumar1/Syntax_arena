@@ -37,10 +37,20 @@ class StateStore {
       profiles: [...stored.profiles],
       settings: { ...stored.settings },
       activeSession: stored.activeSession ? { ...stored.activeSession } : null,
-      currentPage: pageName
+      currentPage: pageName,
+      selectedLanguage: (activeProfile && activeProfile.preferences && activeProfile.preferences.language) || 'python',
+      selectedDifficulty: (activeProfile && activeProfile.preferences && activeProfile.preferences.difficulty) || 'beginner'
     };
 
     return this.getState();
+  }
+
+  /**
+   * Reset entire reactive store and storage to initial factory defaults.
+   */
+  reset() {
+    Storage.resetAll();
+    return this.init(this._state.currentPage || 'index');
   }
 
   /**

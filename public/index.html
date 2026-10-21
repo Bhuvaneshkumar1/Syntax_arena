@@ -635,8 +635,9 @@
         <div class="roadmap-container">
           
           <!-- Tier 1: Beginner -->
-          <div class="roadmap-card tier-active">
-            <span class="badge badge-emerald roadmap-badge-watermark">Tier 1: Open</span>
+          <!-- Tier 1: Beginner -->
+          <div class="roadmap-card tier-active" id="roadmap-tier-beginner">
+            <span class="badge badge-emerald roadmap-badge-watermark" id="roadmap-watermark-beginner">Tier 1: Open</span>
             <div>
               <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                 <span style="font-family: var(--font-display); font-weight: 900; font-size: var(--text-xl); color: var(--color-success);">01</span>
@@ -656,26 +657,26 @@
                 </div>
               </div>
             </div>
-            <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+            <div id="roadmap-status-beginner" style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
               Status: Available in Active Arena
             </div>
           </div>
 
           <!-- Tier 2: Intermediate -->
-          <div class="roadmap-card">
-            <span class="badge badge-amber roadmap-badge-watermark">Tier 2: Gate</span>
+          <div class="roadmap-card tier-locked" id="roadmap-tier-intermediate">
+            <span class="badge badge-amber roadmap-badge-watermark" id="roadmap-watermark-intermediate">Tier 2: Locked</span>
             <div>
               <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                 <span style="font-family: var(--font-display); font-weight: 900; font-size: var(--text-xl); color: var(--color-warning);">02</span>
                 <h3 style="margin-bottom: 0; font-size: var(--text-lg);">Intermediate Tier</h3>
               </div>
               <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
-                20 Systems challenges. Requires achieving at least 14/20 (70%) on Beginner Tier in that language track.
+                20 Systems challenges. Requires achieving at least 14/20 (70%) on Beginner Tier in that language track or 1,000 pts.
               </p>
               <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); margin-bottom: 0.35rem;">
                   <span>Unlock Requirement:</span>
-                  <span style="color: var(--color-warning); font-weight: 700;">14/20 Stars (70%)</span>
+                  <span style="color: var(--color-warning); font-weight: 700;">14/20 Stars (70%) or 1,000 Pts</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); color: var(--text-muted);">
                   <span>Checkpoint Length:</span>
@@ -683,26 +684,26 @@
                 </div>
               </div>
             </div>
-            <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
-              Status: Illustrative Progression Gate
+            <div id="roadmap-status-intermediate" style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+              Status: 🔒 Locked (Requires Beginner Clear or 1,000 Pts)
             </div>
           </div>
 
           <!-- Tier 3: Expert -->
-          <div class="roadmap-card tier-locked">
-            <span class="badge badge-coral roadmap-badge-watermark">Tier 3: Mastery</span>
+          <div class="roadmap-card tier-locked" id="roadmap-tier-expert">
+            <span class="badge badge-coral roadmap-badge-watermark" id="roadmap-watermark-expert">Tier 3: Locked</span>
             <div>
               <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                 <span style="font-family: var(--font-display); font-weight: 900; font-size: var(--text-xl); color: var(--color-danger);">03</span>
                 <h3 style="margin-bottom: 0; font-size: var(--text-lg);">Expert Tier</h3>
               </div>
               <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
-                20 Master challenges. Requires earning at least 15/20 (75%) on Intermediate Tier. Conquering unlocks Grandmaster honors.
+                20 Master challenges. Requires earning at least 15/20 (75%) on Intermediate Tier or 2,500 pts.
               </p>
               <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); margin-bottom: 0.35rem;">
                   <span>Unlock Requirement:</span>
-                  <span style="color: var(--color-danger); font-weight: 700;">15/20 Stars (75%)</span>
+                  <span style="color: var(--color-danger); font-weight: 700;">15/20 Stars (75%) or 2,500 Pts</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); color: var(--text-muted);">
                   <span>Reward:</span>
@@ -710,8 +711,8 @@
                 </div>
               </div>
             </div>
-            <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
-              Status: Illustrative Progression Gate
+            <div id="roadmap-status-expert" style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+              Status: 🔒 Locked (Requires Intermediate Clear or 2,500 Pts)
             </div>
           </div>
 

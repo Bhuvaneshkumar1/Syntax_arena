@@ -817,6 +817,10 @@
               }
             } catch (_) {}
             Storage.resetAll();
+            if (typeof State !== 'undefined' && State.reset) {
+              State.reset();
+              State.set('selectedDifficulty', 'beginner');
+            }
             UI.showToast('Account data reset complete! Redirecting to setup...', 'info');
             setTimeout(() => {
               window.location.href = 'index.html?onboarding=1&reset=1';
