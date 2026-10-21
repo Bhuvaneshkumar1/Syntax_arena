@@ -767,90 +767,90 @@
           <span class="badge badge-neutral">Preview Only</span>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+        <div class="challenge-showcase-row" style="display: flex; gap: 1.25rem; overflow-x: auto; padding-bottom: 1rem; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; margin-top: 1.5rem;">
           
           <!-- Type 1: Predict Output -->
-          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
                 <span class="badge badge-violet">01 • Predict Output</span>
                 <span class="badge badge-emerald">Beginner+</span>
               </div>
-              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Mental Execution Tracing</h3>
-              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Mental Execution Tracing</h3>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
                 Trace variables, loop counters, recursion, and object references line-by-line to deduce exact terminal output without a compiler.
               </p>
             </div>
-            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 1rem;">
-              🎯 Standard Output Prediction Engine
+            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.65rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 0.75rem;">
+              🎯 Output Prediction Engine
             </div>
           </article>
 
           <!-- Type 2: Find the Bug -->
-          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
                 <span class="badge badge-coral">02 • Find the Bug</span>
                 <span class="badge badge-amber">Intermediate+</span>
               </div>
-              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Interactive Debugger</h3>
-              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Interactive Debugger</h3>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
                 Inspect realistic code blocks and isolate the exact line responsible for off-by-one errors, memory leaks, or null dereferences.
               </p>
             </div>
-            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 1rem;">
-              🔍 Precise Defect Coordinate Pinpointing
+            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.65rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 0.75rem;">
+              🔍 Defect Coordinate Pinpointing
             </div>
           </article>
 
           <!-- Type 3: Complete the Code -->
-          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
                 <span class="badge badge-cyan">03 • Complete the Code</span>
                 <span class="badge badge-emerald">Beginner+</span>
               </div>
-              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Token Slotting & Syntax Fill</h3>
-              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Token Slotting & Fill</h3>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
                 Fill missing operators, keywords, or method calls in incomplete code skeletons to satisfy the target execution contract.
               </p>
             </div>
-            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 1rem;">
-              🧩 Token Slotting & Contract Assembly
+            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.65rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 0.75rem;">
+              🧩 Contract Assembly
             </div>
           </article>
 
           <!-- Type 4: Explain the Logic -->
-          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
                 <span class="badge badge-amber">04 • Explain the Logic</span>
                 <span class="badge badge-amber">Intermediate+</span>
               </div>
-              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Conceptual Architectural Deep-Dive</h3>
-              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Architectural Deep-Dive</h3>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
                 Analyze why a specific compiler rule, sequence point, or memory model optimization behaves the way it does.
               </p>
             </div>
-            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 1rem;">
-              📖 Language Standard & Memory Optimization
+            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.65rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 0.75rem;">
+              📖 Memory Optimization
             </div>
           </article>
 
           <!-- Type 5: Trace Execution -->
-          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
                 <span class="badge badge-violet">05 • Trace Execution</span>
                 <span class="badge badge-coral">Expert</span>
               </div>
-              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem;">Call Stack & State Flow</h3>
-              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Call Stack & State Flow</h3>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
                 Follow recursive function call stacks, struct member alignment, and heap pointers step-by-step through execution flow.
               </p>
             </div>
-            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.75rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 1rem;">
-              🧠 Deep Execution Stack & Memory Verification
+            <div style="background-color: var(--bg-surface-base); border-radius: var(--radius-md); padding: 0.65rem; font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-subtle); margin-top: 0.75rem;">
+              🧠 Deep Execution Stack
             </div>
           </article>
 
