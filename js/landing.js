@@ -130,6 +130,12 @@ export const LandingPage = {
     // Refresh difficulty locks since campaign progression varies per track
     this._updateDifficultyLockStatus();
 
+    // Update Endless Mode showcase launcher link
+    const showcaseEndlessBtn = Utils.qs('#btn-showcase-endless');
+    if (showcaseEndlessBtn) {
+      showcaseEndlessBtn.href = `game.html?lang=${lang}&mode=endless`;
+    }
+
     if (saveState) {
       State.set('selectedLanguage', lang);
       const profile = State.get('activeProfile');
@@ -481,6 +487,9 @@ export const LandingPage = {
 
     if (tag) tag.textContent = `${langName} • ${diffCapitalized}`;
     if (marathonLink) marathonLink.href = `game.html?lang=${lang}&diff=${diff}&stage=marathon`;
+
+    const endlessLink = Utils.qs('#btn-modal-stage-endless');
+    if (endlessLink) endlessLink.href = `game.html?lang=${lang}&mode=endless`;
 
     const profile = State.get('activeProfile') || Profile.getActiveProfile() || {};
     const stageStars = profile.stageStars || {};

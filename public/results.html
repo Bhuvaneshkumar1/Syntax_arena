@@ -500,8 +500,8 @@
 
       const modeBadge = Utils.qs('#results-mode-badge');
       if (modeBadge) {
-        modeBadge.textContent = mode === 'hardcore' ? 'Hardcore Mode' : mode === 'practice' ? 'Practice Mode' : mode === 'speedrun' ? 'Speedrun Mode' : 'Campaign Track';
-        modeBadge.className = mode === 'hardcore' ? 'badge badge-coral' : 'badge badge-neutral';
+        modeBadge.textContent = mode === 'hardcore' ? 'Hardcore Mode' : mode === 'practice' ? 'Practice Mode' : mode === 'speedrun' ? 'Speedrun Mode' : mode === 'endless' ? '♾️ Endless Farm' : 'Campaign Track';
+        modeBadge.className = mode === 'hardcore' ? 'badge badge-coral' : mode === 'endless' ? 'badge badge-primary' : 'badge badge-neutral';
       }
 
       // 2. Metrics Grid
@@ -683,7 +683,10 @@
           ? summary.stars
           : (accuracy >= 90 ? 3 : accuracy >= 70 ? 2 : accuracy >= 50 ? 1 : 0);
 
-        if (parsedStage && parsedStage < 8) {
+        if (mode === 'endless') {
+          playAgainBtn.textContent = 'Farm Endless Points Again →';
+          playAgainBtn.href = `game.html?lang=${lang}&mode=endless`;
+        } else if (parsedStage && parsedStage < 8) {
           if (earnedStars >= 3) {
             playAgainBtn.textContent = `Play Stage ${parsedStage + 1} →`;
             playAgainBtn.href = `game.html?lang=${lang}&diff=${diff}&stage=${parsedStage + 1}&mode=${mode}`;

@@ -855,6 +855,23 @@
             </div>
           </article>
 
+          <!-- Type 6 / Mode: Endless Mode -->
+          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(16, 185, 129, 0.4);">
+            <div>
+              <div class="card-header" style="padding-bottom: 0.5rem;">
+                <span class="badge badge-emerald">06 • Endless Mode</span>
+                <span class="badge badge-cyan">200 Questions</span>
+              </div>
+              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Continuous Point Farm</h3>
+              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
+                Non-stop question gauntlet with 200 questions per subject. Farm continuous XP, test your endurance, and bank your points anytime!
+              </p>
+            </div>
+            <a id="btn-showcase-endless" href="game.html?mode=endless" class="btn-arcade btn-primary btn-sm" style="margin-top: 0.75rem; text-align: center; text-decoration: none; justify-content: center; font-size: 11px; background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;">
+              ♾️ Launch 200-Q Endless Farm →
+            </a>
+          </article>
+
         </div>
 
         <div style="text-align: center; margin-top: 2rem;">
@@ -1306,9 +1323,14 @@
 
       <div class="modal-footer" style="justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
         <button type="button" class="btn-arcade btn-neutral btn-sm" id="btn-cancel-stage-modal">Close</button>
-        <a id="btn-modal-stage-marathon" href="game.html" class="btn-arcade btn-neutral btn-sm" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-          <span>🏆 Play All 20 Questions (Marathon)</span>
-        </a>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <a id="btn-modal-stage-endless" href="game.html?mode=endless" class="btn-arcade btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;">
+            <span>♾️ Endless Mode (200 Qs Farm)</span>
+          </a>
+          <a id="btn-modal-stage-marathon" href="game.html" class="btn-arcade btn-neutral btn-sm" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <span>🏆 Play All 20 Questions (Marathon)</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>

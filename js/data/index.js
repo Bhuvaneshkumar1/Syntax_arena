@@ -12,6 +12,7 @@ import { cyberQuestions } from '../../data/cyber-questions.js';
 import { javascriptQuestions } from '../../data/javascript-questions.js';
 import { rustQuestions } from '../../data/rust-questions.js';
 import { sqlQuestions } from '../../data/sql-questions.js';
+import { endlessQuestions } from '../../data/endless-questions.js';
 
 export const LANGUAGE_METADATA = {
   python: {
@@ -109,6 +110,17 @@ export const QuestionRepository = {
       default:
         return pythonQuestions;
     }
+  },
+
+  /**
+   * Get 200 questions for Endless Mode in a given language.
+   * @param {string} lang
+   * @returns {Array} 200 questions
+   */
+  getEndlessQuestions(lang) {
+    const key = (lang || 'python').toLowerCase();
+    const list = (endlessQuestions && endlessQuestions[key]) || [];
+    return list.length > 0 ? list : this.getByLanguage(lang);
   },
 
   /**

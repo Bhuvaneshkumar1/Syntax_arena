@@ -13,6 +13,7 @@ import { cyberQuestions } from '../data/cyber-questions.js';
 import { javascriptQuestions } from '../data/javascript-questions.js';
 import { rustQuestions } from '../data/rust-questions.js';
 import { sqlQuestions } from '../data/sql-questions.js';
+import { endlessQuestions } from '../data/endless-questions.js';
 import { QuestionValidator } from './question-validator.js';
 
 // Aggregate master collection
@@ -46,6 +47,19 @@ ALL_QUESTIONS.forEach(q => {
     LANG_TIER_INDEX[q.language][q.difficulty].push(q);
   }
 });
+
+// Also index all endless questions into ID_INDEX for fast recovery
+if (typeof endlessQuestions === 'object' && endlessQuestions !== null) {
+  Object.values(endlessQuestions).forEach(list => {
+    if (Array.isArray(list)) {
+      list.forEach(q => {
+        if (q && q.id && !ID_INDEX.has(q.id)) {
+          ID_INDEX.set(q.id, q);
+        }
+      });
+    }
+  });
+}
 
 /**
  * Deep-clone a question object to prevent external mutation.
@@ -104,6 +118,20 @@ export const QuestionBank = {
     const diff = (difficulty || '').toLowerCase().trim();
     const pool = (LANG_TIER_INDEX[lang] && LANG_TIER_INDEX[lang][diff]) || [];
     return pool.map(cloneQuestion);
+  },
+
+  /**
+   * Get 200 questions for Endless Mode in a given language.
+   * @param {string} language
+   * @returns {Array} 200 questions
+   */
+  getEndlessQuestions(language) {
+    const lang = (language || 'python').toLowerCase().trim();
+    const list = (endlessQuestions && endlessQuestions[lang]) || [];
+    if (Array.isArray(list) && list.length > 0) {
+      return list.map(cloneQuestion);
+    }
+    return this.getByLanguage(lang);
   },
 
   /**

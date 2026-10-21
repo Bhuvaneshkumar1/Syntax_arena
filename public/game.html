@@ -227,10 +227,15 @@
 
           <!-- Action Bar -->
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding-top: var(--space-4); border-top: 1px solid var(--border-subtle);">
-            <button id="btn-use-hint" class="btn-arcade btn-neutral btn-sm" type="button">
-              <svg width="16" height="16" style="margin-right: 0.35rem;"><use href="#icon-bulb"></use></svg>
-              Use Hint (-25 pts)
-            </button>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <button id="btn-use-hint" class="btn-arcade btn-neutral btn-sm" type="button">
+                <svg width="16" height="16" style="margin-right: 0.35rem;"><use href="#icon-bulb"></use></svg>
+                Use Hint (-25 pts)
+              </button>
+              <button id="btn-endless-bank" class="btn-arcade btn-primary btn-sm" type="button" style="display: none; background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399; box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);">
+                💰 Bank Points &amp; Finish
+              </button>
+            </div>
             <div style="display: flex; gap: 0.75rem; align-items: center;">
               <button id="btn-exit-game" class="btn-arcade btn-neutral btn-sm" type="button">Abandon Run</button>
               <button id="btn-submit-answer" class="btn-arcade btn-primary btn-sm" type="button" disabled>

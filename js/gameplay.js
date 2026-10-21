@@ -118,7 +118,7 @@ export const Gameplay = {
 
     const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'];
     const ALLOWED_DIFFS = ['beginner', 'intermediate', 'expert'];
-    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed'];
+    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless'];
 
     let rawLang = (params.lang || (activeProfile && activeProfile.preferences?.language) || 'python').toLowerCase();
     if (!ALLOWED_LANGS.includes(rawLang)) {
@@ -165,7 +165,7 @@ export const Gameplay = {
     }
     const mode = rawMode;
 
-    // Determine time limit: Hardcore (30s), Standard timed (45s), Relaxed (0)
+    // Determine time limit: Hardcore (30s), Standard timed (45s), Relaxed (0), Endless (0 unless timed=true)
     let timeLimit = 45;
     if (params.timed === 'false' || mode === 'practice') {
       timeLimit = 0; // Relaxed mode
@@ -173,6 +173,8 @@ export const Gameplay = {
       timeLimit = 30;
     } else if (mode === 'speedrun') {
       timeLimit = 20;
+    } else if (mode === 'endless') {
+      timeLimit = (params.timed === 'true') ? 45 : 0; // Relaxed continuous point farm by default
     }
 
     // 2. Check for an active session to restore on reload
@@ -263,10 +265,12 @@ export const Gameplay = {
       } catch (_) {}
     }
 
-    // 3. Load questions from QuestionBank with support for Retry Missed and Topic Practice
+    // 3. Load questions from QuestionBank with support for Endless Mode, Retry Missed and Topic Practice
     let questions = [];
 
-    if (mode === 'retry_missed') {
+    if (mode === 'endless') {
+      questions = QuestionBank.getEndlessQuestions(language);
+    } else if (mode === 'retry_missed') {
       let missedIds = [];
       try {
         const cached = sessionStorage.getItem('syntaxarena_retry_question_ids');
@@ -472,7 +476,11 @@ export const Gameplay = {
 
     const hudStep = Utils.qs('#hud-step-counter');
     if (hudStep) {
-      hudStep.textContent = `Question ${q.index + 1} of ${q.totalQuestions}`;
+      if (this.sessionConfig && this.sessionConfig.mode === 'endless') {
+        hudStep.textContent = `Question ${q.index + 1} of ${q.totalQuestions} (Endless Mode)`;
+      } else {
+        hudStep.textContent = `Question ${q.index + 1} of ${q.totalQuestions}`;
+      }
     }
 
     // Accessible Progress Bar
@@ -511,7 +519,11 @@ export const Gameplay = {
     const diffBadge = Utils.qs('#q-diff-badge');
     const questionCard = Utils.qs('.arena-main-card') || Utils.qs('.card');
     if (diffBadge) {
-      if (this.activeStage && this.activeStage.isBoss) {
+      if (this.sessionConfig && this.sessionConfig.mode === 'endless') {
+        diffBadge.textContent = `${q.difficulty.toUpperCase()} • ♾️ ENDLESS POINT FARM`;
+        diffBadge.className = 'badge badge-primary';
+        if (questionCard) questionCard.classList.remove('is-boss');
+      } else if (this.activeStage && this.activeStage.isBoss) {
         const bossTitle = this.activeStage.id === 8 ? 'FINAL APEX BOSS' : 'MINI-BOSS STAGE';
         diffBadge.textContent = `${q.difficulty.toUpperCase()} • 💀 ${bossTitle} (Stage ${this.activeStage.id} / 8)`;
         diffBadge.className = 'badge badge-coral boss-pulse';
@@ -524,6 +536,19 @@ export const Gameplay = {
         diffBadge.textContent = q.difficulty.toUpperCase();
         diffBadge.className = `badge ${q.difficulty === 'expert' ? 'badge-coral' : q.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald'}`;
         if (questionCard) questionCard.classList.remove('is-boss');
+      }
+    }
+
+    // Toggle and update Endless Mode Bank button
+    const bankBtn = Utils.qs('#btn-endless-bank');
+    if (bankBtn) {
+      if (this.sessionConfig && this.sessionConfig.mode === 'endless') {
+        bankBtn.style.display = 'inline-flex';
+        const session = this.engine ? this.engine.getSession() : null;
+        const currentScore = session ? session.totalScore : 0;
+        bankBtn.innerHTML = `💰 Bank ${currentScore} Pts & Finish`;
+      } else {
+        bankBtn.style.display = 'none';
       }
     }
 
@@ -1105,6 +1130,11 @@ export const Gameplay = {
           streakText.classList.add('animate-streak-pulse');
         }
       }
+
+      const bankBtn = Utils.qs('#btn-endless-bank');
+      if (bankBtn && this.sessionConfig && this.sessionConfig.mode === 'endless') {
+        bankBtn.innerHTML = `💰 Bank ${session.totalScore} Pts & Finish`;
+      }
     }
 
     this.isSubmitting = false;
@@ -1332,8 +1362,10 @@ export const Gameplay = {
     // Disable buttons immediately
     const submitBtn = Utils.qs('#btn-submit-answer');
     const nextBtn = Utils.qs('#btn-next-question');
+    const bankBtn = Utils.qs('#btn-endless-bank');
     if (submitBtn) submitBtn.disabled = true;
     if (nextBtn) nextBtn.disabled = true;
+    if (bankBtn) bankBtn.disabled = true;
 
     // Clear active session in State and Storage immediately so it cannot be resumed
     State.set('activeSession', null, true);
@@ -1388,9 +1420,9 @@ export const Gameplay = {
         }
       }
 
-      // Record stage progress & stars (skip if user is only retrying missed questions)
+      // Record stage progress & stars (skip if user is only retrying missed questions or endless mode)
       const activeProf = Profile.getActiveProfile();
-      if (activeProf && summary.stage !== 'marathon' && summary.mode !== 'retry_missed' && !summary.isRetryMissed) {
+      if (activeProf && summary.stage !== 'marathon' && summary.mode !== 'retry_missed' && !summary.isRetryMissed && summary.mode !== 'endless') {
         const stageKey = `${summary.language}_${summary.difficulty}_stage_${summary.stage}`;
         const prevStars = (activeProf.stageStars && activeProf.stageStars[stageKey]) || 0;
         const newStars = Math.max(prevStars, stars);
@@ -1409,6 +1441,7 @@ export const Gameplay = {
     const params = {
       lang: summary.language,
       diff: summary.difficulty,
+      mode: summary.mode,
       score: summary.totalScore,
       correct: summary.questionsCorrect,
       attempted: summary.questionsAttempted,
@@ -1419,10 +1452,28 @@ export const Gameplay = {
       bestStreak: summary.bestStreak || summary.highestStreak || 0
     };
 
-    UI.showToast(summary.isGameOver ? 'Hardcore run concluded. Recording career XP...' : 'Challenge completed! Loading stage analytics...', 'success');
+    UI.showToast(summary.mode === 'endless' ? '💰 Endless points banked! Loading run summary...' : summary.isGameOver ? 'Hardcore run concluded. Recording career XP...' : 'Challenge completed! Loading stage analytics...', 'success');
     setTimeout(() => {
       Router.navigateTo('results', params);
     }, 700);
+  },
+
+  /**
+   * Cash out and bank all accumulated endless points to player profile.
+   */
+  bankEndlessPoints() {
+    if (!this.engine || this.isCompleted) return;
+    const session = this.engine.getSession();
+    if (!session) return;
+
+    if (session.questionsAttempted === 0) {
+      UI.showToast('Answer at least one question before banking points!', 'info');
+      return;
+    }
+
+    this.engine.forfeitSession();
+    UI.showToast(`💰 Successfully banked ${session.totalScore} Points!`, 'success');
+    this._completeSession();
   },
 
   /**
@@ -1609,6 +1660,14 @@ export const Gameplay = {
     if (submitBtn) {
       submitBtn.onclick = () => {
         this.submitCurrentAnswer();
+      };
+    }
+
+    // Endless Mode Bank Points Button
+    const bankBtn = Utils.qs('#btn-endless-bank');
+    if (bankBtn) {
+      bankBtn.onclick = () => {
+        this.bankEndlessPoints();
       };
     }
 
