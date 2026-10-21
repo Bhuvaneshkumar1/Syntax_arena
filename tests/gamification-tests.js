@@ -380,6 +380,39 @@ export async function runGamificationTests() {
   assert(dupResult.newBadges.length === 0, 'Duplicate session awards no new badges');
   assert(dupResult.updatedProfile.xp === 500, 'Profile XP remains unchanged upon duplicate submission');
 
+  // Test retry_missed does NOT alter stage accuracy percentage or campaign stars (Item 6)
+  const profileWithStageClear = {
+    id: 'prof-stage-clear',
+    xp: 600,
+    stats: {
+      questionsAttempted: 14,
+      questionsCorrect: 10 // 10 / 14 = ~71%
+    },
+    campaign: {
+      python: {
+        beginnerStars: 2, // 2 stars from original run
+        unlockedTier: 'beginner'
+      }
+    },
+    processedSessionIds: []
+  };
+
+  const retrySession = {
+    sessionId: 'sess-retry-missed-01',
+    language: 'python',
+    difficulty: 'beginner',
+    mode: 'retry_missed',
+    questionsAttempted: 4,
+    questionsCorrect: 4, // 100% on the 4 missed questions
+    accuracy: 100,
+    answers: [{ correct: true }, { correct: true }, { correct: true }, { correct: true }]
+  };
+
+  const retryResult = Gamification.processSessionSummary(profileWithStageClear, retrySession);
+  assert(retryResult.updatedProfile.stats.questionsAttempted === 14, 'Retry missed does NOT add to career questionsAttempted');
+  assert(retryResult.updatedProfile.stats.questionsCorrect === 10, 'Retry missed does NOT add to career questionsCorrect');
+  assert(retryResult.updatedProfile.campaign.python.beginnerStars === 2, 'Retry missed does NOT overwrite existing stage stars');
+
   // ------------------------------------------------------------------------
   // 7. Hardcore Mode Rules & Engine Integration
   // ------------------------------------------------------------------------

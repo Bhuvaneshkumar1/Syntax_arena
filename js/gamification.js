@@ -673,11 +673,14 @@ export const Gamification = {
     const currentHighestStreak = prevStats.highestStreak || profile.bestStreak || 0;
     const bestStreak = Math.max(currentHighestStreak, sessionHighestStreak);
 
+    // If user takes a test ONLY on missed questions (retry_missed), do not alter existing stage accuracy stats
+    const isRetryMissed = summary.mode === 'retry_missed' || Boolean(summary.isRetryMissed);
+
     const updatedStats = {
       ...prevStats,
-      gamesPlayed: (prevStats.gamesPlayed || 0) + 1,
-      questionsAttempted: (prevStats.questionsAttempted || 0) + attempted,
-      questionsCorrect: (prevStats.questionsCorrect || 0) + correct,
+      gamesPlayed: (prevStats.gamesPlayed || 0) + (isRetryMissed ? 0 : 1),
+      questionsAttempted: (prevStats.questionsAttempted || 0) + (isRetryMissed ? 0 : attempted),
+      questionsCorrect: (prevStats.questionsCorrect || 0) + (isRetryMissed ? 0 : correct),
       highestStreak: bestStreak
     };
 
@@ -687,28 +690,30 @@ export const Gamification = {
     const diff = summary.difficulty || 'beginner';
     const accuracy = summary.accuracy || (attempted > 0 ? Math.round((correct / attempted) * 100) : 0);
 
-    let starsEarned = 0;
-    if (accuracy >= 90) starsEarned = 3;
-    else if (accuracy >= 75) starsEarned = 2;
-    else if (accuracy >= 60) starsEarned = 1;
+    if (!isRetryMissed) {
+      let starsEarned = 0;
+      if (accuracy >= 90) starsEarned = 3;
+      else if (accuracy >= 75) starsEarned = 2;
+      else if (accuracy >= 60) starsEarned = 1;
 
-    const langCampaign = { ...(campaign[lang] || { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }) };
-    const starField = `${diff}Stars`;
-    if (starsEarned > (langCampaign[starField] || 0)) {
-      langCampaign[starField] = starsEarned;
-    }
+      const langCampaign = { ...(campaign[lang] || { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }) };
+      const starField = `${diff}Stars`;
+      if (starsEarned > (langCampaign[starField] || 0)) {
+        langCampaign[starField] = starsEarned;
+      }
 
-    // Tier advancement unlock logic
-    if (diff === 'beginner' && accuracy >= 70 && langCampaign.unlockedTier === 'beginner') {
-      langCampaign.unlockedTier = 'intermediate';
-    } else if (diff === 'intermediate' && accuracy >= 75 && langCampaign.unlockedTier === 'intermediate') {
-      langCampaign.unlockedTier = 'expert';
+      // Tier advancement unlock logic
+      if (diff === 'beginner' && accuracy >= 70 && langCampaign.unlockedTier === 'beginner') {
+        langCampaign.unlockedTier = 'intermediate';
+      } else if (diff === 'intermediate' && accuracy >= 75 && langCampaign.unlockedTier === 'intermediate') {
+        langCampaign.unlockedTier = 'expert';
+      }
+      campaign[lang] = langCampaign;
     }
-    campaign[lang] = langCampaign;
 
     // Track cleared tier in completedTiers
     const completedTiers = { ...(profile.completedTiers || {}) };
-    if (accuracy >= 60 || summary.isCompleted) {
+    if (!isRetryMissed && (accuracy >= 60 || summary.isCompleted)) {
       completedTiers[tierKey] = true;
     }
 
@@ -768,6 +773,8 @@ export const Gamification = {
       questionsCorrect: correct,
       incorrectCount: Math.max(0, attempted - correct),
       accuracy: accuracy,
+      isRetry: isRetryMissed,
+      isRetryMissed: isRetryMissed,
       totalScore: summary.totalScore || 0,
       earnedXP,
       bestStreak: sessionHighestStreak,

@@ -272,13 +272,16 @@ export const Analytics = {
     const allResults = [];
 
     matched.forEach(s => {
+      const isRetry = s.mode === 'retry_missed' || Boolean(s.isRetryMissed);
       if (s.isCompleted !== false) completedSessions++;
       const att = parseInt(s.questionsAttempted, 10) || 0;
       const corr = parseInt(s.questionsCorrect, 10) || 0;
       const sc = parseInt(s.totalScore || s.score, 10) || 0;
 
-      questionsAttempted += att;
-      questionsCorrect += corr;
+      if (!isRetry) {
+        questionsAttempted += att;
+        questionsCorrect += corr;
+      }
       totalScore += sc;
       if (sc > bestScore) bestScore = sc;
 
@@ -344,13 +347,16 @@ export const Analytics = {
     let totalScore = 0;
 
     matched.forEach(s => {
+      const isRetry = s.mode === 'retry_missed' || Boolean(s.isRetryMissed);
       if (s.isCompleted !== false) completedSessions++;
       const att = parseInt(s.questionsAttempted, 10) || 0;
       const corr = parseInt(s.questionsCorrect, 10) || 0;
       const sc = parseInt(s.totalScore || s.score, 10) || 0;
 
-      questionsAttempted += att;
-      questionsCorrect += corr;
+      if (!isRetry) {
+        questionsAttempted += att;
+        questionsCorrect += corr;
+      }
       totalScore += sc;
       if (sc > bestScore) bestScore = sc;
     });

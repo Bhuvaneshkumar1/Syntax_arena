@@ -1380,9 +1380,9 @@ export const Gameplay = {
         }
       }
 
-      // Record stage progress & stars
+      // Record stage progress & stars (skip if user is only retrying missed questions)
       const activeProf = Profile.getActiveProfile();
-      if (activeProf && summary.stage !== 'marathon') {
+      if (activeProf && summary.stage !== 'marathon' && summary.mode !== 'retry_missed' && !summary.isRetryMissed) {
         const stageKey = `${summary.language}_${summary.difficulty}_stage_${summary.stage}`;
         const prevStars = (activeProf.stageStars && activeProf.stageStars[stageKey]) || 0;
         const newStars = Math.max(prevStars, stars);
