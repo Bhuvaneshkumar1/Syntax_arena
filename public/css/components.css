@@ -294,6 +294,30 @@
   color: #FFA657;
 }
 
+.tag-cyber {
+  background-color: rgba(16, 185, 129, 0.15);
+  border-color: var(--lang-cyber);
+  color: #34D399;
+}
+
+.tag-javascript {
+  background-color: rgba(247, 223, 30, 0.15);
+  border-color: var(--lang-javascript);
+  color: #FBBF24;
+}
+
+.tag-rust {
+  background-color: rgba(222, 165, 132, 0.15);
+  border-color: var(--lang-rust);
+  color: #F87171;
+}
+
+.tag-sql {
+  background-color: rgba(51, 103, 145, 0.15);
+  border-color: var(--lang-sql);
+  color: #38BDF8;
+}
+
 /* ==========================================================================
    FORM CONTROLS & INPUTS
    ========================================================================== */

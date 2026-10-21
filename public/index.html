@@ -294,7 +294,7 @@
             <h2>Select Programming Language</h2>
             <p class="page-subtitle">Choose your active track. Selection is saved and updates the arena instantly.</p>
           </div>
-          <span class="badge badge-amber">4 Tracks Available</span>
+          <span class="badge badge-amber">8 Tracks Available</span>
         </div>
 
         <div id="language-tracks-container" class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;" role="radiogroup" aria-label="Programming Language Selection">
@@ -404,6 +404,126 @@
               </div>
               <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
                 String interning pool, pass-by-value reference traps, static initializer ordering, and generic type erasure.
+              </p>
+            </div>
+            <div>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                <span class="badge badge-emerald" style="font-size: 11px;">Beginner</span>
+                <span class="badge badge-amber" style="font-size: 11px;">Intermediate</span>
+                <span class="badge badge-coral" style="font-size: 11px;">Expert</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <span>60 Curated Challenges</span>
+                <span style="color: var(--text-muted);">Click to Select</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cyber & Linux Track Card -->
+          <div class="card-selectable" data-lang="cyber" role="radio" aria-checked="false" tabindex="0" aria-label="Select Cybersecurity & Linux Track">
+            <span class="selection-indicator" aria-hidden="true">✓</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(16, 185, 129, 0.2); border: 1px solid var(--lang-cyber); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #34D399;">
+                  SEC
+                </div>
+                <div>
+                  <h3 style="margin-bottom: 0; font-size: var(--text-lg);">Cyber &amp; Linux</h3>
+                  <span style="font-size: var(--text-xs); color: var(--text-muted);">Security &amp; Terminal</span>
+                </div>
+              </div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                POSIX file permissions, shell quoting, pipeline exit codes, cryptographic hashing, and network socket triage.
+              </p>
+            </div>
+            <div>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                <span class="badge badge-emerald" style="font-size: 11px;">Beginner</span>
+                <span class="badge badge-amber" style="font-size: 11px;">Intermediate</span>
+                <span class="badge badge-coral" style="font-size: 11px;">Expert</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <span>60 Curated Challenges</span>
+                <span style="color: var(--text-muted);">Click to Select</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- JavaScript Track Card -->
+          <div class="card-selectable" data-lang="javascript" role="radio" aria-checked="false" tabindex="0" aria-label="Select JavaScript Track">
+            <span class="selection-indicator" aria-hidden="true">✓</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(247, 223, 30, 0.2); border: 1px solid var(--lang-javascript); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #FBBF24;">
+                  JS
+                </div>
+                <div>
+                  <h3 style="margin-bottom: 0; font-size: var(--text-lg);">JavaScript (ES2024)</h3>
+                  <span style="font-size: var(--text-xs); color: var(--text-muted);">Event Loop &amp; Prototypes</span>
+                </div>
+              </div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                Microtask queues, closure retention, prototype inheritance, coercion rules, and async generators.
+              </p>
+            </div>
+            <div>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                <span class="badge badge-emerald" style="font-size: 11px;">Beginner</span>
+                <span class="badge badge-amber" style="font-size: 11px;">Intermediate</span>
+                <span class="badge badge-coral" style="font-size: 11px;">Expert</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <span>60 Curated Challenges</span>
+                <span style="color: var(--text-muted);">Click to Select</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rust Track Card -->
+          <div class="card-selectable" data-lang="rust" role="radio" aria-checked="false" tabindex="0" aria-label="Select Rust Track">
+            <span class="selection-indicator" aria-hidden="true">✓</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(222, 165, 132, 0.2); border: 1px solid var(--lang-rust); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #F87171;">
+                  RS
+                </div>
+                <div>
+                  <h3 style="margin-bottom: 0; font-size: var(--text-lg);">Rust (2021)</h3>
+                  <span style="font-size: var(--text-xs); color: var(--text-muted);">Ownership &amp; Lifetimes</span>
+                </div>
+              </div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                Borrow checker invariants, pattern matching, trait bounds, Send/Sync semantics, and interior mutability.
+              </p>
+            </div>
+            <div>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                <span class="badge badge-emerald" style="font-size: 11px;">Beginner</span>
+                <span class="badge badge-amber" style="font-size: 11px;">Intermediate</span>
+                <span class="badge badge-coral" style="font-size: 11px;">Expert</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-xs); color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <span>60 Curated Challenges</span>
+                <span style="color: var(--text-muted);">Click to Select</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SQL Track Card -->
+          <div class="card-selectable" data-lang="sql" role="radio" aria-checked="false" tabindex="0" aria-label="Select SQL Track">
+            <span class="selection-indicator" aria-hidden="true">✓</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(51, 103, 145, 0.2); border: 1px solid var(--lang-sql); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #38BDF8;">
+                  SQL
+                </div>
+                <div>
+                  <h3 style="margin-bottom: 0; font-size: var(--text-lg);">SQL (ANSI/Relational)</h3>
+                  <span style="font-size: var(--text-xs); color: var(--text-muted);">Sets &amp; Window Functions</span>
+                </div>
+              </div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                Three-valued NULL logic, JOIN semantics, subquery aggregation, window partitioning, and recursive CTEs.
               </p>
             </div>
             <div>
@@ -1009,6 +1129,30 @@
               <span class="selection-indicator" aria-hidden="true">✓</span>
               <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-base);">Java 17</div>
               <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem;">String pools, references, JVM</div>
+            </div>
+
+            <div class="card-selectable" data-lang="cyber" role="radio" aria-checked="false" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">✓</span>
+              <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-base);">Cyber &amp; Linux</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem;">POSIX, shell quoting, hashing, sockets</div>
+            </div>
+
+            <div class="card-selectable" data-lang="javascript" role="radio" aria-checked="false" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">✓</span>
+              <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-base);">JavaScript</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem;">Event loops, prototypes, async logic</div>
+            </div>
+
+            <div class="card-selectable" data-lang="rust" role="radio" aria-checked="false" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">✓</span>
+              <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-base);">Rust</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem;">Borrow checker, traits, mutability</div>
+            </div>
+
+            <div class="card-selectable" data-lang="sql" role="radio" aria-checked="false" tabindex="0">
+              <span class="selection-indicator" aria-hidden="true">✓</span>
+              <div style="font-family: var(--font-display); font-weight: 800; font-size: var(--text-base);">SQL</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem;">NULL logic, JOINs, window functions</div>
             </div>
           </div>
         </div>

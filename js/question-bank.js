@@ -9,6 +9,10 @@ import { pythonQuestions } from '../data/python-questions.js';
 import { cQuestions } from '../data/c-questions.js';
 import { cppQuestions } from '../data/cpp-questions.js';
 import { javaQuestions } from '../data/java-questions.js';
+import { cyberQuestions } from '../data/cyber-questions.js';
+import { javascriptQuestions } from '../data/javascript-questions.js';
+import { rustQuestions } from '../data/rust-questions.js';
+import { sqlQuestions } from '../data/sql-questions.js';
 import { QuestionValidator } from './question-validator.js';
 
 // Aggregate master collection
@@ -16,7 +20,11 @@ const ALL_QUESTIONS = Object.freeze([
   ...pythonQuestions,
   ...cQuestions,
   ...cppQuestions,
-  ...javaQuestions
+  ...javaQuestions,
+  ...cyberQuestions,
+  ...javascriptQuestions,
+  ...rustQuestions,
+  ...sqlQuestions
 ]);
 
 // Build index maps for fast O(1) lookups
@@ -25,7 +33,11 @@ const LANG_TIER_INDEX = {
   python: { beginner: [], intermediate: [], expert: [] },
   c: { beginner: [], intermediate: [], expert: [] },
   cpp: { beginner: [], intermediate: [], expert: [] },
-  java: { beginner: [], intermediate: [], expert: [] }
+  java: { beginner: [], intermediate: [], expert: [] },
+  cyber: { beginner: [], intermediate: [], expert: [] },
+  javascript: { beginner: [], intermediate: [], expert: [] },
+  rust: { beginner: [], intermediate: [], expert: [] },
+  sql: { beginner: [], intermediate: [], expert: [] }
 };
 
 ALL_QUESTIONS.forEach(q => {

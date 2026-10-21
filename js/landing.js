@@ -104,7 +104,7 @@ export const LandingPage = {
    * @param {boolean} [saveState=true]
    */
   selectLanguage(lang, saveState = true) {
-    if (!['python', 'c', 'cpp', 'java'].includes(lang)) return;
+    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].includes(lang)) return;
     this.selectedLanguage = lang;
 
     const cards = Utils.qsa('#language-tracks-container .card-selectable');
@@ -333,10 +333,14 @@ export const LandingPage = {
     if (!previewFilename && !previewCode && !previewLangBadge) return;
 
     const meta = {
-      python: { filename: 'challenge_01.py', badge: 'Python 3.10+', tagClass: 'tag-python' },
-      c:      { filename: 'challenge_01.c', badge: 'C (C99)', tagClass: 'tag-c' },
-      cpp:    { filename: 'challenge_01.cpp', badge: 'C++ (C++20)', tagClass: 'tag-cpp' },
-      java:   { filename: 'Challenge01.java', badge: 'Java 17', tagClass: 'tag-java' }
+      python:     { filename: 'challenge_01.py', badge: 'Python 3.10+', tagClass: 'tag-python' },
+      c:          { filename: 'challenge_01.c', badge: 'C (C99)', tagClass: 'tag-c' },
+      cpp:        { filename: 'challenge_01.cpp', badge: 'C++ (C++20)', tagClass: 'tag-cpp' },
+      java:       { filename: 'Challenge01.java', badge: 'Java 17', tagClass: 'tag-java' },
+      cyber:      { filename: 'exploit_01.sh', badge: 'Cyber & Linux', tagClass: 'tag-cyber' },
+      javascript: { filename: 'solution_01.js', badge: 'JavaScript ES2024', tagClass: 'tag-javascript' },
+      rust:       { filename: 'main_01.rs', badge: 'Rust 2021', tagClass: 'tag-rust' },
+      sql:        { filename: 'query_01.sql', badge: 'ANSI SQL', tagClass: 'tag-sql' }
     };
     const currentMeta = meta[lang] || meta.python;
     if (previewFilename) previewFilename.textContent = currentMeta.filename;

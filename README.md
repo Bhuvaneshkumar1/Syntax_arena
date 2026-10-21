@@ -1,13 +1,13 @@
 # ⚡ SyntaxArena
 
 > **The Browser-Native Cyberpunk Programming Quiz Arcade**  
-> Master syntax, debug code, and conquer algorithms across Python, C, C++, and Java in an arcade-inspired arena.
+> Master syntax, debug code, and conquer algorithms across Python, C, C++, Java, Cybersecurity & Linux, JavaScript, Rust, and SQL in an arcade-inspired arena.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Zero Runtime Dependencies](https://img.shields.io/badge/Runtime%20Dependencies-0%20(Pure%20Vanilla)-success.svg)](file:///d:/programming_game/index.html)
 [![Offline Capable](https://img.shields.io/badge/Offline-100%25%20Ready-blueviolet.svg)](file:///d:/programming_game/index.html)
-[![Question Bank](https://img.shields.io/badge/Questions-240%20Verified-brightgreen.svg)](file:///d:/programming_game/data/)
-[![Test Suite](https://img.shields.io/badge/Tests-535%20%2F%20535%20Passed-brightgreen.svg)](file:///d:/programming_game/docs/FINAL_TEST_RESULTS.md)
+[![Question Bank](https://img.shields.io/badge/Questions-480%20Verified-brightgreen.svg)](file:///d:/programming_game/data/)
+[![Test Suite](https://img.shields.io/badge/Tests-486%20%2F%20486%20Passed-brightgreen.svg)](file:///d:/programming_game/docs/FINAL_TEST_RESULTS.md)
 [![Platform](https://img.shields.io/badge/Platform-Web%20(All%20Modern%20Browsers)-orange.svg)](file:///d:/programming_game/index.html)
 
 ---
@@ -16,7 +16,7 @@
 
 **SyntaxArena** is an arcade-style, browser-native programming quiz game built with modern web technologies (**HTML5**, **CSS3**, and **Vanilla JavaScript**). Designed for students, software engineers, and competitive coders, it bridges the gap between gamified speed quizzes and deep pedagogical code analysis.
 
-Whether you're deducing pointer arithmetic in C99, unraveling template metaprogramming in C++20, tracing dictionary comprehensions in Python 3.10+, or analyzing stream pipelines in Java 17, SyntaxArena offers a rich, tactile arcade experience with real-time feedback, procedural sound synthesis, and comprehensive career tracking.
+Whether you're deducing pointer arithmetic in C99, unraveling template metaprogramming in C++20, tracing dictionary comprehensions in Python 3.10+, auditing POSIX permissions and shell pipelines in Linux, navigating the JavaScript event loop, enforcing Rust borrow checker invariants, or composing relational window queries in SQL, SyntaxArena offers a rich, tactile arcade experience with real-time feedback, procedural sound synthesis, and comprehensive career tracking.
 
 ---
 
@@ -67,9 +67,9 @@ Whether you're deducing pointer arithmetic in C99, unraveling template metaprogr
 
 ---
 
-## 📚 Question Bank Inventory (240 Questions)
+## 📚 Question Bank Inventory (480 Questions)
 
-Every question is verified for schema compliance, unique ID assignment, and pedagogical depth. All C/C++ questions adhere strictly to ISO standards with **zero undefined behavior mislabeled as guaranteed output**.
+Every question is verified for schema compliance, unique ID assignment, and pedagogical depth. All questions adhere strictly to language standards with **zero undefined behavior mislabeled as guaranteed output**.
 
 | Language Track | Target Specification | Beginner | Intermediate | Expert | Total Verified |
 | :--- | :--- | :---: | :---: | :---: | :---: |
@@ -77,7 +77,11 @@ Every question is verified for schema compliance, unique ID assignment, and peda
 | ⚡ **C** | ISO C99 (Pointers, Memory, Structs, Macros, Bitwise) | 20 | 20 | 20 | **60** |
 | 🚀 **C++** | ISO C++20 (Templates, Smart Pointers, STL, RAII, Lambdas) | 20 | 20 | 20 | **60** |
 | ☕ **Java** | OpenJDK 17 LTS (Streams, Records, Generics, Concurrency) | 20 | 20 | 20 | **60** |
-| **Total Inventory** | | **80** | **80** | **80** | **240** |
+| 🛡️ **Cyber & Linux** | POSIX / Bash / Security (Permissions, Quoting, Hashing, Sockets) | 20 | 20 | 20 | **60** |
+| 🟨 **JavaScript** | ECMAScript 2024 (Event Loop, Closures, Prototypes, Async) | 20 | 20 | 20 | **60** |
+| 🦀 **Rust** | Rust 2021 Edition (Ownership, Borrowing, Lifetimes, Traits) | 20 | 20 | 20 | **60** |
+| 🗄️ **SQL** | ANSI / Relational (Three-Valued Logic, JOINs, Window Functions) | 20 | 20 | 20 | **60** |
+| **Total Inventory** | **8 Full Curriculum Tracks** | **160** | **160** | **160** | **480** |
 
 ---
 
@@ -120,7 +124,11 @@ programming_game/
 │   ├── python-questions.js    # 60 Python questions
 │   ├── c-questions.js         # 60 C questions
 │   ├── cpp-questions.js       # 60 C++ questions
-│   └── java-questions.js      # 60 Java questions
+│   ├── java-questions.js      # 60 Java questions
+│   ├── cyber-questions.js     # 60 Cybersecurity & Linux questions
+│   ├── javascript-questions.js# 60 JavaScript questions
+│   ├── rust-questions.js      # 60 Rust questions
+│   └── sql-questions.js       # 60 SQL questions
 ├── assets/
 │   ├── avatars/               # 6 custom SVG player avatars
 │   └── audio/                 # Local procedural audio waveform assets (.wav)

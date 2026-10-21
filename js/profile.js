@@ -192,7 +192,7 @@ export const Profile = {
       avatarId: safeAvatar,
       onboardingComplete: true,
       preferences: {
-        language: ['python', 'c', 'cpp', 'java'].includes(language) ? language : 'python',
+        language: ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].includes(language) ? language : 'python',
         difficulty: ['beginner', 'intermediate', 'expert'].includes(difficulty) ? difficulty : 'beginner'
       }
     };

@@ -8,6 +8,10 @@ import { pythonQuestions } from '../../data/python-questions.js';
 import { cQuestions } from '../../data/c-questions.js';
 import { cppQuestions } from '../../data/cpp-questions.js';
 import { javaQuestions } from '../../data/java-questions.js';
+import { cyberQuestions } from '../../data/cyber-questions.js';
+import { javascriptQuestions } from '../../data/javascript-questions.js';
+import { rustQuestions } from '../../data/rust-questions.js';
+import { sqlQuestions } from '../../data/sql-questions.js';
 
 export const LANGUAGE_METADATA = {
   python: {
@@ -45,13 +49,49 @@ export const LANGUAGE_METADATA = {
     tagClass: 'tag-java',
     color: '#EA2D2E',
     accentColor: '#FFA657'
+  },
+  cyber: {
+    id: 'cyber',
+    name: 'Cyber & Linux',
+    version: 'Linux / Bash & InfoSec',
+    filename: 'exploit.sh',
+    tagClass: 'tag-cyber',
+    color: '#00FF66',
+    accentColor: '#39FF14'
+  },
+  javascript: {
+    id: 'javascript',
+    name: 'JavaScript (ES2024)',
+    version: 'ECMAScript 2024',
+    filename: 'app.js',
+    tagClass: 'tag-javascript',
+    color: '#F7DF1E',
+    accentColor: '#FFE600'
+  },
+  rust: {
+    id: 'rust',
+    name: 'Rust (2021)',
+    version: 'Rust 2021 Edition',
+    filename: 'main.rs',
+    tagClass: 'tag-rust',
+    color: '#DEA584',
+    accentColor: '#F74C00'
+  },
+  sql: {
+    id: 'sql',
+    name: 'SQL (ANSI/PostgreSQL)',
+    version: 'ANSI SQL / PostgreSQL 15+',
+    filename: 'query.sql',
+    tagClass: 'tag-sql',
+    color: '#336791',
+    accentColor: '#4AA3DF'
   }
 };
 
 export const QuestionRepository = {
   /**
    * Get all questions for a given language.
-   * @param {'python'|'c'|'cpp'|'java'} lang
+   * @param {'python'|'c'|'cpp'|'java'|'cyber'|'javascript'|'rust'|'sql'} lang
    * @returns {Array}
    */
   getByLanguage(lang) {
@@ -60,6 +100,11 @@ export const QuestionRepository = {
       case 'c': return cQuestions;
       case 'cpp': return cppQuestions;
       case 'java': return javaQuestions;
+      case 'cyber': return cyberQuestions;
+      case 'js':
+      case 'javascript': return javascriptQuestions;
+      case 'rust': return rustQuestions;
+      case 'sql': return sqlQuestions;
       case 'python':
       default:
         return pythonQuestions;

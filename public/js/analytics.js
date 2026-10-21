@@ -545,14 +545,24 @@ export const Analytics = {
 
     // 5. Polyglot Track Exploration
     const campaign = (profile && profile.campaign) || {};
-    const unplayedLangs = ['python', 'c', 'cpp', 'java'].filter(l => {
+    const unplayedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].filter(l => {
       const camp = campaign[l];
       return !camp || (camp.beginnerStars === 0 && camp.unlockedTier === 'beginner');
     });
 
     if (unplayedLangs.length > 0 && recs.length < 3) {
       const nextLang = unplayedLangs[0];
-      const langTitle = nextLang === 'cpp' ? 'C++' : nextLang.toUpperCase();
+      const titles = {
+        python: 'Python 3',
+        c: 'C (C99)',
+        cpp: 'C++',
+        java: 'Java',
+        cyber: 'Cyber & Linux',
+        javascript: 'JavaScript',
+        rust: 'Rust',
+        sql: 'SQL'
+      };
+      const langTitle = titles[nextLang] || nextLang.toUpperCase();
       recs.push({
         id: `rec_explore_${nextLang}`,
         type: 'polyglot',

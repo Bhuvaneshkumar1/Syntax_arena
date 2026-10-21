@@ -49,7 +49,7 @@ ALLOWED_LANGUAGES.forEach(l => {
   });
 });
 if (matrixMatches) {
-  console.log('✅ Inventory matrix: Exactly 20 questions in every tier across all 4 languages (240 total).');
+  console.log('✅ Inventory matrix: Exactly 20 questions in every tier across all 8 languages (480 total).');
 }
 
 // 2. ID validation
@@ -57,7 +57,7 @@ console.log('\n--- 2. ID Pattern and Uniqueness ---');
 const idSet = new Set();
 const duplicateIds = [];
 const malformedIds = [];
-const idPattern = /^(py|c|cpp|java)-(beg|int|exp)-[0-9]{3}$/;
+const idPattern = /^(py|c|cpp|java|cyber|js|rust|sql)-(beg|int|exp)-[0-9]{3}$/;
 
 allQuestions.forEach(q => {
   if (idSet.has(q.id)) duplicateIds.push(q.id);

@@ -38,7 +38,7 @@ export async function runQuestionBankTests() {
   // Test 2: Inventory Count Matrix
   console.log('\n--- 2. Question Inventory & Quota Verification ---');
   const all = QuestionBank.getAll();
-  assert(all.length === 240, 'Master catalog contains exactly 240 questions', `Actual count: ${all.length}`);
+  assert(all.length === 480, 'Master catalog contains exactly 480 questions', `Actual count: ${all.length}`);
 
   ALLOWED_LANGUAGES.forEach(lang => {
     const langQuestions = QuestionBank.getByLanguage(lang);
@@ -54,7 +54,7 @@ export async function runQuestionBankTests() {
   console.log('\n--- 3. Identifier Integrity & Uniqueness ---');
   const seenIds = new Set();
   let duplicateCount = 0;
-  const idPattern = /^(py|c|cpp|java)-(beg|int|exp)-[0-9]{3}$/;
+  const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql)-(beg|int|exp)-[0-9]{3}$/;
   let invalidPatternCount = 0;
 
   all.forEach(q => {
@@ -63,7 +63,7 @@ export async function runQuestionBankTests() {
     if (!idPattern.test(q.id)) invalidPatternCount++;
   });
 
-  assert(duplicateCount === 0, 'All 240 question IDs are completely unique', `Duplicate count: ${duplicateCount}`);
+  assert(duplicateCount === 0, 'All 480 question IDs are completely unique', `Duplicate count: ${duplicateCount}`);
   assert(invalidPatternCount === 0, 'All question IDs conform to standard regex format', `Invalid format count: ${invalidPatternCount}`);
 
   // Test 4: Format-Specific Answer & Content Validation

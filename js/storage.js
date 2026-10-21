@@ -42,10 +42,14 @@ export function createDefaultProfile(id = 'prof-default01', username = 'ScriptAd
       lastDailyDate: null
     },
     campaign: {
-      python: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
-      c:      { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
-      cpp:    { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
-      java:   { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
+      python:     { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+      c:          { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+      cpp:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+      java:       { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+      cyber:      { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+      javascript: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+      rust:       { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+      sql:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
     },
     completedTiers: {},
     unlockedAchievements: [],
@@ -450,10 +454,14 @@ class StorageManager {
     };
 
     const campaign = {
-      python: { ...defaultProf.campaign.python, ...(p?.campaign?.python || {}) },
-      c:      { ...defaultProf.campaign.c,      ...(p?.campaign?.c || {}) },
-      cpp:    { ...defaultProf.campaign.cpp,    ...(p?.campaign?.cpp || {}) },
-      java:   { ...defaultProf.campaign.java,   ...(p?.campaign?.java || {}) }
+      python:     { ...defaultProf.campaign.python,     ...(p?.campaign?.python || {}) },
+      c:          { ...defaultProf.campaign.c,          ...(p?.campaign?.c || {}) },
+      cpp:        { ...defaultProf.campaign.cpp,        ...(p?.campaign?.cpp || {}) },
+      java:       { ...defaultProf.campaign.java,       ...(p?.campaign?.java || {}) },
+      cyber:      { ...defaultProf.campaign.cyber,      ...(p?.campaign?.cyber || {}) },
+      javascript: { ...defaultProf.campaign.javascript, ...(p?.campaign?.javascript || {}) },
+      rust:       { ...defaultProf.campaign.rust,       ...(p?.campaign?.rust || {}) },
+      sql:        { ...defaultProf.campaign.sql,        ...(p?.campaign?.sql || {}) }
     };
 
     return {
@@ -462,7 +470,7 @@ class StorageManager {
       avatarId: typeof p?.avatarId === 'string' ? p.avatarId : defaultProf.avatarId,
       onboardingComplete: Boolean(p?.onboardingComplete),
       preferences: {
-        language: ['python', 'c', 'cpp', 'java'].includes(p?.preferences?.language) ? p.preferences.language : 'python',
+        language: ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].includes(p?.preferences?.language) ? p.preferences.language : 'python',
         difficulty: ['beginner', 'intermediate', 'expert'].includes(p?.preferences?.difficulty) ? p.preferences.difficulty : 'beginner'
       },
       createdAt: typeof p?.createdAt === 'number' ? p.createdAt : Date.now(),

@@ -218,6 +218,10 @@
                 <option value="c">C (C99)</option>
                 <option value="cpp">C++ (C++20)</option>
                 <option value="java">Java (SE 17)</option>
+                <option value="cyber">Cyber &amp; Linux</option>
+                <option value="javascript">JavaScript</option>
+                <option value="rust">Rust</option>
+                <option value="sql">SQL</option>
               </select>
 
               <select id="filter-history-diff" class="form-select" style="padding: 0.35rem 0.6rem; font-size: 12px; min-width: 110px;">
@@ -497,10 +501,14 @@
       if (langGrid) {
         langGrid.innerHTML = '';
         const langs = [
-          { id: 'python', name: 'Python 3', tag: 'tag-python' },
-          { id: 'c',      name: 'C (C99)',  tag: 'tag-c' },
-          { id: 'cpp',    name: 'C++ (C++20)', tag: 'tag-cpp' },
-          { id: 'java',   name: 'Java 17',  tag: 'tag-java' }
+          { id: 'python',     name: 'Python 3',        tag: 'tag-python' },
+          { id: 'c',          name: 'C (C99)',         tag: 'tag-c' },
+          { id: 'cpp',        name: 'C++ (C++20)',     tag: 'tag-cpp' },
+          { id: 'java',       name: 'Java 17',         tag: 'tag-java' },
+          { id: 'cyber',      name: 'Cyber & Linux',   tag: 'tag-cyber' },
+          { id: 'javascript', name: 'JavaScript',      tag: 'tag-javascript' },
+          { id: 'rust',       name: 'Rust',            tag: 'tag-rust' },
+          { id: 'sql',        name: 'SQL',             tag: 'tag-sql' }
         ];
 
         langs.forEach(l => {
@@ -748,7 +756,7 @@
                 : '<span class="badge badge-neutral">Incomplete</span>';
 
               const accVal = s.accuracy !== undefined ? s.accuracy : Analytics.calculateAccuracy(s.questionsCorrect, s.questionsAttempted);
-              const safeLang = ['python', 'c', 'cpp', 'java'].includes(s.language) ? s.language : 'python';
+              const safeLang = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].includes(s.language) ? s.language : 'python';
               const safeDiff = ['beginner', 'intermediate', 'expert'].includes(s.difficulty) ? s.difficulty : 'beginner';
               const safeScore = (parseInt(s.totalScore, 10) || 0).toLocaleString();
               const safeDate = Utils.escapeHTML(dateStr);

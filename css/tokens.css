@@ -74,6 +74,14 @@
   --lang-cpp-accent:      #004482;
   --lang-java:            #EA2D2E;
   --lang-java-accent:     #F89820;
+  --lang-cyber:           #10B981;
+  --lang-cyber-accent:    #00FF88;
+  --lang-javascript:      #F7DF1E;
+  --lang-javascript-accent:#323330;
+  --lang-rust:            #DEA584;
+  --lang-rust-accent:     #CE412B;
+  --lang-sql:             #336791;
+  --lang-sql-accent:      #00BCF2;
 
   /* ==========================================================================
      TYPOGRAPHY

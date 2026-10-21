@@ -103,7 +103,7 @@ export const Gameplay = {
     const params = Router.getQueryParams();
     const activeProfile = State.get('activeProfile') || Profile.getActiveProfile();
 
-    const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java'];
+    const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'];
     const ALLOWED_DIFFS = ['beginner', 'intermediate', 'expert'];
     const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed'];
 
