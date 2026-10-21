@@ -1034,7 +1034,7 @@
        FIRST-TIME PLAYER ONBOARDING MODAL (BATCH 3)
        ==================================================================== -->
   <div class="modal-backdrop" id="modal-onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-modal-title" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 580px;">
+    <div class="modal-dialog onboarding-dialog" style="max-width: 660px; width: min(660px, 94vw);">
       
       <!-- Modal Header -->
       <div class="modal-header">
@@ -1232,50 +1232,50 @@
       </div>
 
       <!-- Modal Footer (Step Controls) -->
-      <div class="modal-footer" style="justify-content: space-between;">
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <button type="button" class="btn-arcade btn-neutral btn-sm" data-onboarding-cancel>
+      <div class="modal-footer onboarding-footer" style="justify-content: space-between; flex-shrink: 0; flex-wrap: wrap; gap: 0.5rem; padding: 0.85rem 1.25rem;">
+        <div class="onboarding-footer-left" style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="btn-arcade btn-neutral btn-sm" data-onboarding-cancel style="padding: 0.4rem 0.75rem; font-size: var(--text-xs);">
             Cancel
           </button>
-          <button type="button" id="btn-skip-to-game" class="btn-arcade btn-neutral btn-sm" title="Skip setup and jump straight into challenge arena">
+          <button type="button" id="btn-skip-to-game" class="btn-arcade btn-neutral btn-sm" title="Skip setup and jump straight into challenge arena" style="padding: 0.4rem 0.75rem; font-size: var(--text-xs);">
             Skip Setup &amp; Play →
           </button>
         </div>
 
-        <div style="display: flex; gap: 0.5rem;">
+        <div class="onboarding-footer-right" style="display: flex; gap: 0.4rem; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
           <!-- Step 1 Controls -->
-          <button type="button" id="btn-wizard-to-step2" class="btn-arcade btn-primary btn-sm wizard-step-btn" style="display: inline-flex;">
+          <button type="button" id="btn-wizard-to-step2" class="btn-arcade btn-primary btn-sm wizard-step-btn" style="display: inline-flex; padding: 0.4rem 0.85rem; font-size: var(--text-xs);">
             Next: Language →
           </button>
 
           <!-- Step 2 Controls (Managed dynamically) -->
-          <button type="button" id="btn-wizard-back-to-1" class="btn-arcade btn-neutral btn-sm" style="display: none;">
+          <button type="button" id="btn-wizard-back-to-1" class="btn-arcade btn-neutral btn-sm" style="display: none; padding: 0.4rem 0.75rem; font-size: var(--text-xs);">
             ← Back
           </button>
-          <button type="button" id="btn-wizard-to-step3" class="btn-arcade btn-primary btn-sm" style="display: none;">
+          <button type="button" id="btn-wizard-to-step3" class="btn-arcade btn-primary btn-sm" style="display: none; padding: 0.4rem 0.85rem; font-size: var(--text-xs);">
             Next: Difficulty →
           </button>
 
           <!-- Step 3 Controls -->
-          <button type="button" id="btn-wizard-back-to-2" class="btn-arcade btn-neutral btn-sm" style="display: none;">
+          <button type="button" id="btn-wizard-back-to-2" class="btn-arcade btn-neutral btn-sm" style="display: none; padding: 0.4rem 0.75rem; font-size: var(--text-xs);">
             ← Back
           </button>
-          <button type="button" id="btn-wizard-to-step4" class="btn-arcade btn-primary btn-sm" style="display: none;">
+          <button type="button" id="btn-wizard-to-step4" class="btn-arcade btn-primary btn-sm" style="display: none; padding: 0.4rem 0.85rem; font-size: var(--text-xs);">
             Review Summary →
           </button>
 
           <!-- Step 4 Controls -->
-          <button type="button" id="btn-wizard-back-to-3" class="btn-arcade btn-neutral btn-sm" style="display: none;">
+          <button type="button" id="btn-wizard-back-to-3" class="btn-arcade btn-neutral btn-sm" style="display: none; padding: 0.4rem 0.75rem; font-size: var(--text-xs);">
             ← Back
           </button>
-          <button type="button" id="btn-wizard-edit-choices" class="btn-arcade btn-neutral btn-sm" style="display: none;">
-            Edit Choices
+          <button type="button" id="btn-wizard-edit-choices" class="btn-arcade btn-neutral btn-sm" style="display: none; padding: 0.4rem 0.75rem; font-size: var(--text-xs);">
+            Edit
           </button>
-          <button type="button" id="btn-wizard-confirm-save" class="btn-arcade btn-neutral btn-sm" style="display: none;">
-            Save & Close
+          <button type="button" id="btn-wizard-confirm-save" class="btn-arcade btn-neutral btn-sm" style="display: none; padding: 0.4rem 0.85rem; font-size: var(--text-xs);" title="Save & Continue to Hub">
+            Save &amp; Continue
           </button>
-          <button type="button" id="btn-wizard-confirm-play" class="btn-arcade btn-primary btn-sm" style="display: none;">
-            Confirm & Play Now →
+          <button type="button" id="btn-wizard-confirm-play" class="btn-arcade btn-primary btn-sm" style="display: none; padding: 0.4rem 0.85rem; font-size: var(--text-xs);" title="Save & Launch Arena">
+            Confirm &amp; Play Now →
           </button>
         </div>
       </div>

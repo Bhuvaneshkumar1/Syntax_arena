@@ -431,6 +431,53 @@
   gap: var(--space-3);
 }
 
+/* Onboarding Modal Responsive Alignment & Button Layout */
+.onboarding-dialog {
+  max-width: 660px !important;
+  width: min(660px, 94vw);
+  max-height: 90vh;
+}
+
+.onboarding-footer {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  background-color: var(--bg-surface-raised);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.onboarding-footer-left,
+.onboarding-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .onboarding-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+  .onboarding-footer-left,
+  .onboarding-footer-right {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .onboarding-footer-left > button,
+  .onboarding-footer-right > button {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
 /* ==========================================================================
    TOAST NOTIFICATION SYSTEM
    ========================================================================== */
