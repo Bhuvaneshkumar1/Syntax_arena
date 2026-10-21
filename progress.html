@@ -922,15 +922,24 @@
                                badge.category === 'accuracy' ? 'badge-emerald' :
                                badge.category === 'polyglot' ? 'badge-coral' : 'badge-cyan';
 
-          const canAfford = curPoints >= 100;
+          const badgeCost = badge.cost || badge.price || 100;
+          const badgeDiff = (badge.difficulty || 'standard').toLowerCase();
+          const diffBadgeClass = badgeDiff === 'beginner' ? 'badge-emerald' :
+                                badgeDiff === 'intermediate' ? 'badge-cyan' :
+                                badgeDiff === 'expert' ? 'badge-amber' : 'badge-violet';
+
+          const canAfford = curPoints >= badgeCost;
           const unlockActionHtml = isUnlocked
             ? `<span style="color: var(--color-success); font-weight: 700;">✓ Unlocked</span>`
-            : `<button type="button" class="btn-arcade btn-primary btn-sm btn-unlock-badge" style="padding: 2px 8px; font-size: 11px; ${!canAfford ? 'opacity: 0.6; cursor: not-allowed;' : ''}">Unlock (100 pts)</button>`;
+            : `<button type="button" class="btn-arcade btn-primary btn-sm btn-unlock-badge" style="padding: 2px 8px; font-size: 11px; ${!canAfford ? 'opacity: 0.6; cursor: not-allowed;' : ''}">Unlock (${badgeCost} pts)</button>`;
 
           card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
               <span style="font-size: 2rem;" aria-hidden="true">${isUnlocked ? badge.icon : '🔒'}</span>
-              <span class="badge ${catBadgeClass}" style="font-size: 10px;">${badge.category.toUpperCase()}</span>
+              <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; justify-content: flex-end;">
+                <span class="badge ${diffBadgeClass}" style="font-size: 9px; text-transform: uppercase;">${badgeDiff}</span>
+                <span class="badge ${catBadgeClass}" style="font-size: 9px;">${badge.category.toUpperCase()}</span>
+              </div>
             </div>
             <h4 style="margin: 0.25rem 0 0; font-size: var(--text-base); color: var(--text-primary); font-family: var(--font-display); font-weight: 700;">
               ${badge.name}
@@ -949,12 +958,12 @@
               e.stopPropagation();
               const latestProf = State.get('activeProfile') || Profile.getActiveProfile();
               const pointsNow = typeof latestProf.totalScore === 'number' ? latestProf.totalScore : (latestProf.xp || 0);
-              if (pointsNow >= 100) {
+              if (pointsNow >= badgeCost) {
                 AudioEngine.playBadge();
-                const res = Profile.purchaseItem(latestProf.id, 'badge', badge.id, 100);
+                const res = Profile.purchaseItem(latestProf.id, 'badge', badge.id, badgeCost);
                 if (res.success) {
                   UI.triggerConfetti();
-                  UI.showToast(`🏆 ${badge.name} badge unlocked for 100 points!`, 'success');
+                  UI.showToast(`🏆 ${badge.name} badge unlocked for ${badgeCost} points!`, 'success');
                   renderTrophyGrid();
                   const countEl = Utils.qs('#stat-badges-earned');
                   const pillEl = Utils.qs('#badge-counter-pill');
@@ -966,7 +975,7 @@
                 }
               } else {
                 AudioEngine.playError();
-                UI.showToast(`Requires 100 points to unlock! You currently have ${pointsNow.toLocaleString()} points.`, 'info');
+                UI.showToast(`Requires ${badgeCost} points to unlock! You currently have ${pointsNow.toLocaleString()} points.`, 'info');
               }
             };
           }
@@ -976,7 +985,7 @@
             if (isUnlocked) {
               UI.showToast(`🏆 ${badge.name}: ${badge.description} (Unlocked!)`, 'success');
             } else {
-              UI.showToast(`🔒 ${badge.name}: ${badge.description} (Cost: 100 pts to unlock immediately)`, 'info');
+              UI.showToast(`🔒 ${badge.name}: ${badge.description} (${badgeDiff.toUpperCase()} • Cost: ${badgeCost} pts to unlock immediately)`, 'info');
             }
           };
 

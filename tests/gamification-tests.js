@@ -240,6 +240,22 @@ export async function runGamificationTests() {
   const allBadgeIds = new Set(ACHIEVEMENTS.map(b => b.id));
   assert(allBadgeIds.size === 20, 'All 20 badges have unique, stable IDs');
 
+  // Verify difficulty and tiered pricing across badges (Item 4)
+  const validDiffs = ['beginner', 'intermediate', 'expert', 'master'];
+  ACHIEVEMENTS.forEach(badge => {
+    assert(validDiffs.includes(badge.difficulty), `Badge ${badge.id} has valid difficulty tier`);
+    assert(typeof badge.cost === 'number' && badge.cost >= 50, `Badge ${badge.id} has numeric cost >= 50`);
+    if (badge.difficulty === 'beginner') {
+      assert(badge.cost <= 80, `Beginner badge ${badge.id} cost is <= 80`);
+    } else if (badge.difficulty === 'intermediate') {
+      assert(badge.cost >= 90 && badge.cost <= 150, `Intermediate badge ${badge.id} cost is 90-150`);
+    } else if (badge.difficulty === 'expert') {
+      assert(badge.cost >= 180 && badge.cost <= 260, `Expert badge ${badge.id} cost is 180-260`);
+    } else if (badge.difficulty === 'master') {
+      assert(badge.cost >= 280, `Master badge ${badge.id} cost is >= 280`);
+    }
+  });
+
   // Test First Blood evaluator
   const badgeFirstBlood = ACHIEVEMENTS.find(b => b.id === 'first_blood');
   assert(badgeFirstBlood.evaluate(baseProfile, { questionsCorrect: 1 }) === true, 'First Blood unlocks when questionsCorrect >= 1');

@@ -73,6 +73,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Solve your first programming challenge correctly.',
     icon: '⚔️',
     category: 'milestones',
+    difficulty: 'beginner',
+    cost: 50,
+    price: 50,
     evaluate: (profile, session) => {
       const correct = (profile?.stats?.questionsCorrect || 0) + (session?.questionsCorrect || 0);
       return correct >= 1;
@@ -84,6 +87,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Complete your first full challenge session.',
     icon: '🏁',
     category: 'milestones',
+    difficulty: 'beginner',
+    cost: 50,
+    price: 50,
     evaluate: (profile, session) => {
       return (profile?.stats?.gamesPlayed || 0) >= 1 || session?.isCompleted === true;
     }
@@ -94,6 +100,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Attempt 100 programming challenges across your career.',
     icon: '💯',
     category: 'milestones',
+    difficulty: 'expert',
+    cost: 250,
+    price: 250,
     evaluate: (profile, session) => {
       const attempted = (profile?.stats?.questionsAttempted || 0) + (session?.questionsAttempted || 0);
       return attempted >= 100;
@@ -105,6 +114,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Complete 5 full challenge sessions in the arena.',
     icon: '🎖️',
     category: 'milestones',
+    difficulty: 'intermediate',
+    cost: 120,
+    price: 120,
     evaluate: (profile, session) => {
       const games = (profile?.stats?.gamesPlayed || 0) + (session?.isCompleted ? 1 : 0);
       return games >= 5;
@@ -118,6 +130,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Achieve a 3-question answer streak in a session.',
     icon: '🔹',
     category: 'streaks',
+    difficulty: 'beginner',
+    cost: 60,
+    price: 60,
     evaluate: (profile, session) => {
       return (session?.highestStreak || 0) >= 3 || (profile?.stats?.highestStreak || 0) >= 3;
     }
@@ -128,6 +143,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Achieve a 5-question answer streak in a session.',
     icon: '🔥',
     category: 'streaks',
+    difficulty: 'intermediate',
+    cost: 120,
+    price: 120,
     evaluate: (profile, session) => {
       return (session?.highestStreak || 0) >= 5 || (profile?.stats?.highestStreak || 0) >= 5;
     }
@@ -138,6 +156,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Achieve an 8-question streak and hit the 3.0x Max Multiplier.',
     icon: '⚡',
     category: 'streaks',
+    difficulty: 'expert',
+    cost: 220,
+    price: 220,
     evaluate: (profile, session) => {
       return (session?.highestStreak || 0) >= 8 || (profile?.stats?.highestStreak || 0) >= 8;
     }
@@ -150,6 +171,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Complete a challenge session with at least 75% accuracy (⭐⭐).',
     icon: '🎯',
     category: 'accuracy',
+    difficulty: 'intermediate',
+    cost: 120,
+    price: 120,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.accuracy >= 75);
     }
@@ -160,6 +184,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Achieve 100% accuracy in a session with at least 5 challenges.',
     icon: '💎',
     category: 'accuracy',
+    difficulty: 'expert',
+    cost: 250,
+    price: 250,
     evaluate: (profile, session) => {
       if (!session) return false;
       const correct = session.questionsCorrect || 0;
@@ -174,6 +201,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Correctly solve a challenge on Second Chance retry after a hint.',
     icon: '🛡️',
     category: 'accuracy',
+    difficulty: 'beginner',
+    cost: 75,
+    price: 75,
     evaluate: (profile, session) => {
       if (session?.retriesUsed > 0 && session?.questionsCorrect > 0) return true;
       const results = session?.results || session?.answers;
@@ -186,6 +216,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Successfully solve 3 challenges in a single run with hint guidance.',
     icon: '💡',
     category: 'accuracy',
+    difficulty: 'intermediate',
+    cost: 100,
+    price: 100,
     evaluate: (profile, session) => {
       return Boolean(session && (session.hintsUsed || 0) >= 3 && (session.questionsCorrect || 0) >= 3);
     }
@@ -198,6 +231,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Solve a timed challenge correctly in under 5 seconds without hints.',
     icon: '⏱️',
     category: 'speed',
+    difficulty: 'expert',
+    cost: 220,
+    price: 220,
     evaluate: (profile, session) => {
       const results = session?.results || session?.answers;
       if (!results || !Array.isArray(results)) return false;
@@ -216,6 +252,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Answer correctly with more than 80% of the countdown timer remaining.',
     icon: '🚀',
     category: 'speed',
+    difficulty: 'intermediate',
+    cost: 130,
+    price: 130,
     evaluate: (profile, session) => {
       if (!session?.results) return false;
       return session.results.some(r => {
@@ -231,6 +270,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Complete a full challenge session in Python 3.',
     icon: '🐍',
     category: 'polyglot',
+    difficulty: 'beginner',
+    cost: 75,
+    price: 75,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'python');
     }
@@ -241,6 +283,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Complete a full challenge session in C (C99).',
     icon: '⚙️',
     category: 'polyglot',
+    difficulty: 'intermediate',
+    cost: 120,
+    price: 120,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'c');
     }
@@ -251,6 +296,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Complete a full challenge session in C++ (C++20).',
     icon: '⚡',
     category: 'polyglot',
+    difficulty: 'intermediate',
+    cost: 120,
+    price: 120,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'cpp');
     }
@@ -261,6 +309,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Complete a full challenge session in Java (SE 17).',
     icon: '☕',
     category: 'polyglot',
+    difficulty: 'intermediate',
+    cost: 120,
+    price: 120,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'java');
     }
@@ -271,6 +322,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Earn stars across all 4 language tracks (Python, C, C++, Java).',
     icon: '👑',
     category: 'polyglot',
+    difficulty: 'master',
+    cost: 350,
+    price: 350,
     evaluate: (profile, session) => {
       const camp = profile?.campaign || {};
       const languages = ['python', 'c', 'cpp', 'java'];
@@ -290,6 +344,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Reach Level 5 (Algorithm Ace) to unlock Hardcore Mode.',
     icon: '🔥',
     category: 'modes',
+    difficulty: 'expert',
+    cost: 200,
+    price: 200,
     evaluate: (profile) => {
       return (profile?.level || 1) >= 5;
     }
@@ -300,6 +357,9 @@ export const ACHIEVEMENTS = Object.freeze([
     description: 'Complete a session in Hardcore Mode with hearts remaining.',
     icon: '🖤',
     category: 'modes',
+    difficulty: 'master',
+    cost: 300,
+    price: 300,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.mode === 'hardcore' && (session.lives === undefined || session.lives > 0));
     }
