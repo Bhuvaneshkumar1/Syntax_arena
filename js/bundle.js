@@ -18413,7 +18413,7 @@ var Gameplay = window.Gameplay = {
       timeLimit,
       questions,
       stage: activeStage.id,
-      randomizeOrder: mode !== 'campaign'
+      randomizeOrder: true
     };
 
     try {

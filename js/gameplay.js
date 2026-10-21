@@ -332,7 +332,7 @@ export const Gameplay = {
       timeLimit,
       questions,
       stage: activeStage.id,
-      randomizeOrder: mode !== 'campaign'
+      randomizeOrder: true
     };
 
     try {
