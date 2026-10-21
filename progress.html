@@ -1030,12 +1030,13 @@
         const currentProf = State.get('activeProfile') || Profile.getActiveProfile();
         const pLevel = currentProf.level || 1;
         const currentTheme = (State.get('settings') || {}).theme || 'dark';
+        const unlockedThemes = Array.isArray(currentProf.unlockedThemes) ? currentProf.unlockedThemes : ['dark'];
 
         const subjectVal = filterThemesSubject ? filterThemesSubject.value : 'all';
         const statusVal = filterThemesStatus ? filterThemesStatus.value : 'all';
 
         const filteredThemes = UNLOCKABLE_THEMES.filter(t => {
-          const isUnlocked = pLevel >= t.requiredLevel;
+          const isUnlocked = unlockedThemes.includes(t.id) || pLevel >= t.requiredLevel;
           const subjectMatch = (subjectVal === 'all') ||
             (subjectVal === 'cyber' && t.id === 'dark') ||
             (subjectVal === 'paper' && t.id === 'light') ||
@@ -1057,15 +1058,19 @@
         }
 
         filteredThemes.forEach(t => {
-          const isUnlocked = pLevel >= t.requiredLevel;
+          const isUnlocked = unlockedThemes.includes(t.id) || pLevel >= t.requiredLevel;
           const isCurrent = currentTheme === t.id;
+          const themeCost = t.cost || (t.id === 'light' ? 100 : t.id === 'amber' ? 200 : 350);
+          const pointsNow = typeof currentProf?.totalScore === 'number' ? currentProf.totalScore : (currentProf?.xp || 0);
+          const canAfford = pointsNow >= themeCost;
+
           const card = document.createElement('div');
-          card.className = `card ${isUnlocked ? '' : 'card-locked'}`;
+          card.className = `card card-interactive ${isUnlocked ? '' : 'card-locked'}`;
           card.style.padding = '1rem';
+          card.style.cursor = 'pointer';
           card.style.borderLeft = `4px solid ${t.id === 'amber' ? 'var(--color-warning)' : t.id === 'gold' ? '#FFD700' : 'var(--color-primary)'}`;
           if (!isUnlocked) {
-            card.style.opacity = '0.55';
-            card.style.filter = 'grayscale(100%)';
+            card.style.opacity = '0.7';
           }
 
           card.innerHTML = `
@@ -1075,8 +1080,48 @@
                 ${isCurrent ? 'Equipped' : isUnlocked ? 'Unlocked' : `Lv ${t.requiredLevel}`}
               </span>
             </div>
-            <p style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0;">${t.description}</p>
+            <p style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: 0.5rem;">${t.description}</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.4rem; font-size: 11px;">
+              <span style="color: ${isUnlocked ? 'var(--color-primary)' : 'var(--text-muted)'}; font-weight: 600;">
+                ${isCurrent ? '● Active' : isUnlocked ? 'Click to Equip' : `Cost: ${themeCost} pts`}
+              </span>
+              ${!isUnlocked ? `<button type="button" class="btn-arcade btn-primary btn-sm btn-unlock-theme" style="padding: 2px 8px; font-size: 10px; ${!canAfford ? 'opacity: 0.6;' : ''}">Unlock (${themeCost} pts)</button>` : ''}
+            </div>
           `;
+
+          const unlockBtn = card.querySelector('.btn-unlock-theme');
+          if (unlockBtn) {
+            unlockBtn.onclick = (e) => {
+              e.stopPropagation();
+              if (canAfford) {
+                const res = Profile.purchaseItem(currentProf.id, 'theme', t.id, themeCost);
+                if (res && res.success) {
+                  AudioEngine.playLevelUp();
+                  UI.showToast(`🎨 ${t.name} theme unlocked for ${themeCost} points!`, 'success');
+                  renderThemesGrid();
+                } else {
+                  UI.showToast(res ? res.message : 'Unlock failed.', 'error');
+                }
+              } else {
+                AudioEngine.playError();
+                UI.showToast(`🔒 Currently the theme is locked! Unlock using ${themeCost} points (You have ${pointsNow.toLocaleString()}) or reach Level ${t.requiredLevel}.`, 'warning');
+              }
+            };
+          }
+
+          card.onclick = () => {
+            if (isUnlocked) {
+              AudioEngine.playClick();
+              State.set('settings', { theme: t.id });
+              UI.applyTheme(t.id);
+              UI.showToast(`Switched to ${t.name} theme!`, 'info');
+              renderThemesGrid();
+            } else {
+              AudioEngine.playError();
+              UI.showToast(`🔒 Currently the theme is locked! Unlock by using points (${themeCost} pts) or reach Level ${t.requiredLevel}.`, 'warning');
+            }
+          };
+
           themesGrid.appendChild(card);
         });
       }

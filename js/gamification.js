@@ -40,10 +40,10 @@ export const XP_RULES = Object.freeze({
 // 3. COSMETICS & CHALLENGE MODES REGISTRY
 // =============================================================================
 export const UNLOCKABLE_THEMES = Object.freeze([
-  { id: 'dark',  name: 'Cyber Studio',     requiredLevel: 1,  themeClass: 'dark',  description: 'Sleek neon-cyan dark arcade theme' },
-  { id: 'light', name: 'Studio Paper',     requiredLevel: 2,  themeClass: 'light', description: 'Crisp editorial light mode with high contrast' },
-  { id: 'amber', name: 'Amber Flame',      requiredLevel: 6,  themeClass: 'amber', description: 'Warm CRT amber phosphor arcade aesthetic' },
-  { id: 'gold',  name: 'Grandmaster Gold', requiredLevel: 10, themeClass: 'gold',  description: 'Prestige obsidian and metallic gold theme' }
+  { id: 'dark',  name: 'Cyber Studio',     requiredLevel: 1,  cost: 0,   themeClass: 'dark',  description: 'Sleek neon-cyan dark arcade theme' },
+  { id: 'light', name: 'Studio Paper',     requiredLevel: 2,  cost: 100, themeClass: 'light', description: 'Crisp editorial light mode with high contrast' },
+  { id: 'amber', name: 'Amber Flame',      requiredLevel: 6,  cost: 200, themeClass: 'amber', description: 'Warm CRT amber phosphor arcade aesthetic' },
+  { id: 'gold',  name: 'Grandmaster Gold', requiredLevel: 10, cost: 350, themeClass: 'gold',  description: 'Prestige obsidian and metallic gold theme' }
 ]);
 
 export const UNLOCKABLE_AVATARS = Object.freeze([
@@ -584,10 +584,17 @@ export const Gamification = {
   /**
    * Check if a specific theme is unlocked for a given level.
    */
-  isThemeUnlocked(themeId, level) {
+  isThemeUnlocked(themeId, profileOrLevel) {
     const theme = UNLOCKABLE_THEMES.find(t => t.id === themeId);
     if (!theme) return false;
-    return (level || 1) >= theme.requiredLevel;
+    if (typeof profileOrLevel === 'object' && profileOrLevel !== null) {
+      if (Array.isArray(profileOrLevel.unlockedThemes) && profileOrLevel.unlockedThemes.includes(themeId)) {
+        return true;
+      }
+      return (profileOrLevel.level || 1) >= theme.requiredLevel;
+    }
+    const lvl = parseInt(profileOrLevel, 10) || 1;
+    return lvl >= theme.requiredLevel;
   },
 
   /**

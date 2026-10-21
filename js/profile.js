@@ -377,6 +377,10 @@ export const Profile = {
       const purchased = new Set(profile.purchasedBadges || []);
       purchased.add(itemId);
       updates.purchasedBadges = Array.from(purchased);
+    } else if (itemType === 'theme') {
+      const existingThemes = new Set(profile.unlockedThemes || ['dark']);
+      existingThemes.add(itemId);
+      updates.unlockedThemes = Array.from(existingThemes);
     }
 
     const updated = this.updateProfile(profile.id, updates);

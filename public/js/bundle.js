@@ -11571,6 +11571,10 @@ var Profile = window.Profile = {
       const purchased = new Set(profile.purchasedBadges || []);
       purchased.add(itemId);
       updates.purchasedBadges = Array.from(purchased);
+    } else if (itemType === 'theme') {
+      const existingThemes = new Set(profile.unlockedThemes || ['dark']);
+      existingThemes.add(itemId);
+      updates.unlockedThemes = Array.from(existingThemes);
     }
 
     const updated = this.updateProfile(profile.id, updates);
@@ -12292,10 +12296,10 @@ var XP_RULES = window.XP_RULES = Object.freeze({
 // 3. COSMETICS & CHALLENGE MODES REGISTRY
 // =============================================================================
 var UNLOCKABLE_THEMES = window.UNLOCKABLE_THEMES = Object.freeze([
-  { id: 'dark',  name: 'Cyber Studio',     requiredLevel: 1,  themeClass: 'dark',  description: 'Sleek neon-cyan dark arcade theme' },
-  { id: 'light', name: 'Studio Paper',     requiredLevel: 2,  themeClass: 'light', description: 'Crisp editorial light mode with high contrast' },
-  { id: 'amber', name: 'Amber Flame',      requiredLevel: 6,  themeClass: 'amber', description: 'Warm CRT amber phosphor arcade aesthetic' },
-  { id: 'gold',  name: 'Grandmaster Gold', requiredLevel: 10, themeClass: 'gold',  description: 'Prestige obsidian and metallic gold theme' }
+  { id: 'dark',  name: 'Cyber Studio',     requiredLevel: 1,  cost: 0,   themeClass: 'dark',  description: 'Sleek neon-cyan dark arcade theme' },
+  { id: 'light', name: 'Studio Paper',     requiredLevel: 2,  cost: 100, themeClass: 'light', description: 'Crisp editorial light mode with high contrast' },
+  { id: 'amber', name: 'Amber Flame',      requiredLevel: 6,  cost: 200, themeClass: 'amber', description: 'Warm CRT amber phosphor arcade aesthetic' },
+  { id: 'gold',  name: 'Grandmaster Gold', requiredLevel: 10, cost: 350, themeClass: 'gold',  description: 'Prestige obsidian and metallic gold theme' }
 ]);
 
 var UNLOCKABLE_AVATARS = window.UNLOCKABLE_AVATARS = Object.freeze([
@@ -12836,10 +12840,17 @@ var Gamification = window.Gamification = {
   /**
    * Check if a specific theme is unlocked for a given level.
    */
-  isThemeUnlocked(themeId, level) {
+  isThemeUnlocked(themeId, profileOrLevel) {
     const theme = UNLOCKABLE_THEMES.find(t => t.id === themeId);
     if (!theme) return false;
-    return (level || 1) >= theme.requiredLevel;
+    if (typeof profileOrLevel === 'object' && profileOrLevel !== null) {
+      if (Array.isArray(profileOrLevel.unlockedThemes) && profileOrLevel.unlockedThemes.includes(themeId)) {
+        return true;
+      }
+      return (profileOrLevel.level || 1) >= theme.requiredLevel;
+    }
+    const lvl = parseInt(profileOrLevel, 10) || 1;
+    return lvl >= theme.requiredLevel;
   },
 
   /**
@@ -15243,6 +15254,28 @@ var UI = window.UI = {
   toggleTheme() {
     const currentSettings = State.get('settings') || {};
     const nextTheme = currentSettings.theme === 'light' ? 'dark' : 'light';
+
+    // Gate light theme (and other premium themes) if not yet unlocked
+    if (nextTheme !== 'dark') {
+      const activeProf = State.get('activeProfile') || (typeof Profile !== 'undefined' ? Profile.getActiveProfile() : null);
+      const userLevel = (activeProf && activeProf.level) || 1;
+      const unlockedThemes = (activeProf && Array.isArray(activeProf.unlockedThemes)) ? activeProf.unlockedThemes : ['dark'];
+
+      const themeDef = (typeof UNLOCKABLE_THEMES !== 'undefined' && Array.isArray(UNLOCKABLE_THEMES))
+        ? UNLOCKABLE_THEMES.find(t => t.id === nextTheme)
+        : null;
+      const requiredLevel = themeDef ? themeDef.requiredLevel : (nextTheme === 'light' ? 2 : 1);
+      const isUnlocked = unlockedThemes.includes(nextTheme) || userLevel >= requiredLevel;
+
+      if (!isUnlocked) {
+        if (typeof AudioEngine !== 'undefined' && AudioEngine.playError) {
+          AudioEngine.playError();
+        }
+        this.showToast(`🔒 Currently the theme is locked! Unlock by using points or reach Level ${requiredLevel}.`, 'warning');
+        return;
+      }
+    }
+
     State.set('settings', { theme: nextTheme });
     this.applyTheme(nextTheme);
     this.showToast(`Switched to ${nextTheme === 'light' ? 'Light (Studio Paper)' : 'Dark'} mode`, 'info');

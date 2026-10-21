@@ -533,9 +533,12 @@
         themeSelect.onchange = (e) => {
           const next = e.target.value;
           const tDef = Gamification.UNLOCKABLE_THEMES.find(t => t.id === next);
-          if (tDef && tDef.requiredLevel > playerLevel) {
+          const activeProf = Profile.getActiveProfile();
+          const unlockedThemes = (activeProf && activeProf.unlockedThemes) || ['dark'];
+          const isUnlocked = unlockedThemes.includes(next) || playerLevel >= (tDef?.requiredLevel || 1);
+          if (tDef && !isUnlocked) {
             AudioEngine.playError();
-            UI.showToast(`Theme locked! Reach Level ${tDef.requiredLevel} to unlock ${tDef.name}.`, 'error');
+            UI.showToast(`🔒 Currently the theme is locked! Unlock by using points or reach Level ${tDef.requiredLevel}.`, 'warning');
             themeSelect.value = settings.theme || 'dark';
             return;
           }

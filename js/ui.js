@@ -36,6 +36,28 @@ export const UI = {
   toggleTheme() {
     const currentSettings = State.get('settings') || {};
     const nextTheme = currentSettings.theme === 'light' ? 'dark' : 'light';
+
+    // Gate light theme (and other premium themes) if not yet unlocked
+    if (nextTheme !== 'dark') {
+      const activeProf = State.get('activeProfile') || (typeof Profile !== 'undefined' ? Profile.getActiveProfile() : null);
+      const userLevel = (activeProf && activeProf.level) || 1;
+      const unlockedThemes = (activeProf && Array.isArray(activeProf.unlockedThemes)) ? activeProf.unlockedThemes : ['dark'];
+
+      const themeDef = (typeof UNLOCKABLE_THEMES !== 'undefined' && Array.isArray(UNLOCKABLE_THEMES))
+        ? UNLOCKABLE_THEMES.find(t => t.id === nextTheme)
+        : null;
+      const requiredLevel = themeDef ? themeDef.requiredLevel : (nextTheme === 'light' ? 2 : 1);
+      const isUnlocked = unlockedThemes.includes(nextTheme) || userLevel >= requiredLevel;
+
+      if (!isUnlocked) {
+        if (typeof AudioEngine !== 'undefined' && AudioEngine.playError) {
+          AudioEngine.playError();
+        }
+        this.showToast(`🔒 Currently the theme is locked! Unlock by using points or reach Level ${requiredLevel}.`, 'warning');
+        return;
+      }
+    }
+
     State.set('settings', { theme: nextTheme });
     this.applyTheme(nextTheme);
     this.showToast(`Switched to ${nextTheme === 'light' ? 'Light (Studio Paper)' : 'Dark'} mode`, 'info');
