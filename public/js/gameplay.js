@@ -1587,6 +1587,23 @@ export const Gameplay = {
     if (this._eventsBound) return;
     this._eventsBound = true;
 
+    // Guard Results tab while game is active (Item 13)
+    const resultsLinks = document.querySelectorAll('a[href*="results.html"]');
+    resultsLinks.forEach(link => {
+      link.classList.add('is-disabled');
+      link.setAttribute('aria-disabled', 'true');
+      link.style.opacity = '0.5';
+      link.style.cursor = 'not-allowed';
+      link.title = 'Results tab is locked while playing';
+      link.addEventListener('click', (e) => {
+        if (!this.isCompleted) {
+          e.preventDefault();
+          AudioEngine.playError();
+          UI.showToast('🔒 Results tab is disabled while playing! Finish your challenge first.', 'warning');
+        }
+      });
+    });
+
     // Submit Answer Button
     const submitBtn = Utils.qs('#btn-submit-answer');
     if (submitBtn) {
