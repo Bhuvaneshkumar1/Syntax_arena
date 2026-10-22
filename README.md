@@ -1,260 +1,337 @@
 # ⚡ SyntaxArena
 
-> **The Browser-Native Cyberpunk Programming Quiz Arcade**  
-> Master syntax, debug code, and conquer algorithms across Python, C, C++, Java, Cybersecurity & Linux, JavaScript, Rust, and SQL in an arcade-inspired arena.
+<div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Zero Runtime Dependencies](https://img.shields.io/badge/Runtime%20Dependencies-0%20(Pure%20Vanilla)-success.svg)](file:///d:/programming_game/index.html)
-[![Offline Capable](https://img.shields.io/badge/Offline-100%25%20Ready-blueviolet.svg)](file:///d:/programming_game/index.html)
-[![Question Bank](https://img.shields.io/badge/Questions-480%20Verified-brightgreen.svg)](file:///d:/programming_game/data/)
-[![Test Suite](https://img.shields.io/badge/Tests-486%20%2F%20486%20Passed-brightgreen.svg)](file:///d:/programming_game/docs/FINAL_TEST_RESULTS.md)
-[![Platform](https://img.shields.io/badge/Platform-Web%20(All%20Modern%20Browsers)-orange.svg)](file:///d:/programming_game/index.html)
-
----
-
-## 🎮 What is SyntaxArena?
-
-**SyntaxArena** is an arcade-style, browser-native programming quiz game built with modern web technologies (**HTML5**, **CSS3**, and **Vanilla JavaScript**). Designed for students, software engineers, and competitive coders, it bridges the gap between gamified speed quizzes and deep pedagogical code analysis.
-
-Whether you're deducing pointer arithmetic in C99, unraveling template metaprogramming in C++20, tracing dictionary comprehensions in Python 3.10+, auditing POSIX permissions and shell pipelines in Linux, navigating the JavaScript event loop, enforcing Rust borrow checker invariants, or composing relational window queries in SQL, SyntaxArena offers a rich, tactile arcade experience with real-time feedback, procedural sound synthesis, and comprehensive career tracking.
-
----
-
-## ✨ Key Highlights
-
-### ⚡ Pure Vanilla & Zero Runtime Dependencies
-- **100% Static & Standalone:** Operates with zero backend servers, zero databases, and zero npm runtime dependencies.
-- **Run Anywhere:** Double-click `index.html` to play directly via the `file:///` protocol, or serve via GitHub Pages, Vercel, Netlify, Nginx, or Apache.
-- **Air-Gapped & Offline Ready:** All fonts, SVG avatars, icons, and audio waveforms are bundled locally. Zero external CDNs or remote network calls.
-
-### 🕹️ Arcade Arena Gameplay
-- **4 Distinct Question Mechanics:**
-  1. **Multiple Choice (MCQ):** Rapid conceptual evaluations.
-  2. **Predict Output:** Trace code execution and deduce exact standard console outputs.
-  3. **Find the Bug:** Click directly on syntax-highlighted code terminal lines to isolate the exact line with an error.
-  4. **Fill Code:** Drag or click code token chips into missing syntax slots.
-- **Dynamic 30-Second Countdown:** Visual and audio pulse warnings when timer drops below critical thresholds.
-- **Streak Multipliers:** Scale scoring from $1.0\times$ up to $2.0\times$ by chaining correct answers.
-- **Second Chance Retry Mechanic:** Use a hint (-25 pts) and unlock an immediate second chance upon an incorrect first attempt ($0.5\times$ base points, frozen streak).
-- **Remediation Mode:** Click "Retry Missed Questions" on the results page to replay missed questions with 0 point exploit protection.
-
-### 🏆 Gamification, Levels & Avatar Shop
-- **Player Level Progression:** Level up from **Level 1 (Script Novice)** to **Level 10+ (Grandmaster)** as your career score increases.
-- **Tier Gating:** 
-  - 🟢 **Beginner:** Unlocked at Level 1
-  - 🟡 **Intermediate:** Unlocked at Level 2
-  - 🔴 **Expert:** Unlocked at Level 3
-- **In-Game Avatar Cosmetics Shop:** Spend accumulated points to unlock unique cyberpunk SVG avatars (`terminal_owl`, `matrix_cat`, `bit_knight`, `hex_dragon`, `glitch_bot`). Spending points **never** reduces or demotes your player level!
-- **20 Unlockable Badges:** Earn achievements across speed, accuracy, language streaks, and career milestones.
-- **Idempotent Rewards:** Joining bonuses (+500 pts) and stage clear bonuses are awarded strictly once—refreshing pages will never duplicate points.
-
-### 📊 Deep Career Analytics
-- **Results Ring:** Circular SVG gauge displaying exact session accuracy percentage.
-- **8 Session Metrics:** Track Score, Accuracy, Streak, Time Elapsed, XP Gained, Rank, Points Earned, and Bonuses.
-- **Weak-Area Pedagogical Recommendations:** Algorithmic recommendations identifying topic weaknesses with one-click practice links.
-- **Performance Trend Graph:** Interactive SVG career progression graph mapping historical accuracy over time.
-- **Language & Difficulty Radar:** Real-time visualization of mastery percentages across all 4 tracks.
-
-### 🎨 Themes, Audio & Accessibility
-- **4 Arcade Visual Themes:**
-  - 🌌 **Cyberpunk Dark:** High-contrast neon cyan and magenta glow.
-  - ☀️ **Clean Light:** Crisp, modern minimalist IDE aesthetic.
-  - 📟 **Amber Phosphor:** Nostalgic 1980s monochrome CRT terminal.
-  - 👑 **Gold Royale:** Luxurious dark obsidian and radiant gold.
-- **Web Audio Procedural Sound Engine:** Synthesizes arcade beeps, clicks, streak fanfares, and ambient soundscapes natively via the browser Web Audio API.
-- **Accessibility & Reduced Motion:** Full keyboard shortcuts (`1-4`, `H`, `Enter`), ARIA live regions for screen readers, high-contrast focus rings, and an in-app Reduced Motion toggle that instantly collapses CSS animations and timer loops.
-- **Reliable Storage & Recovery:** LocalStorage Schema v1 with automated migration, corrupted payload salvage, ephemeral memory-only fallback, and a full Account Reset utility.
-
----
-
-## 📚 Question Bank Inventory (480 Questions)
-
-Every question is verified for schema compliance, unique ID assignment, and pedagogical depth. All questions adhere strictly to language standards with **zero undefined behavior mislabeled as guaranteed output**.
-
-| Language Track | Target Specification | Beginner | Intermediate | Expert | Total Verified |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| 🐍 **Python** | Python 3.10+ (Comprehensions, Generators, OOP, Dunders) | 20 | 20 | 20 | **60** |
-| ⚡ **C** | ISO C99 (Pointers, Memory, Structs, Macros, Bitwise) | 20 | 20 | 20 | **60** |
-| 🚀 **C++** | ISO C++20 (Templates, Smart Pointers, STL, RAII, Lambdas) | 20 | 20 | 20 | **60** |
-| ☕ **Java** | OpenJDK 17 LTS (Streams, Records, Generics, Concurrency) | 20 | 20 | 20 | **60** |
-| 🛡️ **Cyber & Linux** | POSIX / Bash / Security (Permissions, Quoting, Hashing, Sockets) | 20 | 20 | 20 | **60** |
-| 🟨 **JavaScript** | ECMAScript 2024 (Event Loop, Closures, Prototypes, Async) | 20 | 20 | 20 | **60** |
-| 🦀 **Rust** | Rust 2021 Edition (Ownership, Borrowing, Lifetimes, Traits) | 20 | 20 | 20 | **60** |
-| 🗄️ **SQL** | ANSI / Relational (Three-Valued Logic, JOINs, Window Functions) | 20 | 20 | 20 | **60** |
-| **Total Inventory** | **8 Full Curriculum Tracks** | **160** | **160** | **160** | **480** |
-
----
-
-## 🗂️ Project File Structure
-
-```text
-programming_game/
-├── index.html                 # Main landing hub, track selector, onboarding wizard
-├── game.html                  # Active arena terminal, countdown timer, HUD, retry panel
-├── results.html               # Circular progress ring, itemized review, recommendations
-├── progress.html              # Career stats, SVG trend visualizer, 20 badges catalog
-├── settings.html              # Visual themes, audio synthesizer, motion, profile reset
-├── favicon.svg                # Vector arcade brand icon
-├── css/
-│   ├── tokens.css             # Theme palettes, typography tokens, radius & shadows
-│   ├── layout.css             # Responsive container constraints, header, mobile drawer
-│   ├── components.css         # Tactile arcade buttons, option cards, modals, badges
-│   └── animations.css         # Keyframe animations, score counters, reduced-motion
-├── js/
-│   ├── app.js                 # Global page-level bootstrapper & theme initialization
-│   ├── audio.js               # Procedural Web Audio API sound synthesizer
-│   ├── analytics.js           # Topic mastery, recommendations, SVG trend generator
-│   ├── answer-checker.js      # Multi-format answer evaluation engine
-│   ├── bundle.js              # Standalone offline browser bundle (compiled artifact)
-│   ├── game-engine.js         # Authoritative game state machine & timer controller
-│   ├── game-session.js        # Active gameplay session lifecycle and state snapshots
-│   ├── gameplay.js            # Active arena UI coordinator & terminal line selection
-│   ├── gamification.js        # Scoring math, streak multipliers, 20 badges, rank logic
-│   ├── hint-manager.js        # Pedagogical hint delivery and retry modifier rules
-│   ├── landing.js             # Track selection, difficulty gating, hero action handlers
-│   ├── onboarding.js          # 4-step first-time setup wizard & callsign validator
-│   ├── profile.js             # User profile model, level calculator, avatar catalog
-│   ├── question-bank.js       # In-memory question filtering and query engine
-│   ├── question-validator.js  # Schema and integrity validator for question data
-│   ├── router.js              # Safe URL parameter parser and navigation guards
-│   ├── state.js               # Observable pub/sub event bus
-│   ├── storage.js             # LocalStorage manager (Schema v1, migration, quota salvage)
-│   └── utils.js               # HTML escaping (`escapeHTML`), DOM helpers (`qs`, `qsa`)
-├── data/
-│   ├── python-questions.js    # 60 Python questions
-│   ├── c-questions.js         # 60 C questions
-│   ├── cpp-questions.js       # 60 C++ questions
-│   ├── java-questions.js      # 60 Java questions
-│   ├── cyber-questions.js     # 60 Cybersecurity & Linux questions
-│   ├── javascript-questions.js# 60 JavaScript questions
-│   ├── rust-questions.js      # 60 Rust questions
-│   └── sql-questions.js       # 60 SQL questions
-├── assets/
-│   ├── avatars/               # 6 custom SVG player avatars
-│   └── audio/                 # Local procedural audio waveform assets (.wav)
-├── scripts/
-│   └── build-bundle.js        # Deterministic, portable bundle compiler script
-├── tests/                     # 14 Unit, QA, and Playwright E2E test suites (535 tests)
-└── docs/                      # Architectural specs, game rules, and audit reports
-    ├── FINAL_SOURCE_AUDIT.md  # Comprehensive codebase inventory & security audit
-    ├── FINAL_TEST_RESULTS.md   # Line-by-line test execution and responsive matrix
-    ├── FINAL_DEFECT_LOG.md    # Complete defect tracking log (DEF-001 to DEF-012)
-    ├── FINAL_RELEASE_STATUS.md# Production certification & sign-off report
-    └── GAME_RULES.md          # Complete gameplay rules, scoring formulas, and tiers
+```
+  ███████╗██╗   ██╗███╗   ██╗████████╗ █████╗ ██╗  ██╗ █████╗ ██████╗ ███████╗███╗   ██╗ █████╗ 
+  ██╔════╝╚██╗ ██╔╝████╗  ██║╚══██╔══╝██╔══██╗╚██╗██╔╝██╔══██╗██╔══██╗██╔════╝████╗  ██║██╔══██╗
+  ███████╗ ╚████╔╝ ██╔██╗ ██║   ██║   ███████║ ╚███╔╝ ███████║██████╔╝█████╗  ██╔██╗ ██║███████║
+  ╚════██║  ╚██╔╝  ██║╚██╗██║   ██║   ██╔══██║ ██╔██╗ ██╔══██║██╔══██╗██╔══╝  ██║╚██╗██║██╔══██║
+  ███████║   ██║   ██║ ╚████║   ██║   ██║  ██║██╔╝ ██╗██║  ██║██║  ██║███████╗██║ ╚████║██║  ██║
+  ╚══════╝   ╚═╝   ╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝
 ```
 
+### The Ultimate Browser-Native Cyberpunk Coding Arcade & Interactive Learning Engine
+**Zero Servers • Zero Dependencies • 100% Client-Side • Runs Directly in Any Modern Web Browser**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-38bdf8.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE)
+[![Zero Runtime Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20Vanilla)-10b981.svg?style=for-the-badge&logo=javascript&logoColor=white)](index.html)
+[![Offline Ready](https://img.shields.io/badge/Offline-100%25%20Ready-8b5cf6.svg?style=for-the-badge&logo=pwa&logoColor=white)](index.html)
+[![12 Curriculum Tracks](https://img.shields.io/badge/Curriculum-12%20Tracks-f59e0b.svg?style=for-the-badge&logo=codeforces&logoColor=white)](learn.html)
+[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-521%20%2F%20521%20Passed-10b981.svg?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/)
+[![Playwright E2E](https://img.shields.io/badge/Playwright%20E2E-95%20%2F%2095%20Passed-10b981.svg?style=for-the-badge&logo=playwright&logoColor=white)](tests/)
+
+[🚀 Quick Start](#-quick-start) • [✨ Key Features](#-features-overview) • [🕹️ Arena & Ghost Duel](#-arcade-arena--asynchronous-ghost-racing) • [📅 Daily Gauntlet](#-daily-hacker-gauntlet--7-day-punch-card) • [🔬 Visual Memory Inspector](#-visual-memory--pointer-inspector) • [💻 Multi-Language Sandbox](#-client-side-sandbox--repl) • [🎓 Cyber Academy](#-cyber-academy--graduation-diplomas) • [🧪 Testing](#-testing--quality-assurance)
+
 ---
 
-## 🚀 How to Play & Run
+</div>
 
-### Method 1: Instant Local Play (No Installation Required)
-Simply double-click **`index.html`** in your file manager to open it in any web browser (Chrome, Edge, Firefox, Safari, Brave). Everything works immediately!
+## 🌐 Overview
 
-### Method 2: Local HTTP Server (Recommended)
-If you prefer running through a local development server:
+**SyntaxArena** is a state-of-the-art, browser-native programming game, interactive code sandbox, and computer science learning platform built entirely with **HTML5, Modern CSS, and Vanilla JavaScript**.
 
-```bash
-# Using Python 3:
-python -m http.server 8080
+Designed for software engineers, computer science students, and cybersecurity researchers, SyntaxArena combines fast-paced gamified quizzes with deep conceptual code evaluation. Practice syntax, isolate bugs, race against autonomous ghost duels, evaluate 64-bit stack and heap allocations in real-time, execute code in 8 sandboxed environments, and earn verifiable graduation certificates—all inside the browser with **zero external server dependencies**.
 
-# Or using Node (npx):
-npx serve .
+---
+
+## ✨ Features Overview
+
+```mermaid
+graph TD
+    A[⚡ SyntaxArena Core] --> B[🕹️ Arena Game Engine]
+    A --> C[🔬 Visual Memory Inspector]
+    A --> D[💻 Multi-Language Sandbox]
+    A --> E[🎓 Cyber Academy]
+    A --> F[📅 Daily Hacker Gauntlet]
+    A --> G[📊 Career Analytics & Progression]
+
+    B --> B1[Ghost Speed Duel 👻]
+    B --> B2[4 Interactive Mechanics]
+    B --> B3[Procedural Audio Synth]
+
+    C --> C1[Stack Frame Visualizer]
+    C --> C2[Heap Block Allocation]
+    C --> C3[Neon Pointer Hover Links]
+
+    D --> D1[Python 3.10 Skulpt WASM]
+    D --> D2[TypeScript 5.4+ Transpiler]
+    D --> D3[Go 1.22+ Channels & Defer]
+    D --> D4[SQL Engine & Cyber VFS Shell]
+
+    E --> E1[60 Curriculum Modules]
+    E --> E2[Interactive Code Runner]
+    E --> E3[Printable & Verifiable Diplomas]
+
+    F --> F1[7-Day Punch Card Matrix]
+    F --> F2[Mulberry32 Deterministic Seed]
+    F --> F3[Hex Dragon Avatar Jackpot]
 ```
-Then navigate to: **`http://localhost:8080/`**
 
-### Method 3: Static Web Hosting Deployment
-Because SyntaxArena is 100% static:
-1. Push the repository to GitHub.
-2. In your repository settings, enable **GitHub Pages** pointing to the `master` / `main` branch.
-3. Your game is live worldwide in seconds!
+### 💎 Core Architectural Pillars
+* **⚡ Pure Vanilla & Zero Runtime Dependencies:** Built with pure web standards. Zero backend servers, zero databases, and zero npm runtime dependencies.
+* **🌐 Universal Portability:** Double-click `index.html` to run locally via `file:///`, or host on any static platform (**GitHub Pages**, **Vercel**, **Netlify**, **Cloudflare Pages**, or **Nginx**).
+* **🔒 100% Private & Air-Gapped:** All data, settings, career metrics, and avatar unlocks remain isolated inside browser `localStorage`. Zero telemetry, zero analytics tracking, and zero remote data harvesting.
+* **🎨 Rich Cyberpunk Visual Design:** Glassmorphic cards, glowing neon palettes, responsive layouts, customizable themes, and an in-app **Reduced Motion** accessibility mode.
 
 ---
 
-## 🎯 Game Rules & Scoring System
+## 🕹️ Arcade Arena & Asynchronous Ghost Racing
 
-Scoring in SyntaxArena is mathematically deterministic and governed by the authoritative game engine:
+In the **Arena** (`game.html`), test your syntax comprehension, code reading speed, and debugging acumen under high-stakes timed conditions.
+
+### 🏁 Asynchronous Ghost Racing / Speed Duel Mode
+Race against an autonomous rival racer, **CyberPhantom** (👻), in real-time!
+* **Dual Speed Rail HUD:** Visual progress track comparing your current question progress against the ghost's pace.
+* **Dynamic Split Timing Badge:** Real-time relative pace calculation:
+  * 🟢 **`.is-ahead`:** `⚡ +X.Xs AHEAD` (Emerald Green)
+  * 🔴 **`.is-behind`:** `⚠️ -X.Xs BEHIND` (Danger Coral)
+  * ⚪ **`.is-even`:** `⚖️ EVEN PACE`
+* **Calibrated Pacing Engine:** Difficulty-tailored baseline timing (Beginner: 8.5s, Intermediate: 14.0s, Expert: 21.0s + deterministic jitter per question).
+* **Victory Bonus:** Defeat CyberPhantom to claim the **+75 XP Speed Duel Victory Bonus** displayed on your results screen (`results.html`).
+* **Tactile Toggle Control:** Pause or resume ghost racing anytime directly from the top HUD rail.
+
+### 🎯 4 Interactive Question Mechanics
+1. **Multiple Choice (MCQ):** Rapid conceptual evaluations.
+2. **Predict Output:** Mentally trace code execution and predict standard stdout output.
+3. **Find the Bug:** Click directly on syntax-highlighted code terminal lines to isolate the exact line causing a bug.
+4. **Fill Code:** Drag or click code token chips into missing syntax slots.
+
+---
+
+## 📅 Daily Hacker Gauntlet & 7-Day Punch Card
+
+Keep your skills sharp every single day with the synchronized **Daily Hacker Gauntlet** on the Hub (`index.html`).
+
+* **7-Day Punch Card Matrix:** Visual stamp card tracking daily completion status and rewarding active daily streaks.
+* **Escalating Rewards Schedule:**
+  * Day 1: `+50 XP`
+  * Day 2: `+75 XP`
+  * Day 3: `+100 XP`
+  * Day 4: `+125 XP`
+  * Day 5: `+150 XP`
+  * Day 6: `+200 XP`
+  * **Day 7 Jackpot:** `+300 XP` + Exclusive **Hex Dragon** Player Avatar unlock!
+* **Deterministic Global Daily Seed:** Uses a Mulberry32 hash of `YYYY-MM-DD` so that every coder worldwide receives the exact same daily puzzle challenge each day.
+* **Integrated Modal Arena:** 45-second round countdown timer, instant explanation panel, and victory celebration reward claiming.
+
+---
+
+## 🔬 Visual Memory & Pointer Inspector
+
+Understand low-level systems programming, memory models, and reference semantics visually! Integrated into both **Sandbox** (`sandbox.html`) and **Academy** (`learn.html`).
+
+* **Call Stack Frame Visualizer:** Real-time stack frames displaying function scopes, local variable identifiers, data types, byte sizes, and realistic 64-bit hexadecimal memory addresses (`0x7ffeeb40a120`).
+* **Heap Storage Inspector:** Inspect dynamically allocated objects, slices, heap strings, and structs with explicit memory offsets (`0x55a8f210c000`).
+* **Interactive Pointer Hover Links:** Hovering or clicking over any pointer variable automatically highlights its referenced heap block with glowing neon borders.
+* **Multi-Language Architecture Models:** Tailored memory representations for **C**, **C++**, **Rust**, **Go**, **Python**, **JavaScript**, and **TypeScript**.
+
+---
+
+## 💻 Client-Side Sandbox & REPL
+
+Execute, test, and debug code directly in your browser with zero server latency (`sandbox.html`).
+
+| Environment | Engine / Runtime | Capabilities & Features |
+| :--- | :--- | :--- |
+| 🐍 **Python 3** | Skulpt WebAssembly Engine | Comprehensions, slicing, closures, recursion, dictionaries |
+| 📘 **TypeScript** | Native Client-Side Transpiler | Generics (`class Stack<T>`), interfaces, discriminated unions, access modifiers |
+| 🐹 **Go (Golang)** | Client-Side Go Simulator | Channels (`ch <- 10`, `<-ch`), `defer` LIFO execution, slices, `len`/`cap`, `fmt.Printf` |
+| 🌐 **JavaScript** | Sandboxed ES2024 Runtime | Closures, destructuring, array methods, async simulation |
+| 🗄️ **SQL Database** | Relational In-Memory Engine | `SELECT`, `WHERE`, `ORDER BY`, `LIMIT`, `COUNT(*)`, `SHOW TABLES` |
+| 🐧 **Cyber & Linux** | Virtual POSIX Filesystem (VFS) | Bash script engine, pipes (`cat \| grep \| wc -l`), permissions, subshells `$()` |
+| 🎨 **HTML5 & CSS** | DOM Parser & Layout Inspector | CSS Grid Subgrid, Cascade Layers (`@layer`), native `<dialog>` |
+| ⚙️ **Assembly & RE** | x86-64 / ARM64 CPU Emulator | Register tracking (`RAX`, `RBX`, `RCX`), virtual stack frames, SIB addressing |
+| ⚡ **Systems Simulators** | C / C++ / Java / Rust | Preprocessor macros, struct padding, substring immutability, borrow checker |
+
+---
+
+## 🎓 Cyber Academy & Graduation Diplomas
+
+Deepen your engineering foundations with structured curriculum modules (`learn.html`).
+
+* **60 Deep-Dive Modules across 12 Tracks:** Covering Beginner, Intermediate, and Expert levels.
+* **3-Slide Lesson Architecture:**
+  1. **01 Mental Model:** Conceptual breakdown paired with the interactive **Visual Memory Inspector**.
+  2. **02 Practice Drill:** Zero-stress sandbox code editor with live execution feedback.
+  3. **03 Pitfalls & Edge Cases:** Common misconceptions, anti-patterns, and standard compliance traps.
+* **Live Code Runner:** Run and verify code examples right inside lesson slides.
+* **Graduation Diplomas:** Completing all modules in a track issues an official, verifiable certificate complete with unique verification serial IDs (`SA-CERT-PY-88A92`), issue timestamps, and instant PDF/Print export.
+
+---
+
+## 📚 Complete Curriculum Tracks (12 Tracks)
+
+| Track | Icon | Focus Areas & Language Specifications | Questions | Academy Modules |
+| :--- | :---: | :--- | :---: | :---: |
+| **Python** | 🐍 | Python 3.10+ (Comprehensions, Generators, OOP, Dunders) | 60 | 5 Deep-Dive Modules |
+| **C** | ⚡ | ISO C99 (Pointers, Memory, Structs, Macros, Bitwise) | 60 | 5 Deep-Dive Modules |
+| **C++** | 🚀 | ISO C++20 (Templates, Smart Pointers, STL, RAII, Lambdas) | 60 | 5 Deep-Dive Modules |
+| **Java** | ☕ | OpenJDK 17 LTS (Streams, Records, Generics, Concurrency) | 60 | 5 Deep-Dive Modules |
+| **Cyber & Linux** | 🛡️ | POSIX / Bash / Security (Permissions, Quoting, Hashing, Sockets) | 60 | 5 Deep-Dive Modules |
+| **JavaScript** | 🟨 | ECMAScript 2024 (Event Loop, Closures, Prototypes, Async) | 60 | 5 Deep-Dive Modules |
+| **Rust** | 🦀 | Rust 2021 Edition (Ownership, Borrowing, Lifetimes, Traits) | 60 | 5 Deep-Dive Modules |
+| **SQL** | 🗄️ | ANSI / Relational (Three-Valued Logic, JOINs, Window Functions) | 60 | 5 Deep-Dive Modules |
+| **Go** | 🐹 | Go 1.22+ (Goroutines, Channels, Slices, Defer, Interfaces) | — | 5 Deep-Dive Modules |
+| **TypeScript** | 📘 | TypeScript 5.4+ (Generics, Type Narrowing, Discriminated Unions) | — | 5 Deep-Dive Modules |
+| **HTML5 & CSS** | 🎨 | Modern Layouts (Grid Subgrid, Flexbox, Cascade Layers, ARIA) | — | 5 Deep-Dive Modules |
+| **Assembly** | ⚙️ | x86-64 / ARM64 (Registers, Stack Frames, SIB Addressing) | — | 5 Deep-Dive Modules |
+
+---
+
+## 📊 Career Analytics & Progression
+
+Track your developer journey across comprehensive analytical dashboards (`progress.html` and `results.html`).
+
+* **Results Ring:** SVG gauge calculating real-time accuracy percentages.
+* **Weak-Area Pedagogical Recommendations:** Algorithmic weak-point analysis suggesting specific targeted practice areas based on missed tags.
+* **Historical Trend Visualization:** Interactive SVG progression graph charting career accuracy over time.
+* **Avatar Shop & Badges:** Unlock 6 cyberpunk SVG avatars (`terminal_owl`, `matrix_cat`, `bit_knight`, `hex_dragon`, `glitch_bot`) and earn up to 20 milestone achievement badges.
+* **Idempotent Rewards:** Point allocations, first-clear bonuses, and streak bonuses are strictly idempotent and immune to page refresh exploits.
+
+---
+
+## 🎯 Scoring & Progression Mathematics
+
+Scoring is mathematically deterministic and calculated by the authoritative game engine:
 
 $$\text{Final Question Score} = (\text{Base Points} + \text{Speed Bonus} - \text{Hint Penalty}) \times \text{Streak Multiplier} \times \text{Retry Modifier}$$
 
-### 1. Base Points by Difficulty
-- **Beginner:** $100$ pts
-- **Intermediate:** $150$ pts
-- **Expert:** $250$ pts
+### 1. Base Points
+* **Beginner:** $100\text{ pts}$
+* **Intermediate:** $150\text{ pts}$
+* **Expert:** $250\text{ pts}$
 
-### 2. Speed Bonus
-Answering quickly earns bonus points based on the remaining time (out of 30 seconds):
-- **$> 20\text{s}$ remaining:** $+30$ pts
-- **$10\text{--}20\text{s}$ remaining:** $+20$ pts
-- **$< 10\text{s}$ remaining:** $+10$ pts
+### 2. Speed Bonus (30s Timer)
+* **$> 20\text{s}$ remaining:** $+30\text{ pts}$
+* **$10\text{--}20\text{s}$ remaining:** $+20\text{ pts}$
+* **$< 10\text{s}$ remaining:** $+10\text{ pts}$
 
 ### 3. Streak Multiplier
-Consecutive correct answers build momentum:
-- **1–2 Correct:** $1.0\times$
-- **3–4 Correct:** $1.2\times$
-- **5–9 Correct:** $1.5\times$
-- **10+ Correct:** $2.0\times$ (Maximum cap)
+* **1–2 Correct:** $1.0\times$
+* **3–4 Correct:** $1.2\times$
+* **5–9 Correct:** $1.5\times$
+* **10+ Correct:** $2.0\times$ (Maximum cap)
 
-### 4. Hints & Second Chance Retry
-- Requesting a hint deducts **$25$ points**.
-- If a hint was requested and your first attempt was incorrect, the **Second Chance** mechanic triggers:
-  - You are given an immediate second attempt to pick the right answer.
-  - The "Next Question" button is withheld until the retry is submitted.
-  - Correct second attempts receive a **$0.5\times$ multiplier** with a frozen streak.
-
-### 5. Leveling & Career Progress
-- **Level Calculation:** $\text{Level} = \lfloor \sqrt{\text{Total Career Points} / 250} \rfloor + 1$
-- **Difficulty Unlock Requirements:**
-  - Beginner: Always unlocked (Level 1+)
-  - Intermediate: Unlocked at **Level 2** ($\ge 250$ pts)
-  - Expert: Unlocked at **Level 3** ($\ge 1,000$ pts)
+### 4. Player Level Formula
+$$\text{Level} = \lfloor \sqrt{\text{Total Career Points} / 250} \rfloor + 1$$
 
 ---
 
-## ⌨️ Keyboard Shortcuts
+## ⌨️ Accessibility & Keyboard Shortcuts
 
-During active gameplay in `game.html`:
+SyntaxArena supports full keyboard accessibility and screen readers (ARIA live regions):
 
-| Key | Action |
-| :---: | :--- |
-| `1` – `4` | Select answer option 1 through 4 |
-| `H` | Unlock pedagogical hint |
-| `Enter` / `Space` | Advance to the next question |
-| `Escape` | Dismiss modal dialogs / cancel prompt |
+| Key | Context | Action |
+| :---: | :---: | :--- |
+| `1` – `4` | Arena (`game.html`) | Select answer options 1 through 4 |
+| `H` | Arena (`game.html`) | Unlock pedagogical hint (-25 pts) |
+| `Enter` / `Space` | Arena (`game.html`) | Submit answer / Advance to next question |
+| `Ctrl` + `Enter` | Sandbox (`sandbox.html`) | Run active code in sandbox / REPL |
+| `Tab` | Sandbox (`sandbox.html`) | Insert 4-space indentation |
+| `Escape` | Modals / Dialogs | Close active modal dialog |
 
 ---
 
 ## 🧪 Testing & Quality Assurance
 
-SyntaxArena contains a comprehensive automated testing pipeline consisting of modular Node.js unit tests, question bank linters, and Playwright browser integration suites:
+SyntaxArena maintains a 100% pass rate across unit, integration, and Playwright end-to-end browser test suites:
 
 ```bash
-# Run unit & integration test suite (410 tests)
+# Run complete unit test suite (521 tests across 8 batches)
 npm test
 
-# Run all 535 tests (Unit + 6 Playwright E2E browser suites)
+# Run Playwright E2E Multi-Language Sandbox tests (53 tests)
+node tests/test-sandbox-languages-playwright.js
+
+# Run Playwright E2E Daily Hacker Gauntlet tests (17 tests)
+node tests/test-daily-gauntlet-playwright.js
+
+# Run Playwright E2E Ghost Speed Duel tests (13 tests)
+node tests/test-ghost-duel-playwright.js
+
+# Run Playwright E2E Visual Memory Inspector tests (12 tests)
+node tests/test-memory-inspector-playwright.js
+
+# Run all automated suites in sequence
 npm run test:all
-
-# Run specific Playwright suites:
-npm run test:e2e             # Full user journey integration
-npm run test:gamification     # Rewards, shop, leveling, bonus idempotency
-npm run test:analytics        # Career metrics, recommendations, trends
-npm run test:reliability      # LocalStorage migration, quota salvage, reset
-npm run test:interactive      # Sound synthesis, motion, animations
-
-# Compile / refresh standalone browser bundle:
-npm run build
 ```
 
 ---
 
-## 🛡️ Security & Privacy
+## 🚀 Quick Start
 
-- **Zero Data Collection:** All scores, profiles, and gameplay histories reside exclusively inside your browser's `localStorage`. No telemetry, analytics tracking, or external server calls.
-- **Zero Script Evaluation:** No `eval()`, no `new Function()`, and no untrusted DOM innerHTML sinks.
-- **Air-Gapped Operation:** All typography, graphics, and audio synthesis run 100% locally.
+### Method 1: Instant Local Play (Zero Setup)
+Simply double-click **`index.html`** in any web browser (Chrome, Edge, Firefox, Safari, Brave). Everything works immediately!
+
+### Method 2: Local Web Server
+```bash
+# Using Node (npx)
+npx serve .
+
+# Or using Python 3
+python -m http.server 8080
+```
+Open [http://localhost:8080](http://localhost:8080) in your browser.
+
+### Method 3: One-Click Static Deployment
+Deploy to **GitHub Pages**, **Vercel**, or **Netlify** by pointing to the repository root or the pre-compiled `public/` directory.
+
+```bash
+# Build standalone bundle and sync to public/
+node scripts/build-bundle.js
+```
+
+---
+
+## 🗂️ Project Directory Structure
+
+```text
+Syntax_arena/
+├── index.html                 # Main Hub, Daily Gauntlet & Punch Card Matrix
+├── game.html                  # Active Arena, Ghost Duel HUD Rail, Timer
+├── learn.html                 # Cyber Academy, Lesson Deck, Graduation Diplomas
+├── sandbox.html               # Multi-Language REPL & Visual Memory Inspector
+├── results.html               # Results Ring, Topic Breakdown, Ghost Banner
+├── progress.html              # Career Progression, Badges, Performance Charts
+├── settings.html              # Themes, Audio Synthesizer, Profile Controls
+├── css/
+│   ├── tokens.css             # Cyberpunk palette tokens, typography, shadows
+│   ├── layout.css             # App shell, responsive header, grid systems
+│   ├── components.css         # Tactile buttons, memory inspector, punch card
+│   └── animations.css         # Pulse keyframes, countdown alarms, reduced-motion
+├── js/
+│   ├── app.js                 # Global application bootstrapper
+│   ├── audio.js               # Web Audio API procedural sound synthesizer
+│   ├── analytics.js           # Topic mastery calculations & trend curves
+│   ├── answer-checker.js      # Multi-format answer validation engine
+│   ├── bundle.js              # Standalone production bundle
+│   ├── game-engine.js         # Authoritative game state machine & ghost duels
+│   ├── gameplay.js            # Active arena UI coordinator & speed rail
+│   ├── gamification.js        # XP math, streak multipliers, 20 badges
+│   ├── learn.js               # Academy lesson controller & live code runner
+│   ├── memory-inspector.js    # Visual stack frame & heap pointer tracer
+│   ├── sandbox-manager.js     # Multi-language client-side code runner & VFS
+│   ├── storage.js             # LocalStorage Schema v1 with salvage mechanisms
+│   └── utils.js               # HTML sanitization & DOM utilities
+├── data/                      # 480 verified questions across 8 curriculum tracks
+├── assets/                    # Procedural audio waveforms (.wav) and SVG avatars
+├── scripts/
+│   └── build-bundle.js        # Production compiler & public/ sync script
+└── tests/                     # 15 Unit, QA, and Playwright E2E test suites
+```
+
+---
+
+## 🛡️ Security & Privacy Architecture
+
+* **Zero Tracking:** No Google Analytics, no third-party trackers, no cookies.
+* **Zero Remote Network Dependencies:** All fonts, icons, avatars, and audio waveforms are bundled locally.
+* **Safe DOM Sanitization:** Strict context-aware HTML escaping (`Utils.escapeHTML`) across all user and curriculum inputs.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**. Feel free to use, study, customize, and share!
+SyntaxArena is open-source software licensed under the **[MIT License](LICENSE)**.
+Created with ❤️ for coders worldwide.
