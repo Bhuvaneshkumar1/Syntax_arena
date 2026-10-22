@@ -11,6 +11,7 @@ import { Profile } from './profile.js';
 import { UI } from './ui.js';
 import { AudioEngine } from './audio.js';
 import { SandboxManager } from './sandbox-manager.js';
+import { MemoryInspector } from './memory-inspector.js';
 import { academyLessons, AcademyLessons } from '../data/academy-lessons.js';
 
 export const LearnController = {
@@ -406,8 +407,30 @@ export const LearnController = {
             <pre id="slide-output-body" class="code-terminal-output-body"></pre>
           </div>
         </div>
+
+        <!-- Visual Memory & Pointer Inspector (Mental Model Visualization) -->
+        <div id="lesson-memory-inspector" class="card card-raised visual-memory-card" style="margin-top: 1rem; padding: 1rem; border-color: rgba(139, 92, 246, 0.35); background: rgba(13, 22, 38, 0.7);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="badge badge-violet" style="font-size: 10px;">⚡ MEMORY TRACER</span>
+              <span style="font-weight: 700; font-size: var(--text-sm); font-family: var(--font-display);">Stack &amp; Heap Visual Pointer Inspector</span>
+            </div>
+            <span class="badge badge-cyan" style="font-size: 10px;">x86-64 Architecture</span>
+          </div>
+          <div id="lesson-memory-container" class="memory-grid-container">
+            <!-- Rendered dynamically by MemoryInspector -->
+          </div>
+        </div>
+
       </div>
     `;
+
+    // Render initial visual memory model
+    const memContainer = container.querySelector('#lesson-memory-container');
+    if (memContainer) {
+      const model = MemoryInspector.generateMemoryModel(initialCode, this.currentLesson.language);
+      MemoryInspector.render(memContainer, model);
+    }
 
     // Bind Live Code Runner events
     const runBtn = container.querySelector('#btn-slide-run-code');
@@ -425,6 +448,13 @@ export const LearnController = {
         editor.value = initialCode;
         const outputTray = container.querySelector('#slide-terminal-output');
         if (outputTray) outputTray.style.display = 'none';
+
+        // Reset memory inspector
+        if (memContainer) {
+          const model = MemoryInspector.generateMemoryModel(initialCode, this.currentLesson.language);
+          MemoryInspector.render(memContainer, model);
+        }
+
         if (typeof AudioEngine !== 'undefined' && AudioEngine.playClick) {
           AudioEngine.playClick();
         }
@@ -505,6 +535,13 @@ export const LearnController = {
       if (typeof AudioEngine !== 'undefined' && AudioEngine.playError) {
         AudioEngine.playError();
       }
+    }
+
+    // Update visual memory inspector after execution
+    const memContainer = Utils.qs('#lesson-memory-container');
+    if (memContainer && typeof MemoryInspector !== 'undefined') {
+      const model = MemoryInspector.generateMemoryModel(code, lang);
+      MemoryInspector.render(memContainer, model);
     }
 
     runBtn.disabled = false;

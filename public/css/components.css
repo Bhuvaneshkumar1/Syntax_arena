@@ -2153,6 +2153,196 @@
   filter: drop-shadow(0 0 6px var(--color-violet));
 }
 
+/* ==========================================================================
+   FEATURE 3: VISUAL MEMORY & POINTER INSPECTOR (ACADEMY & SANDBOX)
+   ========================================================================== */
+.visual-memory-card {
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.memory-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.memory-column {
+  background: rgba(13, 22, 38, 0.7);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.memory-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.mem-header-title {
+  color: var(--text-primary);
+}
+
+.mem-header-addr {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-cyan);
+}
+
+.memory-frame-box {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 140px;
+}
+
+.mem-var-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.mem-var-row:hover,
+.mem-var-row.is-hovered-pointer {
+  border-color: var(--color-cyan);
+  background: rgba(0, 229, 255, 0.08);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+  transform: translateX(2px);
+}
+
+.mem-var-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mem-var-name {
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.mem-var-type {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.mem-var-cells {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.mem-var-addr {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.mem-var-val {
+  font-weight: 700;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.mem-var-val.is-ptr-val {
+  color: var(--color-violet);
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.mem-heap-block {
+  padding: 8px 10px;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.mem-heap-block.is-highlighted-target {
+  border-color: var(--color-violet);
+  background: rgba(139, 92, 246, 0.12);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.35);
+  transform: scale(1.02);
+}
+
+.mem-heap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  margin-bottom: 0.4rem;
+}
+
+.mem-heap-label {
+  font-weight: 700;
+  color: var(--color-violet);
+  font-family: var(--font-display);
+}
+
+.mem-heap-addr {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.mem-heap-data-row {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.mem-data-cell {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 2px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-mono);
+}
+
+.mem-data-idx {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.mem-data-val {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-success);
+}
+
+.mem-heap-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 0.35rem;
+}
+
+
 
 
 

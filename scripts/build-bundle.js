@@ -38,6 +38,7 @@ const files = [
   'js/state.js',
   'js/ui.js',
   'js/router.js',
+  'js/memory-inspector.js',
   'js/sandbox-manager.js',
   'js/learn.js',
   'js/onboarding.js',

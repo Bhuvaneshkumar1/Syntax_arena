@@ -234,6 +234,29 @@
           </form>
         </div>
 
+        <!-- Interactive Visual Memory & Pointer Inspector (Batch 11 Feature) -->
+        <div id="visual-memory-inspector" class="card card-raised visual-memory-card" style="margin-top: 1.25rem; padding: 1.25rem; border-color: rgba(139, 92, 246, 0.4); background: linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(139, 92, 246, 0.04) 100%);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="badge badge-violet" style="font-size: 10px;">⚡ MEMORY TRACER</span>
+              <h3 style="margin: 0; font-size: var(--text-base); font-family: var(--font-display);">Stack &amp; Heap Visual Pointer Inspector</h3>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="badge badge-cyan" id="mem-architecture-badge" style="font-size: 10px;">x86-64 / 64-bit Pointers</span>
+              <button type="button" id="btn-toggle-memory-inspector" class="btn-arcade btn-sm btn-neutral" style="padding: 2px 10px; font-size: 11px;">
+                🔄 Refresh Memory
+              </button>
+            </div>
+          </div>
+          <p style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;">
+            Interactive memory model. Hover or click stack pointers to trace dynamic references, address offsets, and heap allocations.
+          </p>
+
+          <div id="sandbox-memory-container" class="memory-grid-container">
+            <!-- Populated dynamically by MemoryInspector -->
+          </div>
+        </div>
+
         <!-- Help Info Footer -->
         <div id="sandbox-footer-tip" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-size: var(--text-xs); color: var(--text-muted);">
           <div>
@@ -269,6 +292,7 @@
   <script type="module">
     import { SandboxManager } from './js/sandbox-manager.js';
     import { Utils } from './js/utils.js';
+    import { MemoryInspector } from './js/memory-inspector.js';
 
     // Multi-Language Snippet Registry
     const ENV_TEMPLATES = {
@@ -754,6 +778,24 @@ fn main() {
       if (consoleOutput) {
         consoleOutput.innerHTML = `<span style="color: var(--text-muted);">${conf.title} ready. Press <strong>Run Code (Ctrl+Enter)</strong> to execute.</span>`;
       }
+
+      // Update Visual Memory & Pointer Inspector
+      updateMemoryInspector();
+    }
+
+    function updateMemoryInspector() {
+      const container = Utils.qs('#sandbox-memory-container');
+      const editor = Utils.qs('#page-code-editor');
+      if (!container || !editor) return;
+      const code = editor.value || '';
+      let targetLang = currentEnv;
+      if (currentEnv === 'systems') {
+        if (code.includes('cout') || code.includes('std::')) targetLang = 'cpp';
+        else if (code.includes('fn main') || code.includes('println!')) targetLang = 'rust';
+        else targetLang = 'c';
+      }
+      const model = MemoryInspector.generateMemoryModel(code, targetLang);
+      MemoryInspector.render(container, model);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -804,6 +846,7 @@ fn main() {
           if (editor && conf && conf.templates[val]) {
             editor.value = conf.templates[val];
             editor.focus();
+            updateMemoryInspector();
           }
         };
       }
@@ -815,6 +858,7 @@ fn main() {
           if (editor && conf && conf.templates[val]) {
             editor.value = conf.templates[val];
             editor.focus();
+            updateMemoryInspector();
           }
         };
       }
@@ -1084,8 +1128,22 @@ fn main() {
               consoleOutput.appendChild(outEl);
             }
           }
+
+          // Update memory model based on edited/executed code
+          updateMemoryInspector();
         };
       }
+
+      // Memory Inspector Manual Refresh Button
+      const refreshMemBtn = Utils.qs('#btn-toggle-memory-inspector');
+      if (refreshMemBtn) {
+        refreshMemBtn.onclick = () => {
+          updateMemoryInspector();
+        };
+      }
+
+      // Initial memory inspector render
+      updateMemoryInspector();
     });
   </script>
 </body>
