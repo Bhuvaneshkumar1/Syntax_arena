@@ -193,7 +193,7 @@
           <button id="btn-retry-missed" class="btn-arcade btn-warning btn-md">
             Retry Missed Questions
           </button>
-          <button id="btn-open-review" class="btn-arcade btn-neutral btn-md" onclick="import('./js/ui.js').then(m => m.UI.openModal('modal-review-preview'))">
+          <button id="btn-open-review" class="btn-arcade btn-neutral btn-md" onclick="(window.UI ? window.UI.openModal('modal-review-preview') : import('./js/ui.js').then(m => m.UI.openModal('modal-review-preview')))">
             Review Missed Questions
           </button>
           <a href="progress.html" class="btn-arcade btn-neutral btn-md">View Career Progress →</a>

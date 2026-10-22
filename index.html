@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="SyntaxArena — Arcade-grade programming challenge studio. Master Python, C, C++, and Java through code execution tracing, debugging, and output prediction.">
+  <meta name="description" content="SyntaxArena — Arcade-grade programming challenge studio. Master 12 languages including Python, Rust, C, C++, Java, JavaScript, Go, SQL, and Assembly through code tracing, debugging, and prediction.">
   <title>SyntaxArena — Master Code Through Play</title>
   
   <link rel="stylesheet" href="css/tokens.css">
@@ -102,34 +102,36 @@
       <nav class="app-nav" aria-label="Main Navigation">
         <a href="index.html" class="nav-link" aria-current="page">
           <svg class="nav-icon"><use href="#icon-code"></use></svg>
-          <span>Home</span>
+          <span>Hub</span>
         </a>
-        <a href="#challenges" class="nav-link" data-scroll-to="#challenges">
+        <a href="game.html" class="nav-link">
           <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
-          <span>Challenges</span>
-        </a>
-        <a href="#how-to-play" class="nav-link" data-scroll-to="#how-to-play">
-          <svg class="nav-icon"><use href="#icon-bulb"></use></svg>
-          <span>How to Play</span>
-        </a>
-        <a href="sandbox.html" class="nav-link">
-          <svg class="nav-icon"><use href="#icon-code"></use></svg>
-          <span>Sandbox</span>
+          <span>Arena</span>
         </a>
         <a href="learn.html" class="nav-link">
           <svg class="nav-icon"><use href="#icon-bulb"></use></svg>
           <span>Academy</span>
         </a>
+        <a href="sandbox.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Sandbox</span>
+        </a>
         <a href="progress.html" class="nav-link">
           <svg class="nav-icon"><use href="#icon-chart"></use></svg>
           <span>Progress</span>
+        </a>
+        <a href="settings.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-settings"></use></svg>
+          <span>Settings</span>
         </a>
       </nav>
 
       <!-- Header Action Controls -->
       <div class="header-actions">
         <!-- Prominent Play Now Button -->
-      
+        <a href="game.html" id="btn-nav-play" class="btn-arcade btn-primary btn-sm" aria-label="Quick launch Battle Arena" style="padding: 0.35rem 0.75rem; font-size: 11px; text-decoration: none;">
+          ⚔️ Play Arena
+        </a>
 
         <!-- Theme Toggle -->
         <button id="btn-theme-toggle" class="btn-icon-toggle" aria-label="Toggle color theme" title="Toggle color theme">
@@ -160,19 +162,19 @@
     <div id="mobile-nav-drawer" class="mobile-nav-drawer" aria-label="Mobile Navigation Drawer">
       <a href="index.html" class="nav-link" aria-current="page">
         <svg class="nav-icon"><use href="#icon-code"></use></svg>
-        <span>Home</span>
+        <span>Hub</span>
       </a>
-      <a href="#challenges" class="nav-link" data-scroll-to="#challenges">
+      <a href="game.html" class="nav-link">
         <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
-        <span>Challenges</span>
-      </a>
-      <a href="#how-to-play" class="nav-link" data-scroll-to="#how-to-play">
-        <svg class="nav-icon"><use href="#icon-bulb"></use></svg>
-        <span>How to Play</span>
+        <span>Arena</span>
       </a>
       <a href="learn.html" class="nav-link">
         <svg class="nav-icon"><use href="#icon-bulb"></use></svg>
         <span>Academy</span>
+      </a>
+      <a href="sandbox.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-code"></use></svg>
+        <span>Sandbox</span>
       </a>
       <a href="progress.html" class="nav-link">
         <svg class="nav-icon"><use href="#icon-chart"></use></svg>
@@ -209,7 +211,7 @@
           Master Programming Through <span style="color: var(--color-primary);">High-Feedback</span> Tracing
         </h1>
         <p style="font-size: var(--text-lg); color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; max-width: 720px; margin-left: auto; margin-right: auto;">
-          Deduce variable states, hunt subtle bugs, and predict console outputs across Python, C, C++, and Java. 
+          Deduce variable states, hunt subtle bugs, and predict console outputs across 12 programming tracks—including Python, Rust, C, C++, Java, Go, TypeScript, and Assembly. 
           Zero backend latency, offline resilient, calibrated for programmers from novice to grandmaster.
         </p>
         
@@ -303,7 +305,7 @@
             <h2>Select Programming Language</h2>
             <p class="page-subtitle">Choose your active track. Selection is saved and updates the arena instantly.</p>
           </div>
-          <span class="badge badge-amber">8 Tracks Available</span>
+          <span class="badge badge-amber">12 Tracks Available</span>
         </div>
 
         <div id="language-tracks-container" class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;" role="radiogroup" aria-label="Programming Language Selection">

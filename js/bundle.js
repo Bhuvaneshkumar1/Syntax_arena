@@ -102120,7 +102120,7 @@ var LandingPage = window.LandingPage = {
     const meta = {
       python: 'Python 3', c: 'C', cpp: 'C++', java: 'Java',
       cyber: 'Cyber & Linux', javascript: 'JavaScript', rust: 'Rust', sql: 'SQL',
-      typescript: 'TypeScript'
+      typescript: 'TypeScript', go: 'Go (Golang)', html: 'HTML5 & CSS', asm: 'Assembly & RE'
     };
     const langName = meta[lang] || 'Python 3';
     const diffCapitalized = diff.charAt(0).toUpperCase() + diff.slice(1);
