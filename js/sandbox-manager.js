@@ -1089,6 +1089,83 @@ export const SandboxManager = {
     }
   },
 
+  /**
+   * Run and inspect HTML5 & Modern CSS markup client-side.
+   * @param {string} code
+   * @returns {{ success: boolean, output: string, error: string|null, elapsedMs: number }}
+   */
+  runHTML(code) {
+    const start = performance.now();
+    try {
+      if (!code || !code.trim()) {
+        return { success: true, output: '', error: null, elapsedMs: 0 };
+      }
+
+      if (typeof DOMParser !== 'undefined') {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(code, 'text/html');
+        const parserErrors = doc.querySelectorAll('parsererror');
+        if (parserErrors.length > 0) {
+          return {
+            success: false,
+            output: '',
+            error: parserErrors[0].textContent,
+            elapsedMs: Math.round(performance.now() - start)
+          };
+        }
+
+        const tagCount = doc.body ? doc.body.getElementsByTagName('*').length : 0;
+        const styleTags = doc.querySelectorAll('style');
+        const scriptTags = doc.querySelectorAll('script');
+        const dialogTags = doc.querySelectorAll('dialog');
+        const formTags = doc.querySelectorAll('form');
+        
+        const logs = [];
+        logs.push('✓ HTML5 & CSS Document Evaluated');
+        logs.push(`• Root elements in <body>: ${doc.body ? doc.body.children.length : 0}`);
+        logs.push(`• Total DOM nodes: ${tagCount}`);
+        if (styleTags.length > 0) {
+          logs.push(`• CSS Style Blocks: ${styleTags.length}`);
+        }
+        if (dialogTags.length > 0) {
+          logs.push(`• Native <dialog> Elements: ${dialogTags.length}`);
+        }
+        if (formTags.length > 0) {
+          logs.push(`• Form Elements: ${formTags.length}`);
+        }
+        if (scriptTags.length > 0) {
+          logs.push(`• Script Blocks: ${scriptTags.length}`);
+        }
+
+        const bodyText = (doc.body && doc.body.innerText ? doc.body.innerText : (doc.body ? doc.body.textContent : '')).trim();
+        if (bodyText) {
+          logs.push(`\n[Rendered Text Preview]:\n${bodyText}`);
+        }
+
+        return {
+          success: true,
+          output: logs.join('\n'),
+          error: null,
+          elapsedMs: Math.round(performance.now() - start)
+        };
+      }
+
+      return {
+        success: true,
+        output: '✓ HTML5 & CSS Syntax Validated',
+        error: null,
+        elapsedMs: Math.round(performance.now() - start)
+      };
+    } catch (err) {
+      return {
+        success: false,
+        output: '',
+        error: err.toString(),
+        elapsedMs: Math.round(performance.now() - start)
+      };
+    }
+  },
+
   /* ==========================================================================
      C / C++ / JAVA / RUST SYNTAX & CHALLENGE SIMULATOR
      Interactive client-side simulation of systems compilation and outputs

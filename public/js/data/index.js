@@ -14,6 +14,7 @@ import { rustQuestions } from '../../data/rust-questions.js';
 import { sqlQuestions } from '../../data/sql-questions.js';
 import { typescriptQuestions } from '../../data/typescript-questions.js';
 import { goQuestions } from '../../data/go-questions.js';
+import { htmlQuestions } from '../../data/html-questions.js';
 import { endlessQuestions } from '../../data/endless-questions.js';
 
 export const LANGUAGE_METADATA = {
@@ -106,6 +107,15 @@ export const LANGUAGE_METADATA = {
     tagClass: 'tag-go',
     color: '#00ADD8',
     accentColor: '#29BEB0'
+  },
+  html: {
+    id: 'html',
+    name: 'HTML5 & Modern CSS',
+    version: 'HTML5 Living Standard & CSS3/4',
+    filename: 'index.html',
+    tagClass: 'tag-html',
+    color: '#E34F26',
+    accentColor: '#1572B6'
   }
 };
 
@@ -130,6 +140,9 @@ export const QuestionRepository = {
       case 'typescript': return typescriptQuestions;
       case 'go':
       case 'golang': return goQuestions;
+      case 'html':
+      case 'html5':
+      case 'css': return htmlQuestions;
       case 'python':
       default:
         return pythonQuestions;

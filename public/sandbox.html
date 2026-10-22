@@ -153,6 +153,9 @@
         <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="go">
           🐹 Go (Golang)
         </button>
+        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="html">
+          🎨 HTML5 &amp; CSS
+        </button>
         <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="systems">
           ⚡ C / C++ / Java / Rust
         </button>
@@ -514,6 +517,84 @@ import "fmt"
 func main() {
     fmt.Println("Hello, SyntaxArena from Go 1.22+!")
 }
+`
+        }
+      },
+
+      html: {
+        title: 'HTML5 & Modern CSS Sandbox',
+        subtitle: 'Grid subgrid, flexbox, cascade layers, container queries, dialog, and ARIA.',
+        badge: '🎨 HTML5 & CSS',
+        filename: 'index.html',
+        templates: {
+          subgrid: `<!-- Modern CSS Grid Subgrid Layout -->
+<style>
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto;
+    gap: 1rem;
+  }
+  .card {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    border: 1px solid #38bdf8;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+</style>
+
+<div class="card-grid">
+  <article class="card">
+    <h3>Semantic Header</h3>
+    <p>Body aligned seamlessly with sibling card via subgrid.</p>
+  </article>
+  <article class="card">
+    <h3>Another Card</h3>
+    <p>Consistent row alignment across cards.</p>
+  </article>
+</div>
+`,
+          cascade_layers: `<!-- Modern CSS @layer Rule Order -->
+<style>
+  @layer reset, framework, custom;
+
+  @layer framework {
+    .btn { background: blue; color: white; }
+  }
+  @layer custom {
+    .btn { background: coral; }
+  }
+</style>
+
+<button class="btn">Layered Button (Renders Coral)</button>
+`,
+          native_dialog: `<!-- HTML5 Native <dialog> Modal with Backdrop -->
+<dialog id="fav-dialog">
+  <form method="dialog">
+    <p>HTML5 Native Dialog with top-layer rendering!</p>
+    <button value="confirm">Confirm</button>
+  </form>
+</dialog>
+
+<button onclick="document.getElementById('fav-dialog').showModal()">
+  Open Native Modal
+</button>
+`,
+          blank: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 2rem; }
+    h1 { color: #e34f26; }
+  </style>
+</head>
+<body>
+  <h1>Hello from HTML5 &amp; Modern CSS!</h1>
+</body>
+</html>
 `
         }
       },
@@ -888,6 +969,26 @@ fn main() {
                 const errEl = document.createElement('div');
                 errEl.style.color = 'var(--color-coral, #f43f5e)';
                 errEl.innerHTML = `⚠️ <strong>Go Compiler / Runtime Error:</strong>\n${Utils.escapeHTML(res.error)}`;
+                consoleOutput.appendChild(errEl);
+              }
+            }
+          } else if (currentEnv === 'html') {
+            const res = SandboxManager.runHTML(code);
+            runBtn.disabled = false;
+            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
+            if (consoleOutput) {
+              consoleOutput.innerHTML = '';
+              if (res.output) {
+                const outEl = document.createElement('div');
+                outEl.style.whiteSpace = 'pre-wrap';
+                outEl.style.color = 'var(--color-primary-light, #38bdf8)';
+                outEl.textContent = res.output;
+                consoleOutput.appendChild(outEl);
+              }
+              if (res.error) {
+                const errEl = document.createElement('div');
+                errEl.style.color = 'var(--color-coral, #f43f5e)';
+                errEl.innerHTML = `⚠️ <strong>HTML/CSS Parsing Error:</strong>\n${Utils.escapeHTML(res.error)}`;
                 consoleOutput.appendChild(errEl);
               }
             }

@@ -1,9 +1,52 @@
 import { chromium } from 'playwright';
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+
+const PORT = 8106;
+const BASE_URL = `http://localhost:${PORT}`;
+
+function createTestServer() {
+  const baseDir = path.resolve('.');
+  const mimeTypes = {
+    '.html': 'text/html',
+    '.js': 'application/javascript',
+    '.css': 'text/css',
+    '.json': 'application/json',
+    '.svg': 'image/svg+xml',
+    '.png': 'image/png',
+    '.wav': 'audio/wav'
+  };
+
+  return http.createServer((req, res) => {
+    let reqPath = req.url.split('?')[0].split('#')[0];
+    if (reqPath === '/' || reqPath === '') reqPath = '/index.html';
+    const filePath = path.join(baseDir, reqPath.startsWith('/') ? reqPath.slice(1) : reqPath);
+
+    fs.readFile(filePath, (err, data) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Not found');
+        return;
+      }
+      const ext = path.extname(filePath).toLowerCase();
+      res.writeHead(200, {
+        'Content-Type': mimeTypes[ext] || 'application/octet-stream',
+        'Access-Control-Allow-Origin': '*'
+      });
+      res.end(data);
+    });
+  });
+}
 
 (async () => {
   console.log('============================================================');
-  console.log('🧪 PLAYWRIGHT E2E: VERIFYING 8 LANGUAGES ACROSS ALL SURFACES');
+  console.log('🧪 PLAYWRIGHT E2E: VERIFYING 11 LANGUAGES ACROSS ALL SURFACES');
   console.log('============================================================\n');
+
+  const server = createTestServer();
+  await new Promise(resolve => server.listen(PORT, resolve));
+  console.log(`Test server listening on ${BASE_URL}\n`);
 
   const browser = await chromium.launch({ channel: 'msedge', headless: true });
   const page = await browser.newPage();
@@ -21,16 +64,16 @@ import { chromium } from 'playwright';
     }
   }
 
-  // 1. Landing Page: All 8 track cards rendered and selectable
+  // 1. Landing Page: All 11 track cards rendered and selectable
   console.log('--- 1. Testing Landing Page Track Selection ---');
-  await page.goto('http://127.0.0.1:8080/index.html');
+  await page.goto(`${BASE_URL}/index.html`);
   await page.waitForTimeout(500);
 
   const trackCards = page.locator('#language-tracks-container .card-selectable');
   const trackCount = await trackCards.count();
-  assert(trackCount === 10, `Landing page displays 10 language track cards (found ${trackCount})`);
+  assert(trackCount === 11, `Landing page displays 11 language track cards (found ${trackCount})`);
 
-  const expectedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go'];
+  const expectedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html'];
   for (const lang of expectedLangs) {
     const card = page.locator(`#language-tracks-container [data-lang="${lang}"]`);
     assert(await card.count() === 1, `Track card exists for ${lang}`);
@@ -40,17 +83,17 @@ import { chromium } from 'playwright';
     assert(isSelected, `Track card ${lang} becomes selected on click`);
   }
 
-  // 2. Onboarding Wizard: 10 language cards in Step 2
+  // 2. Onboarding Wizard: 11 language cards in Step 2
   console.log('\n--- 2. Testing Onboarding Wizard Language Selection ---');
   const wizardLangCards = page.locator('#wizard-lang-grid .card-selectable');
   const wizardCount = await wizardLangCards.count();
-  assert(wizardCount === 10, `Onboarding wizard displays 10 language options (found ${wizardCount})`);
+  assert(wizardCount === 11, `Onboarding wizard displays 11 language options (found ${wizardCount})`);
   for (const lang of expectedLangs) {
     const wCard = page.locator(`#wizard-lang-grid [data-lang="${lang}"]`);
     assert(await wCard.count() === 1, `Wizard card exists for ${lang}`);
   }
 
-  // 3. Arena Gameplay: Verify new 6 languages initialize and play
+  // 3. Arena Gameplay: Verify new 7 languages initialize and play
   console.log('\n--- 3. Testing Arena Gameplay for New Tracks ---');
   const newLangs = [
     { lang: 'cyber', expectedPrompt: true, expectedHUD: 'Cyber' },
@@ -58,11 +101,12 @@ import { chromium } from 'playwright';
     { lang: 'rust', expectedPrompt: true, expectedHUD: 'Rust' },
     { lang: 'sql', expectedPrompt: true, expectedHUD: 'SQL' },
     { lang: 'typescript', expectedPrompt: true, expectedHUD: 'TypeScript' },
-    { lang: 'go', expectedPrompt: true, expectedHUD: 'Go' }
+    { lang: 'go', expectedPrompt: true, expectedHUD: 'Go' },
+    { lang: 'html', expectedPrompt: true, expectedHUD: 'HTML' }
   ];
 
   for (const item of newLangs) {
-    await page.goto(`http://127.0.0.1:8080/game.html?lang=${item.lang}&diff=beginner`);
+    await page.goto(`${BASE_URL}/game.html?lang=${item.lang}&diff=beginner`);
     await page.waitForTimeout(500);
 
     const promptText = (await page.locator('#q-prompt-text').textContent()).trim();
@@ -92,12 +136,12 @@ import { chromium } from 'playwright';
 
   // 4. Progress Page: Performance Grid and Filter Dropdown
   console.log('\n--- 4. Testing Progress & Analytics Page ---');
-  await page.goto('http://127.0.0.1:8080/progress.html');
+  await page.goto(`${BASE_URL}/progress.html`);
   await page.waitForTimeout(500);
 
   const filterOptions = page.locator('#filter-history-lang option');
   const filterCount = await filterOptions.count();
-  assert(filterCount === 11, `Language filter dropdown has 11 options (All + 10 languages, got ${filterCount})`);
+  assert(filterCount === 12, `Language filter dropdown has 12 options (All + 11 languages, got ${filterCount})`);
 
   for (const lang of expectedLangs) {
     const opt = page.locator(`#filter-history-lang option[value="${lang}"]`);
@@ -106,9 +150,10 @@ import { chromium } from 'playwright';
 
   const langCards = page.locator('#language-performance-grid > div');
   const cardCount = await langCards.count();
-  assert(cardCount === 10, `Language performance grid displays exactly 10 track cards (found ${cardCount})`);
+  assert(cardCount === 11, `Language performance grid displays exactly 11 track cards (found ${cardCount})`);
 
   await browser.close();
+  server.close();
 
   console.log('\n============================================================');
   console.log(`TOTAL TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);

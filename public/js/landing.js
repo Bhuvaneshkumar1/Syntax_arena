@@ -114,7 +114,7 @@ export const LandingPage = {
    * @param {boolean} [saveState=true]
    */
   selectLanguage(lang, saveState = true) {
-    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go'].includes(lang)) return;
+    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html'].includes(lang)) return;
     this.selectedLanguage = lang;
 
     const cards = Utils.qsa('#language-tracks-container .card-selectable');
@@ -390,7 +390,10 @@ export const LandingPage = {
       cyber:      { filename: 'exploit_01.sh', badge: 'Cyber & Linux', tagClass: 'tag-cyber' },
       javascript: { filename: 'solution_01.js', badge: 'JavaScript ES2024', tagClass: 'tag-javascript' },
       rust:       { filename: 'main_01.rs', badge: 'Rust 2021', tagClass: 'tag-rust' },
-      sql:        { filename: 'query_01.sql', badge: 'ANSI SQL', tagClass: 'tag-sql' }
+      sql:        { filename: 'query_01.sql', badge: 'ANSI SQL', tagClass: 'tag-sql' },
+      typescript: { filename: 'solution_01.ts', badge: 'TypeScript 5.4+', tagClass: 'tag-typescript' },
+      go:         { filename: 'main_01.go', badge: 'Go 1.22+', tagClass: 'tag-go' },
+      html:       { filename: 'index.html', badge: 'HTML5 & CSS', tagClass: 'tag-html' }
     };
     const currentMeta = meta[lang] || meta.python;
     if (previewFilename) previewFilename.textContent = currentMeta.filename;

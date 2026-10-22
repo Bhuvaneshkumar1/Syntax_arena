@@ -116,13 +116,14 @@ export const Gameplay = {
     const params = Router.getQueryParams();
     const activeProfile = State.get('activeProfile') || Profile.getActiveProfile();
 
-    const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go'];
+    const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html'];
     const ALLOWED_DIFFS = ['beginner', 'intermediate', 'expert'];
     const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless'];
 
     let rawLang = (params.lang || (activeProfile && activeProfile.preferences?.language) || 'python').toLowerCase();
     if (rawLang === 'ts') rawLang = 'typescript';
     if (rawLang === 'golang') rawLang = 'go';
+    if (rawLang === 'html5' || rawLang === 'css') rawLang = 'html';
     if (!ALLOWED_LANGS.includes(rawLang)) {
       console.warn(`[Gameplay] Unknown language "${params.lang}". Falling back to Python.`);
       UI.showToast(`Unsupported track "${params.lang}". Loaded Python track.`, 'info');

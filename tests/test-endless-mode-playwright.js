@@ -53,7 +53,7 @@ async function runEndlessModeTest() {
     await page.goto(`${BASE_URL}/index.html`);
 
     const counts = await page.evaluate(() => {
-      const langs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go'];
+      const langs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html'];
       const res = {};
       langs.forEach(l => {
         const list = window.QuestionBank ? window.QuestionBank.getEndlessQuestions(l) : [];
@@ -73,7 +73,8 @@ async function runEndlessModeTest() {
     assert.strictEqual(counts.sql, 200, 'SQL has 200 endless questions');
     assert.strictEqual(counts.typescript, 200, 'TypeScript has 200 endless questions');
     assert.strictEqual(counts.go, 200, 'Go has 200 endless questions');
-    console.log('✓ PASS: All 10 languages provide exactly 200 questions for Endless mode');
+    assert.strictEqual(counts.html, 200, 'HTML has 200 endless questions');
+    console.log('✓ PASS: All 11 languages provide exactly 200 questions for Endless mode');
 
     console.log('\n--- 2. Testing Challenge Showcase Card & Launcher in Hub ---');
     const endlessCardBtn = page.locator('#btn-showcase-endless');
