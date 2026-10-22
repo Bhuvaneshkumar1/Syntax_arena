@@ -249,14 +249,14 @@ export async function runGamificationTests() {
   assert(resDiscont.updatedProfile.bestStreak === 3, `Continuous best streak is strictly 3, got: ${resDiscont.updatedProfile.bestStreak}`);
 
   // ------------------------------------------------------------------------
-  // 4. Achievement Badges Registry (20 Badges)
+  // 4. Achievement Badges Registry (23 Badges)
   // ------------------------------------------------------------------------
   console.log('\n--- 4. Achievement Badges Registry & Unlock Conditions ---');
 
-  assert(ACHIEVEMENTS.length === 20, 'Achievement registry contains exactly 20 distinct badges');
+  assert(ACHIEVEMENTS.length === 23, 'Achievement registry contains exactly 23 distinct badges');
 
   const allBadgeIds = new Set(ACHIEVEMENTS.map(b => b.id));
-  assert(allBadgeIds.size === 20, 'All 20 badges have unique, stable IDs');
+  assert(allBadgeIds.size === 23, 'All 23 badges have unique, stable IDs');
 
   // Verify difficulty and tiered pricing across badges (Item 4)
   const validDiffs = ['beginner', 'intermediate', 'expert', 'master'];
@@ -313,6 +313,20 @@ export async function runGamificationTests() {
   };
   const resBadges = Gamification.processSessionSummary(profileWithBadge, awardedSession);
   assert(!resBadges.newBadges.includes('first_blood'), 'Already-earned badges are not awarded again (idempotent)');
+
+  // Test Scholar achievements
+  const badgeScholarCadet = ACHIEVEMENTS.find(b => b.id === 'scholar_cadet');
+  const badgeScholarAdept = ACHIEVEMENTS.find(b => b.id === 'scholar_adept');
+  const badgeScholarPolyglot = ACHIEVEMENTS.find(b => b.id === 'scholar_polyglot');
+
+  assert(badgeScholarCadet.evaluate({ completedLessons: ['python-beginner'] }) === true, 'Scholar Cadet unlocks on 1 completed lesson');
+  assert(badgeScholarCadet.evaluate({ completedLessons: [] }) === false, 'Scholar Cadet remains locked on 0 completed lessons');
+
+  assert(badgeScholarAdept.evaluate({ completedLessons: ['python-beginner', 'python-intermediate', 'c-beginner', 'rust-beginner', 'sql-beginner'] }) === true, 'Cyber Scholar unlocks on 5 completed lessons');
+  assert(badgeScholarAdept.evaluate({ completedLessons: ['python-beginner', 'python-intermediate', 'c-beginner'] }) === false, 'Cyber Scholar remains locked on < 5 lessons');
+
+  assert(badgeScholarPolyglot.evaluate({ completedLessons: ['python-beginner', 'c-beginner', 'rust-beginner'] }) === true, 'Polyglot Scholar unlocks on lessons in >= 3 tracks');
+  assert(badgeScholarPolyglot.evaluate({ completedLessons: ['python-beginner', 'python-intermediate', 'python-expert'] }) === false, 'Polyglot Scholar remains locked on lessons in < 3 tracks');
 
   // ------------------------------------------------------------------------
   // 5. Unlockable Themes, Avatars & Challenge Modes

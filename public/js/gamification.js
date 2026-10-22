@@ -363,6 +363,53 @@ export const ACHIEVEMENTS = Object.freeze([
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.mode === 'hardcore' && (session.lives === undefined || session.lives > 0));
     }
+  },
+
+  // --- Category: Academy ---
+  {
+    id: 'scholar_cadet',
+    name: 'Academy Cadet',
+    description: 'Complete your first interactive lesson in the Cyber Academy.',
+    icon: '🎓',
+    category: 'academy',
+    difficulty: 'beginner',
+    cost: 60,
+    price: 60,
+    evaluate: (profile) => {
+      return Boolean(profile && Array.isArray(profile.completedLessons) && profile.completedLessons.length >= 1);
+    }
+  },
+  {
+    id: 'scholar_adept',
+    name: 'Cyber Scholar',
+    description: 'Master 5 interactive lessons across any tracks in Cyber Academy.',
+    icon: '📜',
+    category: 'academy',
+    difficulty: 'intermediate',
+    cost: 120,
+    price: 120,
+    evaluate: (profile) => {
+      return Boolean(profile && Array.isArray(profile.completedLessons) && profile.completedLessons.length >= 5);
+    }
+  },
+  {
+    id: 'scholar_polyglot',
+    name: 'Polyglot Scholar',
+    description: 'Master lessons in at least 3 distinct programming tracks in the Academy.',
+    icon: '🌐',
+    category: 'academy',
+    difficulty: 'expert',
+    cost: 220,
+    price: 220,
+    evaluate: (profile) => {
+      if (!profile || !Array.isArray(profile.completedLessons)) return false;
+      const langs = new Set();
+      profile.completedLessons.forEach(id => {
+        const prefix = id.split('-')[0];
+        if (prefix) langs.add(prefix);
+      });
+      return langs.size >= 3;
+    }
   }
 ]);
 

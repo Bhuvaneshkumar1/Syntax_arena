@@ -174,7 +174,11 @@
           </div>
           <div class="card" style="padding: 1.25rem; text-align: center;">
             <div style="font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Badges Earned</div>
-            <div id="stat-badges-earned" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-emerald); margin-top: 0.25rem;">0 / 20</div>
+            <div id="stat-badges-earned" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-emerald); margin-top: 0.25rem;">0 / 23</div>
+          </div>
+          <div class="card" style="padding: 1.25rem; text-align: center;">
+            <div style="font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Lessons Mastered</div>
+            <div id="stat-lessons-mastered" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-cyan); margin-top: 0.25rem;">0 / 36</div>
           </div>
         </div>
       </section>
@@ -286,14 +290,32 @@
         </div>
       </section>
 
+      <!-- Section: Cyber Academy Curriculum Mastery -->
+      <section style="margin-bottom: 2.5rem;" aria-label="Cyber Academy Curriculum Mastery">
+        <div class="page-title-row">
+          <div>
+            <h2>Cyber Academy Curriculum</h2>
+            <p class="page-subtitle">Track your interactive lesson progression and checkpoint drills across all 12 programming tracks.</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span id="academy-progress-badge" class="badge badge-cyan">0 / 36 Mastered</span>
+            <a href="learn.html" class="btn-arcade btn-primary btn-sm">Enter Academy →</a>
+          </div>
+        </div>
+
+        <div id="academy-curriculum-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+          <!-- Dynamically populated 12 track academy status cards -->
+        </div>
+      </section>
+
       <!-- Trophy Room & Achievement Showcase (Batch 6 Verified) -->
       <section style="margin-bottom: 2.5rem;" aria-label="Trophy Room and Achievements">
         <div class="page-title-row">
           <div>
             <h2>Trophy Room &amp; Badges</h2>
-            <p class="page-subtitle">20 verifiable arcade achievements across Milestones, Streaks, Accuracy, Speed, and Challenge Modes.</p>
+            <p class="page-subtitle">23 verifiable arcade achievements across Milestones, Streaks, Accuracy, Speed, Polyglot, and Cyber Academy.</p>
           </div>
-          <span id="badge-counter-pill" class="badge badge-violet">0 / 20 Unlocked</span>
+          <span id="badge-counter-pill" class="badge badge-violet">0 / 23 Unlocked</span>
         </div>
 
         <!-- Badges Real-Time Dropdown Filters -->
@@ -305,6 +327,7 @@
             <option value="accuracy">Accuracy &amp; Mastery</option>
             <option value="speed">Speed &amp; Deduction</option>
             <option value="polyglot">Language Mastery</option>
+            <option value="academy">Cyber Academy</option>
           </select>
           <select id="filter-badges-status" class="form-select" style="padding: 0.35rem 0.6rem; font-size: 12px; min-width: 140px;" aria-label="Filter Badges by Unlock Status">
             <option value="all">All Statuses</option>
@@ -593,6 +616,13 @@
       const counterPill = Utils.qs('#badge-counter-pill');
       if (counterPill) counterPill.textContent = `${earnedBadges.size} / ${ACHIEVEMENTS.length} Unlocked`;
 
+      const completedLessons = Array.isArray(activeProf?.completedLessons) ? activeProf.completedLessons : [];
+      const statLessons = Utils.qs('#stat-lessons-mastered');
+      if (statLessons) statLessons.textContent = `${completedLessons.length} / 36`;
+
+      const academyBadge = Utils.qs('#academy-progress-badge');
+      if (academyBadge) academyBadge.textContent = `${completedLessons.length} / 36 Mastered`;
+
       // 3. Language Performance Grid (Python, C, C++, Java)
       const langGrid = Utils.qs('#language-performance-grid');
       if (langGrid) {
@@ -724,6 +754,65 @@
             `;
           }
           diffGrid.appendChild(card);
+        });
+      }
+
+      // 4b. Cyber Academy Curriculum Grid
+      const academyGrid = Utils.qs('#academy-curriculum-grid');
+      if (academyGrid) {
+        academyGrid.innerHTML = '';
+        const allTracks = [
+          { id: 'python',     name: 'Python 3',        icon: '🐍', tag: 'tag-python' },
+          { id: 'c',          name: 'C (C99)',         icon: '⚙️', tag: 'tag-c' },
+          { id: 'cpp',        name: 'C++ (C++20)',     icon: '⚡', tag: 'tag-cpp' },
+          { id: 'java',       name: 'Java 17',         icon: '☕', tag: 'tag-java' },
+          { id: 'cyber',      name: 'Cyber & Linux',   icon: '🛡️', tag: 'tag-cyber' },
+          { id: 'javascript', name: 'JavaScript',      icon: '🟨', tag: 'tag-javascript' },
+          { id: 'rust',       name: 'Rust',            icon: '🦀', tag: 'tag-rust' },
+          { id: 'sql',        name: 'SQL',             icon: '🗄️', tag: 'tag-sql' },
+          { id: 'typescript', name: 'TypeScript',      icon: '🔷', tag: 'tag-typescript' },
+          { id: 'go',         name: 'Go (Golang)',     icon: '🐹', tag: 'tag-go' },
+          { id: 'html',       name: 'HTML5 & CSS',     icon: '🌐', tag: 'tag-html' },
+          { id: 'asm',        name: 'Assembly & RE',   icon: '💻', tag: 'tag-asm' }
+        ];
+
+        allTracks.forEach(t => {
+          const trackCompleted = ['beginner', 'intermediate', 'expert'].filter(d =>
+            completedLessons.includes(`${t.id}-${d}`)
+          ).length;
+          const percent = Math.round((trackCompleted / 3) * 100);
+
+          const card = document.createElement('div');
+          card.className = 'card card-raised';
+          card.style.padding = '1rem';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.justifyContent = 'space-between';
+          card.style.gap = '0.75rem';
+
+          card.innerHTML = `
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                  <span style="font-size: 1.25rem;">${t.icon}</span>
+                  <span class="tag-lang ${t.tag}" style="font-size: 11px;">${t.name}</span>
+                </div>
+                <span class="badge ${trackCompleted === 3 ? 'badge-emerald' : trackCompleted > 0 ? 'badge-cyan' : 'badge-neutral'}">
+                  ${trackCompleted}/3 Lessons
+                </span>
+              </div>
+              <div style="height: 6px; background: var(--bg-surface-raised); border-radius: var(--radius-full); overflow: hidden; margin-top: 0.5rem;">
+                <div style="width: ${percent}%; height: 100%; background: ${trackCompleted === 3 ? 'var(--color-success)' : 'var(--color-primary)'}; transition: width 0.3s ease;"></div>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem; margin-top: 0.25rem;">
+              <span style="font-size: 11px; color: var(--text-muted);">${percent}% Mastered</span>
+              <a href="learn.html?lang=${t.id}" class="btn-arcade btn-neutral btn-sm" style="font-size: 11px; padding: 0.2rem 0.5rem;">
+                Study Track →
+              </a>
+            </div>
+          `;
+          academyGrid.appendChild(card);
         });
       }
 

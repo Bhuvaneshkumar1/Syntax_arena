@@ -169,6 +169,33 @@ async function runLearnModeTest() {
     const jsTag = page.locator('#lesson-track-tag');
     testAssert((await jsTag.textContent()).includes('JAVASCRIPT'), `Header tag updates to JAVASCRIPT track (got: "${await jsTag.textContent()}")`);
 
+    // 8. In-Arena Study Linkage Check
+    console.log('\n--- 8. Testing In-Arena Academy Study Linkage (game.html) ---');
+    await page.goto(`${BASE_URL}/game.html?lang=rust&diff=intermediate`);
+    await page.waitForTimeout(500);
+
+    const arenaReviewBtn = page.locator('#btn-arena-review-lesson');
+    testAssert(await arenaReviewBtn.isVisible(), 'Arena action bar includes #btn-arena-review-lesson');
+    const reviewHref = await arenaReviewBtn.getAttribute('href');
+    testAssert(reviewHref.includes('learn.html') && reviewHref.includes('rust'), `Review button targets learn.html with current track (got: "${reviewHref}")`);
+
+    // 9. Career Progression & Academy Grid Integration Check
+    console.log('\n--- 9. Testing Career Progression Academy Integration (progress.html) ---');
+    await page.goto(`${BASE_URL}/progress.html`);
+    await page.waitForTimeout(500);
+
+    const statLessons = page.locator('#stat-lessons-mastered');
+    testAssert(await statLessons.isVisible(), 'Career metrics strip displays Lessons Mastered stat');
+    testAssert((await statLessons.textContent()).includes('/ 36'), `Lessons Mastered stat formatted against 36 lessons (got: "${await statLessons.textContent()}")`);
+
+    const academyCurriculumGrid = page.locator('#academy-curriculum-grid > div');
+    const academyCardCount = await academyCurriculumGrid.count();
+    testAssert(academyCardCount === 12, `Cyber Academy Curriculum Grid displays cards for all 12 tracks (found: ${academyCardCount})`);
+
+    const filterSubject = page.locator('#filter-badges-subject');
+    const hasAcademyOption = await filterSubject.locator('option[value="academy"]').count();
+    testAssert(hasAcademyOption >= 1, 'Trophy Room filters include Cyber Academy badge category');
+
     console.log('\n============================================================');
     console.log(`TOTAL TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);
     console.log('============================================================');

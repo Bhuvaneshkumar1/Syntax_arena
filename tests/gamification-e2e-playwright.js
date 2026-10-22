@@ -84,13 +84,13 @@ import { chromium } from 'playwright';
       fail('Career Metrics Strip', 'Metrics missing');
     }
 
-    // 1.3 20 Achievement Cards in Trophy Room
+    // 1.3 23 Achievement Cards in Trophy Room
     const badgeCards = page.locator('#trophy-grid > div');
     const badgeCount = await badgeCards.count();
-    if (badgeCount === 20) {
-      pass('20 Achievement Badges Rendered', `Count: ${badgeCount}`);
+    if (badgeCount === 23) {
+      pass('23 Achievement Badges Rendered', `Count: ${badgeCount}`);
     } else {
-      fail('20 Achievement Badges Rendered', `Expected 20, got: ${badgeCount}`);
+      fail('23 Achievement Badges Rendered', `Expected 23, got: ${badgeCount}`);
     }
 
     // 1.4 Click Badge Card for Toast Announcement

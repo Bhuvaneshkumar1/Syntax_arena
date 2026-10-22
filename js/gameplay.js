@@ -470,6 +470,18 @@ export const Gameplay = {
     // Update Hardcore lives if applicable
     this._updateLivesDisplay(q.lives ?? 3, q.maxLives ?? 3);
 
+    // Update Academy review link to current question's language and difficulty tier
+    const currentTrack = q.language || 'python';
+    const currentDiff = q.difficulty || 'beginner';
+    const academyReviewBtn = Utils.qs('#btn-arena-review-lesson');
+    if (academyReviewBtn) {
+      academyReviewBtn.href = `learn.html?lang=${encodeURIComponent(currentTrack)}&diff=${encodeURIComponent(currentDiff)}`;
+    }
+    const hintAcademyLink = Utils.qs('#hint-academy-link');
+    if (hintAcademyLink) {
+      hintAcademyLink.href = `learn.html?lang=${encodeURIComponent(currentTrack)}&diff=${encodeURIComponent(currentDiff)}`;
+    }
+
     // Update HUD: Language, Step Counter, Progress Bar, Streak, Score
     const langMeta = LANGUAGE_METADATA[q.language] || LANGUAGE_METADATA.python;
     const hudLangTag = Utils.qs('#hud-lang-tag');
@@ -1230,6 +1242,10 @@ export const Gameplay = {
     if (hintDrawer && hintText) {
       hintText.textContent = res.hint || 'Carefully examine standard semantics for this construct.';
       hintDrawer.style.display = 'block';
+      const hintAcademyLink = Utils.qs('#hint-academy-link');
+      if (hintAcademyLink && this.engine && this.engine.session) {
+        hintAcademyLink.href = `learn.html?lang=${encodeURIComponent(this.engine.session.language)}&diff=${encodeURIComponent(this.engine.session.difficulty)}`;
+      }
     }
 
     if (hintBtn) {
