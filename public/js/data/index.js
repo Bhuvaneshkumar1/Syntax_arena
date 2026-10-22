@@ -15,6 +15,7 @@ import { sqlQuestions } from '../../data/sql-questions.js';
 import { typescriptQuestions } from '../../data/typescript-questions.js';
 import { goQuestions } from '../../data/go-questions.js';
 import { htmlQuestions } from '../../data/html-questions.js';
+import { asmQuestions } from '../../data/asm-questions.js';
 import { endlessQuestions } from '../../data/endless-questions.js';
 
 export const LANGUAGE_METADATA = {
@@ -116,6 +117,15 @@ export const LANGUAGE_METADATA = {
     tagClass: 'tag-html',
     color: '#E34F26',
     accentColor: '#1572B6'
+  },
+  asm: {
+    id: 'asm',
+    name: 'Assembly & Reverse Engineering',
+    version: 'x86-64 & ARM64 ASM',
+    filename: 'solution.asm',
+    tagClass: 'tag-asm',
+    color: '#F59E0B',
+    accentColor: '#10B981'
   }
 };
 
@@ -143,6 +153,10 @@ export const QuestionRepository = {
       case 'html':
       case 'html5':
       case 'css': return htmlQuestions;
+      case 'asm':
+      case 'assembly':
+      case 're':
+      case 'reverse': return asmQuestions;
       case 'python':
       default:
         return pythonQuestions;

@@ -1166,6 +1166,175 @@ export const SandboxManager = {
     }
   },
 
+  /**
+   * Run and simulate x86-64 / ARM64 Assembly code client-side.
+   * Tracks registers, stack pointer, and EFLAGS state.
+   * @param {string} code
+   * @returns {{ success: boolean, output: string, error: string|null, elapsedMs: number }}
+   */
+  runAssembly(code) {
+    const start = performance.now();
+    try {
+      if (!code || !code.trim()) {
+        return { success: true, output: '', error: null, elapsedMs: 0 };
+      }
+
+      const regs = {
+        rax: 0n, rbx: 0n, rcx: 0n, rdx: 0n,
+        rsi: 0n, rdi: 0n, rbp: 0x7FFFFFFFE000n, rsp: 0x7FFFFFFFE000n,
+        r8: 0n, r9: 0n, r10: 0n, r11: 0n
+      };
+      const flags = { ZF: 0, SF: 0, CF: 0, OF: 0 };
+      const stack = [];
+
+      const getRegKey = (name) => {
+        if (!name) return null;
+        const n = name.toLowerCase().replace(/,/g, '').trim();
+        if (['rax', 'eax', 'ax', 'al'].includes(n)) return 'rax';
+        if (['rbx', 'ebx', 'bx', 'bl'].includes(n)) return 'rbx';
+        if (['rcx', 'ecx', 'cx', 'cl'].includes(n)) return 'rcx';
+        if (['rdx', 'edx', 'dx', 'dl'].includes(n)) return 'rdx';
+        if (['rsi', 'esi', 'si'].includes(n)) return 'rsi';
+        if (['rdi', 'edi', 'di'].includes(n)) return 'rdi';
+        if (['rbp', 'ebp', 'bp'].includes(n)) return 'rbp';
+        if (['rsp', 'esp', 'sp'].includes(n)) return 'rsp';
+        if (['r8', 'r8d', 'r8w', 'r8b'].includes(n)) return 'r8';
+        if (['r9', 'r9d', 'r9w', 'r9b'].includes(n)) return 'r9';
+        if (['x0', 'w0'].includes(n)) return 'rax';
+        if (['x1', 'w1'].includes(n)) return 'rbx';
+        if (['x2', 'w2'].includes(n)) return 'rcx';
+        return null;
+      };
+
+      const parseVal = (str) => {
+        if (!str) return 0n;
+        const s = str.trim().replace(/,/g, '');
+        const rKey = getRegKey(s);
+        if (rKey) return regs[rKey];
+        if (s.startsWith('0x') || s.startsWith('0X')) {
+          try { return BigInt(s); } catch (e) { return 0n; }
+        }
+        const parsed = parseInt(s, 10);
+        return isNaN(parsed) ? 0n : BigInt(parsed);
+      };
+
+      const lines = code.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith(';') && !l.startsWith('//') && !l.startsWith('.'));
+      const log = [];
+      let instrCount = 0;
+
+      for (const line of lines) {
+        const cleanLine = line.split(';')[0].split('//')[0].trim();
+        if (!cleanLine || cleanLine.endsWith(':')) continue;
+
+        const parts = cleanLine.split(/\s+/);
+        const op = parts[0].toLowerCase();
+        const argsStr = cleanLine.slice(op.length).trim();
+        const args = argsStr.split(',').map(a => a.trim());
+
+        instrCount++;
+        const destKey = args[0] ? getRegKey(args[0]) : null;
+
+        if (op === 'mov' && destKey && args[1]) {
+          regs[destKey] = parseVal(args[1]);
+        } else if (op === 'xor' && destKey && args[1]) {
+          const val = destKey === getRegKey(args[1]) ? 0n : (regs[destKey] ^ parseVal(args[1]));
+          regs[destKey] = val;
+          flags.ZF = val === 0n ? 1 : 0;
+          flags.SF = val < 0n ? 1 : 0;
+        } else if (op === 'add' && destKey && args[1]) {
+          regs[destKey] = (regs[destKey] + parseVal(args[1])) & 0xFFFFFFFFFFFFFFFFn;
+          flags.ZF = regs[destKey] === 0n ? 1 : 0;
+        } else if (op === 'sub' && destKey && args[1]) {
+          const v = parseVal(args[1]);
+          flags.ZF = regs[destKey] === v ? 1 : 0;
+          flags.SF = regs[destKey] < v ? 1 : 0;
+          regs[destKey] = (regs[destKey] - v) & 0xFFFFFFFFFFFFFFFFn;
+        } else if (op === 'inc' && destKey) {
+          regs[destKey] = (regs[destKey] + 1n) & 0xFFFFFFFFFFFFFFFFn;
+        } else if (op === 'dec' && destKey) {
+          regs[destKey] = (regs[destKey] - 1n) & 0xFFFFFFFFFFFFFFFFn;
+        } else if (op === 'shl' && destKey && args[1]) {
+          regs[destKey] = (regs[destKey] << BigInt(parseVal(args[1]))) & 0xFFFFFFFFFFFFFFFFn;
+        } else if (op === 'shr' && destKey && args[1]) {
+          regs[destKey] = (regs[destKey] >> BigInt(parseVal(args[1]))) & 0xFFFFFFFFFFFFFFFFn;
+        } else if (op === 'imul' && destKey && args[1]) {
+          regs[destKey] = (regs[destKey] * parseVal(args[1])) & 0xFFFFFFFFFFFFFFFFn;
+        } else if (op === 'neg' && destKey) {
+          regs[destKey] = (-regs[destKey]) & 0xFFFFFFFFFFFFFFFFn;
+        } else if (op === 'not' && destKey) {
+          regs[destKey] = (~regs[destKey]) & 0xFFFFFFFFFFFFFFFFn;
+        } else if (op === 'cmp' && destKey && args[1]) {
+          const v = parseVal(args[1]);
+          flags.ZF = regs[destKey] === v ? 1 : 0;
+          flags.SF = regs[destKey] < v ? 1 : 0;
+          flags.CF = regs[destKey] < v ? 1 : 0;
+        } else if (op === 'test' && destKey && args[1]) {
+          const v = regs[destKey] & parseVal(args[1]);
+          flags.ZF = v === 0n ? 1 : 0;
+          flags.SF = (v & 0x8000000000000000n) !== 0n ? 1 : 0;
+        } else if (op === 'push' && destKey) {
+          stack.push(regs[destKey]);
+          regs.rsp -= 8n;
+        } else if (op === 'pop' && destKey) {
+          if (stack.length > 0) {
+            regs[destKey] = stack.pop();
+            regs.rsp += 8n;
+          }
+        } else if (op === 'lea' && destKey && args[1]) {
+          const m = args[1].match(/\[(.*?)\]/);
+          if (m) {
+            try {
+              let expr = m[1].toLowerCase();
+              expr = expr.replace(/\brax\b/g, regs.rax.toString())
+                         .replace(/\brbx\b/g, regs.rbx.toString())
+                         .replace(/\brcx\b/g, regs.rcx.toString())
+                         .replace(/\brdx\b/g, regs.rdx.toString())
+                         .replace(/\brsi\b/g, regs.rsi.toString())
+                         .replace(/\brdi\b/g, regs.rdi.toString());
+              if (/^[0-9+\-* ]+$/.test(expr)) {
+                regs[destKey] = BigInt(Function(`'use strict'; return (${expr})`)());
+              }
+            } catch (e) {}
+          }
+        }
+      }
+
+      const hex = (v) => '0x' + (v & 0xFFFFFFFFFFFFFFFFn).toString(16).toUpperCase().padStart(16, '0');
+      const dec = (v) => Number(v & 0xFFFFFFFFFFFFFFFFn);
+
+      log.push('╔══════════════════════════════════════════════════════════════════╗');
+      log.push('║             x86-64 CPU REGISTER & STACK SNAPSHOT                 ║');
+      log.push('╠══════════════════════════════════════════════════════════════════╣');
+      log.push(`  RAX: ${hex(regs.rax)} (${dec(regs.rax).toLocaleString()})`);
+      log.push(`  RBX: ${hex(regs.rbx)} (${dec(regs.rbx).toLocaleString()})`);
+      log.push(`  RCX: ${hex(regs.rcx)} (${dec(regs.rcx).toLocaleString()})`);
+      log.push(`  RDX: ${hex(regs.rdx)} (${dec(regs.rdx).toLocaleString()})`);
+      log.push(`  RSI: ${hex(regs.rsi)}`);
+      log.push(`  RDI: ${hex(regs.rdi)}`);
+      log.push(`  RSP: ${hex(regs.rsp)}`);
+      log.push(`  RBP: ${hex(regs.rbp)}`);
+      log.push('──────────────────────────────────────────────────────────────────');
+      log.push(`  FLAGS: [ ZF=${flags.ZF} | SF=${flags.SF} | CF=${flags.CF} ]`);
+      log.push(`  Virtual Stack Depth: ${stack.length} quadwords`);
+      log.push(`  Total Instructions Emulated: ${instrCount}`);
+      log.push('╚══════════════════════════════════════════════════════════════════╝');
+
+      return {
+        success: true,
+        output: log.join('\n'),
+        error: null,
+        elapsedMs: Math.round(performance.now() - start)
+      };
+    } catch (err) {
+      return {
+        success: false,
+        output: '',
+        error: err.toString(),
+        elapsedMs: Math.round(performance.now() - start)
+      };
+    }
+  },
+
   /* ==========================================================================
      C / C++ / JAVA / RUST SYNTAX & CHALLENGE SIMULATOR
      Interactive client-side simulation of systems compilation and outputs

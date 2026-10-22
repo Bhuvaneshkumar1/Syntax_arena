@@ -41,7 +41,7 @@ function createTestServer() {
 
 (async () => {
   console.log('============================================================');
-  console.log('🧪 PLAYWRIGHT E2E: VERIFYING 11 LANGUAGES ACROSS ALL SURFACES');
+  console.log('🧪 PLAYWRIGHT E2E: VERIFYING 12 LANGUAGES ACROSS ALL SURFACES');
   console.log('============================================================\n');
 
   const server = createTestServer();
@@ -64,16 +64,16 @@ function createTestServer() {
     }
   }
 
-  // 1. Landing Page: All 11 track cards rendered and selectable
+  // 1. Landing Page: All 12 track cards rendered and selectable
   console.log('--- 1. Testing Landing Page Track Selection ---');
   await page.goto(`${BASE_URL}/index.html`);
   await page.waitForTimeout(500);
 
   const trackCards = page.locator('#language-tracks-container .card-selectable');
   const trackCount = await trackCards.count();
-  assert(trackCount === 11, `Landing page displays 11 language track cards (found ${trackCount})`);
+  assert(trackCount === 12, `Landing page displays 12 language track cards (found ${trackCount})`);
 
-  const expectedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html'];
+  const expectedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html', 'asm'];
   for (const lang of expectedLangs) {
     const card = page.locator(`#language-tracks-container [data-lang="${lang}"]`);
     assert(await card.count() === 1, `Track card exists for ${lang}`);
@@ -83,17 +83,17 @@ function createTestServer() {
     assert(isSelected, `Track card ${lang} becomes selected on click`);
   }
 
-  // 2. Onboarding Wizard: 11 language cards in Step 2
+  // 2. Onboarding Wizard: 12 language cards in Step 2
   console.log('\n--- 2. Testing Onboarding Wizard Language Selection ---');
   const wizardLangCards = page.locator('#wizard-lang-grid .card-selectable');
   const wizardCount = await wizardLangCards.count();
-  assert(wizardCount === 11, `Onboarding wizard displays 11 language options (found ${wizardCount})`);
+  assert(wizardCount === 12, `Onboarding wizard displays 12 language options (found ${wizardCount})`);
   for (const lang of expectedLangs) {
     const wCard = page.locator(`#wizard-lang-grid [data-lang="${lang}"]`);
     assert(await wCard.count() === 1, `Wizard card exists for ${lang}`);
   }
 
-  // 3. Arena Gameplay: Verify new 7 languages initialize and play
+  // 3. Arena Gameplay: Verify new 8 languages initialize and play
   console.log('\n--- 3. Testing Arena Gameplay for New Tracks ---');
   const newLangs = [
     { lang: 'cyber', expectedPrompt: true, expectedHUD: 'Cyber' },
@@ -102,7 +102,8 @@ function createTestServer() {
     { lang: 'sql', expectedPrompt: true, expectedHUD: 'SQL' },
     { lang: 'typescript', expectedPrompt: true, expectedHUD: 'TypeScript' },
     { lang: 'go', expectedPrompt: true, expectedHUD: 'Go' },
-    { lang: 'html', expectedPrompt: true, expectedHUD: 'HTML' }
+    { lang: 'html', expectedPrompt: true, expectedHUD: 'HTML' },
+    { lang: 'asm', expectedPrompt: true, expectedHUD: 'Assembly' }
   ];
 
   for (const item of newLangs) {
@@ -141,7 +142,7 @@ function createTestServer() {
 
   const filterOptions = page.locator('#filter-history-lang option');
   const filterCount = await filterOptions.count();
-  assert(filterCount === 12, `Language filter dropdown has 12 options (All + 11 languages, got ${filterCount})`);
+  assert(filterCount === 13, `Language filter dropdown has 13 options (All + 12 languages, got ${filterCount})`);
 
   for (const lang of expectedLangs) {
     const opt = page.locator(`#filter-history-lang option[value="${lang}"]`);
@@ -150,7 +151,7 @@ function createTestServer() {
 
   const langCards = page.locator('#language-performance-grid > div');
   const cardCount = await langCards.count();
-  assert(cardCount === 11, `Language performance grid displays exactly 11 track cards (found ${cardCount})`);
+  assert(cardCount === 12, `Language performance grid displays exactly 12 track cards (found ${cardCount})`);
 
   await browser.close();
   server.close();

@@ -19,6 +19,7 @@ const files = [
   'data/typescript-questions.js',
   'data/go-questions.js',
   'data/html-questions.js',
+  'data/asm-questions.js',
   'data/endless-questions.js',
   'js/data/index.js',
   'js/utils.js',

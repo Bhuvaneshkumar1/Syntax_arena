@@ -65975,4 +65975,6207 @@ export const endlessQuestions = {
     ]
   }
 ]
+,
+  asm: [
+  {
+    "id": "asm-end-001",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 7\nadd eax, 6\nsub eax, 1",
+    "options": [
+      "12",
+      "19",
+      "26",
+      "22"
+    ],
+    "correctAnswer": "12",
+    "acceptedAnswers": [
+      "12"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 12 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-002",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 2\nlea eax, [ecx*4 + 14]",
+    "options": [
+      "22",
+      "28",
+      "34",
+      "32"
+    ],
+    "correctAnswer": "22",
+    "acceptedAnswers": [
+      "22"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 22 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-003",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 4\nshl eax, 1",
+    "options": [
+      "8",
+      "20",
+      "48",
+      "18"
+    ],
+    "correctAnswer": "8",
+    "acceptedAnswers": [
+      "8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 8 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-004",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 12\nxor eax, 0x0F",
+    "options": [
+      "3",
+      "0",
+      "29",
+      "13"
+    ],
+    "correctAnswer": "3",
+    "acceptedAnswers": [
+      "3"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 3 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-005",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 1 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFF8",
+      "0x7FFEFFF0",
+      "0x7FFEFFE8",
+      "2147418114"
+    ],
+    "correctAnswer": "0x7FFEFFF8",
+    "acceptedAnswers": [
+      "0x7FFEFFF8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFF8 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-006",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 62\nneg eax",
+    "options": [
+      "-62",
+      "-72",
+      "-82",
+      "-52"
+    ],
+    "correctAnswer": "-62",
+    "acceptedAnswers": [
+      "-62"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -62 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-007",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 9\nimul eax, 9",
+    "options": [
+      "81",
+      "90",
+      "99",
+      "91"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 81 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-008",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 40\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "41",
+      "46",
+      "51",
+      "0x83"
+    ],
+    "correctAnswer": "41",
+    "acceptedAnswers": [
+      "41"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 41 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-009",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 63\nadd eax, 14\nsub eax, 1",
+    "options": [
+      "76",
+      "73",
+      "80",
+      "86"
+    ],
+    "correctAnswer": "76",
+    "acceptedAnswers": [
+      "76"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 76 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-010",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 10\nlea eax, [ecx*4 + 30]",
+    "options": [
+      "70",
+      "76",
+      "82",
+      "80"
+    ],
+    "correctAnswer": "70",
+    "acceptedAnswers": [
+      "70"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 70 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-011",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 12\nshl eax, 3",
+    "options": [
+      "96",
+      "26",
+      "56",
+      "106"
+    ],
+    "correctAnswer": "96",
+    "acceptedAnswers": [
+      "96"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 96 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-012",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 36\nxor eax, 0x0F",
+    "options": [
+      "43",
+      "40",
+      "37",
+      "53"
+    ],
+    "correctAnswer": "43",
+    "acceptedAnswers": [
+      "43"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 43 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-013",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 4 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFE0",
+      "0x7FFEFFD8",
+      "0x7FFEFFF8",
+      "2147418090"
+    ],
+    "correctAnswer": "0x7FFEFFE0",
+    "acceptedAnswers": [
+      "0x7FFEFFE0"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFE0 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-014",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 142\nneg eax",
+    "options": [
+      "-142",
+      "-152",
+      "-162",
+      "-132"
+    ],
+    "correctAnswer": "-142",
+    "acceptedAnswers": [
+      "-142"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -142 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-015",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 5\nimul eax, 9",
+    "options": [
+      "45",
+      "54",
+      "63",
+      "55"
+    ],
+    "correctAnswer": "45",
+    "acceptedAnswers": [
+      "45"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 45 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-016",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 80\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "81",
+      "86",
+      "91",
+      "0x103"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 81 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-017",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 119\nadd eax, 12\nsub eax, 1",
+    "options": [
+      "130",
+      "137",
+      "144",
+      "140"
+    ],
+    "correctAnswer": "130",
+    "acceptedAnswers": [
+      "130"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 130 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-018",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 18\nlea eax, [ecx*4 + 46]",
+    "options": [
+      "118",
+      "124",
+      "130",
+      "128"
+    ],
+    "correctAnswer": "118",
+    "acceptedAnswers": [
+      "118"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 118 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-019",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 5\nshl eax, 2",
+    "options": [
+      "20",
+      "48",
+      "14",
+      "30"
+    ],
+    "correctAnswer": "20",
+    "acceptedAnswers": [
+      "20"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 20 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-020",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 60\nxor eax, 0x0F",
+    "options": [
+      "51",
+      "48",
+      "77",
+      "61"
+    ],
+    "correctAnswer": "51",
+    "acceptedAnswers": [
+      "51"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 51 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-021",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 2 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFF0",
+      "0x7FFEFFE8",
+      "0x7FFEFFE0",
+      "2147418106"
+    ],
+    "correctAnswer": "0x7FFEFFF0",
+    "acceptedAnswers": [
+      "0x7FFEFFF0"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFF0 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-022",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 222\nneg eax",
+    "options": [
+      "-222",
+      "-232",
+      "-242",
+      "-212"
+    ],
+    "correctAnswer": "-222",
+    "acceptedAnswers": [
+      "-222"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -222 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-023",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 13\nimul eax, 9",
+    "options": [
+      "117",
+      "18",
+      "27",
+      "127"
+    ],
+    "correctAnswer": "117",
+    "acceptedAnswers": [
+      "117"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 117 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-024",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 120\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "121",
+      "126",
+      "131",
+      "0x183"
+    ],
+    "correctAnswer": "121",
+    "acceptedAnswers": [
+      "121"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 121 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-025",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 175\nadd eax, 10\nsub eax, 1",
+    "options": [
+      "184",
+      "191",
+      "198",
+      "194"
+    ],
+    "correctAnswer": "184",
+    "acceptedAnswers": [
+      "184"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 184 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-026",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 26\nlea eax, [ecx*4 + 62]",
+    "options": [
+      "166",
+      "172",
+      "178",
+      "176"
+    ],
+    "correctAnswer": "166",
+    "acceptedAnswers": [
+      "166"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 166 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-027",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 13\nshl eax, 1",
+    "options": [
+      "26",
+      "56",
+      "120",
+      "36"
+    ],
+    "correctAnswer": "26",
+    "acceptedAnswers": [
+      "26"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 26 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-028",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 84\nxor eax, 0x0F",
+    "options": [
+      "91",
+      "88",
+      "85",
+      "101"
+    ],
+    "correctAnswer": "91",
+    "acceptedAnswers": [
+      "91"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 91 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-029",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 5 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFD8",
+      "0x7FFEFFF8",
+      "0x7FFEFFF0",
+      "2147418082"
+    ],
+    "correctAnswer": "0x7FFEFFD8",
+    "acceptedAnswers": [
+      "0x7FFEFFD8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFD8 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-030",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 302\nneg eax",
+    "options": [
+      "-302",
+      "-312",
+      "-322",
+      "-292"
+    ],
+    "correctAnswer": "-302",
+    "acceptedAnswers": [
+      "-302"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -302 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-031",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 9\nimul eax, 9",
+    "options": [
+      "81",
+      "90",
+      "99",
+      "91"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 81 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-032",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 160\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "161",
+      "166",
+      "171",
+      "0x203"
+    ],
+    "correctAnswer": "161",
+    "acceptedAnswers": [
+      "161"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 161 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-033",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 231\nadd eax, 8\nsub eax, 1",
+    "options": [
+      "238",
+      "245",
+      "252",
+      "248"
+    ],
+    "correctAnswer": "238",
+    "acceptedAnswers": [
+      "238"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 238 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-034",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 34\nlea eax, [ecx*4 + 78]",
+    "options": [
+      "214",
+      "220",
+      "226",
+      "224"
+    ],
+    "correctAnswer": "214",
+    "acceptedAnswers": [
+      "214"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 214 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-035",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 6\nshl eax, 3",
+    "options": [
+      "48",
+      "14",
+      "32",
+      "58"
+    ],
+    "correctAnswer": "48",
+    "acceptedAnswers": [
+      "48"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 48 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-036",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 108\nxor eax, 0x0F",
+    "options": [
+      "99",
+      "96",
+      "125",
+      "109"
+    ],
+    "correctAnswer": "99",
+    "acceptedAnswers": [
+      "99"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 99 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-037",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 3 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFE8",
+      "0x7FFEFFE0",
+      "0x7FFEFFD8",
+      "2147418098"
+    ],
+    "correctAnswer": "0x7FFEFFE8",
+    "acceptedAnswers": [
+      "0x7FFEFFE8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFE8 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-038",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 382\nneg eax",
+    "options": [
+      "-382",
+      "-392",
+      "-402",
+      "-372"
+    ],
+    "correctAnswer": "-382",
+    "acceptedAnswers": [
+      "-382"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -382 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-039",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 5\nimul eax, 9",
+    "options": [
+      "45",
+      "54",
+      "63",
+      "55"
+    ],
+    "correctAnswer": "45",
+    "acceptedAnswers": [
+      "45"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 45 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-040",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 200\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "201",
+      "206",
+      "211",
+      "0x283"
+    ],
+    "correctAnswer": "201",
+    "acceptedAnswers": [
+      "201"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 201 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-041",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 287\nadd eax, 6\nsub eax, 1",
+    "options": [
+      "292",
+      "299",
+      "306",
+      "302"
+    ],
+    "correctAnswer": "292",
+    "acceptedAnswers": [
+      "292"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 292 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-042",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 42\nlea eax, [ecx*4 + 94]",
+    "options": [
+      "262",
+      "268",
+      "274",
+      "272"
+    ],
+    "correctAnswer": "262",
+    "acceptedAnswers": [
+      "262"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 262 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-043",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 14\nshl eax, 2",
+    "options": [
+      "56",
+      "120",
+      "2",
+      "66"
+    ],
+    "correctAnswer": "56",
+    "acceptedAnswers": [
+      "56"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 56 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-044",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 132\nxor eax, 0x0F",
+    "options": [
+      "139",
+      "136",
+      "133",
+      "149"
+    ],
+    "correctAnswer": "139",
+    "acceptedAnswers": [
+      "139"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 139 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-045",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 1 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFF8",
+      "0x7FFEFFF0",
+      "0x7FFEFFE8",
+      "2147418114"
+    ],
+    "correctAnswer": "0x7FFEFFF8",
+    "acceptedAnswers": [
+      "0x7FFEFFF8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFF8 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-046",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 462\nneg eax",
+    "options": [
+      "-462",
+      "-472",
+      "-482",
+      "-452"
+    ],
+    "correctAnswer": "-462",
+    "acceptedAnswers": [
+      "-462"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -462 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-047",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 13\nimul eax, 9",
+    "options": [
+      "117",
+      "18",
+      "27",
+      "127"
+    ],
+    "correctAnswer": "117",
+    "acceptedAnswers": [
+      "117"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 117 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-048",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 240\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "241",
+      "246",
+      "251",
+      "0x303"
+    ],
+    "correctAnswer": "241",
+    "acceptedAnswers": [
+      "241"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 241 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-049",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 343\nadd eax, 14\nsub eax, 1",
+    "options": [
+      "356",
+      "353",
+      "360",
+      "366"
+    ],
+    "correctAnswer": "356",
+    "acceptedAnswers": [
+      "356"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 356 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-050",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 50\nlea eax, [ecx*4 + 110]",
+    "options": [
+      "310",
+      "316",
+      "322",
+      "320"
+    ],
+    "correctAnswer": "310",
+    "acceptedAnswers": [
+      "310"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 310 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-051",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 7\nshl eax, 1",
+    "options": [
+      "14",
+      "32",
+      "72",
+      "24"
+    ],
+    "correctAnswer": "14",
+    "acceptedAnswers": [
+      "14"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 14 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-052",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 156\nxor eax, 0x0F",
+    "options": [
+      "147",
+      "144",
+      "173",
+      "157"
+    ],
+    "correctAnswer": "147",
+    "acceptedAnswers": [
+      "147"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 147 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-053",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 4 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFE0",
+      "0x7FFEFFD8",
+      "0x7FFEFFF8",
+      "2147418090"
+    ],
+    "correctAnswer": "0x7FFEFFE0",
+    "acceptedAnswers": [
+      "0x7FFEFFE0"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFE0 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-054",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 542\nneg eax",
+    "options": [
+      "-542",
+      "-552",
+      "-562",
+      "-532"
+    ],
+    "correctAnswer": "-542",
+    "acceptedAnswers": [
+      "-542"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -542 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-055",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 9\nimul eax, 9",
+    "options": [
+      "81",
+      "90",
+      "99",
+      "91"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 81 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-056",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 280\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "281",
+      "286",
+      "291",
+      "0x383"
+    ],
+    "correctAnswer": "281",
+    "acceptedAnswers": [
+      "281"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 281 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-057",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 399\nadd eax, 12\nsub eax, 1",
+    "options": [
+      "410",
+      "417",
+      "424",
+      "420"
+    ],
+    "correctAnswer": "410",
+    "acceptedAnswers": [
+      "410"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 410 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-058",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 58\nlea eax, [ecx*4 + 126]",
+    "options": [
+      "358",
+      "364",
+      "370",
+      "368"
+    ],
+    "correctAnswer": "358",
+    "acceptedAnswers": [
+      "358"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 358 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-059",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 15\nshl eax, 3",
+    "options": [
+      "120",
+      "2",
+      "8",
+      "130"
+    ],
+    "correctAnswer": "120",
+    "acceptedAnswers": [
+      "120"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 120 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-060",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 180\nxor eax, 0x0F",
+    "options": [
+      "187",
+      "184",
+      "181",
+      "197"
+    ],
+    "correctAnswer": "187",
+    "acceptedAnswers": [
+      "187"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 187 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-061",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 2 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFF0",
+      "0x7FFEFFE8",
+      "0x7FFEFFE0",
+      "2147418106"
+    ],
+    "correctAnswer": "0x7FFEFFF0",
+    "acceptedAnswers": [
+      "0x7FFEFFF0"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFF0 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-062",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 622\nneg eax",
+    "options": [
+      "-622",
+      "-632",
+      "-642",
+      "-612"
+    ],
+    "correctAnswer": "-622",
+    "acceptedAnswers": [
+      "-622"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -622 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-063",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 5\nimul eax, 9",
+    "options": [
+      "45",
+      "54",
+      "63",
+      "55"
+    ],
+    "correctAnswer": "45",
+    "acceptedAnswers": [
+      "45"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 45 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-064",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 320\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "321",
+      "326",
+      "331",
+      "0x403"
+    ],
+    "correctAnswer": "321",
+    "acceptedAnswers": [
+      "321"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 321 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-065",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 455\nadd eax, 10\nsub eax, 1",
+    "options": [
+      "464",
+      "471",
+      "478",
+      "474"
+    ],
+    "correctAnswer": "464",
+    "acceptedAnswers": [
+      "464"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 464 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-066",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 66\nlea eax, [ecx*4 + 142]",
+    "options": [
+      "406",
+      "412",
+      "418",
+      "416"
+    ],
+    "correctAnswer": "406",
+    "acceptedAnswers": [
+      "406"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 406 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-067",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 8\nshl eax, 2",
+    "options": [
+      "32",
+      "72",
+      "20",
+      "42"
+    ],
+    "correctAnswer": "32",
+    "acceptedAnswers": [
+      "32"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 32 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-068",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 204\nxor eax, 0x0F",
+    "options": [
+      "195",
+      "192",
+      "221",
+      "205"
+    ],
+    "correctAnswer": "195",
+    "acceptedAnswers": [
+      "195"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 195 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-069",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 5 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFD8",
+      "0x7FFEFFF8",
+      "0x7FFEFFF0",
+      "2147418082"
+    ],
+    "correctAnswer": "0x7FFEFFD8",
+    "acceptedAnswers": [
+      "0x7FFEFFD8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFD8 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-070",
+    "language": "asm",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 702\nneg eax",
+    "options": [
+      "-702",
+      "-712",
+      "-722",
+      "-692"
+    ],
+    "correctAnswer": "-702",
+    "acceptedAnswers": [
+      "-702"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -702 in the target register.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-071",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 13\nimul eax, 9",
+    "options": [
+      "117",
+      "18",
+      "27",
+      "127"
+    ],
+    "correctAnswer": "117",
+    "acceptedAnswers": [
+      "117"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 117 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-072",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 360\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "361",
+      "366",
+      "371",
+      "0x483"
+    ],
+    "correctAnswer": "361",
+    "acceptedAnswers": [
+      "361"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 361 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-073",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 511\nadd eax, 8\nsub eax, 1",
+    "options": [
+      "518",
+      "525",
+      "532",
+      "528"
+    ],
+    "correctAnswer": "518",
+    "acceptedAnswers": [
+      "518"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 518 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-074",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 74\nlea eax, [ecx*4 + 158]",
+    "options": [
+      "454",
+      "460",
+      "466",
+      "464"
+    ],
+    "correctAnswer": "454",
+    "acceptedAnswers": [
+      "454"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 454 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-075",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 1\nshl eax, 1",
+    "options": [
+      "2",
+      "8",
+      "24",
+      "12"
+    ],
+    "correctAnswer": "2",
+    "acceptedAnswers": [
+      "2"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 2 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-076",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 228\nxor eax, 0x0F",
+    "options": [
+      "235",
+      "232",
+      "229",
+      "245"
+    ],
+    "correctAnswer": "235",
+    "acceptedAnswers": [
+      "235"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 235 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-077",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 3 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFE8",
+      "0x7FFEFFE0",
+      "0x7FFEFFD8",
+      "2147418098"
+    ],
+    "correctAnswer": "0x7FFEFFE8",
+    "acceptedAnswers": [
+      "0x7FFEFFE8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFE8 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-078",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 782\nneg eax",
+    "options": [
+      "-782",
+      "-792",
+      "-802",
+      "-772"
+    ],
+    "correctAnswer": "-782",
+    "acceptedAnswers": [
+      "-782"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -782 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-079",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 9\nimul eax, 9",
+    "options": [
+      "81",
+      "90",
+      "99",
+      "91"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 81 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-080",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 400\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "401",
+      "406",
+      "411",
+      "0x503"
+    ],
+    "correctAnswer": "401",
+    "acceptedAnswers": [
+      "401"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 401 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-081",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 567\nadd eax, 6\nsub eax, 1",
+    "options": [
+      "572",
+      "579",
+      "586",
+      "582"
+    ],
+    "correctAnswer": "572",
+    "acceptedAnswers": [
+      "572"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 572 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-082",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 82\nlea eax, [ecx*4 + 174]",
+    "options": [
+      "502",
+      "508",
+      "514",
+      "512"
+    ],
+    "correctAnswer": "502",
+    "acceptedAnswers": [
+      "502"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 502 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-083",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 9\nshl eax, 3",
+    "options": [
+      "72",
+      "20",
+      "44",
+      "82"
+    ],
+    "correctAnswer": "72",
+    "acceptedAnswers": [
+      "72"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 72 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-084",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 252\nxor eax, 0x0F",
+    "options": [
+      "243",
+      "240",
+      "13",
+      "253"
+    ],
+    "correctAnswer": "243",
+    "acceptedAnswers": [
+      "243"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 243 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-085",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 1 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFF8",
+      "0x7FFEFFF0",
+      "0x7FFEFFE8",
+      "2147418114"
+    ],
+    "correctAnswer": "0x7FFEFFF8",
+    "acceptedAnswers": [
+      "0x7FFEFFF8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFF8 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-086",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 862\nneg eax",
+    "options": [
+      "-862",
+      "-872",
+      "-882",
+      "-852"
+    ],
+    "correctAnswer": "-862",
+    "acceptedAnswers": [
+      "-862"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -862 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-087",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 5\nimul eax, 9",
+    "options": [
+      "45",
+      "54",
+      "63",
+      "55"
+    ],
+    "correctAnswer": "45",
+    "acceptedAnswers": [
+      "45"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 45 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-088",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 440\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "441",
+      "446",
+      "451",
+      "0x583"
+    ],
+    "correctAnswer": "441",
+    "acceptedAnswers": [
+      "441"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 441 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-089",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 623\nadd eax, 14\nsub eax, 1",
+    "options": [
+      "636",
+      "633",
+      "640",
+      "646"
+    ],
+    "correctAnswer": "636",
+    "acceptedAnswers": [
+      "636"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 636 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-090",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 90\nlea eax, [ecx*4 + 190]",
+    "options": [
+      "550",
+      "556",
+      "562",
+      "560"
+    ],
+    "correctAnswer": "550",
+    "acceptedAnswers": [
+      "550"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 550 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-091",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 2\nshl eax, 2",
+    "options": [
+      "8",
+      "24",
+      "18",
+      "0x5b3"
+    ],
+    "correctAnswer": "8",
+    "acceptedAnswers": [
+      "8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 8 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-092",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 20\nxor eax, 0x0F",
+    "options": [
+      "27",
+      "24",
+      "21",
+      "37"
+    ],
+    "correctAnswer": "27",
+    "acceptedAnswers": [
+      "27"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 27 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-093",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 4 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFE0",
+      "0x7FFEFFD8",
+      "0x7FFEFFF8",
+      "2147418090"
+    ],
+    "correctAnswer": "0x7FFEFFE0",
+    "acceptedAnswers": [
+      "0x7FFEFFE0"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFE0 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-094",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 942\nneg eax",
+    "options": [
+      "-942",
+      "-952",
+      "-962",
+      "-932"
+    ],
+    "correctAnswer": "-942",
+    "acceptedAnswers": [
+      "-942"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -942 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-095",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 13\nimul eax, 9",
+    "options": [
+      "117",
+      "18",
+      "27",
+      "127"
+    ],
+    "correctAnswer": "117",
+    "acceptedAnswers": [
+      "117"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 117 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-096",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 480\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "481",
+      "486",
+      "491",
+      "0x603"
+    ],
+    "correctAnswer": "481",
+    "acceptedAnswers": [
+      "481"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 481 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-097",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 679\nadd eax, 12\nsub eax, 1",
+    "options": [
+      "690",
+      "697",
+      "704",
+      "700"
+    ],
+    "correctAnswer": "690",
+    "acceptedAnswers": [
+      "690"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 690 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-098",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 98\nlea eax, [ecx*4 + 206]",
+    "options": [
+      "598",
+      "604",
+      "610",
+      "608"
+    ],
+    "correctAnswer": "598",
+    "acceptedAnswers": [
+      "598"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 598 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-099",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 10\nshl eax, 1",
+    "options": [
+      "20",
+      "44",
+      "96",
+      "30"
+    ],
+    "correctAnswer": "20",
+    "acceptedAnswers": [
+      "20"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 20 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-100",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 44\nxor eax, 0x0F",
+    "options": [
+      "35",
+      "32",
+      "61",
+      "45"
+    ],
+    "correctAnswer": "35",
+    "acceptedAnswers": [
+      "35"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 35 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-101",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 2 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFF0",
+      "0x7FFEFFE8",
+      "0x7FFEFFE0",
+      "2147418106"
+    ],
+    "correctAnswer": "0x7FFEFFF0",
+    "acceptedAnswers": [
+      "0x7FFEFFF0"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFF0 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-102",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1022\nneg eax",
+    "options": [
+      "-1022",
+      "-1032",
+      "-1042",
+      "-1012"
+    ],
+    "correctAnswer": "-1022",
+    "acceptedAnswers": [
+      "-1022"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1022 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-103",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 9\nimul eax, 9",
+    "options": [
+      "81",
+      "90",
+      "99",
+      "91"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 81 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-104",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 520\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "521",
+      "526",
+      "531",
+      "0x683"
+    ],
+    "correctAnswer": "521",
+    "acceptedAnswers": [
+      "521"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 521 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-105",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 735\nadd eax, 10\nsub eax, 1",
+    "options": [
+      "744",
+      "751",
+      "758",
+      "754"
+    ],
+    "correctAnswer": "744",
+    "acceptedAnswers": [
+      "744"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 744 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-106",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 106\nlea eax, [ecx*4 + 222]",
+    "options": [
+      "646",
+      "652",
+      "658",
+      "656"
+    ],
+    "correctAnswer": "646",
+    "acceptedAnswers": [
+      "646"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 646 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-107",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 3\nshl eax, 3",
+    "options": [
+      "24",
+      "8",
+      "20",
+      "34"
+    ],
+    "correctAnswer": "24",
+    "acceptedAnswers": [
+      "24"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 24 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-108",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 68\nxor eax, 0x0F",
+    "options": [
+      "75",
+      "72",
+      "69",
+      "85"
+    ],
+    "correctAnswer": "75",
+    "acceptedAnswers": [
+      "75"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 75 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-109",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 5 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFD8",
+      "0x7FFEFFF8",
+      "0x7FFEFFF0",
+      "2147418082"
+    ],
+    "correctAnswer": "0x7FFEFFD8",
+    "acceptedAnswers": [
+      "0x7FFEFFD8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFD8 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-110",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1102\nneg eax",
+    "options": [
+      "-1102",
+      "-1112",
+      "-1122",
+      "-1092"
+    ],
+    "correctAnswer": "-1102",
+    "acceptedAnswers": [
+      "-1102"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1102 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-111",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 5\nimul eax, 9",
+    "options": [
+      "45",
+      "54",
+      "63",
+      "55"
+    ],
+    "correctAnswer": "45",
+    "acceptedAnswers": [
+      "45"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 45 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-112",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 560\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "561",
+      "566",
+      "571",
+      "0x703"
+    ],
+    "correctAnswer": "561",
+    "acceptedAnswers": [
+      "561"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 561 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-113",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 791\nadd eax, 8\nsub eax, 1",
+    "options": [
+      "798",
+      "805",
+      "812",
+      "808"
+    ],
+    "correctAnswer": "798",
+    "acceptedAnswers": [
+      "798"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 798 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-114",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 114\nlea eax, [ecx*4 + 238]",
+    "options": [
+      "694",
+      "700",
+      "706",
+      "704"
+    ],
+    "correctAnswer": "694",
+    "acceptedAnswers": [
+      "694"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 694 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-115",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 11\nshl eax, 2",
+    "options": [
+      "44",
+      "96",
+      "26",
+      "54"
+    ],
+    "correctAnswer": "44",
+    "acceptedAnswers": [
+      "44"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 44 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-116",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 92\nxor eax, 0x0F",
+    "options": [
+      "83",
+      "80",
+      "109",
+      "93"
+    ],
+    "correctAnswer": "83",
+    "acceptedAnswers": [
+      "83"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 83 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-117",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 3 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFE8",
+      "0x7FFEFFE0",
+      "0x7FFEFFD8",
+      "2147418098"
+    ],
+    "correctAnswer": "0x7FFEFFE8",
+    "acceptedAnswers": [
+      "0x7FFEFFE8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFE8 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-118",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1182\nneg eax",
+    "options": [
+      "-1182",
+      "-1192",
+      "-1202",
+      "-1172"
+    ],
+    "correctAnswer": "-1182",
+    "acceptedAnswers": [
+      "-1182"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1182 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-119",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 13\nimul eax, 9",
+    "options": [
+      "117",
+      "18",
+      "27",
+      "127"
+    ],
+    "correctAnswer": "117",
+    "acceptedAnswers": [
+      "117"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 117 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-120",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 600\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "601",
+      "606",
+      "611",
+      "0x783"
+    ],
+    "correctAnswer": "601",
+    "acceptedAnswers": [
+      "601"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 601 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-121",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 847\nadd eax, 6\nsub eax, 1",
+    "options": [
+      "852",
+      "859",
+      "866",
+      "862"
+    ],
+    "correctAnswer": "852",
+    "acceptedAnswers": [
+      "852"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 852 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-122",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 122\nlea eax, [ecx*4 + 254]",
+    "options": [
+      "742",
+      "748",
+      "754",
+      "752"
+    ],
+    "correctAnswer": "742",
+    "acceptedAnswers": [
+      "742"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 742 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-123",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 4\nshl eax, 1",
+    "options": [
+      "8",
+      "20",
+      "48",
+      "18"
+    ],
+    "correctAnswer": "8",
+    "acceptedAnswers": [
+      "8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 8 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-124",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 116\nxor eax, 0x0F",
+    "options": [
+      "123",
+      "120",
+      "117",
+      "133"
+    ],
+    "correctAnswer": "123",
+    "acceptedAnswers": [
+      "123"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 123 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-125",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 1 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFF8",
+      "0x7FFEFFF0",
+      "0x7FFEFFE8",
+      "2147418114"
+    ],
+    "correctAnswer": "0x7FFEFFF8",
+    "acceptedAnswers": [
+      "0x7FFEFFF8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFF8 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-126",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1262\nneg eax",
+    "options": [
+      "-1262",
+      "-1272",
+      "-1282",
+      "-1252"
+    ],
+    "correctAnswer": "-1262",
+    "acceptedAnswers": [
+      "-1262"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1262 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-127",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 9\nimul eax, 9",
+    "options": [
+      "81",
+      "90",
+      "99",
+      "91"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 81 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-128",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 640\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "641",
+      "646",
+      "651",
+      "0x803"
+    ],
+    "correctAnswer": "641",
+    "acceptedAnswers": [
+      "641"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 641 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-129",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 903\nadd eax, 14\nsub eax, 1",
+    "options": [
+      "916",
+      "913",
+      "920",
+      "926"
+    ],
+    "correctAnswer": "916",
+    "acceptedAnswers": [
+      "916"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 916 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-130",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 130\nlea eax, [ecx*4 + 270]",
+    "options": [
+      "790",
+      "796",
+      "802",
+      "800"
+    ],
+    "correctAnswer": "790",
+    "acceptedAnswers": [
+      "790"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 790 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-131",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 12\nshl eax, 3",
+    "options": [
+      "96",
+      "26",
+      "56",
+      "106"
+    ],
+    "correctAnswer": "96",
+    "acceptedAnswers": [
+      "96"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 96 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-132",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 140\nxor eax, 0x0F",
+    "options": [
+      "131",
+      "128",
+      "157",
+      "141"
+    ],
+    "correctAnswer": "131",
+    "acceptedAnswers": [
+      "131"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 131 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-133",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 4 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFE0",
+      "0x7FFEFFD8",
+      "0x7FFEFFF8",
+      "2147418090"
+    ],
+    "correctAnswer": "0x7FFEFFE0",
+    "acceptedAnswers": [
+      "0x7FFEFFE0"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFE0 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-134",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1342\nneg eax",
+    "options": [
+      "-1342",
+      "-1352",
+      "-1362",
+      "-1332"
+    ],
+    "correctAnswer": "-1342",
+    "acceptedAnswers": [
+      "-1342"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1342 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-135",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 5\nimul eax, 9",
+    "options": [
+      "45",
+      "54",
+      "63",
+      "55"
+    ],
+    "correctAnswer": "45",
+    "acceptedAnswers": [
+      "45"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 45 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-136",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 680\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "681",
+      "686",
+      "691",
+      "0x883"
+    ],
+    "correctAnswer": "681",
+    "acceptedAnswers": [
+      "681"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 681 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-137",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 959\nadd eax, 12\nsub eax, 1",
+    "options": [
+      "970",
+      "977",
+      "984",
+      "980"
+    ],
+    "correctAnswer": "970",
+    "acceptedAnswers": [
+      "970"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 970 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-138",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 138\nlea eax, [ecx*4 + 286]",
+    "options": [
+      "838",
+      "844",
+      "850",
+      "848"
+    ],
+    "correctAnswer": "838",
+    "acceptedAnswers": [
+      "838"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 838 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-139",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 5\nshl eax, 2",
+    "options": [
+      "20",
+      "48",
+      "14",
+      "30"
+    ],
+    "correctAnswer": "20",
+    "acceptedAnswers": [
+      "20"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 20 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-140",
+    "language": "asm",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 164\nxor eax, 0x0F",
+    "options": [
+      "171",
+      "168",
+      "165",
+      "181"
+    ],
+    "correctAnswer": "171",
+    "acceptedAnswers": [
+      "171"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 171 in the target register.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-141",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 2 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFF0",
+      "0x7FFEFFE8",
+      "0x7FFEFFE0",
+      "2147418106"
+    ],
+    "correctAnswer": "0x7FFEFFF0",
+    "acceptedAnswers": [
+      "0x7FFEFFF0"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFF0 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-142",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1422\nneg eax",
+    "options": [
+      "-1422",
+      "-1432",
+      "-1442",
+      "-1412"
+    ],
+    "correctAnswer": "-1422",
+    "acceptedAnswers": [
+      "-1422"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1422 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-143",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 13\nimul eax, 9",
+    "options": [
+      "117",
+      "18",
+      "27",
+      "127"
+    ],
+    "correctAnswer": "117",
+    "acceptedAnswers": [
+      "117"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 117 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-144",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 720\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "721",
+      "726",
+      "731",
+      "0x903"
+    ],
+    "correctAnswer": "721",
+    "acceptedAnswers": [
+      "721"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 721 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-145",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 1015\nadd eax, 10\nsub eax, 1",
+    "options": [
+      "1024",
+      "1031",
+      "1038",
+      "1034"
+    ],
+    "correctAnswer": "1024",
+    "acceptedAnswers": [
+      "1024"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1024 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-146",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 146\nlea eax, [ecx*4 + 302]",
+    "options": [
+      "886",
+      "892",
+      "898",
+      "896"
+    ],
+    "correctAnswer": "886",
+    "acceptedAnswers": [
+      "886"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 886 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-147",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 13\nshl eax, 1",
+    "options": [
+      "26",
+      "56",
+      "120",
+      "36"
+    ],
+    "correctAnswer": "26",
+    "acceptedAnswers": [
+      "26"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 26 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-148",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 188\nxor eax, 0x0F",
+    "options": [
+      "179",
+      "176",
+      "205",
+      "189"
+    ],
+    "correctAnswer": "179",
+    "acceptedAnswers": [
+      "179"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 179 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-149",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 5 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFD8",
+      "0x7FFEFFF8",
+      "0x7FFEFFF0",
+      "2147418082"
+    ],
+    "correctAnswer": "0x7FFEFFD8",
+    "acceptedAnswers": [
+      "0x7FFEFFD8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFD8 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-150",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1502\nneg eax",
+    "options": [
+      "-1502",
+      "-1512",
+      "-1522",
+      "-1492"
+    ],
+    "correctAnswer": "-1502",
+    "acceptedAnswers": [
+      "-1502"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1502 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-151",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 9\nimul eax, 9",
+    "options": [
+      "81",
+      "90",
+      "99",
+      "91"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 81 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-152",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 760\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "761",
+      "766",
+      "771",
+      "0x983"
+    ],
+    "correctAnswer": "761",
+    "acceptedAnswers": [
+      "761"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 761 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-153",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 1071\nadd eax, 8\nsub eax, 1",
+    "options": [
+      "1078",
+      "1085",
+      "1092",
+      "1088"
+    ],
+    "correctAnswer": "1078",
+    "acceptedAnswers": [
+      "1078"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1078 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-154",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 154\nlea eax, [ecx*4 + 318]",
+    "options": [
+      "934",
+      "940",
+      "946",
+      "944"
+    ],
+    "correctAnswer": "934",
+    "acceptedAnswers": [
+      "934"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 934 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-155",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 6\nshl eax, 3",
+    "options": [
+      "48",
+      "14",
+      "32",
+      "58"
+    ],
+    "correctAnswer": "48",
+    "acceptedAnswers": [
+      "48"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 48 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-156",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 212\nxor eax, 0x0F",
+    "options": [
+      "219",
+      "216",
+      "213",
+      "229"
+    ],
+    "correctAnswer": "219",
+    "acceptedAnswers": [
+      "219"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 219 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-157",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 3 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFE8",
+      "0x7FFEFFE0",
+      "0x7FFEFFD8",
+      "2147418098"
+    ],
+    "correctAnswer": "0x7FFEFFE8",
+    "acceptedAnswers": [
+      "0x7FFEFFE8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFE8 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-158",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1582\nneg eax",
+    "options": [
+      "-1582",
+      "-1592",
+      "-1602",
+      "-1572"
+    ],
+    "correctAnswer": "-1582",
+    "acceptedAnswers": [
+      "-1582"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1582 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-159",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 5\nimul eax, 9",
+    "options": [
+      "45",
+      "54",
+      "63",
+      "55"
+    ],
+    "correctAnswer": "45",
+    "acceptedAnswers": [
+      "45"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 45 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-160",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 800\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "801",
+      "806",
+      "811",
+      "0xa03"
+    ],
+    "correctAnswer": "801",
+    "acceptedAnswers": [
+      "801"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 801 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-161",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 1127\nadd eax, 6\nsub eax, 1",
+    "options": [
+      "1132",
+      "1139",
+      "1146",
+      "1142"
+    ],
+    "correctAnswer": "1132",
+    "acceptedAnswers": [
+      "1132"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1132 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-162",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 162\nlea eax, [ecx*4 + 334]",
+    "options": [
+      "982",
+      "988",
+      "994",
+      "992"
+    ],
+    "correctAnswer": "982",
+    "acceptedAnswers": [
+      "982"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 982 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-163",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 14\nshl eax, 2",
+    "options": [
+      "56",
+      "120",
+      "2",
+      "66"
+    ],
+    "correctAnswer": "56",
+    "acceptedAnswers": [
+      "56"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 56 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-164",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 236\nxor eax, 0x0F",
+    "options": [
+      "227",
+      "224",
+      "253",
+      "237"
+    ],
+    "correctAnswer": "227",
+    "acceptedAnswers": [
+      "227"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 227 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-165",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 1 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFF8",
+      "0x7FFEFFF0",
+      "0x7FFEFFE8",
+      "2147418114"
+    ],
+    "correctAnswer": "0x7FFEFFF8",
+    "acceptedAnswers": [
+      "0x7FFEFFF8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFF8 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-166",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1662\nneg eax",
+    "options": [
+      "-1662",
+      "-1672",
+      "-1682",
+      "-1652"
+    ],
+    "correctAnswer": "-1662",
+    "acceptedAnswers": [
+      "-1662"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1662 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-167",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 13\nimul eax, 9",
+    "options": [
+      "117",
+      "18",
+      "27",
+      "127"
+    ],
+    "correctAnswer": "117",
+    "acceptedAnswers": [
+      "117"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 117 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-168",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 840\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "841",
+      "846",
+      "851",
+      "0xa83"
+    ],
+    "correctAnswer": "841",
+    "acceptedAnswers": [
+      "841"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 841 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-169",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 1183\nadd eax, 14\nsub eax, 1",
+    "options": [
+      "1196",
+      "1193",
+      "1200",
+      "1206"
+    ],
+    "correctAnswer": "1196",
+    "acceptedAnswers": [
+      "1196"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1196 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-170",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 170\nlea eax, [ecx*4 + 350]",
+    "options": [
+      "1030",
+      "1036",
+      "1042",
+      "1040"
+    ],
+    "correctAnswer": "1030",
+    "acceptedAnswers": [
+      "1030"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1030 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-171",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 7\nshl eax, 1",
+    "options": [
+      "14",
+      "32",
+      "72",
+      "24"
+    ],
+    "correctAnswer": "14",
+    "acceptedAnswers": [
+      "14"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 14 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-172",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 4\nxor eax, 0x0F",
+    "options": [
+      "11",
+      "8",
+      "5",
+      "21"
+    ],
+    "correctAnswer": "11",
+    "acceptedAnswers": [
+      "11"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 11 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-173",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 4 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFE0",
+      "0x7FFEFFD8",
+      "0x7FFEFFF8",
+      "2147418090"
+    ],
+    "correctAnswer": "0x7FFEFFE0",
+    "acceptedAnswers": [
+      "0x7FFEFFE0"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFE0 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-174",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1742\nneg eax",
+    "options": [
+      "-1742",
+      "-1752",
+      "-1762",
+      "-1732"
+    ],
+    "correctAnswer": "-1742",
+    "acceptedAnswers": [
+      "-1742"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1742 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-175",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 9\nimul eax, 9",
+    "options": [
+      "81",
+      "90",
+      "99",
+      "91"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 81 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-176",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 880\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "881",
+      "886",
+      "891",
+      "0xb03"
+    ],
+    "correctAnswer": "881",
+    "acceptedAnswers": [
+      "881"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 881 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-177",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 1239\nadd eax, 12\nsub eax, 1",
+    "options": [
+      "1250",
+      "1257",
+      "1264",
+      "1260"
+    ],
+    "correctAnswer": "1250",
+    "acceptedAnswers": [
+      "1250"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1250 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-178",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 178\nlea eax, [ecx*4 + 366]",
+    "options": [
+      "1078",
+      "1084",
+      "1090",
+      "1088"
+    ],
+    "correctAnswer": "1078",
+    "acceptedAnswers": [
+      "1078"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1078 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-179",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 15\nshl eax, 3",
+    "options": [
+      "120",
+      "2",
+      "8",
+      "130"
+    ],
+    "correctAnswer": "120",
+    "acceptedAnswers": [
+      "120"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 120 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-180",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 28\nxor eax, 0x0F",
+    "options": [
+      "19",
+      "16",
+      "45",
+      "29"
+    ],
+    "correctAnswer": "19",
+    "acceptedAnswers": [
+      "19"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 19 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-181",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 2 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFF0",
+      "0x7FFEFFE8",
+      "0x7FFEFFE0",
+      "2147418106"
+    ],
+    "correctAnswer": "0x7FFEFFF0",
+    "acceptedAnswers": [
+      "0x7FFEFFF0"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFF0 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-182",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1822\nneg eax",
+    "options": [
+      "-1822",
+      "-1832",
+      "-1842",
+      "-1812"
+    ],
+    "correctAnswer": "-1822",
+    "acceptedAnswers": [
+      "-1822"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1822 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-183",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 5\nimul eax, 9",
+    "options": [
+      "45",
+      "54",
+      "63",
+      "55"
+    ],
+    "correctAnswer": "45",
+    "acceptedAnswers": [
+      "45"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 45 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-184",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 920\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "921",
+      "926",
+      "931",
+      "0xb83"
+    ],
+    "correctAnswer": "921",
+    "acceptedAnswers": [
+      "921"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 921 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-185",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 1295\nadd eax, 10\nsub eax, 1",
+    "options": [
+      "1304",
+      "1311",
+      "1318",
+      "1314"
+    ],
+    "correctAnswer": "1304",
+    "acceptedAnswers": [
+      "1304"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1304 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-186",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 186\nlea eax, [ecx*4 + 382]",
+    "options": [
+      "1126",
+      "1132",
+      "1138",
+      "1136"
+    ],
+    "correctAnswer": "1126",
+    "acceptedAnswers": [
+      "1126"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1126 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-187",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 8\nshl eax, 2",
+    "options": [
+      "32",
+      "72",
+      "20",
+      "42"
+    ],
+    "correctAnswer": "32",
+    "acceptedAnswers": [
+      "32"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 32 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-188",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 52\nxor eax, 0x0F",
+    "options": [
+      "59",
+      "56",
+      "53",
+      "69"
+    ],
+    "correctAnswer": "59",
+    "acceptedAnswers": [
+      "59"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 59 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-189",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 5 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFD8",
+      "0x7FFEFFF8",
+      "0x7FFEFFF0",
+      "2147418082"
+    ],
+    "correctAnswer": "0x7FFEFFD8",
+    "acceptedAnswers": [
+      "0x7FFEFFD8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFD8 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-190",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1902\nneg eax",
+    "options": [
+      "-1902",
+      "-1912",
+      "-1922",
+      "-1892"
+    ],
+    "correctAnswer": "-1902",
+    "acceptedAnswers": [
+      "-1902"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1902 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-191",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 13\nimul eax, 9",
+    "options": [
+      "117",
+      "18",
+      "27",
+      "127"
+    ],
+    "correctAnswer": "117",
+    "acceptedAnswers": [
+      "117"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 117 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-192",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 960\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "961",
+      "966",
+      "971",
+      "0xc03"
+    ],
+    "correctAnswer": "961",
+    "acceptedAnswers": [
+      "961"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 961 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-193",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "register_arithmetic_math",
+    "subtopic": "add_and_sub",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after this instruction sequence?",
+    "code": "mov eax, 1351\nadd eax, 8\nsub eax, 1",
+    "options": [
+      "1358",
+      "1365",
+      "1372",
+      "1368"
+    ],
+    "correctAnswer": "1358",
+    "acceptedAnswers": [
+      "1358"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1358 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "register_arithmetic_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-194",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "lea_effective_address",
+    "subtopic": "scale_index_base",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the computed value loaded into EAX by this LEA instruction?",
+    "code": "mov ecx, 194\nlea eax, [ecx*4 + 398]",
+    "options": [
+      "1174",
+      "1180",
+      "1186",
+      "1184"
+    ],
+    "correctAnswer": "1174",
+    "acceptedAnswers": [
+      "1174"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1174 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "lea_effective_address",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-195",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "shift_multiplication",
+    "subtopic": "shl_calculation",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after shifting left?",
+    "code": "mov eax, 1\nshl eax, 1",
+    "options": [
+      "2",
+      "8",
+      "24",
+      "12"
+    ],
+    "correctAnswer": "2",
+    "acceptedAnswers": [
+      "2"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 2 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "shift_multiplication",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-196",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "xor_logic",
+    "subtopic": "bitwise_xor",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after bitwise XOR?",
+    "code": "mov eax, 76\nxor eax, 0x0F",
+    "options": [
+      "67",
+      "64",
+      "93",
+      "77"
+    ],
+    "correctAnswer": "67",
+    "acceptedAnswers": [
+      "67"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 67 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "xor_logic",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-197",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "stack_offset_calculation",
+    "subtopic": "rsp_growth",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "If RSP starts at 0x7FFF0000, what is RSP after pushing N 64-bit registers?",
+    "code": "; RSP = 0x7FFF0000\n; 3 sequential 'push rax' instructions",
+    "options": [
+      "0x7FFEFFE8",
+      "0x7FFEFFE0",
+      "0x7FFEFFD8",
+      "2147418098"
+    ],
+    "correctAnswer": "0x7FFEFFE8",
+    "acceptedAnswers": [
+      "0x7FFEFFE8"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 0x7FFEFFE8 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "stack_offset_calculation",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-198",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "two_complement_neg",
+    "subtopic": "neg_arithmetic",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What decimal signed value is in EAX after NEG?",
+    "code": "mov eax, 1982\nneg eax",
+    "options": [
+      "-1982",
+      "-1992",
+      "-2002",
+      "-1972"
+    ],
+    "correctAnswer": "-1982",
+    "acceptedAnswers": [
+      "-1982"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates -1982 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "two_complement_neg",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-199",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "imul_math",
+    "subtopic": "multiply_immediate",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the decimal value of EAX after IMUL?",
+    "code": "mov eax, 9\nimul eax, 9",
+    "options": [
+      "81",
+      "90",
+      "99",
+      "91"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 81 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "imul_math",
+      "endless"
+    ]
+  },
+  {
+    "id": "asm-end-200",
+    "language": "asm",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "inc_dec_flow",
+    "subtopic": "register_counters",
+    "standardVersion": "x86-64 / Reverse Engineering",
+    "prompt": "What is the final value of EAX?",
+    "code": "mov eax, 1000\ninc eax\ninc eax\ndec eax",
+    "options": [
+      "1001",
+      "1006",
+      "1011",
+      "0xc83"
+    ],
+    "correctAnswer": "1001",
+    "acceptedAnswers": [
+      "1001"
+    ],
+    "hint": "Simulate the instruction according to x86-64 CPU architectural state rules.",
+    "explanation": "Executing these instructions calculates 1001 in the target register.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "asm",
+      "x86_64",
+      "inc_dec_flow",
+      "endless"
+    ]
+  }
+]
 };

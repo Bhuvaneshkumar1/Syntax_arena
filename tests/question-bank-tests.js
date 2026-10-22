@@ -55,7 +55,7 @@ export async function runQuestionBankTests() {
   console.log('\n--- 3. Identifier Integrity & Uniqueness ---');
   const seenIds = new Set();
   let duplicateCount = 0;
-  const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go|html)-(beg|int|exp)-[0-9]{3}$/;
+  const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go|html|asm)-(beg|int|exp)-[0-9]{3}$/;
   let invalidPatternCount = 0;
 
   all.forEach(q => {

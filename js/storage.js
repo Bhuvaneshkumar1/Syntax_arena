@@ -52,7 +52,8 @@ export function createDefaultProfile(id = 'prof-default01', username = 'ScriptAd
       sql:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
       typescript: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
       go:         { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
-      html:       { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
+      html:       { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+      asm:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
     },
     completedTiers: {},
     stageStars: {},

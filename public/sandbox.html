@@ -156,6 +156,9 @@
         <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="html">
           🎨 HTML5 &amp; CSS
         </button>
+        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="asm">
+          ⚙️ Assembly &amp; RE
+        </button>
         <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="systems">
           ⚡ C / C++ / Java / Rust
         </button>
@@ -599,6 +602,44 @@ func main() {
         }
       },
 
+      asm: {
+        title: 'x86-64 & ARM64 Assembly Emulator',
+        subtitle: 'CPU registers, arithmetic, bitwise shifts, SIB addressing, and virtual stack frame evaluation.',
+        badge: '⚙️ x86-64 / ARM64 ASM',
+        filename: 'main.asm',
+        templates: {
+          registers_arithmetic: `; x86-64 Register Math & Zeroing
+mov rax, 0x1122334455667788
+xor rbx, rbx          ; zero RBX
+mov ecx, 25           ; RCX = 25
+add rcx, 15           ; RCX = 40
+shl rcx, 1            ; RCX = 80
+imul rax, 0           ; RAX = 0
+`,
+          stack_frame_prologue: `; Function Prologue & Stack Frame Allocation
+push rbp
+mov rbp, rsp
+sub rsp, 32           ; Allocate 32 bytes for local variables
+
+mov qword ptr [rbp - 8], 42
+mov rax, qword ptr [rbp - 8]
+
+; Epilogue
+leave
+`,
+          lea_addressing: `; SIB Memory & LEA Address Calculation
+mov rbx, 10
+mov rcx, 4
+lea rax, [rbx + rcx*4 + 2] ; RAX = 10 + 16 + 2 = 28
+`,
+          blank: `; x86-64 Assembly Sandbox
+mov rax, 42
+mov rbx, 100
+add rax, rbx
+`
+        }
+      },
+
       systems: {
         title: 'C / C++ / Java / Rust Challenge Simulator',
         subtitle: 'Interactive compiler and memory-model simulation for systems programming tracks.',
@@ -989,6 +1030,27 @@ fn main() {
                 const errEl = document.createElement('div');
                 errEl.style.color = 'var(--color-coral, #f43f5e)';
                 errEl.innerHTML = `⚠️ <strong>HTML/CSS Parsing Error:</strong>\n${Utils.escapeHTML(res.error)}`;
+                consoleOutput.appendChild(errEl);
+              }
+            }
+          } else if (currentEnv === 'asm') {
+            const res = SandboxManager.runAssembly(code);
+            runBtn.disabled = false;
+            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
+            if (consoleOutput) {
+              consoleOutput.innerHTML = '';
+              if (res.output) {
+                const outEl = document.createElement('div');
+                outEl.style.whiteSpace = 'pre';
+                outEl.style.fontFamily = 'var(--font-mono)';
+                outEl.style.color = '#FBBF24';
+                outEl.textContent = res.output;
+                consoleOutput.appendChild(outEl);
+              }
+              if (res.error) {
+                const errEl = document.createElement('div');
+                errEl.style.color = 'var(--color-coral, #f43f5e)';
+                errEl.innerHTML = `⚠️ <strong>Assembly Emulator Error:</strong>\n${Utils.escapeHTML(res.error)}`;
                 consoleOutput.appendChild(errEl);
               }
             }

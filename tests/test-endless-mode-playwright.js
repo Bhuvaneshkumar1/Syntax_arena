@@ -49,11 +49,11 @@ async function runEndlessModeTest() {
   const page = await browser.newPage();
 
   try {
-    console.log('\n--- 1. Testing QuestionBank 200 Questions Inventory Across All 8 Languages ---');
+    console.log('\n--- 1. Testing QuestionBank 200 Questions Inventory Across All 12 Languages ---');
     await page.goto(`${BASE_URL}/index.html`);
 
     const counts = await page.evaluate(() => {
-      const langs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html'];
+      const langs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html', 'asm'];
       const res = {};
       langs.forEach(l => {
         const list = window.QuestionBank ? window.QuestionBank.getEndlessQuestions(l) : [];
@@ -74,7 +74,8 @@ async function runEndlessModeTest() {
     assert.strictEqual(counts.typescript, 200, 'TypeScript has 200 endless questions');
     assert.strictEqual(counts.go, 200, 'Go has 200 endless questions');
     assert.strictEqual(counts.html, 200, 'HTML has 200 endless questions');
-    console.log('✓ PASS: All 11 languages provide exactly 200 questions for Endless mode');
+    assert.strictEqual(counts.asm, 200, 'Assembly & RE has 200 endless questions');
+    console.log('✓ PASS: All 12 languages provide exactly 200 questions for Endless mode');
 
     console.log('\n--- 2. Testing Challenge Showcase Card & Launcher in Hub ---');
     const endlessCardBtn = page.locator('#btn-showcase-endless');

@@ -140,6 +140,20 @@ async function runMultiSandboxTest() {
     assert(sysOut.includes('SyntaxArena') || sysOut.includes('GCC'), 'Systems simulator executed C preprocessor challenge');
     console.log('✓ PASS: Systems challenge simulator works.');
 
+    // 7. Verify Assembly & RE Simulator
+    console.log('\n--- 7. Checking Assembly & RE Tab ---');
+    const asmTab = page.locator('button[data-env="asm"]');
+    await asmTab.click();
+    await page.waitForTimeout(300);
+
+    await runBtn.click();
+    await page.waitForTimeout(400);
+
+    const asmOut = await page.locator('#page-console-output').textContent();
+    console.log('Assembly Output:', asmOut.trim());
+    assert(asmOut.includes('REGISTER & STACK SNAPSHOT') && asmOut.includes('RAX'), 'Assembly emulator executed instructions and dumped registers');
+    console.log('✓ PASS: Assembly & RE CPU emulator works.');
+
     console.log('\n🎉 ALL MULTI-ENGINE SANDBOX & DRAWER CHECKS PASSED!');
   } finally {
     await browser.close();

@@ -114,7 +114,7 @@ export const LandingPage = {
    * @param {boolean} [saveState=true]
    */
   selectLanguage(lang, saveState = true) {
-    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html'].includes(lang)) return;
+    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html', 'asm'].includes(lang)) return;
     this.selectedLanguage = lang;
 
     const cards = Utils.qsa('#language-tracks-container .card-selectable');
@@ -393,7 +393,8 @@ export const LandingPage = {
       sql:        { filename: 'query_01.sql', badge: 'ANSI SQL', tagClass: 'tag-sql' },
       typescript: { filename: 'solution_01.ts', badge: 'TypeScript 5.4+', tagClass: 'tag-typescript' },
       go:         { filename: 'main_01.go', badge: 'Go 1.22+', tagClass: 'tag-go' },
-      html:       { filename: 'index.html', badge: 'HTML5 & CSS', tagClass: 'tag-html' }
+      html:       { filename: 'index.html', badge: 'HTML5 & CSS', tagClass: 'tag-html' },
+      asm:        { filename: 'exploit_01.asm', badge: 'x86-64 & ARM64', tagClass: 'tag-asm' }
     };
     const currentMeta = meta[lang] || meta.python;
     if (previewFilename) previewFilename.textContent = currentMeta.filename;
