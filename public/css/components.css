@@ -1895,9 +1895,143 @@
     color: #b45309 !important;
     text-shadow: none !important;
   }
-  .no-print {
-    display: none !important;
-  }
+
+/* ==========================================================================
+   DAILY HACKER GAUNTLET & 7-DAY PUNCH CARD STYLES
+   ========================================================================== */
+.daily-punch-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.punch-card {
+  background: var(--bg-surface-raised);
+  border: 2px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 0.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  transition: all var(--transition-fast);
+  min-height: 140px;
+}
+
+.punch-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 14px rgba(0, 229, 255, 0.15);
+}
+
+.punch-card.is-claimed {
+  border-color: var(--color-success);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, var(--bg-surface-raised) 100%);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+.punch-card.is-active {
+  border-color: var(--color-primary);
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.15) 0%, var(--bg-surface-raised) 100%);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.35);
+  animation: pulseCardGlow 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes pulseCardGlow {
+  0% { box-shadow: 0 0 8px rgba(0, 229, 255, 0.25); }
+  100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.55), 0 0 3px #00e5ff; }
+}
+
+.punch-card.is-locked {
+  opacity: 0.6;
+  filter: grayscale(40%);
+}
+
+.punch-day-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.punch-card.is-active .punch-day-label {
+  color: var(--color-primary);
+}
+
+.punch-card.is-claimed .punch-day-label {
+  color: var(--color-success);
+}
+
+.punch-icon {
+  font-size: 1.85rem;
+  margin: 0.4rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast);
+}
+
+.punch-card:hover .punch-icon {
+  transform: scale(1.15);
+}
+
+.punch-reward-val {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.punch-card.is-claimed .punch-reward-val {
+  color: var(--color-success);
+}
+
+.punch-status-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  margin-top: 0.4rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.daily-countdown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid var(--color-violet);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-violet);
+  font-weight: 700;
+}
+
+.gauntlet-modal-dialog {
+  max-width: 680px;
+  width: min(680px, 94vw);
+}
+
+.gauntlet-question-box {
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.gauntlet-options-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
 }
 
 

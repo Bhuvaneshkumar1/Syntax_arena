@@ -212,5 +212,42 @@ export const QuestionBank = {
    */
   validate(options = { checkExactInventory: true }) {
     return QuestionValidator.validateAll(ALL_QUESTIONS, options);
+  },
+
+  /**
+   * Deterministically retrieve daily questions based on calendar date seed.
+   * @param {string} [dateStr=null] YYYY-MM-DD
+   * @param {number} [count=3]
+   * @returns {Array}
+   */
+  getDailyQuestions(dateStr = null, count = 3) {
+    const today = dateStr || new Date().toISOString().slice(0, 10);
+    let seed = 0;
+    for (let i = 0; i < today.length; i++) {
+      seed = (seed << 5) - seed + today.charCodeAt(i);
+      seed |= 0;
+    }
+    // Filter to questions that have multiple-choice options for rapid deduction
+    const all = ALL_QUESTIONS.filter(q => Array.isArray(q.options) && q.options.length >= 2);
+    if (!all.length) return [];
+
+    const selected = [];
+    const usedIndices = new Set();
+    let curSeed = Math.abs(seed) + 42;
+
+    const pseudoRand = (s) => {
+      const x = Math.sin(s) * 10000;
+      return x - Math.floor(x);
+    };
+
+    while (selected.length < count && usedIndices.size < all.length) {
+      curSeed += 1;
+      const idx = Math.floor(pseudoRand(curSeed) * all.length);
+      if (!usedIndices.has(idx)) {
+        usedIndices.add(idx);
+        selected.push(cloneQuestion(all[idx]));
+      }
+    }
+    return selected;
   }
 };

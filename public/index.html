@@ -1137,36 +1137,56 @@
       </section>
 
       <!-- ====================================================================
-           SECTION H: DAILY CHALLENGE PREVIEW
+           SECTION H: DAILY HACKER GAUNTLET & 7-DAY PUNCH CARD
            ==================================================================== -->
-      <section id="daily-preview" class="section-anchor" style="margin-bottom: 4.5rem;">
-        <div class="card card-raised" style="padding: var(--space-6); background: linear-gradient(135deg, var(--bg-surface-raised) 0%, rgba(139, 92, 246, 0.08) 100%);">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+      <section id="daily-preview" class="section-anchor" style="margin-bottom: 4.5rem;" aria-label="Daily Hacker Gauntlet and 7-Day Punch Card Streak">
+        <div class="card card-raised" style="padding: var(--space-6); background: linear-gradient(135deg, var(--bg-surface-raised) 0%, rgba(139, 92, 246, 0.08) 100%); border-color: rgba(139, 92, 246, 0.35);">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <span class="brand-badge" style="background-color: rgba(139, 92, 246, 0.15); border-color: var(--color-violet-edge); color: var(--color-violet);">
                 <svg width="20" height="20" aria-hidden="true"><use href="#icon-zap"></use></svg>
               </span>
               <div>
-                <h3 style="margin-bottom: 0.25rem;">Daily Studio Challenge</h3>
-                <span style="font-size: var(--text-xs); color: var(--text-muted);">Synchronized 10-Question Daily Puzzle</span>
+                <h3 style="margin-bottom: 0.25rem;">Daily Hacker Gauntlet</h3>
+                <span style="font-size: var(--text-xs); color: var(--text-muted);">Synchronized 3-Question Puzzle &amp; 7-Day Punch Card Streak Matrix</span>
               </div>
             </div>
-            <span class="badge badge-amber">Upcoming Feature Preview — Coming in Batch 5</span>
+            
+            <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+              <span id="daily-streak-pill" class="badge badge-amber" style="font-size: 11px;">🔥 0-Day Streak</span>
+              <div class="daily-countdown-badge">
+                <span>⏱️ Reset:</span>
+                <span id="daily-countdown-timer">--h --m --s</span>
+              </div>
+            </div>
           </div>
 
-          <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; max-width: 720px; margin-bottom: 1.5rem;">
-            Every calendar day at 00:00 UTC, a fresh 10-question challenge sequence is deterministically generated using an offline 32-bit Mulberry32 PRNG.
-            All players globally receive the identical puzzle sequence for community comparison, with zero remote server dependency.
+          <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; max-width: 780px; margin-bottom: 1.25rem;">
+            Keep your neural streak alive! Solve today's 3 synchronized rapid-fire deductions to punch your daily card, claim escalating bonus XP, and unlock the exclusive <strong>Hex Dragon</strong> avatar on Day 7.
           </p>
 
-          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <button id="btn-daily-cta" class="btn-arcade btn-primary btn-sm">
-              Configure Profile & Enter Arena →
-            </button>
-            <a href="progress.html" class="btn-arcade btn-neutral btn-sm">
-              View Trophy & Badge Room
-            </a>
+          <!-- 7-Day Punch Card Matrix -->
+          <div id="daily-punch-matrix" class="daily-punch-matrix" aria-label="7-Day Streak Punch Card Matrix">
+            <!-- Dynamically populated 7 days -->
           </div>
+
+          <!-- Mission Status & CTA Actions -->
+          <div id="daily-mission-action-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+            <div id="daily-mission-status-text" style="font-size: var(--text-sm); font-weight: 600;">
+              <span style="color: var(--color-warning);">⚡ Today's Mission Ready:</span> 3 rapid code output deductions.
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <button id="btn-launch-daily-gauntlet" class="btn-arcade btn-primary btn-md" style="background: linear-gradient(135deg, #8b5cf6, #00e5ff); border-color: #a78bfa; font-weight: 800;">
+                <span>⚡ Launch Daily Gauntlet</span>
+              </button>
+              <a href="progress.html" class="btn-arcade btn-neutral btn-md">
+                <span>🏆 Trophy Room</span>
+              </a>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -1501,6 +1521,72 @@
           <a id="btn-modal-stage-marathon" href="game.html" class="btn-arcade btn-neutral btn-sm" style="display: inline-flex; align-items: center; gap: 0.5rem;">
             <span>🏆 Play All 20 Questions (Marathon)</span>
           </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Hacker Gauntlet Modal Dialog -->
+  <div id="modal-daily-gauntlet" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="gauntlet-modal-title" style="display: none;">
+    <div class="modal-dialog gauntlet-modal-dialog">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span class="brand-badge" style="background-color: rgba(139, 92, 246, 0.15); border-color: var(--color-violet); color: var(--color-violet);">⚡</span>
+          <div>
+            <span id="gauntlet-stage-tag" class="badge badge-violet" style="font-size: 10px; margin-bottom: 2px;">DAILY GAUNTLET // 3 RAPID TRACES</span>
+            <h2 id="gauntlet-modal-title" class="modal-title" style="margin: 0; font-size: var(--text-lg);">Today's Hacker Gauntlet</h2>
+          </div>
+        </div>
+        <button type="button" class="btn-icon-toggle" id="btn-close-gauntlet-modal" aria-label="Close daily gauntlet">✕</button>
+      </div>
+
+      <div class="modal-body" id="gauntlet-modal-body">
+        <!-- Step Indicator & Timer Header -->
+        <div id="gauntlet-quiz-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span id="gauntlet-question-counter" style="font-family: var(--font-mono); font-weight: 800; color: var(--color-primary); font-size: var(--text-sm);">QUESTION 1 OF 3</span>
+            <span id="gauntlet-lang-badge" class="badge badge-cyan" style="font-size: 10px;">PYTHON</span>
+          </div>
+          <div id="gauntlet-timer-display" style="font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 800; color: var(--color-warning);">
+            ⏱️ 45s
+          </div>
+        </div>
+
+        <!-- Question Content -->
+        <div id="gauntlet-question-container">
+          <h3 id="gauntlet-prompt" style="font-size: var(--text-base); margin-bottom: 0.75rem; color: var(--text-primary);">What is the output of this code snippet?</h3>
+          <div class="code-terminal" style="margin-bottom: 1rem;">
+            <div class="code-terminal-header">
+              <span id="gauntlet-code-filename">daily_gauntlet.py</span>
+              <span style="color: var(--color-violet);">Daily Sync Seed</span>
+            </div>
+            <pre class="code-terminal-pre"><code id="gauntlet-code-snippet"># Loading daily puzzle...</code></pre>
+          </div>
+
+          <!-- Options Grid -->
+          <div id="gauntlet-options" class="gauntlet-options-grid">
+            <!-- 4 Options dynamically injected -->
+          </div>
+
+          <!-- Feedback Panel -->
+          <div id="gauntlet-feedback-panel" class="feedback-panel" style="display: none; padding: var(--space-4); border-radius: var(--radius-md); margin-top: 1rem;">
+            <div id="gauntlet-feedback-text"></div>
+          </div>
+        </div>
+
+        <!-- Gauntlet Completion Celebration View -->
+        <div id="gauntlet-celebration-container" style="display: none; text-align: center; padding: 1.5rem 0;">
+          <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🎉</div>
+          <h2 style="font-size: var(--text-2xl); color: var(--color-success); margin-bottom: 0.5rem;">GAUNTLET CONQUERED!</h2>
+          <p style="color: var(--text-secondary); max-width: 480px; margin: 0 auto 1.5rem; font-size: var(--text-sm); line-height: 1.6;">
+            You have successfully cleared today's 3 synchronized deductions! Your daily punch card has been stamped.
+          </p>
+          <div id="gauntlet-reward-display" class="card card-raised" style="max-width: 380px; margin: 0 auto 1.5rem; padding: 1.25rem; border-color: var(--color-success); background: rgba(16, 185, 129, 0.08);">
+            <!-- Reward XP, Day Streak, Perks -->
+          </div>
+          <button type="button" id="btn-claim-gauntlet-finish" class="btn-arcade btn-primary btn-lg" style="background: linear-gradient(135deg, #10b981, #00e5ff); border-color: #10b981; font-weight: 800;">
+            Claim Reward &amp; Return to Hub
+          </button>
         </div>
       </div>
     </div>

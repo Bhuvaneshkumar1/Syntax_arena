@@ -438,5 +438,126 @@ export const Profile = {
   isLessonCompleted(lessonId) {
     const profile = this.getActiveProfile();
     return Boolean(profile && Array.isArray(profile.completedLessons) && profile.completedLessons.includes(lessonId));
+  },
+
+  /**
+   * Get the current 7-day punch card status.
+   * Returns current day index (1-7), streak count, completion status for today, and rewards schedule.
+   * @param {object} [profile=null]
+   * @returns {object|null}
+   */
+  getDailyGauntletStatus(profile = null) {
+    const prof = profile || this.getActiveProfile();
+    if (!prof) return null;
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const punch = prof.dailyPunchCard || {
+      currentStreak: 0,
+      lastCompletedDate: null,
+      claimedDays: []
+    };
+
+    const lastDate = punch.lastCompletedDate;
+    let streak = punch.currentStreak || 0;
+    const completedToday = lastDate === todayStr;
+
+    // Check if streak was broken (missed more than 1 day)
+    if (lastDate && !completedToday) {
+      const last = new Date(lastDate);
+      const today = new Date(todayStr);
+      const diffMs = today.getTime() - last.getTime();
+      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+      if (diffDays > 1) {
+        streak = 0; // Streak reset if a day was skipped
+      }
+    }
+
+    // Active day (1 to 7)
+    const activeDay = completedToday ? (((streak - 1) % 7) + 1) : ((streak % 7) + 1);
+
+    const rewardsSchedule = [
+      { day: 1, xp: 50,  label: '+50 XP',  icon: '⚡', name: 'Hacker Initiate' },
+      { day: 2, xp: 75,  label: '+75 XP',  icon: '🎯', name: 'Syntax Scout' },
+      { day: 3, xp: 100, label: '+100 XP', icon: '❄️', name: 'Terminal Operative', perk: 'Freeze Lifeline' },
+      { day: 4, xp: 125, label: '+125 XP', icon: '🛡️', name: 'Logic Architect' },
+      { day: 5, xp: 150, label: '+150 XP', icon: '💡', name: 'Byte Marauder', perk: 'Hint Token' },
+      { day: 6, xp: 200, label: '+200 XP', icon: '🔥', name: 'Kernel Specialist' },
+      { day: 7, xp: 300, label: '+300 XP', icon: '👑', name: 'Grandmaster Streak', perk: 'Hex Dragon Avatar', avatar: 'hex_dragon' }
+    ];
+
+    return {
+      todayStr,
+      streak,
+      activeDay,
+      completedToday,
+      rewardsSchedule,
+      claimedDays: punch.claimedDays || []
+    };
+  },
+
+  /**
+   * Record completion of today's Daily Gauntlet.
+   * @param {Array} [results=[]]
+   * @returns {object}
+   */
+  recordDailyGauntletCompletion(results = []) {
+    const prof = this.getActiveProfile();
+    if (!prof) return { success: false, error: 'No active profile' };
+
+    const status = this.getDailyGauntletStatus(prof);
+    if (!status) return { success: false, error: 'Failed to retrieve status' };
+    if (status.completedToday) {
+      return { success: false, alreadyCompleted: true, message: 'Already completed today!' };
+    }
+
+    const todayStr = status.todayStr;
+    const newStreak = status.streak + 1;
+    const dayIndex = ((newStreak - 1) % 7) + 1;
+    const reward = status.rewardsSchedule.find(r => r.day === dayIndex) || { xp: 50, name: 'Hacker' };
+
+    const punch = prof.dailyPunchCard || { currentStreak: 0, lastCompletedDate: null, claimedDays: [] };
+    punch.currentStreak = newStreak;
+    punch.lastCompletedDate = todayStr;
+    if (!Array.isArray(punch.claimedDays)) punch.claimedDays = [];
+    if (!punch.claimedDays.includes(dayIndex)) {
+      punch.claimedDays.push(dayIndex);
+    }
+    // If completed a full 7-day cycle, prepare for next cycle
+    if (dayIndex === 7) {
+      punch.claimedDays = [1, 2, 3, 4, 5, 6, 7];
+    }
+
+    prof.dailyPunchCard = punch;
+    prof.xp = (prof.xp || 0) + reward.xp;
+    prof.lifetimeXP = (prof.lifetimeXP || 0) + reward.xp;
+    prof.totalScore = (prof.totalScore || 0) + reward.xp;
+
+    if (!prof.stats) prof.stats = {};
+    prof.stats.dailyChallengesCompleted = (prof.stats.dailyChallengesCompleted || 0) + 1;
+    prof.stats.lastDailyDate = todayStr;
+
+    if (dayIndex === 7 && reward.avatar) {
+      if (!Array.isArray(prof.unlockedAvatars)) prof.unlockedAvatars = [];
+      if (!prof.unlockedAvatars.includes(reward.avatar)) {
+        prof.unlockedAvatars.push(reward.avatar);
+      }
+    }
+
+    this.updateProfile(prof.id, {
+      dailyPunchCard: prof.dailyPunchCard,
+      xp: prof.xp,
+      lifetimeXP: prof.lifetimeXP,
+      totalScore: prof.totalScore,
+      stats: prof.stats,
+      unlockedAvatars: prof.unlockedAvatars
+    });
+
+    return {
+      success: true,
+      newStreak,
+      dayIndex,
+      reward,
+      todayStr
+    };
   }
 };

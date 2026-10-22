@@ -12,10 +12,17 @@ import { Router } from './router.js';
 import { AudioEngine } from './audio.js';
 import { UI } from './ui.js';
 import { Onboarding } from './onboarding.js';
+import { QuestionBank } from './question-bank.js';
 
 export const LandingPage = {
   selectedLanguage: 'python',
   selectedDifficulty: 'beginner',
+  dailyQuestions: [],
+  dailyCurrentIndex: 0,
+  dailyResults: [],
+  dailyTimerInterval: null,
+  dailyTimeLeft: 45,
+  dailyCountdownInterval: null,
 
   /**
    * Initialize all landing page components and interactive sections.
@@ -45,7 +52,10 @@ export const LandingPage = {
     // 7. Update dynamic footer year
     this._updateFooterYear();
 
-    // 8. Listen for onboarding completion to sync cards
+    // 8. Bind Daily Hacker Gauntlet & 7-Day Punch Card
+    this._initDailyGauntlet();
+
+    // 9. Listen for onboarding completion to sync cards
     window.addEventListener('onboarding:completed', (e) => {
       if (e.detail) {
         if (e.detail.language) this.selectLanguage(e.detail.language, false);
@@ -53,7 +63,7 @@ export const LandingPage = {
       }
     });
 
-    // 9. If query explicitly requests onboarding/reset (?onboarding=1/?reset=1), auto-open onboarding
+    // 10. If query explicitly requests onboarding/reset (?onboarding=1/?reset=1), auto-open onboarding
     const params = Router.getQueryParams();
     const needsOnboarding = params.onboarding === '1' || params.reset === '1';
     if (needsOnboarding) {
@@ -632,5 +642,420 @@ export const LandingPage = {
     if (yearEl) {
       yearEl.textContent = new Date().getFullYear();
     }
+  },
+
+  /* ==========================================================================
+     DAILY HACKER GAUNTLET & 7-DAY PUNCH CARD
+     ========================================================================== */
+
+  /**
+   * Bind Daily Gauntlet buttons, punch card matrix, countdown timer, and modal events.
+   */
+  _initDailyGauntlet() {
+    this.renderDailyPunchCard();
+    this.startDailyCountdown();
+
+    const launchBtn = Utils.qs('#btn-launch-daily-gauntlet');
+    if (launchBtn) {
+      launchBtn.addEventListener('click', () => {
+        AudioEngine.playClick();
+        const status = Profile.getDailyGauntletStatus();
+        if (status && status.completedToday) {
+          UI.showToast("✓ Today's Hacker Gauntlet is already stamped! Next mission drops at 00:00 UTC.", 'info');
+          return;
+        }
+        this.openDailyGauntletModal();
+      });
+    }
+
+    const closeBtn = Utils.qs('#btn-close-gauntlet-modal');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        AudioEngine.playClick();
+        this.closeDailyGauntletModal();
+      });
+    }
+
+    const claimBtn = Utils.qs('#btn-claim-gauntlet-finish');
+    if (claimBtn) {
+      claimBtn.addEventListener('click', () => {
+        AudioEngine.playClick();
+        this.closeDailyGauntletModal();
+      });
+    }
+
+    const modal = Utils.qs('#modal-daily-gauntlet');
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          this.closeDailyGauntletModal();
+        }
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && modal.classList.contains('is-open')) {
+        this.closeDailyGauntletModal();
+      }
+    });
+  },
+
+  /**
+   * Render the 7-day punch card matrix according to profile streak data.
+   */
+  renderDailyPunchCard() {
+    const container = Utils.qs('#daily-punch-matrix');
+    if (!container) return;
+
+    const status = Profile.getDailyGauntletStatus();
+    if (!status) return;
+
+    // Update streak badge
+    const streakPill = Utils.qs('#daily-streak-pill');
+    if (streakPill) {
+      streakPill.innerHTML = `🔥 ${status.streak}-Day Streak`;
+    }
+
+    // Render 7 punch stamp cards
+    container.innerHTML = status.rewardsSchedule.map(sched => {
+      const isClaimed = status.claimedDays.includes(sched.day);
+      const isActive = sched.day === status.activeDay && !status.completedToday;
+      let cardClass = 'punch-card is-locked';
+      let badgeText = '🔒 LOCKED';
+
+      if (isClaimed) {
+        cardClass = 'punch-card is-claimed';
+        badgeText = '✓ CLAIMED';
+      } else if (isActive) {
+        cardClass = 'punch-card is-active';
+        badgeText = '▶ TODAY';
+      }
+
+      return `
+        <div class="${cardClass}" data-day="${sched.day}" title="${sched.name}: ${sched.label}${sched.perk ? ' • ' + sched.perk : ''}">
+          <span class="punch-day-label">DAY ${sched.day}</span>
+          <span class="punch-icon">${sched.icon}</span>
+          <span class="punch-reward-val">${sched.label}</span>
+          <span class="punch-status-badge">${badgeText}</span>
+        </div>
+      `;
+    }).join('');
+
+    // Update status text and CTA button
+    const statusText = Utils.qs('#daily-mission-status-text');
+    const launchBtn = Utils.qs('#btn-launch-daily-gauntlet');
+
+    if (status.completedToday) {
+      if (statusText) {
+        statusText.innerHTML = `<span style="color: var(--color-success); font-weight: 700;">✓ Today's Mission Accomplished!</span> Neural streak preserved. Next mission resets at midnight.`;
+      }
+      if (launchBtn) {
+        launchBtn.innerHTML = `<span>✓ Completed for Today</span>`;
+        launchBtn.style.opacity = '0.85';
+      }
+    } else {
+      const todaySched = status.rewardsSchedule.find(s => s.day === status.activeDay) || { label: '+50 XP' };
+      if (statusText) {
+        statusText.innerHTML = `<span style="color: var(--color-warning); font-weight: 700;">⚡ Today's Mission Ready:</span> 3 rapid code output deductions (${todaySched.label}).`;
+      }
+      if (launchBtn) {
+        launchBtn.innerHTML = `<span>⚡ Launch Daily Gauntlet</span>`;
+        launchBtn.style.opacity = '1';
+      }
+    }
+  },
+
+  /**
+   * Start 1-second interval ticking down to 00:00 UTC.
+   */
+  startDailyCountdown() {
+    const timerEl = Utils.qs('#daily-countdown-timer');
+    if (!timerEl) return;
+
+    if (this.dailyCountdownInterval) {
+      clearInterval(this.dailyCountdownInterval);
+    }
+
+    const updateTimer = () => {
+      const now = new Date();
+      const nextMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
+      const diffMs = Math.max(0, nextMidnight.getTime() - now.getTime());
+
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+      timerEl.textContent = `${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
+    };
+
+    updateTimer();
+    this.dailyCountdownInterval = setInterval(updateTimer, 1000);
+  },
+
+  /**
+   * Open the Daily Hacker Gauntlet modal and start with question 1.
+   */
+  openDailyGauntletModal() {
+    const modal = Utils.qs('#modal-daily-gauntlet');
+    if (!modal) return;
+
+    this.dailyQuestions = QuestionBank.getDailyQuestions(null, 3);
+    if (!this.dailyQuestions || !this.dailyQuestions.length) {
+      UI.showToast('Unable to load daily questions. Please try again.', 'error');
+      return;
+    }
+
+    this.dailyCurrentIndex = 0;
+    this.dailyResults = [];
+
+    // Reset views
+    const quizHeader = Utils.qs('#gauntlet-quiz-header');
+    const questionContainer = Utils.qs('#gauntlet-question-container');
+    const celebrationContainer = Utils.qs('#gauntlet-celebration-container');
+
+    if (quizHeader) quizHeader.style.display = 'flex';
+    if (questionContainer) questionContainer.style.display = 'block';
+    if (celebrationContainer) celebrationContainer.style.display = 'none';
+
+    modal.style.display = 'flex';
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+
+    this.renderDailyQuestion();
+  },
+
+  /**
+   * Close the Daily Hacker Gauntlet modal.
+   */
+  closeDailyGauntletModal() {
+    const modal = Utils.qs('#modal-daily-gauntlet');
+    if (this.dailyTimerInterval) {
+      clearInterval(this.dailyTimerInterval);
+      this.dailyTimerInterval = null;
+    }
+
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    this.renderDailyPunchCard();
+  },
+
+  /**
+   * Render the current daily question inside the modal.
+   */
+  renderDailyQuestion() {
+    const q = this.dailyQuestions[this.dailyCurrentIndex];
+    if (!q) return;
+
+    if (this.dailyTimerInterval) {
+      clearInterval(this.dailyTimerInterval);
+    }
+    this.dailyTimeLeft = 45;
+
+    // Header counter
+    const counterEl = Utils.qs('#gauntlet-question-counter');
+    if (counterEl) {
+      counterEl.textContent = `QUESTION ${this.dailyCurrentIndex + 1} OF ${this.dailyQuestions.length}`;
+    }
+
+    const langBadge = Utils.qs('#gauntlet-lang-badge');
+    if (langBadge) {
+      langBadge.textContent = (q.language || 'SYNTAX').toUpperCase();
+    }
+
+    const timerDisplay = Utils.qs('#gauntlet-timer-display');
+    if (timerDisplay) {
+      timerDisplay.textContent = `⏱️ ${this.dailyTimeLeft}s`;
+      timerDisplay.style.color = 'var(--color-warning)';
+    }
+
+    const promptEl = Utils.qs('#gauntlet-prompt');
+    if (promptEl) {
+      promptEl.textContent = q.prompt || 'What is the exact stdout or return value?';
+    }
+
+    const filenameEl = Utils.qs('#gauntlet-code-filename');
+    if (filenameEl) {
+      const ext = q.language === 'python' ? 'py' : (q.language === 'javascript' ? 'js' : (q.language === 'rust' ? 'rs' : 'src'));
+      filenameEl.textContent = `daily_${q.language || 'code'}_q${this.dailyCurrentIndex + 1}.${ext}`;
+    }
+
+    const snippetEl = Utils.qs('#gauntlet-code-snippet');
+    if (snippetEl) {
+      snippetEl.textContent = q.code || q.prompt || '// Code puzzle';
+    }
+
+    // Hide feedback panel
+    const feedbackPanel = Utils.qs('#gauntlet-feedback-panel');
+    if (feedbackPanel) {
+      feedbackPanel.style.display = 'none';
+    }
+
+    // Render options
+    const optionsContainer = Utils.qs('#gauntlet-options');
+    if (optionsContainer) {
+      optionsContainer.innerHTML = '';
+      const opts = Array.isArray(q.options) ? q.options : [];
+      opts.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'gauntlet-option-btn';
+        btn.innerHTML = `
+          <span class="gauntlet-option-key">${String.fromCharCode(65 + idx)}</span>
+          <span class="gauntlet-option-text">${Utils.escapeHtml(optText)}</span>
+        `;
+        btn.addEventListener('click', () => {
+          this.handleDailyAnswer(idx);
+        });
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    // Start 45s countdown timer
+    this.dailyTimerInterval = setInterval(() => {
+      this.dailyTimeLeft--;
+      if (timerDisplay) {
+        timerDisplay.textContent = `⏱️ ${this.dailyTimeLeft}s`;
+        if (this.dailyTimeLeft <= 10) {
+          timerDisplay.style.color = 'var(--color-danger)';
+        }
+      }
+      if (this.dailyTimeLeft <= 0) {
+        clearInterval(this.dailyTimerInterval);
+        this.handleDailyAnswer(-1); // Timeout
+      }
+    }, 1000);
+  },
+
+  /**
+   * Process option selection for daily gauntlet question.
+   * @param {number} chosenIdx
+   */
+  handleDailyAnswer(chosenIdx) {
+    if (this.dailyTimerInterval) {
+      clearInterval(this.dailyTimerInterval);
+      this.dailyTimerInterval = null;
+    }
+
+    const q = this.dailyQuestions[this.dailyCurrentIndex];
+    if (!q) return;
+
+    const optionsContainer = Utils.qs('#gauntlet-options');
+    const optionBtns = optionsContainer ? optionsContainer.querySelectorAll('.gauntlet-option-btn') : [];
+
+    // Disable all option buttons
+    optionBtns.forEach(btn => {
+      btn.disabled = true;
+    });
+
+    const isTimeout = chosenIdx === -1;
+    const chosenText = !isTimeout && q.options && q.options[chosenIdx] !== undefined ? q.options[chosenIdx] : null;
+    const isCorrect = !isTimeout && chosenText === q.correctAnswer;
+
+    this.dailyResults.push({
+      id: q.id,
+      correct: isCorrect,
+      timeLeft: this.dailyTimeLeft,
+      chosenText
+    });
+
+    // Style buttons
+    optionBtns.forEach((btn, idx) => {
+      const optText = q.options[idx];
+      if (optText === q.correctAnswer) {
+        btn.classList.add('is-correct');
+      } else if (idx === chosenIdx && !isCorrect) {
+        btn.classList.add('is-wrong');
+      }
+    });
+
+    const feedbackPanel = Utils.qs('#gauntlet-feedback-panel');
+    const feedbackText = Utils.qs('#gauntlet-feedback-text');
+
+    if (feedbackPanel && feedbackText) {
+      feedbackPanel.style.display = 'block';
+      if (isCorrect) {
+        AudioEngine.playSuccess();
+        feedbackPanel.style.backgroundColor = 'rgba(16, 185, 129, 0.12)';
+        feedbackPanel.style.border = '1px solid var(--color-success)';
+        feedbackText.innerHTML = `
+          <div style="font-weight: 700; color: var(--color-success); margin-bottom: 0.25rem;">✓ Correct Trace!</div>
+          <div style="font-size: 13px; color: var(--text-secondary);">${Utils.escapeHtml(q.explanation || 'Great deduction!')}</div>
+        `;
+      } else {
+        AudioEngine.playError();
+        feedbackPanel.style.backgroundColor = 'rgba(239, 68, 68, 0.12)';
+        feedbackPanel.style.border = '1px solid var(--color-danger)';
+        const cause = isTimeout ? '⏱️ Time expired!' : '✗ Incorrect trace.';
+        feedbackText.innerHTML = `
+          <div style="font-weight: 700; color: var(--color-danger); margin-bottom: 0.25rem;">${cause}</div>
+          <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 0.25rem;">Correct Answer: <strong style="color: var(--color-primary);">${Utils.escapeHtml(q.correctAnswer)}</strong></div>
+          <div style="font-size: 12px; color: var(--text-muted);">${Utils.escapeHtml(q.explanation || '')}</div>
+        `;
+      }
+    }
+
+    // Auto advance after 1.5s
+    setTimeout(() => {
+      if (this.dailyCurrentIndex + 1 < this.dailyQuestions.length) {
+        this.dailyCurrentIndex++;
+        this.renderDailyQuestion();
+      } else {
+        this.finishDailyGauntlet();
+      }
+    }, 1500);
+  },
+
+  /**
+   * Finalize the Daily Gauntlet, record profile streak and show celebration screen.
+   */
+  finishDailyGauntlet() {
+    const res = Profile.recordDailyGauntletCompletion(this.dailyResults);
+    const quizHeader = Utils.qs('#gauntlet-quiz-header');
+    const questionContainer = Utils.qs('#gauntlet-question-container');
+    const celebrationContainer = Utils.qs('#gauntlet-celebration-container');
+
+    if (quizHeader) quizHeader.style.display = 'none';
+    if (questionContainer) questionContainer.style.display = 'none';
+    if (celebrationContainer) celebrationContainer.style.display = 'block';
+
+    AudioEngine.playLevelUp();
+    UI.triggerConfetti();
+
+    const rewardBox = Utils.qs('#gauntlet-reward-display');
+    if (rewardBox) {
+      const reward = (res && res.reward) ? res.reward : { xp: 50, name: 'Hacker Initiate' };
+      const streak = (res && res.newStreak) ? res.newStreak : 1;
+      const dayIdx = (res && res.dayIndex) ? res.dayIndex : 1;
+
+      rewardBox.innerHTML = `
+        <div style="font-size: var(--text-sm); font-weight: 700; color: var(--color-success); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+          Day ${dayIdx} Punch Stamped!
+        </div>
+        <div style="font-size: var(--text-2xl); font-weight: 900; color: var(--text-primary); margin-bottom: 0.5rem;">
+          +${reward.xp} Bonus XP
+        </div>
+        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <span class="badge badge-amber" style="font-size: 11px;">🔥 ${streak}-Day Streak</span>
+          <span class="badge badge-cyan" style="font-size: 11px;">Rank: ${reward.name}</span>
+        </div>
+        ${reward.avatar ? `
+          <div style="background: rgba(139, 92, 246, 0.15); border: 1px solid var(--color-violet); border-radius: var(--radius-md); padding: 0.5rem; margin-top: 0.5rem;">
+            <div style="font-size: 11px; font-weight: 800; color: var(--color-violet);">🎁 EXCLUSIVE REWARD UNLOCKED:</div>
+            <div style="font-size: var(--text-sm); font-weight: 700; color: var(--text-primary);">Hex Dragon Avatar</div>
+          </div>
+        ` : ''}
+        ${reward.perk ? `
+          <div style="font-size: 11px; color: var(--color-warning); margin-top: 0.5rem; font-weight: 700;">
+            🎁 Perk Unlocked: ${reward.perk}
+          </div>
+        ` : ''}
+      `;
+    }
+
+    this.renderDailyPunchCard();
   }
 };
