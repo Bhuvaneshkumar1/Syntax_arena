@@ -57,7 +57,7 @@ console.log('\n--- 2. ID Pattern and Uniqueness ---');
 const idSet = new Set();
 const duplicateIds = [];
 const malformedIds = [];
-const idPattern = /^(py|c|cpp|java|cyber|js|rust|sql|ts)-(beg|int|exp)-[0-9]{3}$/;
+const idPattern = /^(py|c|cpp|java|cyber|js|rust|sql|ts|go)-(beg|int|exp)-[0-9]{3}$/;
 
 allQuestions.forEach(q => {
   if (idSet.has(q.id)) duplicateIds.push(q.id);

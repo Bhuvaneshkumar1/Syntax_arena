@@ -150,6 +150,9 @@
         <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="typescript">
           📘 TypeScript
         </button>
+        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="go">
+          🐹 Go (Golang)
+        </button>
         <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="systems">
           ⚡ C / C++ / Java / Rust
         </button>
@@ -455,6 +458,63 @@ console.log("Circle Area:", getArea({ kind: "circle", radius: 5 }).toFixed(2));
 console.log("Square Area:", getArea({ kind: "square", side: 4 }));
 `,
           blank: `console.log("Hello from TypeScript 5.4+!");\n`
+        }
+      },
+
+      go: {
+        title: 'Go (Golang 1.22+) Sandbox',
+        subtitle: 'Goroutines, channels, defer/recover, and slice memory backing evaluation.',
+        badge: '🐹 Go 1.22+',
+        filename: 'main.go',
+        templates: {
+          goroutines_channels: `// Go Goroutines and Channel Synchronization
+package main
+
+import "fmt"
+
+func main() {
+    ch := make(chan int, 2)
+    ch <- 10
+    ch <- 20
+    
+    val1 := <-ch
+    val2 := <-ch
+    fmt.Println("Channel Received:", val1, val2)
+}
+`,
+          slice_cap: `// Go Slices, Length, and Capacity
+package main
+
+import "fmt"
+
+func main() {
+    s := make([]int, 3, 6)
+    s[0] = 100
+    s[1] = 200
+    s[2] = 300
+    
+    fmt.Println("Len:", len(s), "Cap:", cap(s))
+}
+`,
+          defer_order: `// Go Defer LIFO Execution Order
+package main
+
+import "fmt"
+
+func main() {
+    defer fmt.Println("Step 3 (Last in, First out)")
+    defer fmt.Println("Step 2")
+    fmt.Println("Step 1 (Immediate)")
+}
+`,
+          blank: `package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, SyntaxArena from Go 1.22+!")
+}
+`
         }
       },
 
@@ -808,6 +868,26 @@ fn main() {
                 const errEl = document.createElement('div');
                 errEl.style.color = 'var(--color-coral, #f43f5e)';
                 errEl.innerHTML = `⚠️ <strong>TypeScript / Runtime Error:</strong>\n${Utils.escapeHTML(res.error)}`;
+                consoleOutput.appendChild(errEl);
+              }
+            }
+          } else if (currentEnv === 'go') {
+            const res = SandboxManager.runGo(code);
+            runBtn.disabled = false;
+            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
+            if (consoleOutput) {
+              consoleOutput.innerHTML = '';
+              if (res.output) {
+                const outEl = document.createElement('div');
+                outEl.style.whiteSpace = 'pre-wrap';
+                outEl.style.color = 'var(--color-primary-light, #38bdf8)';
+                outEl.textContent = res.output;
+                consoleOutput.appendChild(outEl);
+              }
+              if (res.error) {
+                const errEl = document.createElement('div');
+                errEl.style.color = 'var(--color-coral, #f43f5e)';
+                errEl.innerHTML = `⚠️ <strong>Go Compiler / Runtime Error:</strong>\n${Utils.escapeHTML(res.error)}`;
                 consoleOutput.appendChild(errEl);
               }
             }

@@ -53769,4 +53769,6007 @@ export const endlessQuestions = {
     ]
   }
 ]
+,
+  go: [
+  {
+    "id": "go-end-001",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 3\n\ty := 3\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "6",
+      "10",
+      "14",
+      "0"
+    ],
+    "correctAnswer": "6",
+    "acceptedAnswers": [
+      "6"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 6.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-002",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 4, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "4",
+    "acceptedAnswers": [
+      "4"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 4.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-003",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 13)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "13",
+      "14",
+      "15",
+      "0"
+    ],
+    "correctAnswer": "13",
+    "acceptedAnswers": [
+      "13"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 13.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-004",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-005",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 25}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "35",
+      "40",
+      "45",
+      "0"
+    ],
+    "correctAnswer": "35",
+    "acceptedAnswers": [
+      "35"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 35.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-006",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 42\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "42",
+      "49",
+      "56",
+      "0"
+    ],
+    "correctAnswer": "42",
+    "acceptedAnswers": [
+      "42"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 42.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-007",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 7\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-008",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 32}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "37",
+      "41",
+      "45",
+      "0"
+    ],
+    "correctAnswer": "37",
+    "acceptedAnswers": [
+      "37"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 37.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-009",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Gox\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "0"
+    ],
+    "correctAnswer": "3",
+    "acceptedAnswers": [
+      "3"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 3.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-010",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-011",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 33\n\ty := 13\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "46",
+      "50",
+      "54",
+      "0"
+    ],
+    "correctAnswer": "46",
+    "acceptedAnswers": [
+      "46"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 46.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-012",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 14, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "14",
+      "15",
+      "16",
+      "0"
+    ],
+    "correctAnswer": "14",
+    "acceptedAnswers": [
+      "14"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 14.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-013",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 23)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "23",
+      "24",
+      "25",
+      "0"
+    ],
+    "correctAnswer": "23",
+    "acceptedAnswers": [
+      "23"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 23.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-014",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-015",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 75}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "85",
+      "90",
+      "95",
+      "0"
+    ],
+    "correctAnswer": "85",
+    "acceptedAnswers": [
+      "85"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 85.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-016",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 112\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "112",
+      "119",
+      "126",
+      "0"
+    ],
+    "correctAnswer": "112",
+    "acceptedAnswers": [
+      "112"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 112.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-017",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 17\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "19",
+      "20",
+      "21",
+      "0"
+    ],
+    "correctAnswer": "19",
+    "acceptedAnswers": [
+      "19"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 19.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-018",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 72}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "77",
+      "81",
+      "85",
+      "0"
+    ],
+    "correctAnswer": "77",
+    "acceptedAnswers": [
+      "77"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 77.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-019",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "0"
+    ],
+    "correctAnswer": "5",
+    "acceptedAnswers": [
+      "5"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 5.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-020",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-021",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 63\n\ty := 23\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "86",
+      "90",
+      "94",
+      "0"
+    ],
+    "correctAnswer": "86",
+    "acceptedAnswers": [
+      "86"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 86.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-022",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 9, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-023",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 33)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "33",
+      "34",
+      "10",
+      "0"
+    ],
+    "correctAnswer": "33",
+    "acceptedAnswers": [
+      "33"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 33.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-024",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-025",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 125}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "135",
+      "140",
+      "145",
+      "0"
+    ],
+    "correctAnswer": "135",
+    "acceptedAnswers": [
+      "135"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 135.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-026",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 182\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "182",
+      "189",
+      "196",
+      "0"
+    ],
+    "correctAnswer": "182",
+    "acceptedAnswers": [
+      "182"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 182.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-027",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 27\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "29",
+      "30",
+      "31",
+      "0"
+    ],
+    "correctAnswer": "29",
+    "acceptedAnswers": [
+      "29"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 29.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-028",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 112}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "117",
+      "121",
+      "125",
+      "0"
+    ],
+    "correctAnswer": "117",
+    "acceptedAnswers": [
+      "117"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 117.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-029",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "7",
+      "8",
+      "9",
+      "0"
+    ],
+    "correctAnswer": "7",
+    "acceptedAnswers": [
+      "7"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 7.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-030",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-031",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 93\n\ty := 33\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "126",
+      "130",
+      "134",
+      "0"
+    ],
+    "correctAnswer": "126",
+    "acceptedAnswers": [
+      "126"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 126.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-032",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 4, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "4",
+    "acceptedAnswers": [
+      "4"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 4.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-033",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 18)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "18",
+      "19",
+      "20",
+      "0"
+    ],
+    "correctAnswer": "18",
+    "acceptedAnswers": [
+      "18"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 18.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-034",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-035",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 175}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "185",
+      "190",
+      "195",
+      "0"
+    ],
+    "correctAnswer": "185",
+    "acceptedAnswers": [
+      "185"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 185.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-036",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 252\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "252",
+      "259",
+      "266",
+      "0"
+    ],
+    "correctAnswer": "252",
+    "acceptedAnswers": [
+      "252"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 252.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-037",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 37\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "39",
+      "40",
+      "41",
+      "0"
+    ],
+    "correctAnswer": "39",
+    "acceptedAnswers": [
+      "39"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 39.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-038",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 152}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "157",
+      "161",
+      "165",
+      "0"
+    ],
+    "correctAnswer": "157",
+    "acceptedAnswers": [
+      "157"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 157.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-039",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxxxxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "2",
+      "3",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-040",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-041",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 123\n\ty := 43\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "166",
+      "170",
+      "174",
+      "0"
+    ],
+    "correctAnswer": "166",
+    "acceptedAnswers": [
+      "166"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 166.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-042",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 14, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "14",
+      "15",
+      "16",
+      "0"
+    ],
+    "correctAnswer": "14",
+    "acceptedAnswers": [
+      "14"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 14.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-043",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 28)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "28",
+      "29",
+      "30",
+      "0"
+    ],
+    "correctAnswer": "28",
+    "acceptedAnswers": [
+      "28"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 28.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-044",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-045",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 225}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "235",
+      "240",
+      "245",
+      "0"
+    ],
+    "correctAnswer": "235",
+    "acceptedAnswers": [
+      "235"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 235.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-046",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 322\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "322",
+      "329",
+      "336",
+      "0"
+    ],
+    "correctAnswer": "322",
+    "acceptedAnswers": [
+      "322"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 322.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-047",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 47\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "49",
+      "50",
+      "51",
+      "0"
+    ],
+    "correctAnswer": "49",
+    "acceptedAnswers": [
+      "49"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 49.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-048",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 192}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "197",
+      "201",
+      "205",
+      "0"
+    ],
+    "correctAnswer": "197",
+    "acceptedAnswers": [
+      "197"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 197.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-049",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Gox\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "0"
+    ],
+    "correctAnswer": "3",
+    "acceptedAnswers": [
+      "3"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 3.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-050",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-051",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 153\n\ty := 53\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "206",
+      "210",
+      "214",
+      "0"
+    ],
+    "correctAnswer": "206",
+    "acceptedAnswers": [
+      "206"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 206.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-052",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 9, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-053",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 13)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "13",
+      "14",
+      "15",
+      "0"
+    ],
+    "correctAnswer": "13",
+    "acceptedAnswers": [
+      "13"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 13.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-054",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-055",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 275}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "285",
+      "290",
+      "295",
+      "0"
+    ],
+    "correctAnswer": "285",
+    "acceptedAnswers": [
+      "285"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 285.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-056",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 392\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "392",
+      "399",
+      "406",
+      "0"
+    ],
+    "correctAnswer": "392",
+    "acceptedAnswers": [
+      "392"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 392.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-057",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 57\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "59",
+      "60",
+      "61",
+      "0"
+    ],
+    "correctAnswer": "59",
+    "acceptedAnswers": [
+      "59"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 59.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-058",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 232}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "237",
+      "241",
+      "245",
+      "0"
+    ],
+    "correctAnswer": "237",
+    "acceptedAnswers": [
+      "237"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 237.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-059",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "0"
+    ],
+    "correctAnswer": "5",
+    "acceptedAnswers": [
+      "5"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 5.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-060",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-061",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 183\n\ty := 63\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "246",
+      "250",
+      "254",
+      "0"
+    ],
+    "correctAnswer": "246",
+    "acceptedAnswers": [
+      "246"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 246.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-062",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 4, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "4",
+    "acceptedAnswers": [
+      "4"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 4.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-063",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 23)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "23",
+      "24",
+      "25",
+      "0"
+    ],
+    "correctAnswer": "23",
+    "acceptedAnswers": [
+      "23"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 23.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-064",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-065",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 325}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "335",
+      "340",
+      "345",
+      "0"
+    ],
+    "correctAnswer": "335",
+    "acceptedAnswers": [
+      "335"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 335.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-066",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 462\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "462",
+      "469",
+      "476",
+      "0"
+    ],
+    "correctAnswer": "462",
+    "acceptedAnswers": [
+      "462"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 462.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-067",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 67\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "69",
+      "70",
+      "71",
+      "0"
+    ],
+    "correctAnswer": "69",
+    "acceptedAnswers": [
+      "69"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 69.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-068",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 272}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "277",
+      "281",
+      "285",
+      "0"
+    ],
+    "correctAnswer": "277",
+    "acceptedAnswers": [
+      "277"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 277.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-069",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "7",
+      "8",
+      "9",
+      "0"
+    ],
+    "correctAnswer": "7",
+    "acceptedAnswers": [
+      "7"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 7.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-070",
+    "language": "go",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-071",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 213\n\ty := 73\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "286",
+      "290",
+      "294",
+      "0"
+    ],
+    "correctAnswer": "286",
+    "acceptedAnswers": [
+      "286"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 286.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-072",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 14, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "14",
+      "15",
+      "16",
+      "0"
+    ],
+    "correctAnswer": "14",
+    "acceptedAnswers": [
+      "14"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 14.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-073",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 33)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "33",
+      "34",
+      "10",
+      "0"
+    ],
+    "correctAnswer": "33",
+    "acceptedAnswers": [
+      "33"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 33.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-074",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-075",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 375}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "385",
+      "390",
+      "395",
+      "0"
+    ],
+    "correctAnswer": "385",
+    "acceptedAnswers": [
+      "385"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 385.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-076",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 532\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "532",
+      "539",
+      "546",
+      "0"
+    ],
+    "correctAnswer": "532",
+    "acceptedAnswers": [
+      "532"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 532.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-077",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 77\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "79",
+      "80",
+      "81",
+      "0"
+    ],
+    "correctAnswer": "79",
+    "acceptedAnswers": [
+      "79"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 79.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-078",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 312}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "317",
+      "321",
+      "325",
+      "0"
+    ],
+    "correctAnswer": "317",
+    "acceptedAnswers": [
+      "317"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 317.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-079",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxxxxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "2",
+      "3",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-080",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-081",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 243\n\ty := 83\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "326",
+      "330",
+      "334",
+      "0"
+    ],
+    "correctAnswer": "326",
+    "acceptedAnswers": [
+      "326"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 326.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-082",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 9, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-083",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 18)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "18",
+      "19",
+      "20",
+      "0"
+    ],
+    "correctAnswer": "18",
+    "acceptedAnswers": [
+      "18"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 18.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-084",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-085",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 425}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "435",
+      "440",
+      "445",
+      "0"
+    ],
+    "correctAnswer": "435",
+    "acceptedAnswers": [
+      "435"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 435.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-086",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 602\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "602",
+      "609",
+      "616",
+      "0"
+    ],
+    "correctAnswer": "602",
+    "acceptedAnswers": [
+      "602"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 602.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-087",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 87\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "89",
+      "90",
+      "91",
+      "0"
+    ],
+    "correctAnswer": "89",
+    "acceptedAnswers": [
+      "89"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 89.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-088",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 352}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "357",
+      "361",
+      "365",
+      "0"
+    ],
+    "correctAnswer": "357",
+    "acceptedAnswers": [
+      "357"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 357.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-089",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Gox\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "0"
+    ],
+    "correctAnswer": "3",
+    "acceptedAnswers": [
+      "3"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 3.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-090",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-091",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 273\n\ty := 93\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "366",
+      "370",
+      "374",
+      "0"
+    ],
+    "correctAnswer": "366",
+    "acceptedAnswers": [
+      "366"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 366.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-092",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 4, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "4",
+    "acceptedAnswers": [
+      "4"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 4.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-093",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 28)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "28",
+      "29",
+      "30",
+      "0"
+    ],
+    "correctAnswer": "28",
+    "acceptedAnswers": [
+      "28"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 28.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-094",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-095",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 475}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "485",
+      "490",
+      "495",
+      "0"
+    ],
+    "correctAnswer": "485",
+    "acceptedAnswers": [
+      "485"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 485.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-096",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 672\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "672",
+      "679",
+      "686",
+      "0"
+    ],
+    "correctAnswer": "672",
+    "acceptedAnswers": [
+      "672"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 672.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-097",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 97\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "99",
+      "100",
+      "101",
+      "0"
+    ],
+    "correctAnswer": "99",
+    "acceptedAnswers": [
+      "99"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 99.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-098",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 392}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "397",
+      "401",
+      "405",
+      "0"
+    ],
+    "correctAnswer": "397",
+    "acceptedAnswers": [
+      "397"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 397.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-099",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "0"
+    ],
+    "correctAnswer": "5",
+    "acceptedAnswers": [
+      "5"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 5.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-100",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-101",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 303\n\ty := 103\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "406",
+      "410",
+      "414",
+      "0"
+    ],
+    "correctAnswer": "406",
+    "acceptedAnswers": [
+      "406"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 406.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-102",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 14, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "14",
+      "15",
+      "16",
+      "0"
+    ],
+    "correctAnswer": "14",
+    "acceptedAnswers": [
+      "14"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 14.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-103",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 13)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "13",
+      "14",
+      "15",
+      "0"
+    ],
+    "correctAnswer": "13",
+    "acceptedAnswers": [
+      "13"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 13.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-104",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-105",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 525}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "535",
+      "540",
+      "545",
+      "0"
+    ],
+    "correctAnswer": "535",
+    "acceptedAnswers": [
+      "535"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 535.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-106",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 742\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "742",
+      "749",
+      "756",
+      "0"
+    ],
+    "correctAnswer": "742",
+    "acceptedAnswers": [
+      "742"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 742.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-107",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 107\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "109",
+      "110",
+      "111",
+      "0"
+    ],
+    "correctAnswer": "109",
+    "acceptedAnswers": [
+      "109"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 109.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-108",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 432}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "437",
+      "441",
+      "445",
+      "0"
+    ],
+    "correctAnswer": "437",
+    "acceptedAnswers": [
+      "437"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 437.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-109",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "7",
+      "8",
+      "9",
+      "0"
+    ],
+    "correctAnswer": "7",
+    "acceptedAnswers": [
+      "7"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 7.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-110",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-111",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 333\n\ty := 113\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "446",
+      "450",
+      "454",
+      "0"
+    ],
+    "correctAnswer": "446",
+    "acceptedAnswers": [
+      "446"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 446.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-112",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 9, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-113",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 23)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "23",
+      "24",
+      "25",
+      "0"
+    ],
+    "correctAnswer": "23",
+    "acceptedAnswers": [
+      "23"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 23.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-114",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-115",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 575}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "585",
+      "590",
+      "595",
+      "0"
+    ],
+    "correctAnswer": "585",
+    "acceptedAnswers": [
+      "585"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 585.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-116",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 812\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "812",
+      "819",
+      "826",
+      "0"
+    ],
+    "correctAnswer": "812",
+    "acceptedAnswers": [
+      "812"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 812.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-117",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 117\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "119",
+      "120",
+      "121",
+      "0"
+    ],
+    "correctAnswer": "119",
+    "acceptedAnswers": [
+      "119"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 119.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-118",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 472}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "477",
+      "481",
+      "485",
+      "0"
+    ],
+    "correctAnswer": "477",
+    "acceptedAnswers": [
+      "477"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 477.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-119",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxxxxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "2",
+      "3",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-120",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-121",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 363\n\ty := 123\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "486",
+      "490",
+      "494",
+      "0"
+    ],
+    "correctAnswer": "486",
+    "acceptedAnswers": [
+      "486"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 486.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-122",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 4, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "4",
+    "acceptedAnswers": [
+      "4"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 4.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-123",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 33)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "33",
+      "34",
+      "10",
+      "0"
+    ],
+    "correctAnswer": "33",
+    "acceptedAnswers": [
+      "33"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 33.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-124",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-125",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 625}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "635",
+      "640",
+      "645",
+      "0"
+    ],
+    "correctAnswer": "635",
+    "acceptedAnswers": [
+      "635"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 635.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-126",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 882\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "882",
+      "889",
+      "896",
+      "0"
+    ],
+    "correctAnswer": "882",
+    "acceptedAnswers": [
+      "882"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 882.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-127",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 127\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "129",
+      "130",
+      "131",
+      "0"
+    ],
+    "correctAnswer": "129",
+    "acceptedAnswers": [
+      "129"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 129.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-128",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 512}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "517",
+      "521",
+      "525",
+      "0"
+    ],
+    "correctAnswer": "517",
+    "acceptedAnswers": [
+      "517"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 517.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-129",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Gox\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "0"
+    ],
+    "correctAnswer": "3",
+    "acceptedAnswers": [
+      "3"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 3.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-130",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-131",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 393\n\ty := 133\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "526",
+      "530",
+      "534",
+      "0"
+    ],
+    "correctAnswer": "526",
+    "acceptedAnswers": [
+      "526"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 526.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-132",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 14, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "14",
+      "15",
+      "16",
+      "0"
+    ],
+    "correctAnswer": "14",
+    "acceptedAnswers": [
+      "14"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 14.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-133",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 18)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "18",
+      "19",
+      "20",
+      "0"
+    ],
+    "correctAnswer": "18",
+    "acceptedAnswers": [
+      "18"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 18.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-134",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-135",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 675}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "685",
+      "690",
+      "695",
+      "0"
+    ],
+    "correctAnswer": "685",
+    "acceptedAnswers": [
+      "685"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 685.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-136",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 952\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "952",
+      "959",
+      "966",
+      "0"
+    ],
+    "correctAnswer": "952",
+    "acceptedAnswers": [
+      "952"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 952.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-137",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 137\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "139",
+      "140",
+      "141",
+      "0"
+    ],
+    "correctAnswer": "139",
+    "acceptedAnswers": [
+      "139"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 139.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-138",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 552}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "557",
+      "561",
+      "565",
+      "0"
+    ],
+    "correctAnswer": "557",
+    "acceptedAnswers": [
+      "557"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 557.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-139",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "0"
+    ],
+    "correctAnswer": "5",
+    "acceptedAnswers": [
+      "5"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 5.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-140",
+    "language": "go",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-141",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 423\n\ty := 143\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "566",
+      "570",
+      "574",
+      "0"
+    ],
+    "correctAnswer": "566",
+    "acceptedAnswers": [
+      "566"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 566.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-142",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 9, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-143",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 28)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "28",
+      "29",
+      "30",
+      "0"
+    ],
+    "correctAnswer": "28",
+    "acceptedAnswers": [
+      "28"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 28.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-144",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-145",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 725}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "735",
+      "740",
+      "745",
+      "0"
+    ],
+    "correctAnswer": "735",
+    "acceptedAnswers": [
+      "735"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 735.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-146",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 1022\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "1022",
+      "1029",
+      "1036",
+      "0"
+    ],
+    "correctAnswer": "1022",
+    "acceptedAnswers": [
+      "1022"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1022.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-147",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 147\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "149",
+      "150",
+      "151",
+      "0"
+    ],
+    "correctAnswer": "149",
+    "acceptedAnswers": [
+      "149"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 149.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-148",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 592}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "597",
+      "601",
+      "605",
+      "0"
+    ],
+    "correctAnswer": "597",
+    "acceptedAnswers": [
+      "597"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 597.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-149",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "7",
+      "8",
+      "9",
+      "0"
+    ],
+    "correctAnswer": "7",
+    "acceptedAnswers": [
+      "7"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 7.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-150",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-151",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 453\n\ty := 153\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "606",
+      "610",
+      "614",
+      "0"
+    ],
+    "correctAnswer": "606",
+    "acceptedAnswers": [
+      "606"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 606.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-152",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 4, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "4",
+    "acceptedAnswers": [
+      "4"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 4.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-153",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 13)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "13",
+      "14",
+      "15",
+      "0"
+    ],
+    "correctAnswer": "13",
+    "acceptedAnswers": [
+      "13"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 13.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-154",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-155",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 775}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "785",
+      "790",
+      "795",
+      "0"
+    ],
+    "correctAnswer": "785",
+    "acceptedAnswers": [
+      "785"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 785.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-156",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 1092\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "1092",
+      "1099",
+      "1106",
+      "0"
+    ],
+    "correctAnswer": "1092",
+    "acceptedAnswers": [
+      "1092"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1092.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-157",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 157\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "159",
+      "160",
+      "161",
+      "0"
+    ],
+    "correctAnswer": "159",
+    "acceptedAnswers": [
+      "159"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 159.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-158",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 632}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "637",
+      "641",
+      "645",
+      "0"
+    ],
+    "correctAnswer": "637",
+    "acceptedAnswers": [
+      "637"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 637.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-159",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxxxxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "2",
+      "3",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-160",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-161",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 483\n\ty := 163\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "646",
+      "650",
+      "654",
+      "0"
+    ],
+    "correctAnswer": "646",
+    "acceptedAnswers": [
+      "646"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 646.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-162",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 14, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "14",
+      "15",
+      "16",
+      "0"
+    ],
+    "correctAnswer": "14",
+    "acceptedAnswers": [
+      "14"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 14.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-163",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 23)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "23",
+      "24",
+      "25",
+      "0"
+    ],
+    "correctAnswer": "23",
+    "acceptedAnswers": [
+      "23"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 23.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-164",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-165",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 825}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "835",
+      "840",
+      "845",
+      "0"
+    ],
+    "correctAnswer": "835",
+    "acceptedAnswers": [
+      "835"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 835.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-166",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 1162\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "1162",
+      "1169",
+      "1176",
+      "0"
+    ],
+    "correctAnswer": "1162",
+    "acceptedAnswers": [
+      "1162"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1162.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-167",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 167\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "169",
+      "170",
+      "171",
+      "0"
+    ],
+    "correctAnswer": "169",
+    "acceptedAnswers": [
+      "169"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 169.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-168",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 672}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "677",
+      "681",
+      "685",
+      "0"
+    ],
+    "correctAnswer": "677",
+    "acceptedAnswers": [
+      "677"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 677.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-169",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Gox\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "0"
+    ],
+    "correctAnswer": "3",
+    "acceptedAnswers": [
+      "3"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 3.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-170",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-171",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 513\n\ty := 173\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "686",
+      "690",
+      "694",
+      "0"
+    ],
+    "correctAnswer": "686",
+    "acceptedAnswers": [
+      "686"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 686.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-172",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 9, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-173",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 33)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "33",
+      "34",
+      "10",
+      "0"
+    ],
+    "correctAnswer": "33",
+    "acceptedAnswers": [
+      "33"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 33.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-174",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-175",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 875}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "885",
+      "890",
+      "895",
+      "0"
+    ],
+    "correctAnswer": "885",
+    "acceptedAnswers": [
+      "885"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 885.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-176",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 1232\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "1232",
+      "1239",
+      "1246",
+      "0"
+    ],
+    "correctAnswer": "1232",
+    "acceptedAnswers": [
+      "1232"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1232.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-177",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 177\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "179",
+      "180",
+      "181",
+      "0"
+    ],
+    "correctAnswer": "179",
+    "acceptedAnswers": [
+      "179"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 179.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-178",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 712}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "717",
+      "721",
+      "725",
+      "0"
+    ],
+    "correctAnswer": "717",
+    "acceptedAnswers": [
+      "717"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 717.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-179",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "0"
+    ],
+    "correctAnswer": "5",
+    "acceptedAnswers": [
+      "5"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 5.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-180",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-181",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 543\n\ty := 183\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "726",
+      "730",
+      "734",
+      "0"
+    ],
+    "correctAnswer": "726",
+    "acceptedAnswers": [
+      "726"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 726.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-182",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 4, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "4",
+    "acceptedAnswers": [
+      "4"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 4.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-183",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 18)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "18",
+      "19",
+      "20",
+      "0"
+    ],
+    "correctAnswer": "18",
+    "acceptedAnswers": [
+      "18"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 18.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-184",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-185",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 925}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "935",
+      "940",
+      "945",
+      "0"
+    ],
+    "correctAnswer": "935",
+    "acceptedAnswers": [
+      "935"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 935.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-186",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 1302\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "1302",
+      "1309",
+      "1316",
+      "0"
+    ],
+    "correctAnswer": "1302",
+    "acceptedAnswers": [
+      "1302"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1302.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-187",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 187\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "189",
+      "190",
+      "191",
+      "0"
+    ],
+    "correctAnswer": "189",
+    "acceptedAnswers": [
+      "189"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 189.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-188",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 752}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "757",
+      "761",
+      "765",
+      "0"
+    ],
+    "correctAnswer": "757",
+    "acceptedAnswers": [
+      "757"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 757.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-189",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "7",
+      "8",
+      "9",
+      "0"
+    ],
+    "correctAnswer": "7",
+    "acceptedAnswers": [
+      "7"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 7.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-190",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-191",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "syntax_and_operators",
+    "subtopic": "arithmetic",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of this Go integer arithmetic operation?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tx := 573\n\ty := 193\n\tfmt.Println(x + y)\n}",
+    "options": [
+      "766",
+      "770",
+      "774",
+      "0"
+    ],
+    "correctAnswer": "766",
+    "acceptedAnswers": [
+      "766"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 766.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "syntax_and_operators",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-192",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "len_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the length of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 14, 30)\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "14",
+      "15",
+      "16",
+      "0"
+    ],
+    "correctAnswer": "14",
+    "acceptedAnswers": [
+      "14"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 14.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-193",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "slices",
+    "subtopic": "cap_math",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the capacity of this constructed slice?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := make([]int, 2, 28)\n\tfmt.Println(cap(s))\n}",
+    "options": [
+      "28",
+      "29",
+      "30",
+      "0"
+    ],
+    "correctAnswer": "28",
+    "acceptedAnswers": [
+      "28"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 28.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "slices",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-194",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "defer",
+    "subtopic": "defer_sequence",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is printed by this deferred sequence?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tdefer fmt.Print(\"X\")\n\tdefer fmt.Print(\"4\")\n\tfmt.Print(\"G\")\n}",
+    "options": [
+      "G4X",
+      "G5X",
+      "G6X",
+      "0"
+    ],
+    "correctAnswer": "G4X",
+    "acceptedAnswers": [
+      "G4X"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value G4X.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "defer",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-195",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "maps",
+    "subtopic": "map_lookup",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the result of looking up this key in the map?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tm := map[string]int{\"val\": 975}\n\tfmt.Println(m[\"val\"] + 10)\n}",
+    "options": [
+      "985",
+      "990",
+      "995",
+      "0"
+    ],
+    "correctAnswer": "985",
+    "acceptedAnswers": [
+      "985"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 985.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "maps",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-196",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "channels",
+    "subtopic": "buffered_receive",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What value is received from this buffered channel?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 1372\n\tfmt.Println(<-ch)\n}",
+    "options": [
+      "1372",
+      "1379",
+      "1386",
+      "0"
+    ],
+    "correctAnswer": "1372",
+    "acceptedAnswers": [
+      "1372"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1372.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "channels",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-197",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "closures",
+    "subtopic": "accumulator",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is returned after calling this Go closure accumulator?",
+    "code": "package main\nimport \"fmt\"\nfunc counter() func() int {\n\tc := 197\n\treturn func() int { c += 2; return c }\n}\nfunc main() {\n\tf := counter()\n\tfmt.Println(f())\n}",
+    "options": [
+      "199",
+      "200",
+      "201",
+      "0"
+    ],
+    "correctAnswer": "199",
+    "acceptedAnswers": [
+      "199"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 199.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "closures",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-198",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "structs",
+    "subtopic": "field_access",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the output of reading this struct field?",
+    "code": "package main\nimport \"fmt\"\ntype Node struct { Cost int }\nfunc main() {\n\tn := Node{Cost: 792}\n\tfmt.Println(n.Cost + 5)\n}",
+    "options": [
+      "797",
+      "801",
+      "805",
+      "0"
+    ],
+    "correctAnswer": "797",
+    "acceptedAnswers": [
+      "797"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 797.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "structs",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-199",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "strings",
+    "subtopic": "byte_length",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the byte length len(s) of this ASCII string?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\ts := \"Goxxxxxxx\"\n\tfmt.Println(len(s))\n}",
+    "options": [
+      "9",
+      "2",
+      "3",
+      "0"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 9.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "strings",
+      "endless"
+    ]
+  },
+  {
+    "id": "go-end-200",
+    "language": "go",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "go122",
+    "subtopic": "range_integer",
+    "standardVersion": "Go 1.22+",
+    "prompt": "What is the sum computed by this Go 1.22 integer range loop?",
+    "code": "package main\nimport \"fmt\"\nfunc main() {\n\tsum := 0\n\tfor n := range 2 {\n\t\tsum += n\n\t}\n\tfmt.Println(sum)\n}",
+    "options": [
+      "1",
+      "3",
+      "6",
+      "0"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Trace through standard Go execution semantics and value evaluations.",
+    "explanation": "Executing this Go snippet under Go 1.22 runtime rules produces the value 1.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "go",
+      "go122",
+      "endless"
+    ]
+  }
+]
 };

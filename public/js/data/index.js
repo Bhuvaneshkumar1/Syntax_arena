@@ -13,6 +13,7 @@ import { javascriptQuestions } from '../../data/javascript-questions.js';
 import { rustQuestions } from '../../data/rust-questions.js';
 import { sqlQuestions } from '../../data/sql-questions.js';
 import { typescriptQuestions } from '../../data/typescript-questions.js';
+import { goQuestions } from '../../data/go-questions.js';
 import { endlessQuestions } from '../../data/endless-questions.js';
 
 export const LANGUAGE_METADATA = {
@@ -96,13 +97,22 @@ export const LANGUAGE_METADATA = {
     tagClass: 'tag-typescript',
     color: '#3178C6',
     accentColor: '#58A6FF'
+  },
+  go: {
+    id: 'go',
+    name: 'Go (Golang)',
+    version: 'Go 1.22+',
+    filename: 'main.go',
+    tagClass: 'tag-go',
+    color: '#00ADD8',
+    accentColor: '#29BEB0'
   }
 };
 
 export const QuestionRepository = {
   /**
    * Get all questions for a given language.
-   * @param {'python'|'c'|'cpp'|'java'|'cyber'|'javascript'|'rust'|'sql'} lang
+   * @param {'python'|'c'|'cpp'|'java'|'cyber'|'javascript'|'rust'|'sql'|'typescript'|'go'} lang
    * @returns {Array}
    */
   getByLanguage(lang) {
@@ -118,6 +128,8 @@ export const QuestionRepository = {
       case 'sql': return sqlQuestions;
       case 'ts':
       case 'typescript': return typescriptQuestions;
+      case 'go':
+      case 'golang': return goQuestions;
       case 'python':
       default:
         return pythonQuestions;

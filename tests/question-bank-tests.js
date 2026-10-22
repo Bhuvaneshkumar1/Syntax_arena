@@ -38,7 +38,8 @@ export async function runQuestionBankTests() {
   // Test 2: Inventory Count Matrix
   console.log('\n--- 2. Question Inventory & Quota Verification ---');
   const all = QuestionBank.getAll();
-  assert(all.length === 540, 'Master catalog contains exactly 540 questions', `Actual count: ${all.length}`);
+  const expectedTotal = ALLOWED_LANGUAGES.length * 60;
+  assert(all.length === expectedTotal, `Master catalog contains exactly ${expectedTotal} questions`, `Actual count: ${all.length}`);
 
   ALLOWED_LANGUAGES.forEach(lang => {
     const langQuestions = QuestionBank.getByLanguage(lang);
@@ -54,7 +55,7 @@ export async function runQuestionBankTests() {
   console.log('\n--- 3. Identifier Integrity & Uniqueness ---');
   const seenIds = new Set();
   let duplicateCount = 0;
-  const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript)-(beg|int|exp)-[0-9]{3}$/;
+  const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go)-(beg|int|exp)-[0-9]{3}$/;
   let invalidPatternCount = 0;
 
   all.forEach(q => {

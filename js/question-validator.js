@@ -5,7 +5,7 @@
  * Source of truth: docs/QUESTION_SCHEMA.md
  */
 
-export const ALLOWED_LANGUAGES = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'];
+export const ALLOWED_LANGUAGES = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go'];
 export const ALLOWED_DIFFICULTIES = ['beginner', 'intermediate', 'expert'];
 export const ALLOWED_TYPES = [
   'multiple_choice', 'multiple-choice',
@@ -44,7 +44,7 @@ export const QuestionValidator = {
     const seenIds = new Set();
     const stats = {
       total: questions.length,
-      byLanguage: { python: 0, c: 0, cpp: 0, java: 0, cyber: 0, javascript: 0, rust: 0, sql: 0, typescript: 0 },
+      byLanguage: { python: 0, c: 0, cpp: 0, java: 0, cyber: 0, javascript: 0, rust: 0, sql: 0, typescript: 0, go: 0 },
       byTier: {
         python: { beginner: 0, intermediate: 0, expert: 0 },
         c: { beginner: 0, intermediate: 0, expert: 0 },
@@ -54,7 +54,8 @@ export const QuestionValidator = {
         javascript: { beginner: 0, intermediate: 0, expert: 0 },
         rust: { beginner: 0, intermediate: 0, expert: 0 },
         sql: { beginner: 0, intermediate: 0, expert: 0 },
-        typescript: { beginner: 0, intermediate: 0, expert: 0 }
+        typescript: { beginner: 0, intermediate: 0, expert: 0 },
+        go: { beginner: 0, intermediate: 0, expert: 0 }
       },
       byType: {}
     };
@@ -144,7 +145,7 @@ export const QuestionValidator = {
       }
       seenIds.add(q.id);
 
-      const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3}$/;
+      const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3}$/;
       if (!idPattern.test(q.id)) {
         errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' does not match standard pattern format.` });
       }

@@ -1004,6 +1004,91 @@ export const SandboxManager = {
     }
   },
 
+  /**
+   * Run Go (Golang 1.22+) code client-side via compiler simulation and runtime sandbox.
+   * @param {string} code
+   * @returns {{ success: boolean, output: string, error: string|null, elapsedMs: number }}
+   */
+  runGo(code) {
+    const start = performance.now();
+    try {
+      if (!code || !code.trim()) {
+        return { success: true, output: '', error: null, elapsedMs: 0 };
+      }
+
+      // 1. Basic Go Lexical & Package Invariant Checks
+      if (!code.includes('package main')) {
+        return {
+          success: false,
+          output: '',
+          error: 'go run: cannot run non-main package (missing package main)',
+          elapsedMs: Math.round(performance.now() - start)
+        };
+      }
+      if (!code.includes('func main()')) {
+        return {
+          success: false,
+          output: '',
+          error: 'runtime.main_main: function main is undeclared in the main package',
+          elapsedMs: Math.round(performance.now() - start)
+        };
+      }
+
+      // Convert Go code into JavaScript statements:
+      let jsCode = code;
+      jsCode = jsCode.replace(/package\s+[A-Za-z0-9_]+/g, '');
+      jsCode = jsCode.replace(/import\s+(?:\([^)]*\)|"[^"]*")/gs, '');
+
+      // Replace fmt.Println, fmt.Print, fmt.Printf
+      jsCode = jsCode.replace(/fmt\.Println\((.*?)\)/g, 'console.log($1);');
+      jsCode = jsCode.replace(/fmt\.Print\((.*?)\)/g, 'console.log($1);');
+      jsCode = jsCode.replace(/fmt\.Printf\((.*?)\)/g, 'console.log($1);');
+
+      // Replace Go variable declarations
+      jsCode = jsCode.replace(/var\s+([A-Za-z0-9_]+)(?:\s+[A-Za-z0-9_\[\]*]+)?\s*=\s*/g, 'let $1 = ');
+      jsCode = jsCode.replace(/var\s+([A-Za-z0-9_]+)\s+[A-Za-z0-9_\[\]*]+/g, 'let $1 = 0;');
+
+      // Replace short variable declarations x := val
+      jsCode = jsCode.replace(/([A-Za-z0-9_]+)\s*:=\s*/g, 'let $1 = ');
+
+      // Replace Go 1.22 integer range loop
+      jsCode = jsCode.replace(/for\s+let\s+([A-Za-z0-9_]+)\s*=\s*range\s+([0-9]+)\s*\{/g, 'for (let $1 = 0; $1 < $2; $1++) {');
+      jsCode = jsCode.replace(/for\s+([A-Za-z0-9_]+)\s*:=\s*range\s+([0-9]+)\s*\{/g, 'for (let $1 = 0; $1 < $2; $1++) {');
+      jsCode = jsCode.replace(/for\s+range\s+([0-9]+)\s*\{/g, 'for (let _i = 0; _i < $1; _i++) {');
+
+      // Replace Go make([]int, len, cap)
+      jsCode = jsCode.replace(/make\(\s*\[\][A-Za-z0-9_]+\s*,\s*([0-9]+)(?:\s*,\s*([0-9]+))?\s*\)/g, 'new Array($1).fill(0)');
+
+      // Replace len(s), cap(s), append(s, val)
+      jsCode = jsCode.replace(/len\(([^)]+)\)/g, '($1).length');
+      jsCode = jsCode.replace(/cap\(([^)]+)\)/g, '($1).length');
+      jsCode = jsCode.replace(/append\(([^,]+),\s*([^)]+)\)/g, '([...$1, $2])');
+
+      // Replace func main() -> function main() { ... }
+      jsCode = jsCode.replace(/func\s+main\(\)\s*\{/g, 'function main() {');
+
+      // Add closure execution wrapper
+      jsCode += '\nif (typeof main === "function") main();';
+
+      const jsRes = this.runJS(jsCode);
+      const elapsed = Math.round(performance.now() - start);
+
+      return {
+        success: jsRes.success,
+        output: jsRes.output || 'Program exited with code 0.',
+        error: jsRes.error,
+        elapsedMs: elapsed
+      };
+    } catch (err) {
+      return {
+        success: false,
+        output: '',
+        error: err.toString(),
+        elapsedMs: Math.round(performance.now() - start)
+      };
+    }
+  },
+
   /* ==========================================================================
      C / C++ / JAVA / RUST SYNTAX & CHALLENGE SIMULATOR
      Interactive client-side simulation of systems compilation and outputs

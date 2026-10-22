@@ -102,7 +102,8 @@ export const Profile = {
         javascript: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
         rust:       { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
         sql:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
-        typescript: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
+        typescript: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+        go:         { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
       },
       completedTiers: {},
       unlockedAchievements: [],

@@ -114,7 +114,7 @@ export const LandingPage = {
    * @param {boolean} [saveState=true]
    */
   selectLanguage(lang, saveState = true) {
-    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'].includes(lang)) return;
+    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go'].includes(lang)) return;
     this.selectedLanguage = lang;
 
     const cards = Utils.qsa('#language-tracks-container .card-selectable');
