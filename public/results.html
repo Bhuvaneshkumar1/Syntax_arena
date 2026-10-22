@@ -151,6 +151,25 @@
         <!-- Dynamic Star Rating Display (0-3 Stars) -->
         <div id="results-star-rating" class="star-rating-display" style="margin-bottom: 1.5rem; justify-content: center; font-size: 1.65rem;" title="Stage Star Rating"></div>
 
+        <!-- Speed Duel Ghost Outcome Banner (Batch 11 Feature) -->
+        <div id="results-ghost-duel-banner" class="card card-raised" style="display: none; max-width: 820px; margin: 0 auto 1.5rem; padding: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.85rem;">
+              <span id="res-ghost-avatar" style="font-size: 2.25rem;">👻</span>
+              <div>
+                <span id="res-ghost-tag" class="badge badge-cyan" style="font-size: 10px; margin-bottom: 2px;">SPEED DUEL // VS CYBERPHANTOM</span>
+                <h3 id="res-ghost-title" style="margin: 0; font-size: var(--text-base);">SPEED DUEL VICTORY!</h3>
+                <p id="res-ghost-desc" style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0.25rem 0 0 0;">
+                  You outpaced CyberPhantom across all sectors!
+                </p>
+              </div>
+            </div>
+            <div id="res-ghost-badge-container">
+              <span id="res-ghost-reward-pill" class="badge badge-emerald" style="font-size: var(--text-sm); font-weight: 800;">+75 XP BONUS</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Stats Grid (8 Verified Metrics) -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; max-width: 820px; margin: 0 auto 2rem;">
           <div class="card" style="padding: 0.85rem; text-align: center;">
@@ -545,6 +564,55 @@
 
       const xpEl = Utils.qs('#res-xp-val');
       if (xpEl) xpEl.textContent = `+${xpEarned.toLocaleString()} XP`;
+
+      // 2b. Speed Duel Ghost Outcome Banner
+      const ghostBanner = Utils.qs('#results-ghost-duel-banner');
+      if (ghostBanner) {
+        const ghostData = summary && summary.ghostDuel;
+        if (ghostData && ghostData.enabled) {
+          ghostBanner.style.display = 'block';
+          const isVic = Boolean(ghostData.isVictory);
+          const deltaSec = typeof ghostData.delta === 'number' ? ghostData.delta : ((ghostData.ghostTime || 0) - (ghostData.playerTime || 0));
+          const avatarEl = Utils.qs('#res-ghost-avatar');
+          const titleEl = Utils.qs('#res-ghost-title');
+          const descEl = Utils.qs('#res-ghost-desc');
+          const rewardPill = Utils.qs('#res-ghost-reward-pill');
+
+          if (isVic) {
+            ghostBanner.style.borderColor = 'var(--color-success)';
+            ghostBanner.style.background = 'rgba(16, 185, 129, 0.08)';
+            if (avatarEl) avatarEl.textContent = '🏆';
+            if (titleEl) {
+              titleEl.textContent = 'SPEED DUEL VICTORY!';
+              titleEl.style.color = 'var(--color-success)';
+            }
+            if (descEl) {
+              descEl.textContent = `Superior reflexes! You outpaced CyberPhantom by ${deltaSec > 0 ? '+' : ''}${deltaSec.toFixed(1)}s across all sectors with ${accuracy}% accuracy!`;
+            }
+            if (rewardPill) {
+              rewardPill.className = 'badge badge-emerald';
+              rewardPill.textContent = `+${ghostData.bonusXP || 75} XP BONUS`;
+            }
+          } else {
+            ghostBanner.style.borderColor = 'var(--color-warning)';
+            ghostBanner.style.background = 'rgba(245, 158, 11, 0.08)';
+            if (avatarEl) avatarEl.textContent = '👻';
+            if (titleEl) {
+              titleEl.textContent = 'CYBERPHANTOM CLAIMED SECTOR';
+              titleEl.style.color = 'var(--color-warning)';
+            }
+            if (descEl) {
+              descEl.textContent = `CyberPhantom was ${Math.abs(deltaSec).toFixed(1)}s faster (${ghostData.ghostTime}s vs ${ghostData.playerTime}s). Boost your deduction speed and challenge again!`;
+            }
+            if (rewardPill) {
+              rewardPill.className = 'badge badge-amber';
+              rewardPill.textContent = 'Pace: +0 XP';
+            }
+          }
+        } else {
+          ghostBanner.style.display = 'none';
+        }
+      }
 
       // 3. Career Rank & Level Progression Card
       if (activeProf) {

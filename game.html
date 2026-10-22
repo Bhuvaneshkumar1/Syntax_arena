@@ -179,6 +179,34 @@
         <div id="hud-progress-container" class="progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Session challenge progression">
           <div id="hud-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
         </div>
+
+        <!-- Ghost Speed Duel HUD Rail (Batch 11 Feature) -->
+        <div id="hud-ghost-duel-rail" class="ghost-duel-rail" aria-label="Ghost Speed Duel Split Rail">
+          <div class="ghost-duel-meta">
+            <div class="ghost-duel-racer player-racer">
+              <span class="ghost-racer-avatar" id="ghost-player-avatar">🦊</span>
+              <span class="ghost-racer-name" id="ghost-player-name">Player</span>
+            </div>
+            <div class="ghost-duel-split-badge is-even" id="ghost-split-badge" title="Live split timing delta vs CyberPhantom ghost pace">
+              <span id="ghost-split-icon">⏱️</span>
+              <span id="ghost-split-text">0.0s EVEN</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <button type="button" id="btn-toggle-ghost-duel" class="btn-icon-toggle" style="width: 22px; height: 22px; font-size: 11px; border-radius: var(--radius-sm); border: 1px solid rgba(139, 92, 246, 0.4); background: rgba(139, 92, 246, 0.1);" title="Toggle Speed Ghost On/Off" aria-label="Toggle Speed Ghost">
+                👻
+              </button>
+              <div class="ghost-duel-racer ai-racer">
+                <span class="ghost-racer-name" id="ghost-opponent-name">CyberPhantom</span>
+                <span class="ghost-racer-avatar">👻</span>
+              </div>
+            </div>
+          </div>
+          <div class="ghost-track-container">
+            <div class="ghost-track-line"></div>
+            <div id="ghost-player-pin" class="ghost-runner-pin player-pin" style="left: 0%;" title="Player position">🦊</div>
+            <div id="ghost-opponent-pin" class="ghost-runner-pin ghost-pin" style="left: 0%;" title="CyberPhantom position">👻</div>
+          </div>
+        </div>
       </section>
 
       <!-- Active Question Arena Workspace -->

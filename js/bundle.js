@@ -102912,6 +102912,16 @@ var Gameplay = window.Gameplay = {
   _eventsBound: false,
   _lastSubmitTime: 0,
   _lastAdvanceTime: 0,
+  ghostDuel: {
+    enabled: true,
+    opponentName: 'CyberPhantom',
+    ghostAvatar: '👻',
+    playerCumulativeTime: 0,
+    ghostCumulativeTime: 0,
+    questionStartTime: 0,
+    lastSplitDelta: 0,
+    pacePerQuestion: 8.5
+  },
 
   /**
    * Save an atomic snapshot of current session state to reactive state & localStorage.
@@ -103096,6 +103106,7 @@ var Gameplay = window.Gameplay = {
           }
 
           this.activeStage = STAGE_CONFIG[savedSession.stage] || STAGE_CONFIG.marathon;
+          this._initGhostDuelUI(difficulty);
           this._bindEvents();
           const resumedQ = this.engine.getCurrentQuestion();
           this.renderQuestion(resumedQ);
@@ -103211,7 +103222,8 @@ var Gameplay = window.Gameplay = {
     // 5. Update reactive state with active session snapshot
     this._saveSessionSnapshot();
 
-    // 6. Bind DOM controls and keyboard shortcuts
+    // 6. Bind DOM controls, keyboard shortcuts & Ghost Speed Duel
+    this._initGhostDuelUI(difficulty);
     this._bindEvents();
 
     // 7. Render first question
@@ -103456,6 +103468,9 @@ var Gameplay = window.Gameplay = {
 
     // Render Answer Interface for Question Type
     this._renderAnswerInterface(q);
+
+    // Update Ghost Speed Duel position rail & restart question timer
+    this._updateGhostDuelTrack(q);
 
     // Announce to Screen Readers
     this._announceLive(`Question ${q.index + 1} of ${q.totalQuestions}: ${q.prompt}`);
@@ -103796,6 +103811,7 @@ var Gameplay = window.Gameplay = {
     try {
       result = this.engine.submitAnswer(this.currentSubmission, timeRemaining);
       this._saveSessionSnapshot();
+      this._processGhostSplitOnAnswer(result.correct);
     } catch (err) {
       console.error('[Gameplay] Submission rejected by engine:', err);
       this.isSubmitting = false;
@@ -104279,6 +104295,37 @@ var Gameplay = window.Gameplay = {
       summary.flawlessBonus = 0;
     }
 
+    // Ghost Speed Duel Outcome Calculation
+    if (this.ghostDuel && this.ghostDuel.enabled) {
+      const isGhostVictory = (this.ghostDuel.playerCumulativeTime < this.ghostDuel.ghostCumulativeTime) && (accuracy >= 70);
+      const ghostBonusXP = isGhostVictory ? 75 : 0;
+      summary.ghostDuel = {
+        enabled: true,
+        opponentName: this.ghostDuel.opponentName || 'CyberPhantom',
+        playerTime: Number(this.ghostDuel.playerCumulativeTime.toFixed(1)),
+        ghostTime: Number(this.ghostDuel.ghostCumulativeTime.toFixed(1)),
+        delta: Number((this.ghostDuel.ghostCumulativeTime - this.ghostDuel.playerCumulativeTime).toFixed(1)),
+        isVictory: isGhostVictory,
+        bonusXP: ghostBonusXP
+      };
+
+      if (isGhostVictory) {
+        summary.totalScore = (summary.totalScore || 0) + ghostBonusXP;
+        const activeProf = Profile.getActiveProfile();
+        if (activeProf) {
+          activeProf.stats = activeProf.stats || {};
+          activeProf.stats.ghostDuelsWon = (activeProf.stats.ghostDuelsWon || 0) + 1;
+          activeProf.xp = (activeProf.xp || 0) + ghostBonusXP;
+          activeProf.lifetimeXP = (activeProf.lifetimeXP || 0) + ghostBonusXP;
+          Profile.updateProfile(activeProf.id, {
+            stats: activeProf.stats,
+            xp: activeProf.xp,
+            lifetimeXP: activeProf.lifetimeXP
+          });
+        }
+      }
+    }
+
     // Persist session summary for results page pickup
     try {
       sessionStorage.setItem('syntaxarena_last_session_summary', JSON.stringify(summary));
@@ -104677,6 +104724,136 @@ var Gameplay = window.Gameplay = {
     window.addEventListener('beforeunload', () => {
       this._stopTimer();
     });
+  },
+
+  /* ==========================================================================
+     FEATURE 2: ASYNCHRONOUS GHOST SPEED DUEL HELPERS
+     ========================================================================== */
+
+  /**
+   * Initialize Ghost Speed Duel HUD components, events, and baseline pacing.
+   * @param {string} difficulty
+   */
+  _initGhostDuelUI(difficulty = 'beginner') {
+    const diff = (difficulty || 'beginner').toLowerCase();
+    this.ghostDuel = {
+      enabled: true,
+      opponentName: 'CyberPhantom',
+      ghostAvatar: '👻',
+      playerCumulativeTime: 0,
+      ghostCumulativeTime: 0,
+      questionStartTime: Date.now(),
+      lastSplitDelta: 0,
+      pacePerQuestion: diff === 'expert' ? 21.0 : (diff === 'intermediate' ? 14.0 : 8.5)
+    };
+
+    const toggleBtn = Utils.qs('#btn-toggle-ghost-duel');
+    const rail = Utils.qs('#hud-ghost-duel-rail');
+
+    if (toggleBtn) {
+      toggleBtn.onclick = () => {
+        AudioEngine.playClick();
+        this.ghostDuel.enabled = !this.ghostDuel.enabled;
+        if (rail) {
+          rail.style.opacity = this.ghostDuel.enabled ? '1' : '0.4';
+        }
+        toggleBtn.style.opacity = this.ghostDuel.enabled ? '1' : '0.5';
+        UI.showToast(this.ghostDuel.enabled ? '⚡ Speed Ghost Resumed: Racing CyberPhantom!' : '⏸ Speed Ghost Paused', 'info');
+      };
+    }
+
+    // Populate Player Profile Info
+    const prof = Profile.getActiveProfile();
+    const avatar = (prof && prof.avatarEmoji) || '🦊';
+    const playerAvatarEl = Utils.qs('#ghost-player-avatar');
+    const playerPin = Utils.qs('#ghost-player-pin');
+    const playerNameEl = Utils.qs('#ghost-player-name');
+
+    if (playerAvatarEl) playerAvatarEl.textContent = avatar;
+    if (playerPin) playerPin.textContent = avatar;
+    if (playerNameEl && prof && prof.username) playerNameEl.textContent = prof.username;
+
+    // Reset split badge
+    const splitBadge = Utils.qs('#ghost-split-badge');
+    const splitText = Utils.qs('#ghost-split-text');
+    const splitIcon = Utils.qs('#ghost-split-icon');
+    if (splitBadge) splitBadge.className = 'ghost-duel-split-badge is-even';
+    if (splitText) splitText.textContent = '0.0s EVEN';
+    if (splitIcon) splitIcon.textContent = '⏱️';
+  },
+
+  /**
+   * Update Ghost Duel track positions and record question start time.
+   * @param {object} q
+   */
+  _updateGhostDuelTrack(q) {
+    if (!this.ghostDuel) return;
+    this.ghostDuel.questionStartTime = Date.now();
+
+    if (!this.ghostDuel.enabled) return;
+
+    const total = (this.engine && this.engine.getSession()) ? this.engine.getSession().questions.length : (q ? (q.totalQuestions || 10) : 10);
+    const currentIdx = (q && typeof q.index === 'number') ? q.index : 0;
+    const pct = Math.min(100, Math.max(0, (currentIdx / total) * 100));
+
+    const playerPin = Utils.qs('#ghost-player-pin');
+    const ghostPin = Utils.qs('#ghost-opponent-pin');
+
+    if (playerPin) playerPin.style.left = `${pct}%`;
+    if (ghostPin) ghostPin.style.left = `${pct}%`;
+
+    const prof = Profile.getActiveProfile();
+    const avatar = (prof && prof.avatarEmoji) || '🦊';
+    const playerAvatarEl = Utils.qs('#ghost-player-avatar');
+    if (playerAvatarEl) playerAvatarEl.textContent = avatar;
+    if (playerPin) playerPin.textContent = avatar;
+  },
+
+  /**
+   * Process Ghost timing metrics when an answer is submitted.
+   * @param {boolean} isCorrect
+   */
+  _processGhostSplitOnAnswer(isCorrect) {
+    if (!this.ghostDuel || !this.ghostDuel.enabled) return;
+
+    const q = this.engine ? this.engine.getCurrentQuestion() : null;
+    const timeSpent = Math.max(0.5, ((Date.now() - (this.ghostDuel.questionStartTime || Date.now())) / 1000));
+
+    let hash = 0;
+    const qid = (q && q.id) ? q.id : 'q';
+    for (let i = 0; i < qid.length; i++) hash = (hash * 31 + qid.charCodeAt(i)) & 0xff;
+    const jitter = ((hash % 15) - 7) * 0.1;
+    const ghostQTime = Math.max(3.0, this.ghostDuel.pacePerQuestion + jitter);
+
+    this.ghostDuel.playerCumulativeTime += timeSpent;
+    this.ghostDuel.ghostCumulativeTime += ghostQTime;
+
+    const delta = this.ghostDuel.ghostCumulativeTime - this.ghostDuel.playerCumulativeTime;
+    const splitBadge = Utils.qs('#ghost-split-badge');
+    const splitText = Utils.qs('#ghost-split-text');
+    const splitIcon = Utils.qs('#ghost-split-icon');
+
+    if (splitBadge && splitText) {
+      if (delta > 0.3) {
+        splitBadge.className = 'ghost-duel-split-badge is-ahead';
+        if (splitIcon) splitIcon.textContent = '⚡';
+        splitText.textContent = `+${delta.toFixed(1)}s AHEAD`;
+
+        if (this.ghostDuel.lastSplitDelta <= 0) {
+          UI.showToast('🏎️ GHOST OVERTAKEN! You took the lead!', 'success');
+        }
+      } else if (delta < -0.3) {
+        splitBadge.className = 'ghost-duel-split-badge is-behind';
+        if (splitIcon) splitIcon.textContent = '⚠️';
+        splitText.textContent = `${Math.abs(delta).toFixed(1)}s BEHIND`;
+      } else {
+        splitBadge.className = 'ghost-duel-split-badge is-even';
+        if (splitIcon) splitIcon.textContent = '⏱️';
+        splitText.textContent = '0.0s EVEN';
+      }
+    }
+
+    this.ghostDuel.lastSplitDelta = delta;
   }
 };
 
