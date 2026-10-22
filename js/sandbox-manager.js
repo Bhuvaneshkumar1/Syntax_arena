@@ -680,11 +680,21 @@ export const SandboxManager = {
 
       if (!line || line.startsWith('#') || line.startsWith('#!')) continue;
 
-      // Variable assignment: str='SyntaxArena_2026' or count=5
+      // Variable assignment: str='SyntaxArena_2026' or count=5 or encoded=$(echo $token | base64)
       const assignMatch = line.match(/^([a-zA-Z_][a-zA-Z0-9_]*)=['"]?(.*?)['"]?$/);
       if (assignMatch) {
-        localVars[assignMatch[1]] = assignMatch[2];
-        this.envVars[assignMatch[1]] = assignMatch[2];
+        let val = assignMatch[2];
+        const subCmdMatch = val.match(/^\$\((.+)\)$/) || val.match(/^`(.+)`$/);
+        if (subCmdMatch) {
+          let subCmd = subCmdMatch[1];
+          subCmd = subCmd.replace(/\$([a-zA-Z0-9_]+)/g, (_, vName) => localVars[vName] !== undefined ? localVars[vName] : (this.envVars[vName] || ''));
+          const subRes = this.executeBashPipeline(subCmd);
+          val = (subRes.output || '').trim();
+        } else {
+          val = val.replace(/\$([a-zA-Z0-9_]+)/g, (_, vName) => localVars[vName] !== undefined ? localVars[vName] : (this.envVars[vName] || ''));
+        }
+        localVars[assignMatch[1]] = val;
+        this.envVars[assignMatch[1]] = val;
         continue;
       }
 
@@ -697,7 +707,7 @@ export const SandboxManager = {
           // e.g. $str == *Arena*
           if (expr.includes('==')) {
             const [leftRaw, rightRaw] = expr.split('==').map(s => s.trim());
-            const leftVal = leftRaw.startsWith('$') ? (localVars[leftRaw.slice(1)] || '') : leftRaw.replace(/['"]/g, '');
+            const leftVal = leftRaw.startsWith('$') ? (localVars[leftRaw.slice(1)] || this.envVars[leftRaw.slice(1)] || '') : leftRaw.replace(/['"]/g, '');
             const rightPattern = rightRaw.replace(/['"]/g, '');
 
             if (rightPattern.startsWith('*') && rightPattern.endsWith('*')) {
@@ -732,15 +742,25 @@ export const SandboxManager = {
 
         const blockToRun = conditionMet ? thenLines : elseLines;
         for (const bl of blockToRun) {
-          const res = this.executeBashPipeline(bl);
+          let lineToRun = bl.replace(/\$([a-zA-Z0-9_]+)/g, (_, vName) => localVars[vName] !== undefined ? localVars[vName] : (this.envVars[vName] || ''));
+          lineToRun = lineToRun.replace(/\$\(([^)]+)\)/g, (_, subCmd) => {
+            const subRes = this.executeBashPipeline(subCmd);
+            return (subRes.output || '').trim();
+          });
+          const res = this.executeBashPipeline(lineToRun);
           if (res.output) stdout.push(res.output);
           if (res.error) stdout.push(`bash: ${res.error}`);
         }
         continue;
       }
 
-      // Execute general shell line
-      const res = this.executeBashPipeline(line);
+      // Execute general shell line with variable and subshell resolution
+      let lineToRun = line.replace(/\$([a-zA-Z0-9_]+)/g, (_, vName) => localVars[vName] !== undefined ? localVars[vName] : (this.envVars[vName] || ''));
+      lineToRun = lineToRun.replace(/\$\(([^)]+)\)/g, (_, subCmd) => {
+        const subRes = this.executeBashPipeline(subCmd);
+        return (subRes.output || '').trim();
+      });
+      const res = this.executeBashPipeline(lineToRun);
       if (res.output && res.output !== '__CLEAR__') stdout.push(res.output);
       if (res.error) stdout.push(`bash: ${res.error}`);
     }
@@ -877,7 +897,7 @@ export const SandboxManager = {
   _evaluateSQLWhere(row, condition) {
     try {
       // Support basic conditions e.g. role = 'admin', xp > 1000, active = 1
-      const eqMatch = condition.match(/([a-zA-Z0-9_]+)\s*(=|!=|>|<|>=|<=)\s*['"]?([^'"]+)['"]?/);
+      const eqMatch = condition.match(/([a-zA-Z0-9_]+)\s*(>=|<=|!=|=|>|<)\s*['"]?([^'"]+)['"]?/);
       if (!eqMatch) return true;
 
       const col = eqMatch[1].trim();
@@ -952,40 +972,102 @@ export const SandboxManager = {
   runTypeScript(code) {
     const start = performance.now();
     try {
-      let jsCode = code;
-      // Strip interfaces and type aliases
-      jsCode = jsCode.replace(/interface\s+[A-Za-z0-9_]+(?:\s+extends\s+[A-Za-z0-9_,\s]+)?\s*\{[\s\S]*?\}/g, '');
-      jsCode = jsCode.replace(/type\s+[A-Za-z0-9_]+(?:\s*<[^>]+>)?\s*=\s*[\s\S]*?;/g, '');
-      
-      // Strip enums into runtime JS objects
-      jsCode = jsCode.replace(/enum\s+([A-Za-z0-9_]+)\s*\{([^}]+)\}/g, (match, enumName, members) => {
-        const lines = members.split(',').map(m => m.trim()).filter(Boolean);
-        let currVal = 0;
-        const entries = [];
-        for (const line of lines) {
-          const parts = line.split('=').map(p => p.trim());
-          const key = parts[0];
-          if (parts[1]) {
-            const valNum = Number(parts[1]);
-            if (!isNaN(valNum)) currVal = valNum;
-            entries.push(`${enumName}["${key}"] = ${parts[1]}; ${enumName}[${parts[1]}] = "${key}";`);
+      let src = code || '';
+
+      // 1. Convert enums
+      src = src.replace(/\benum\s+([A-Za-z0-9_$]+)\s*\{([^}]+)\}/g, (_, name, body) => {
+        const lines = body.split(',').map(s => s.trim()).filter(Boolean);
+        let val = 0;
+        const assigns = [];
+        for (const item of lines) {
+          const [k, v] = item.split('=').map(s => s.trim());
+          if (v !== undefined) {
+            const num = Number(v);
+            if (!isNaN(num)) val = num;
+            assigns.push(`${name}["${k}"] = ${v}; ${name}[${v}] = "${k}";`);
           } else {
-            entries.push(`${enumName}["${key}"] = ${currVal}; ${enumName}[${currVal}] = "${key}";`);
-            currVal++;
+            assigns.push(`${name}["${k}"] = ${val}; ${name}[${val}] = "${k}";`);
+            val++;
           }
         }
-        return `var ${enumName} = {}; ${entries.join(' ')}`;
+        return `var ${name} = {}; ${assigns.join(' ')}`;
       });
 
-      // Strip "as const", "as any", "as T", "satisfies T"
-      jsCode = jsCode.replace(/\s+as\s+[A-Za-z0-9_<>\[\]|&\s]+/g, '');
-      jsCode = jsCode.replace(/\s+satisfies\s+[A-Za-z0-9_<>\[\]|&\s]+/g, '');
-      jsCode = jsCode.replace(/<[A-Za-z0-9_,\s]+>(?=\()/g, '');
-      
-      // Strip property / parameter / variable type annotations ": Type"
-      jsCode = jsCode.replace(/:\s*[A-Za-z0-9_<>\[\]|&]+(?=[,)={;])/g, '');
+      // 2. Strip interface declarations & type aliases with nested brace & paren balancing
+      let stripped = '';
+      let idx = 0;
+      while (idx < src.length) {
+        // Check for interface
+        const ifaceMatch = src.slice(idx).match(/^interface\s+[A-Za-z0-9_$]+(?:\s+extends\s+[A-Za-z0-9_$,\s]+)?\s*\{/);
+        if (ifaceMatch) {
+          let depth = 1;
+          let pos = idx + ifaceMatch[0].length;
+          while (pos < src.length && depth > 0) {
+            if (src[pos] === '{') depth++;
+            else if (src[pos] === '}') depth--;
+            pos++;
+          }
+          idx = pos;
+          continue;
+        }
 
-      const jsRes = this.runJS(jsCode);
+        // Check for type alias: type Name = ... ;
+        const typeMatch = src.slice(idx).match(/^type\s+[A-Za-z0-9_$]+(?:\s*<[^>]+>)?\s*=\s*/);
+        if (typeMatch) {
+          let depthBrace = 0;
+          let depthParen = 0;
+          let depthAngle = 0;
+          let pos = idx + typeMatch[0].length;
+          while (pos < src.length) {
+            const ch = src[pos];
+            if (ch === '{') depthBrace++;
+            else if (ch === '}') depthBrace--;
+            else if (ch === '(') depthParen++;
+            else if (ch === ')') depthParen--;
+            else if (ch === '<') depthAngle++;
+            else if (ch === '>') depthAngle--;
+            else if (ch === ';' && depthBrace <= 0 && depthParen <= 0 && depthAngle <= 0) {
+              pos++;
+              break;
+            }
+            pos++;
+          }
+          idx = pos;
+          continue;
+        }
+
+        stripped += src[idx];
+        idx++;
+      }
+      src = stripped;
+
+      // 3. Class generics & implements
+      src = src.replace(/\bclass\s+([A-Za-z0-9_$]+)\s*<[^>]+>/g, 'class $1');
+      src = src.replace(/\bimplements\s+[A-Za-z0-9_$,\s]+(?=\{)/g, ' ');
+
+      // 4. Function & instantiation generics: fn<T>( -> fn( and new Class<T>( -> new Class(
+      src = src.replace(/\b([A-Za-z0-9_$]+)\s*<[A-Za-z0-9_$,\s|&]+>\s*(?=\()/g, '$1');
+
+      // 5. Access modifiers on class fields / methods: private, public, protected, readonly, override
+      src = src.replace(/\b(public|private|protected|readonly|override)\s+/g, '');
+
+      // 6. Return type annotations: ): Type { or ): Type => or ): Type;
+      src = src.replace(/\)\s*:\s*[A-Za-z0-9_<>\[\]|&\s]+(?=\s*[{;=])/g, ') ');
+
+      // 7. Parameter and variable type annotations:
+      src = src.replace(/([A-Za-z0-9_$]+)\s*\?\s*:\s*[A-Za-z0-9_<>\[\]|&\s]+(?=\s*[,)=])/g, '$1');
+      src = src.replace(/([A-Za-z0-9_$]+)\s*:\s*[A-Za-z0-9_<>\[\]|&\s]+(?=\s*[,)=])/g, '$1');
+
+      // Variable & field declarations: let x: Type = ... -> let x = ...
+      src = src.replace(/\b(let|const|var)\s+([A-Za-z0-9_$]+)\s*:\s*[A-Za-z0-9_<>\[\]|&\s]+(?=\s*[=;])/g, '$1 $2');
+      src = src.replace(/^\s*([A-Za-z0-9_$]+)\s*:\s*[A-Za-z0-9_<>\[\]|&\s]+(?=\s*[=;])/gm, '$1');
+
+      // 8. Type assertions: 'as Type', 'satisfies Type', '<Type>expr'
+      src = src.replace(/\s+as\s+[A-Za-z0-9_<>\[\]|&\s]+(?=[,);}\]\n])/g, '');
+      src = src.replace(/\s+satisfies\s+[A-Za-z0-9_<>\[\]|&\s]+(?=[,);}\]\n])/g, '');
+      src = src.replace(/([A-Za-z0-9_$]+)!\b/g, '$1');
+
+      const jsRes = this.runJS(src);
       const elapsed = Math.round(performance.now() - start);
 
       return {
@@ -1034,48 +1116,202 @@ export const SandboxManager = {
         };
       }
 
-      // Convert Go code into JavaScript statements:
-      let jsCode = code;
-      jsCode = jsCode.replace(/package\s+[A-Za-z0-9_]+/g, '');
-      jsCode = jsCode.replace(/import\s+(?:\([^)]*\)|"[^"]*")/gs, '');
+      const preamble = `
+// Go Runtime Simulation
+class __GoChannel {
+  constructor(cap = 0) {
+    this.capacity = cap;
+    this.buffer = [];
+  }
+  send(val) {
+    this.buffer.push(val);
+  }
+  recv() {
+    return this.buffer.shift();
+  }
+  close() {}
+}
 
-      // Replace fmt.Println, fmt.Print, fmt.Printf
-      jsCode = jsCode.replace(/fmt\.Println\((.*?)\)/g, 'console.log($1);');
-      jsCode = jsCode.replace(/fmt\.Print\((.*?)\)/g, 'console.log($1);');
-      jsCode = jsCode.replace(/fmt\.Printf\((.*?)\)/g, 'console.log($1);');
+function __makeChan(cap = 0) {
+  return new __GoChannel(cap);
+}
 
-      // Replace Go variable declarations
-      jsCode = jsCode.replace(/var\s+([A-Za-z0-9_]+)(?:\s+[A-Za-z0-9_\[\]*]+)?\s*=\s*/g, 'let $1 = ');
-      jsCode = jsCode.replace(/var\s+([A-Za-z0-9_]+)\s+[A-Za-z0-9_\[\]*]+/g, 'let $1 = 0;');
+class __GoSlice extends Array {
+  constructor(len = 0, cap = len) {
+    super(len);
+    this.fill(0);
+    this._cap = cap;
+  }
+  get cap() { return this._cap !== undefined ? this._cap : this.length; }
+}
 
-      // Replace short variable declarations x := val
-      jsCode = jsCode.replace(/([A-Za-z0-9_]+)\s*:=\s*/g, 'let $1 = ');
+function __makeSlice(len = 0, cap = len) {
+  return new __GoSlice(len, cap);
+}
 
-      // Replace Go 1.22 integer range loop
-      jsCode = jsCode.replace(/for\s+let\s+([A-Za-z0-9_]+)\s*=\s*range\s+([0-9]+)\s*\{/g, 'for (let $1 = 0; $1 < $2; $1++) {');
-      jsCode = jsCode.replace(/for\s+([A-Za-z0-9_]+)\s*:=\s*range\s+([0-9]+)\s*\{/g, 'for (let $1 = 0; $1 < $2; $1++) {');
-      jsCode = jsCode.replace(/for\s+range\s+([0-9]+)\s*\{/g, 'for (let _i = 0; _i < $1; _i++) {');
+function __len(x) {
+  if (x === null || x === undefined) return 0;
+  if (typeof x === 'string' || Array.isArray(x)) return x.length;
+  if (typeof x === 'object') return Object.keys(x).length;
+  return 0;
+}
 
-      // Replace Go make([]int, len, cap)
-      jsCode = jsCode.replace(/make\(\s*\[\][A-Za-z0-9_]+\s*,\s*([0-9]+)(?:\s*,\s*([0-9]+))?\s*\)/g, 'new Array($1).fill(0)');
+function __cap(x) {
+  if (x && x.cap !== undefined) return x.cap;
+  if (x && x._cap !== undefined) return x._cap;
+  if (x && x.capacity !== undefined) return x.capacity;
+  return __len(x);
+}
 
-      // Replace len(s), cap(s), append(s, val)
-      jsCode = jsCode.replace(/len\(([^)]+)\)/g, '($1).length');
-      jsCode = jsCode.replace(/cap\(([^)]+)\)/g, '($1).length');
-      jsCode = jsCode.replace(/append\(([^,]+),\s*([^)]+)\)/g, '([...$1, $2])');
+function __append(slice, ...items) {
+  const next = [...slice, ...items];
+  next._cap = Math.max((slice._cap || slice.length) * 2, next.length);
+  return next;
+}
 
-      // Replace func main() -> function main() { ... }
-      jsCode = jsCode.replace(/func\s+main\(\)\s*\{/g, 'function main() {');
+function __sprintf(fmt, ...args) {
+  let idx = 0;
+  return String(fmt).replace(/%(?:[0-9]+(?:\\.[0-9]+)?)?([%dsfvTtxb])/g, (match, spec) => {
+    if (spec === '%') return '%';
+    const val = args[idx++];
+    if (spec === 'd' || spec === 'b' || spec === 'x') {
+      const num = Number(val);
+      if (spec === 'x') return num.toString(16);
+      if (spec === 'b') return num.toString(2);
+      return Math.trunc(num);
+    }
+    if (spec === 'f') return Number(val).toFixed(6);
+    if (spec === 's') return String(val);
+    if (spec === 't') return Boolean(val);
+    if (spec === 'T') return typeof val;
+    if (spec === 'v') return typeof val === 'object' ? JSON.stringify(val) : String(val);
+    return String(val);
+  });
+}
+`;
 
-      // Add closure execution wrapper
-      jsCode += '\nif (typeof main === "function") main();';
+      let funcDepth = 0;
+      let inFunction = false;
 
+      function transformLine(line) {
+        let l = line.trim();
+        if (!l || l.startsWith('//')) return line;
+        if (l.startsWith('package ') || l.startsWith('import ')) return '';
+
+        // Handle defer
+        if (l.startsWith('defer ')) {
+          const rest = l.slice(6).trim();
+          const cleanCall = transformLine(rest);
+          return `__defers.push(() => { ${cleanCall}; });`;
+        }
+
+        // fmt.Println, fmt.Print, fmt.Printf
+        l = l.replace(/fmt\.Println\(/g, 'console.log(');
+        l = l.replace(/fmt\.Print\(/g, 'console.log(');
+        l = l.replace(/fmt\.Printf\((.*)\)/g, 'console.log(__sprintf($1))');
+
+        // Channel operations
+        // ch <- val
+        l = l.replace(/^([a-zA-Z0-9_$.]+)\s*<-\s*(.+)$/, '$1.send($2);');
+        // <-ch
+        l = l.replace(/<-\s*([a-zA-Z0-9_$.]+)/g, '$1.recv()');
+
+        // make(chan ...) and make([]...)
+        l = l.replace(/make\(\s*chan\s+[A-Za-z0-9_.*]+(?:\s*,\s*([0-9]+))?\s*\)/g, '__makeChan($1)');
+        l = l.replace(/make\(\s*\[\][A-Za-z0-9_.*]+\s*,\s*([0-9]+)(?:\s*,\s*([0-9]+))?\s*\)/g, '__makeSlice($1, $2)');
+        l = l.replace(/make\(\s*map\[[^\]]+\][A-Za-z0-9_.*]+\s*\)/g, '{}');
+
+        // len & cap & append
+        l = l.replace(/\blen\(([^)]+)\)/g, '__len($1)');
+        l = l.replace(/\bcap\(([^)]+)\)/g, '__cap($1)');
+        l = l.replace(/\bappend\(([^,]+),\s*([^)]+)\)/g, '__append($1, $2)');
+
+        // For loops
+        l = l.replace(/for\s+([A-Za-z0-9_]+)\s*:=\s*range\s+([0-9]+)\s*\{/, 'for (let $1 = 0; $1 < $2; $1++) {');
+        l = l.replace(/for\s+([A-Za-z0-9_]+)\s*,\s*([A-Za-z0-9_]+)\s*:=\s*range\s+(.+?)\s*\{/, 'for (const [$1, $2] of ($3).entries()) {');
+        l = l.replace(/for\s+_\s*,\s*([A-Za-z0-9_]+)\s*:=\s*range\s+(.+?)\s*\{/, 'for (const [, $1] of ($2).entries()) {');
+
+        // If statements: if cond { -> if (cond) {
+        if (/^if\s+([^{]+)\s*\{/.test(l)) {
+          l = l.replace(/^if\s+([^{]+)\s*\{/, (_, cond) => {
+            const c = cond.trim();
+            return c.startsWith('(') && c.endsWith(')') ? `if ${c} {` : `if (${c}) {`;
+          });
+        } else if (/^\}\s*else\s+if\s+([^{]+)\s*\{/.test(l)) {
+          l = l.replace(/^\}\s*else\s+if\s+([^{]+)\s*\{/, (_, cond) => {
+            const c = cond.trim();
+            return c.startsWith('(') && c.endsWith(')') ? `} else if ${c} {` : `} else if (${c}) {`;
+          });
+        }
+
+        // Func declarations
+        const funcMatch = l.match(/^func\s+([A-Za-z0-9_]+)\s*\(([^)]*)\)(?:\s+[^{]+)?\s*\{/);
+        if (funcMatch) {
+          const name = funcMatch[1];
+          const params = funcMatch[2].split(',').map(p => p.trim().split(/\s+/)[0]).filter(Boolean).join(', ');
+          inFunction = true;
+          funcDepth = 1;
+          return `function ${name}(${params}) {\n  const __defers = [];\n  try {`;
+        }
+
+        // Track braces
+        let openCount = (l.match(/\{/g) || []).length;
+        let closeCount = (l.match(/\}/g) || []).length;
+
+        if (inFunction) {
+          funcDepth += openCount - closeCount;
+          if (funcDepth <= 0) {
+            inFunction = false;
+            funcDepth = 0;
+            return `  } finally {\n    while (typeof __defers !== "undefined" && __defers.length > 0) {\n      try { (__defers.pop())(); } catch (_) {}\n    }\n  }\n}`;
+          }
+        }
+
+        // Variable declarations:
+        // x := val -> let x = val;
+        // a, b := 1, 2 -> let [a, b] = [1, 2];
+        if (l.includes(':=')) {
+          const parts = l.split(':=');
+          const left = parts[0].trim();
+          const right = parts.slice(1).join(':=').trim();
+          const targets = left.split(',').map(s => s.trim());
+          if (targets.length > 1) {
+            return `let [${targets.join(', ')}] = [${right}];`;
+          }
+          return `let ${left} = ${right};`;
+        }
+
+        // var x int = 5 -> let x = 5;
+        // var x int -> let x = 0;
+        if (l.startsWith('var ')) {
+          let vRest = l.slice(4).trim();
+          if (vRest.includes('=')) {
+            const [left, right] = vRest.split('=').map(s => s.trim());
+            const varName = left.split(/\s+/)[0];
+            return `let ${varName} = ${right};`;
+          } else {
+            const varName = vRest.split(/\s+/)[0];
+            return `let ${varName} = 0;`;
+          }
+        }
+
+        return l + (l.endsWith(';') || l.endsWith('{') || l.endsWith('}') ? '' : ';');
+      }
+
+      // Handle multi-line imports: import (...)
+      let cleanCode = code.replace(/import\s*\([^)]*\)/gs, '');
+      const lines = cleanCode.split('\n');
+      const transformed = lines.map(line => transformLine(line));
+
+      transformed.push('\nif (typeof main === "function") main();');
+
+      const jsCode = preamble + '\n' + transformed.join('\n');
       const jsRes = this.runJS(jsCode);
       const elapsed = Math.round(performance.now() - start);
 
       return {
         success: jsRes.success,
-        output: jsRes.output || 'Program exited with code 0.',
+        output: jsRes.output || (jsRes.success ? 'Program exited with code 0.' : ''),
         error: jsRes.error,
         elapsedMs: elapsed
       };
