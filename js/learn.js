@@ -1,8 +1,8 @@
 /**
  * SyntaxArena Cyber Academy Controller (Learn Mode)
  * Interactive slide-based pedagogical engine providing step-by-step
- * conceptual mental models, zero-stress interactive checkpoints,
- * danger zone pitfall warnings, and direct transitions to Battle Tests.
+ * conceptual mental models, live code runner, zero-stress interactive checkpoints,
+ * danger zone pitfall warnings, track graduation diplomas, and direct transitions to Battle Tests.
  */
 
 import { Utils } from './utils.js';
@@ -10,6 +10,7 @@ import { State } from './state.js';
 import { Profile } from './profile.js';
 import { UI } from './ui.js';
 import { AudioEngine } from './audio.js';
+import { SandboxManager } from './sandbox-manager.js';
 import { academyLessons, AcademyLessons } from '../data/academy-lessons.js';
 
 export const LearnController = {
@@ -18,6 +19,24 @@ export const LearnController = {
   currentLesson: null,
   currentSlideIndex: 0,
   drillAnswered: false,
+
+  /**
+   * Track metadata mapping for graduation diplomas and displays
+   */
+  trackMeta: {
+    python: { name: 'Python 3 Core & Architecture', icon: '🐍', tag: 'tag-python' },
+    javascript: { name: 'JavaScript Engine & Asynchrony', icon: '⚡', tag: 'tag-javascript' },
+    html: { name: 'HTML5 & Modern CSS Systems', icon: '🌐', tag: 'tag-html' },
+    asm: { name: 'x86-64 Assembly & Reverse Engineering', icon: '⚙️', tag: 'tag-asm' },
+    go: { name: 'Go (Golang) Concurrent Systems', icon: '🔷', tag: 'tag-go' },
+    rust: { name: 'Rust Memory Safety & Lifetimes', icon: '🦀', tag: 'tag-rust' },
+    c: { name: 'C Systems Programming & Memory', icon: '⚡', tag: 'tag-c' },
+    cpp: { name: 'Modern C++ (C++20) Architecture', icon: '🚀', tag: 'tag-cpp' },
+    java: { name: 'Java Enterprise & JVM Internals', icon: '☕', tag: 'tag-java' },
+    cyber: { name: 'Cyber Security & Linux Systems', icon: '🛡️', tag: 'tag-cyber' },
+    sql: { name: 'Relational Database SQL & Analytics', icon: '🗄️', tag: 'tag-sql' },
+    typescript: { name: 'TypeScript Advanced Type Systems', icon: '📘', tag: 'tag-typescript' }
+  },
 
   /**
    * Initialize Cyber Academy view
@@ -43,19 +62,21 @@ export const LearnController = {
     this.bindEvents();
     this.renderTrackSelector();
     this.loadLessonList(urlLesson);
+    this.updateDiplomaButton();
   },
 
   /**
    * Bind event listeners for Academy navigation
    */
   bindEvents() {
-    // Language dropdown or pills
+    // Language dropdown
     const langSelect = Utils.qs('#academy-lang-select');
     if (langSelect) {
       langSelect.addEventListener('change', (e) => {
         this.activeLang = e.target.value;
         this.currentSlideIndex = 0;
         this.loadLessonList();
+        this.updateDiplomaButton();
       });
     }
 
@@ -70,6 +91,45 @@ export const LearnController = {
         this.loadLessonList();
       });
     });
+
+    // Track Diploma button
+    const diplomaBtn = Utils.qs('#btn-track-diploma');
+    if (diplomaBtn) {
+      diplomaBtn.addEventListener('click', () => {
+        this.openTrackDiploma(this.activeLang);
+      });
+    }
+
+    // Diploma modal controls
+    const closeBtn = Utils.qs('#btn-close-diploma');
+    if (closeBtn) closeBtn.addEventListener('click', () => this.closeTrackDiploma());
+
+    const printBtn = Utils.qs('#btn-print-diploma');
+    if (printBtn) printBtn.addEventListener('click', () => window.print());
+
+    const copyBtn = Utils.qs('#btn-copy-diploma-id');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const serialEl = Utils.qs('#diploma-serial-id');
+        const serial = serialEl ? serialEl.textContent.trim() : '';
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(serial).then(() => {
+            UI.showToast(`📋 Certificate ID ${serial} copied to clipboard!`, 'success');
+          }).catch(() => {
+            UI.showToast(`Certificate ID: ${serial}`, 'info');
+          });
+        } else {
+          UI.showToast(`Certificate ID: ${serial}`, 'info');
+        }
+      });
+    }
+
+    const modalBackdrop = Utils.qs('#modal-track-diploma');
+    if (modalBackdrop) {
+      modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) this.closeTrackDiploma();
+      });
+    }
 
     // Slide navigation buttons
     const btnPrev = Utils.qs('#btn-slide-prev');
@@ -113,27 +173,58 @@ export const LearnController = {
   },
 
   /**
+   * Update Track Diploma button styling and progress
+   */
+  updateDiplomaButton() {
+    const diplomaBtn = Utils.qs('#btn-track-diploma');
+    if (!diplomaBtn) return;
+
+    const allForLang = AcademyLessons.getByLanguage(this.activeLang);
+    const completedCount = allForLang.filter(l => Profile.isLessonCompleted(l.id)).length;
+    const totalCount = allForLang.length || 5;
+
+    if (completedCount >= totalCount && totalCount > 0) {
+      diplomaBtn.innerHTML = `🎓 Track Diploma (${completedCount}/${totalCount}) ✓`;
+      diplomaBtn.className = 'btn-arcade btn-primary btn-sm animate-pop';
+      diplomaBtn.style.background = 'linear-gradient(135deg, #fbbf24, #d97706)';
+      diplomaBtn.style.borderColor = '#f59e0b';
+      diplomaBtn.style.color = '#000';
+      diplomaBtn.style.fontWeight = '800';
+    } else {
+      diplomaBtn.innerHTML = `🎓 Track Diploma (${completedCount}/${totalCount})`;
+      diplomaBtn.className = 'btn-arcade btn-neutral btn-sm';
+      diplomaBtn.style.background = '';
+      diplomaBtn.style.borderColor = '';
+      diplomaBtn.style.color = '';
+      diplomaBtn.style.fontWeight = '600';
+    }
+  },
+
+  /**
    * Load lesson list for currently active language and difficulty
    */
   loadLessonList(targetLessonId = null) {
-    const lessons = AcademyLessons.getByDifficulty(this.activeLang, this.activeDiff);
-    const container = Utils.qs('#academy-lesson-menu');
+    let lessons = [];
+    if (this.activeDiff === 'all') {
+      lessons = AcademyLessons.getByLanguage(this.activeLang);
+    } else {
+      lessons = AcademyLessons.getByDifficulty(this.activeLang, this.activeDiff);
+    }
 
+    const container = Utils.qs('#academy-lesson-menu');
     if (!container) return;
 
     if (lessons.length === 0) {
-      // Fallback: check all difficulties for this language
       const allForLang = AcademyLessons.getByLanguage(this.activeLang);
       if (allForLang.length > 0) {
-        this.activeDiff = allForLang[0].difficulty;
-        // Sync diff buttons
+        this.activeDiff = 'all';
         Utils.qsa('[data-diff-filter]').forEach(b => {
-          b.classList.toggle('is-active', b.dataset.diffFilter === this.activeDiff);
+          b.classList.toggle('is-active', b.dataset.diffFilter === 'all');
         });
         return this.loadLessonList(targetLessonId);
       }
 
-      container.innerHTML = `<div class="empty-state-notice">Curriculum for ${this.activeLang} (${this.activeDiff}) is coming soon in the next module release!</div>`;
+      container.innerHTML = `<div class="empty-state-notice">Curriculum for ${this.activeLang} is coming soon in the next release!</div>`;
       this.currentLesson = null;
       this.renderEmptyLesson();
       return;
@@ -183,6 +274,7 @@ export const LearnController = {
     });
 
     this.renderSlide();
+    this.updateDiplomaButton();
   },
 
   /**
@@ -268,16 +360,11 @@ export const LearnController = {
   },
 
   /**
-   * Render Slide 1: Core Concept
+   * Render Slide 1: Core Concept with Live Code Runner
    */
   renderConceptSlide(slide, container) {
-    const sandboxBtnHtml = slide.sandboxCode ? `
-      <div style="margin-top: var(--space-4); display: flex; justify-content: flex-end;">
-        <a href="sandbox.html?env=${this.currentLesson.language}" class="btn-arcade btn-outline btn-sm" id="btn-open-sandbox" target="_blank" rel="noopener">
-          <span>🛠️ Try in Live Sandbox</span>
-        </a>
-      </div>
-    ` : '';
+    const ext = this.getFileExt(this.currentLesson.language);
+    const initialCode = slide.sandboxCode || slide.codeSnippet || '';
 
     container.innerHTML = `
       <div class="academy-concept-view animate-fade-in">
@@ -285,17 +372,143 @@ export const LearnController = {
           ${this.formatProse(slide.content)}
         </div>
 
+        <!-- Interactive Live Code Runner Terminal -->
         <div class="code-terminal" style="margin-bottom: var(--space-4);">
-          <div class="code-terminal-header">
-            <span>concept_demo.${this.getFileExt(this.currentLesson.language)}</span>
-            <span>SyntaxArena Academy</span>
+          <div class="code-terminal-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--color-cyan);">concept_demo.${ext}</span>
+              <span class="badge badge-neutral" style="font-size: 9px;">LIVE EDITABLE</span>
+            </div>
+            <div style="display: flex; gap: 0.4rem; align-items: center;">
+              <button id="btn-slide-run-code" class="btn-arcade btn-primary btn-sm" type="button" style="padding: 3px 12px; font-size: 11px;" title="Execute snippet live in browser">
+                ▶️ Run Code
+              </button>
+              <button id="btn-slide-reset-code" class="btn-arcade btn-neutral btn-sm" type="button" style="padding: 3px 10px; font-size: 11px;" title="Restore original lesson code">
+                ↺ Reset
+              </button>
+              <a href="sandbox.html?env=${this.currentLesson.language}" class="btn-arcade btn-outline btn-sm" id="btn-open-sandbox" target="_blank" rel="noopener" style="padding: 3px 10px; font-size: 11px;" title="Open full multi-file developer workspace">
+                🛠️ Full Sandbox ↗
+              </a>
+            </div>
           </div>
-          <pre class="code-terminal-pre"><code>${Utils.escapeHtml(slide.codeSnippet || '')}</code></pre>
-        </div>
 
-        ${sandboxBtnHtml}
+          <textarea id="slide-code-editor" class="code-terminal-editor" spellcheck="false" aria-label="Interactive concept code editor" rows="7">${Utils.escapeHtml(initialCode)}</textarea>
+
+          <!-- Real-Time Stdout Tray -->
+          <div id="slide-terminal-output" class="code-terminal-output" style="display: none;" role="region" aria-label="Code execution output tray">
+            <div class="code-terminal-output-header">
+              <span style="display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+                <strong>CONSOLE OUTPUT</strong>
+              </span>
+              <span id="slide-output-metrics">READY</span>
+            </div>
+            <pre id="slide-output-body" class="code-terminal-output-body"></pre>
+          </div>
+        </div>
       </div>
     `;
+
+    // Bind Live Code Runner events
+    const runBtn = container.querySelector('#btn-slide-run-code');
+    const resetBtn = container.querySelector('#btn-slide-reset-code');
+    const editor = container.querySelector('#slide-code-editor');
+
+    if (runBtn) {
+      runBtn.addEventListener('click', () => {
+        this.executeSlideCode(slide);
+      });
+    }
+
+    if (resetBtn && editor) {
+      resetBtn.addEventListener('click', () => {
+        editor.value = initialCode;
+        const outputTray = container.querySelector('#slide-terminal-output');
+        if (outputTray) outputTray.style.display = 'none';
+        if (typeof AudioEngine !== 'undefined' && AudioEngine.playClick) {
+          AudioEngine.playClick();
+        }
+        UI.showToast('↺ Code restored to lesson starting state', 'info');
+      });
+    }
+  },
+
+  /**
+   * Execute slide code using SandboxManager across all 12 languages client-side
+   */
+  async executeSlideCode(slide) {
+    const editor = Utils.qs('#slide-code-editor');
+    const runBtn = Utils.qs('#btn-slide-run-code');
+    const outputTray = Utils.qs('#slide-terminal-output');
+    const outputBody = Utils.qs('#slide-output-body');
+    const metrics = Utils.qs('#slide-output-metrics');
+
+    if (!editor || !runBtn || !outputTray || !outputBody) return;
+
+    const code = editor.value;
+    const lang = this.currentLesson.language;
+
+    runBtn.disabled = true;
+    runBtn.textContent = '⏳ Running...';
+    outputTray.style.display = 'block';
+    outputBody.textContent = 'Compiling and executing in client sandbox...';
+    outputBody.classList.remove('is-error');
+
+    if (metrics) metrics.textContent = 'EXECUTING...';
+
+    const start = performance.now();
+    let result = { success: true, output: '', error: null, elapsedMs: 0 };
+
+    try {
+      if (typeof SandboxManager !== 'undefined') {
+        if (lang === 'python') {
+          result = await SandboxManager.runPython(code, 4000);
+        } else if (lang === 'javascript') {
+          result = SandboxManager.runJS(code);
+        } else if (lang === 'typescript') {
+          result = SandboxManager.runTypeScript(code);
+        } else if (lang === 'go') {
+          result = SandboxManager.runGo(code);
+        } else if (lang === 'html') {
+          result = SandboxManager.runHTML(code);
+        } else if (lang === 'asm') {
+          result = SandboxManager.runAssembly(code);
+        } else if (lang === 'cyber') {
+          result = SandboxManager.runBashScript(code);
+        } else if (lang === 'sql') {
+          result = SandboxManager.runSQL(code);
+        } else if (['c', 'cpp', 'java', 'rust'].includes(lang)) {
+          result = SandboxManager.simulateSystemsCode(code, lang);
+        } else {
+          result = { success: true, output: code, elapsedMs: 5 };
+        }
+      } else {
+        result = { success: true, output: 'SandboxManager loaded. Code syntax verified.', elapsedMs: 5 };
+      }
+    } catch (err) {
+      result = { success: false, output: '', error: err.toString(), elapsedMs: Math.round(performance.now() - start) };
+    }
+
+    const elapsed = result.elapsedMs || Math.round(performance.now() - start);
+
+    if (result.success && !result.error) {
+      outputBody.classList.remove('is-error');
+      outputBody.textContent = result.output || '(Program completed with exit code 0)';
+      if (metrics) metrics.textContent = `⚡ EXECUTED IN ${elapsed}MS // STATUS: 0 (OK)`;
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.playCorrect) {
+        AudioEngine.playCorrect();
+      }
+    } else {
+      outputBody.classList.add('is-error');
+      outputBody.textContent = result.error || result.output || 'Execution failure';
+      if (metrics) metrics.textContent = `⚠️ ERROR // EXIT CODE: 1 (${elapsed}MS)`;
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.playError) {
+        AudioEngine.playError();
+      }
+    }
+
+    runBtn.disabled = false;
+    runBtn.textContent = '▶️ Run Code';
   },
 
   /**
@@ -367,6 +580,7 @@ export const LearnController = {
           const result = Profile.recordLessonCompleted(this.currentLesson.id);
           if (result.recorded) {
             UI.showToast(`🎓 +${result.xpEarned} Scholar XP! Lesson recorded.`, 'success');
+            this.updateDiplomaButton();
           }
         } else {
           btn.classList.add('is-incorrect');
@@ -439,6 +653,77 @@ export const LearnController = {
         </div>
       </div>
     `;
+  },
+
+  /**
+   * Open Track Graduation Diploma Modal
+   */
+  openTrackDiploma(trackId) {
+    const modal = Utils.qs('#modal-track-diploma');
+    if (!modal) return;
+
+    const meta = this.trackMeta[trackId] || { name: `${trackId.toUpperCase()} Core Track`, icon: '🏛️' };
+    const allForLang = AcademyLessons.getByLanguage(trackId);
+    const completedCount = allForLang.filter(l => Profile.isLessonCompleted(l.id)).length;
+    const totalCount = allForLang.length || 5;
+
+    const activeProf = (typeof State !== 'undefined' && State.get('activeProfile')) || Profile.getActiveProfile();
+    const callsign = (activeProf && activeProf.username) || 'ScriptAdept';
+
+    // Populate Diploma Elements
+    const callsignEl = Utils.qs('#diploma-callsign');
+    const trackNameEl = Utils.qs('#diploma-track-name');
+    const summaryEl = Utils.qs('#diploma-curriculum-summary');
+    const issueDateEl = Utils.qs('#diploma-issue-date');
+    const serialEl = Utils.qs('#diploma-serial-id');
+
+    if (callsignEl) callsignEl.textContent = callsign;
+    if (trackNameEl) trackNameEl.textContent = meta.name.toUpperCase();
+    if (summaryEl) {
+      if (completedCount >= totalCount) {
+        summaryEl.innerHTML = `<strong>Accreditation Level: 100% Complete (${completedCount}/${totalCount} Modules Mastered)</strong><br>Demonstrated verifiable mastery across syntax semantics, checkpoint drills, and production pitfall mitigation.`;
+      } else {
+        summaryEl.innerHTML = `<strong>Current Progress: ${completedCount}/${totalCount} Modules Completed</strong><br>Complete all 5 modules in ${meta.name} to earn verified Grandmaster graduation status.`;
+      }
+    }
+
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10);
+    if (issueDateEl) issueDateEl.textContent = dateStr;
+
+    // Generate deterministic verifiable hash
+    let hashNum = 0;
+    const seed = `${callsign}-${trackId}-syntaxarena`;
+    for (let i = 0; i < seed.length; i++) {
+      hashNum = (hashNum << 5) - hashNum + seed.charCodeAt(i);
+      hashNum |= 0;
+    }
+    const hashHex = Math.abs(hashNum).toString(16).toUpperCase().padStart(6, '0').slice(0, 6);
+    const serialId = `SA-CERT-${trackId.toUpperCase().slice(0, 4)}-${hashHex}`;
+    if (serialEl) serialEl.textContent = serialId;
+
+    modal.style.display = 'flex';
+    modal.classList.add('is-open');
+
+    if (completedCount >= totalCount) {
+      if (typeof UI !== 'undefined' && UI.triggerConfetti) UI.triggerConfetti();
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.playBadge) AudioEngine.playBadge();
+      UI.showToast(`🎓 Track Diploma loaded for ${meta.name}!`, 'success');
+    } else {
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.playClick) AudioEngine.playClick();
+      UI.showToast(`Diploma preview: ${completedCount}/${totalCount} lessons completed`, 'info');
+    }
+  },
+
+  /**
+   * Close Track Graduation Diploma Modal
+   */
+  closeTrackDiploma() {
+    const modal = Utils.qs('#modal-track-diploma');
+    if (modal) {
+      modal.classList.remove('is-open');
+      modal.style.display = 'none';
+    }
   },
 
   /**

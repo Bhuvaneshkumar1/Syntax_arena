@@ -1,15 +1,16 @@
 /**
- * Script to build the complete 36-lesson Cyber Academy Catalog
- * Exactly 3 lessons per language (Beginner, Intermediate, Expert) across all 12 tracks:
- * Python, C, C++, Java, Cyber & Linux, JavaScript, Rust, SQL, TypeScript, Go, HTML, Assembly.
+ * Comprehensive 60-Module Cyber Academy Generator
+ * 12 Programming Tracks x 5 Deep-Dive Modules each = 60 Lessons Total
+ * Tracks: Python, C, C++, Java, Cyber, JavaScript, Rust, SQL, TypeScript, Go, HTML, Assembly
  */
 
 import fs from 'fs';
 import path from 'path';
 
+// Define the 60 deep-dive modules
 const lessons = [
   // =========================================================================
-  // 1. PYTHON TRACK (3 Lessons)
+  // 1. PYTHON TRACK (5 Modules)
   // =========================================================================
   {
     id: "py-les-001",
@@ -96,6 +97,47 @@ const lessons = [
   {
     id: "py-les-003",
     language: "python",
+    difficulty: "intermediate",
+    topic: "Generators & Iteration",
+    title: "Generators, Iterators & Memory-Efficient Streaming",
+    tagline: "Process millions of records in constant memory with lazy yield evaluation.",
+    estimatedMinutes: 3,
+    slides: [
+      {
+        type: "concept",
+        badge: "01 // MENTAL MODEL",
+        title: "Yield Pauses Execution and Preserves Stack State",
+        content: "A list comprehension builds the entire array in memory upfront. A generator function with `yield` produces values **lazily on demand**, maintaining $O(1)$ space complexity regardless of stream size!",
+        codeSnippet: "def stream_squares(limit):\n    for i in range(limit):\n        yield i * i  # Pauses function and yields value\n\ngen = stream_squares(3)\nprint(next(gen), next(gen), next(gen))  # Output: 0 1 4",
+        sandboxCode: "def stream_powers(n):\n    for i in range(n):\n        yield 2 ** i\n\ngen = stream_powers(5)\nprint('Streamed powers:', list(gen))"
+      },
+      {
+        type: "drill",
+        badge: "02 // INTERACTIVE CHECKPOINT",
+        title: "Generator Exhaustion",
+        prompt: "What happens when you call `next()` on a generator that has already yielded all its values?",
+        codeSnippet: "def simple():\n    yield 1\ng = simple()\nnext(g)\nnext(g)",
+        options: [
+          { text: "Raises StopIteration exception", isCorrect: true, feedback: "🎯 Correct! Generators signal the termination of their iterator stream via StopIteration." },
+          { text: "Returns None indefinitely", isCorrect: false, feedback: "Generators do not produce None once exhausted; they raise StopIteration." },
+          { text: "Loops back to the first yielded value (1)", isCorrect: false, feedback: "Generators are strictly single-pass unless reinvoked." },
+          { text: "Raises GeneratorExit", isCorrect: false, feedback: "GeneratorExit is raised when a generator is explicitly closed, not on exhaustion." }
+        ]
+      },
+      {
+        type: "pitfall",
+        badge: "03 // DANGER ZONE",
+        title: "Reusing Exhausted Generators",
+        content: "A generator can only be iterated over **once**. Passing an already-consumed generator to a second loop or aggregation function will silently yield 0 items!",
+        codeSnippet: "# ❌ SILENT BUG:\ngen = (x for x in range(5))\ntotal = sum(gen) # Evaluates to 10\ncount = len(list(gen)) # Evaluates to 0! Generator is empty!",
+        tip: "Hacker Rule: If you need to re-read items, convert to a list `data = list(gen)` or recreate the generator.",
+        arenaTarget: "game.html?lang=python&diff=intermediate&stage=1"
+      }
+    ]
+  },
+  {
+    id: "py-les-004",
+    language: "python",
     difficulty: "expert",
     topic: "Metaprogramming & Dunder Protocols",
     title: "Object Construction with `__new__` vs `__init__`",
@@ -134,1411 +176,726 @@ const lessons = [
       }
     ]
   },
-
-  // =========================================================================
-  // 2. C TRACK (3 Lessons)
-  // =========================================================================
   {
-    id: "c-les-001",
-    language: "c",
-    difficulty: "beginner",
-    topic: "Pointers & Addresses",
-    title: "Memory Addresses, Indirection & The Dereference Operator",
-    tagline: "Understand what pointers actually store: numerical virtual addresses.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "A Pointer Holds a Byte Address in Memory",
-        content: "Every variable in C lives at a specific byte address in RAM. The address-of operator `&x` extracts that numerical location, while the dereference operator `*ptr` reads or writes the data living at that location.",
-        codeSnippet: "int x = 42;\nint *ptr = &x; // ptr stores address of x\n*ptr = 99;     // directly updates x via memory indirection!\nprintf(\"%d\\n\", x); // Output: 99",
-        sandboxCode: "int x = 42;\nint *ptr = &x;\n*ptr = 99;\nprintf(\"x = %d, *ptr = %d\\n\", x, *ptr);"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Pointer Indirection Prediction",
-        prompt: "What is printed by this code snippet?",
-        codeSnippet: "int a = 5, b = 10;\nint *p = &a;\n*p = b;\nprintf(\"%d %d\", a, b);",
-        options: [
-          { text: "10 10", isCorrect: true, feedback: "🎯 Correct! *p = b assigns the value of b (10) to the memory location of a." },
-          { text: "5 10", isCorrect: false, feedback: "*p = b modifies variable a through its pointer." },
-          { text: "5 5", isCorrect: false, feedback: "Variable b is not modified." },
-          { text: "Compilation Error", isCorrect: false, feedback: "Assigning an integer to a dereferenced int pointer is valid C." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Uninitialized Pointer Wild Writes",
-        content: "Declaring `int *p;` without initializing it means `p` contains garbage bits. Writing `*p = 10` will attempt to write to random memory, causing a Segmentation Fault or silent corruption!",
-        codeSnippet: "// ❌ DANGEROUS CRASH:\nint *p; // Wild pointer points to garbage!\n*p = 10; // SEGFAULT!\n\n// ✅ SAFE INITIALIZATION:\nint *p = NULL;",
-        tip: "Hacker Rule: Always initialize pointers to NULL or a valid address upon declaration.",
-        arenaTarget: "game.html?lang=c&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "c-les-002",
-    language: "c",
-    difficulty: "intermediate",
-    topic: "Dynamic Memory",
-    title: "Heap Allocation with malloc(), free() & Dangling Pointers",
-    tagline: "Master memory lifetimes outside the call stack frame.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Heap Memory Persists Until Explicitly Freed",
-        content: "Variables allocated on the stack are automatically destroyed when their enclosing function returns. `malloc(bytes)` allocates persistent memory on the heap that survives until you manually call `free(ptr)`.",
-        codeSnippet: "int *arr = malloc(5 * sizeof(int));\nif (arr == NULL) return 1; // Always check for allocation failure!\n\narr[0] = 100;\nfree(arr); // Release memory back to OS\narr = NULL; // Prevent dangling pointer!",
-        sandboxCode: "int *p = malloc(sizeof(int));\n*p = 777;\nprintf(\"Allocated val: %d\\n\", *p);\nfree(p);"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Dangling Pointer Hazard",
-        prompt: "What does a pointer variable contain immediately after calling `free(ptr)`?",
-        codeSnippet: "int *ptr = malloc(sizeof(int));\n*ptr = 42;\nfree(ptr);",
-        options: [
-          { text: "It still holds the old memory address, now pointing to deallocated memory (dangling)", isCorrect: true, feedback: "🎯 Correct! free() only marks the memory as reusable; it does NOT zero out the pointer variable itself!" },
-          { text: "It is automatically set to NULL by the runtime", isCorrect: false, feedback: "C does not automatically modify pointer variables on free()." },
-          { text: "It is automatically zeroed out", isCorrect: false, feedback: "The address remains in the variable until you assign ptr = NULL." },
-          { text: "It raises a runtime exception", isCorrect: false, feedback: "free() returns void without throwing errors." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Double Free Security Vulnerability",
-        content: "Calling `free(ptr)` twice on the same memory block corrupts internal heap allocators and enables catastrophic arbitrary code execution exploits!",
-        codeSnippet: "// ❌ CRITICAL SECURITY VULNERABILITY:\nfree(ptr);\nfree(ptr); // Double free crash / heap exploit!\n\n// ✅ IDIOMATIC DEFENSE:\nfree(ptr);\nptr = NULL; // free(NULL) is guaranteed safe in C!",
-        tip: "Hacker Rule: Always immediately assign `ptr = NULL` right after calling `free(ptr)`.",
-        arenaTarget: "game.html?lang=c&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "c-les-003",
-    language: "c",
+    id: "py-les-005",
+    language: "python",
     difficulty: "expert",
-    topic: "Undefined Behavior & Aliasing",
-    title: "Strict Aliasing, Type Punning & Sequence Points",
-    tagline: "Understand how the optimizer transforms your C code under ISO standards.",
-    estimatedMinutes: 3,
+    topic: "Asyncio & Concurrency",
+    title: "Asyncio Event Loop, Coroutines & Cooperative Scheduling",
+    tagline: "Uncover how single-threaded cooperative multitasking out-scales threads for I/O.",
+    estimatedMinutes: 4,
     slides: [
       {
         type: "concept",
         badge: "01 // MENTAL MODEL",
-        title: "The Strict Aliasing Rule",
-        content: "Under ISO C, the compiler assumes pointers of different types (e.g., `int*` and `float*`) NEVER point to the same memory location. The optimizer will reorder or cache memory reads based on this assumption!",
-        codeSnippet: "uint32_t x = 0x3F800000;\n// ❌ Strict aliasing violation (UB):\nfloat f = *(float*)&x;\n\n// ✅ Safe, legal type punning via memcpy:\nfloat f2;\nmemcpy(&f2, &x, sizeof(f2));",
-        sandboxCode: "uint32_t u = 0x41424344;\nchar buf[5] = {0};\nmemcpy(buf, &u, 4);\nprintf(\"Punning via memcpy: %s\\n\", buf);"
+        title: "Coroutines Cooperate via Non-Blocking Event Loops",
+        content: "Unlike OS threads with preemptive scheduling, Python's `asyncio` is **cooperative**: a coroutine yields control back to the event loop only when hitting an `await` expression.\n\nIf a coroutine executes CPU-bound synchronous code (like `time.sleep()`), it freezes the entire process and starves all other pending tasks!",
+        codeSnippet: "import asyncio\n\nasync def fetch_user(uid):\n    await asyncio.sleep(0.01) # Non-blocking I/O simulation\n    return {'id': uid, 'status': 'ACTIVE'}\n\nasync def main():\n    results = await asyncio.gather(fetch_user(1), fetch_user(2))\n    print('Fetched:', len(results))\n\n# asyncio.run(main())",
+        sandboxCode: "import asyncio\n\nasync def worker(id):\n    return f'Worker {id} completed'\n\nasync def run():\n    res = await worker(42)\n    print('Result:', res)\n\nasyncio.run(run())"
       },
       {
         type: "drill",
         badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Unsequenced Modification",
-        prompt: "Why is `x = x++` strictly undefined behavior in ISO C?",
-        codeSnippet: "int x = 5;\nx = x++;",
+        title: "Blocking the Event Loop",
+        prompt: "What happens if you call standard `time.sleep(5)` inside an `async def` handler?",
+        codeSnippet: "import time, asyncio\n\nasync def handler():\n    time.sleep(5)  # Synchronous sleep!\n    return 'Done'",
         options: [
-          { text: "It modifies variable x twice between sequence points without synchronization", isCorrect: true, feedback: "🎯 Correct! Modifying an unsequenced scalar twice in a single expression invokes strict Undefined Behavior." },
-          { text: "x++ is not a valid expression in C", isCorrect: false, feedback: "The post-increment operator is standard C syntax." },
-          { text: "It always results in x = 5", isCorrect: false, feedback: "Compilers can produce any output or delete code entirely under UB." },
-          { text: "It causes a compiler parse error", isCorrect: false, feedback: "It compiles but emits undefined behavior instructions." }
+          { text: "It blocks the entire event loop thread for 5 seconds", isCorrect: true, feedback: "🎯 Correct! Standard time.sleep() halts the OS thread, preventing any concurrent coroutines from running." },
+          { text: "Asyncio automatically converts it to asyncio.sleep", isCorrect: false, feedback: "Python does not rewrite standard library synchronous blocking calls." },
+          { text: "It spawns a background thread automatically", isCorrect: false, feedback: "Asyncio does not spawn background threads unless explicitly told to via asyncio.to_thread()." },
+          { text: "Raises an AsyncSyntaxError", isCorrect: false, feedback: "Calling synchronous functions inside coroutines is syntactically legal, but bad for performance." }
         ]
       },
       {
         type: "pitfall",
         badge: "03 // DANGER ZONE",
-        title: "Pointer Arithmetic Past Array Bounds",
-        content: "Creating a pointer that points even a single byte BEFORE an array or more than one past the end is strictly Undefined Behavior, even if you never dereference it!",
-        codeSnippet: "int arr[5];\nint *p = arr - 1; // ❌ UNDEFINED BEHAVIOR immediately!\nint *end = arr + 5; // ✅ Legal (pointing one-past-the-end)",
-        tip: "Hacker Rule: Use `memcpy` or unions with character types for strict aliasing compliance.",
-        arenaTarget: "game.html?lang=c&diff=expert&stage=1"
-      }
-    ]
-  },
-
-  // =========================================================================
-  // 3. C++ TRACK (3 Lessons)
-  // =========================================================================
-  {
-    id: "cpp-les-001",
-    language: "cpp",
-    difficulty: "beginner",
-    topic: "References & Const Correctness",
-    title: "References vs Pointers in Modern C++",
-    tagline: "Master non-null aliases and avoid expensive copy overhead.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "A Reference is an Unchangeable Alias",
-        content: "Unlike a pointer, a C++ reference (`int &ref = x`) cannot be null and cannot be reseated to point to a different variable after initialization. Passing by `const &` avoids copying heavy objects while guaranteeing read-only safety.",
-        codeSnippet: "void printBig(const std::vector<int> &vec) {\n  // Zero copy overhead! Read-only access.\n  std::cout << vec.size() << '\\n';\n}",
-        sandboxCode: "int a = 10;\nint &ref = a;\nref = 99;\nstd::cout << \"a is: \" << a << '\\n';"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Reference Reseating Check",
-        prompt: "What does `ref = b` do in this snippet?",
-        codeSnippet: "int a = 5, b = 20;\nint &ref = a;\nref = b;",
-        options: [
-          { text: "Assigns the value of b (20) into variable a", isCorrect: true, feedback: "🎯 Correct! References cannot be reseated; assigning to ref writes to the referenced variable a." },
-          { text: "Reseats ref to refer to variable b", isCorrect: false, feedback: "References can never be reseated to a different variable." },
-          { text: "Causes a compiler error", isCorrect: false, feedback: "Assignment through a non-const reference is valid syntax." },
-          { text: "Creates a dangling reference", isCorrect: false, feedback: "Both variables are in scope and valid." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Dangling Reference to Local Stack Variable",
-        content: "Returning a reference to a local variable creates a dangling reference! The local stack memory is reclaimed when the function returns.",
-        codeSnippet: "// ❌ CRASH BUG:\nconst std::string& getName() {\n    std::string s = \"SyntaxArena\";\n    return s; // Dangling reference to destroyed stack object!\n}",
-        tip: "Hacker Rule: Never return references to local variables; return by value and let RVO/move semantics optimize it.",
-        arenaTarget: "game.html?lang=cpp&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "cpp-les-002",
-    language: "cpp",
-    difficulty: "intermediate",
-    topic: "RAII & Smart Pointers",
-    title: "Resource Acquisition Is Initialization & std::unique_ptr",
-    tagline: "Eliminate manual delete calls and memory leaks entirely.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Deterministic Destruction with RAII",
-        content: "In C++, resources (memory, file handles, mutex locks) should be owned by objects whose destructors automatically release them when exiting scope.\n\n`std::unique_ptr<T>` enforces strict, single ownership with zero runtime overhead over a raw pointer!",
-        codeSnippet: "#include <memory>\nvoid process() {\n    auto ptr = std::make_unique<int>(100);\n    // Automatically deleted when exiting scope—even if an exception throws!\n}",
-        sandboxCode: "auto p = std::make_unique<int>(42);\nstd::cout << \"Value: \" << *p << '\\n';"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Unique Ownership Move Semantics",
-        prompt: "What happens if you attempt `auto p2 = p1;` where `p1` is a `std::unique_ptr`?",
-        codeSnippet: "auto p1 = std::make_unique<int>(10);\nauto p2 = p1; // Copy attempted",
-        options: [
-          { text: "Compiler error: copy constructor is deleted", isCorrect: true, feedback: "🎯 Correct! unique_ptr explicitly deletes its copy constructor to guarantee single ownership. You must use std::move(p1)." },
-          { text: "Memory address is shared between p1 and p2", isCorrect: false, feedback: "Shared ownership requires std::shared_ptr, not std::unique_ptr." },
-          { text: "Deep copy of the integer is allocated on the heap", isCorrect: false, feedback: "unique_ptr does not perform deep cloning." },
-          { text: "Runtime exception is thrown", isCorrect: false, feedback: "The failure is caught at compile time." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Circular References with std::shared_ptr",
-        content: "If two objects hold `std::shared_ptr` to each other, their reference counts will never hit zero, causing a permanent memory leak! Break the cycle using `std::weak_ptr`.",
-        codeSnippet: "// ❌ PERMANENT LEAK: A -> B and B -> A\nstruct Node {\n    std::shared_ptr<Node> next;\n    std::weak_ptr<Node> prev; // ✅ Break circular reference!\n};",
-        tip: "Hacker Rule: Use `std::weak_ptr` for back-pointers and observer relationships.",
-        arenaTarget: "game.html?lang=cpp&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "cpp-les-003",
-    language: "cpp",
-    difficulty: "expert",
-    topic: "Move Semantics & Rvalues",
-    title: "Rvalue References (`T&&`) and `std::move`",
-    tagline: "Steal internal heap allocations instead of copying deep data structures.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Moving Steals Resources Without Allocation",
-        content: "An lvalue is an object with an identifiable memory address. An rvalue is a temporary object on the verge of destruction.\n\nMove constructors (`Type(Type&& other)`) steal the pointers of the expiring object in $O(1)$ time rather than allocating a deep copy!",
-        codeSnippet: "std::vector<int> a = {1, 2, 3, 4, 5};\nstd::vector<int> b = std::move(a); // Steals buffer pointer!\n// b now owns the data; a is left in a valid but unspecified empty state.",
-        sandboxCode: "std::vector<int> v1 = {10, 20};\nstd::vector<int> v2 = std::move(v1);\nstd::cout << \"v2 size: \" << v2.size() << \", v1 size: \" << v1.size() << '\\n';"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "std::move Mechanism",
-        prompt: "What does `std::move(x)` actually execute at the machine level?",
-        codeSnippet: "auto y = std::move(x);",
-        options: [
-          { text: "It is an unconditional cast to an rvalue reference (T&&); it generates no assembly instructions by itself", isCorrect: true, feedback: "🎯 Correct! std::move is simply `static_cast<T&&>(x)` to enable move overload resolution." },
-          { text: "It physically moves memory bytes across the CPU bus", isCorrect: false, feedback: "Move instructions belong to the constructor, not std::move itself." },
-          { text: "It deallocates x from RAM", isCorrect: false, feedback: "x remains valid until its scope ends." },
-          { text: "It sets x to NULL", isCorrect: false, feedback: "std::move does not modify x directly." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Using Moved-From Objects",
-        content: "Accessing specific values in an object after it has been moved from (`std::move`) is dangerous: the C++ standard only guarantees it is in a valid state for destruction or reassignment, NOT that it retains data!",
-        codeSnippet: "std::string s = \"hello\";\nstd::string s2 = std::move(s);\nstd::cout << s; // ❌ Unspecified state!",
-        tip: "Hacker Rule: Treat moved-from variables as invalid until explicitly reassigned.",
-        arenaTarget: "game.html?lang=cpp&diff=expert&stage=1"
-      }
-    ]
-  },
-
-  // =========================================================================
-  // 4. JAVASCRIPT TRACK (3 Lessons)
-  // =========================================================================
-  {
-    id: "js-les-001",
-    language: "javascript",
-    difficulty: "beginner",
-    topic: "Value vs Reference Types",
-    title: "Primitives vs Reference Mutation in ES2024",
-    tagline: "Understand why const does not mean immutability for objects.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Const Protects the Identifier Binding, Not the Heap Data",
-        content: "In JavaScript, primitive types (number, string, boolean, symbol, bigint, null, undefined) are copied by value. Objects (arrays, functions, objects) are accessed via memory references.\n\nDeclaring `const user = { name: 'Alice' }` means the variable `user` cannot be reassigned to another pointer. However, the properties of the object itself remain completely mutable!",
-        codeSnippet: "const hero = { level: 10 };\nhero.level = 99; // Totally valid!\n\n// hero = { level: 100 }; // ❌ TypeError: Assignment to constant variable",
-        sandboxCode: "const hero = { level: 10 };\nhero.level = 99;\nconsole.log('Hero level:', hero.level);"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Equality & Reference Identity",
-        prompt: "What will the following strict comparison evaluate to?",
-        codeSnippet: "console.log([1, 2] === [1, 2]);",
-        options: [
-          { text: "false", isCorrect: true, feedback: "🎯 Correct! In JS, === checks memory address identity. Each array literal allocates a new reference." },
-          { text: "true", isCorrect: false, feedback: "Arrays are compared by reference, not deep structural content." },
-          { text: "TypeError", isCorrect: false, feedback: "Strict equality comparison is valid across all JS types." },
-          { text: "undefined", isCorrect: false, feedback: "The expression strictly returns a boolean value." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Shallow Spread vs Nested Reference Sharing",
-        content: "The spread operator (`{ ...obj }` or `[ ...arr ]`) only performs a shallow clone! Any nested objects still share the exact same reference with the original.",
-        codeSnippet: "const original = { scores: [100, 200] };\nconst clone = { ...original };\nclone.scores.push(300);\nconsole.log(original.scores.length); // 3! Nested array was mutated!",
-        tip: "Hacker Rule: Use `structuredClone(obj)` for deep, independent copies in modern JavaScript.",
-        arenaTarget: "game.html?lang=javascript&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "js-les-002",
-    language: "javascript",
-    difficulty: "intermediate",
-    topic: "Event Loop & Concurrency",
-    title: "Microtasks vs Macrotasks in the V8 Engine",
-    tagline: "Demystify Promises, setTimeout, and the event loop execution queue.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Microtasks Drain Completely Before Any Macrotask Runs",
-        content: "The JavaScript event loop continuously checks two queues:\n1. **Microtask Queue**: `Promise.then()`, `queueMicrotask()`, `MutationObserver`.\n2. **Macrotask Queue**: `setTimeout()`, `setInterval()`, `setImmediate()`, I/O.\n\nRule: The microtask queue must be **completely emptied** before the engine dequeues even a single macrotask!",
-        codeSnippet: "console.log('1');\nsetTimeout(() => console.log('2'), 0);\nPromise.resolve().then(() => console.log('3'));\nconsole.log('4');\n// Order: 1 -> 4 -> 3 -> 2",
-        sandboxCode: "console.log('1 (Sync)');\nsetTimeout(() => console.log('2 (Macrotask)'), 0);\nPromise.resolve().then(() => console.log('3 (Microtask)'));\nconsole.log('4 (Sync)');"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Execution Order Prediction",
-        prompt: "In what order are the logs emitted in this code?",
-        codeSnippet: "queueMicrotask(() => console.log('Micro'));\nconsole.log('Main');",
-        options: [
-          { text: "Main, then Micro", isCorrect: true, feedback: "🎯 Correct! Synchronous code in the call stack runs to completion before microtasks fire." },
-          { text: "Micro, then Main", isCorrect: false, feedback: "Microtasks only run once the current call stack clears." },
-          { text: "Interleaved randomly", isCorrect: false, feedback: "JavaScript's event loop specification is strictly deterministic." },
-          { text: "Micro only", isCorrect: false, feedback: "Both console logs execute." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Starving the UI with Recursive Microtasks",
-        content: "Because the engine drains all microtasks before rendering or handling clicks, recursively scheduling microtasks (`queueMicrotask`) will freeze the browser tab completely!",
-        codeSnippet: "// ❌ BROWSER TAB FREEZE:\nfunction loop() {\n    Promise.resolve().then(loop);\n}\nloop(); // Macrotasks and UI paints never run!",
-        tip: "Hacker Rule: Use `requestAnimationFrame` for smooth render loops, not nested promises.",
-        arenaTarget: "game.html?lang=javascript&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "js-les-003",
-    language: "javascript",
-    difficulty: "expert",
-    topic: "Prototypes & Object Models",
-    title: "Prototype Chain, `Object.create(null)` & Prototype Pollution",
-    tagline: "Master V8 hidden classes, prototype lookup delegation, and security boundaries.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Prototypal Delegation vs Classical Inheritance",
-        content: "In JavaScript, objects do not have copies of class methods. Every object holds an internal `[[Prototype]]` link. When accessing `obj.prop`, V8 walks up the chain until it finds the property or hits `null`.\n\nCreating an object with `Object.create(null)` gives a completely clean dictionary with no `toString`, `valueOf`, or `__proto__`!",
-        codeSnippet: "const pureMap = Object.create(null);\npureMap.key = 42;\nconsole.log('toString' in pureMap); // false! No prototype bloat.",
-        sandboxCode: "const m = Object.create(null);\nm['score'] = 100;\nconsole.log('pure map:', m.score, Object.getPrototypeOf(m));"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Prototype Lookup Boundary",
-        prompt: "Where does the prototype lookup chain terminate?",
-        codeSnippet: "Object.getPrototypeOf(Object.prototype);",
-        options: [
-          { text: "null", isCorrect: true, feedback: "🎯 Correct! The root of the prototype chain is Object.prototype, whose [[Prototype]] is strictly null." },
-          { text: "undefined", isCorrect: false, feedback: "The root prototype returns null." },
-          { text: "Object", isCorrect: false, feedback: "Object is a constructor function, not the terminus of the chain." },
-          { text: "Window", isCorrect: false, feedback: "The global scope is separate from the object prototype chain." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Prototype Pollution Exploits",
-        content: "Recursively merging untrusted JSON payloads without filtering `__proto__` can inject properties directly onto `Object.prototype`, hijacking behavior across the entire runtime!",
-        codeSnippet: "// ❌ VULNERABLE MERGE:\nfunction merge(target, src) {\n  for (let k in src) target[k] = src[k];\n}\n// Merging { '__proto__': { 'isAdmin': true } } pollutes all objects!",
-        tip: "Hacker Rule: Use `Map` or `Object.create(null)` for user-supplied dictionary keys.",
-        arenaTarget: "game.html?lang=javascript&diff=expert&stage=1"
-      }
-    ]
-  },
-
-  // =========================================================================
-  // 5. HTML5 & MODERN CSS TRACK (3 Lessons)
-  // =========================================================================
-  {
-    id: "html-les-001",
-    language: "html",
-    difficulty: "beginner",
-    topic: "Box Model & Layout",
-    title: "Mastering `box-sizing: border-box` & Margin Collapse",
-    tagline: "Calculate element geometry accurately without layout calculation bugs.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Why content-box Causes Overflow Bugs",
-        content: "Under standard `box-sizing: content-box`, padding and borders are added **on top** of the declared `width`. An element with `width: 100%; padding: 20px` will inevitably overflow its container!\n\nSetting `box-sizing: border-box` forces padding and border into the calculated width.",
-        codeSnippet: "/* Standard modern CSS reset */\n*,\n*::before,\n*::after {\n  box-sizing: border-box;\n}",
-        sandboxCode: "const width = 200;\nconst padding = 20;\nconst border = 2;\nconsole.log('content-box total:', width + padding*2 + border*2);\nconsole.log('border-box total:', width);"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Margin Collapsing Rule",
-        prompt: "If element A has `margin-bottom: 30px` and sibling B directly below it has `margin-top: 20px`, what is the vertical space between them?",
-        codeSnippet: ".a { margin-bottom: 30px; }\n.b { margin-top: 20px; }",
-        options: [
-          { text: "30px", isCorrect: true, feedback: "🎯 Correct! In standard vertical flow, margins collapse to the maximum of the two values (30px), not their sum." },
-          { text: "50px", isCorrect: false, feedback: "Vertical margins collapse unless separated by padding, borders, or flex/grid containers." },
-          { text: "20px", isCorrect: false, feedback: "Collapsing takes the largest margin, which is 30px." },
-          { text: "10px", isCorrect: false, feedback: "Margins are not subtracted." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Flexbox and Grid Disable Margin Collapsing",
-        content: "Margins between child items inside a Flexbox (`display: flex`) or Grid container **never collapse**! They will add together, causing unexpected spacing if you expected block flow behavior.",
-        codeSnippet: "/* Inside flex container, 30px + 20px = 50px gap! */\n.container {\n  display: flex;\n  flex-direction: column;\n}",
-        tip: "Hacker Rule: Use the modern `gap` property instead of vertical margins for container spacing.",
-        arenaTarget: "game.html?lang=html&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "html-les-002",
-    language: "html",
-    difficulty: "intermediate",
-    topic: "Stacking Contexts",
-    title: "Stacking Contexts & `isolation: isolate`",
-    tagline: "Stop fighting z-index wars and tame 3D compositing layers.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Z-Index is Local to Its Stacking Context",
-        content: "Setting `z-index: 999999` fails if the element is trapped in a parent stacking context with a lower layer! Transforming (`transform`), opacity (`opacity < 1`), or filter properties create a brand-new stacking context.",
-        codeSnippet: "/* Creates an isolated stacking context for components */\n.modal-component {\n  isolation: isolate;\n}",
-        sandboxCode: "console.log('Stacking context created by: isolation: isolate, transform, opacity');"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Stacking Context Trigger",
-        prompt: "Which of the following CSS declarations triggers a new stacking context on an element?",
-        codeSnippet: "div { opacity: 0.99; }",
-        options: [
-          { text: "opacity: 0.99 (any opacity strictly less than 1.0)", isCorrect: true, feedback: "🎯 Correct! An opacity value less than 1 forces the compositor to generate a new stacking context layer." },
-          { text: "display: block", isCorrect: false, feedback: "Standard display: block does not create a stacking context." },
-          { text: "color: #00e5ff", isCorrect: false, feedback: "Color properties have no effect on compositing contexts." },
-          { text: "margin: auto", isCorrect: false, feedback: "Margin centering does not affect stacking layers." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "The Overflow Hidden Clipping Trap",
-        content: "If a dropdown or tooltip is nested inside an element with `overflow: hidden`, increasing `z-index` will NEVER allow it to escape the parent container's bounding rectangle!",
-        codeSnippet: "/* Traps all absolute popups inside boundaries */\n.card { overflow: hidden; }",
-        tip: "Hacker Rule: Use CSS `isolation: isolate` on custom components to prevent z-index leakage.",
-        arenaTarget: "game.html?lang=html&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "html-les-003",
-    language: "html",
-    difficulty: "expert",
-    topic: "Container Queries & Modern CSS",
-    title: "Container Queries (`@container`) & Subgrid Layouts",
-    tagline: "Build truly modular responsive components based on parent container width.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Respond to Component Context, Not Viewport Width",
-        content: "Traditional `@media` queries only measure the browser window width. Container queries (`@container`) allow a component to dynamically adapt its styling based on the specific width of its immediate parent container!",
-        codeSnippet: ".sidebar-card {\n  container-type: inline-size;\n}\n@container (min-width: 400px) {\n  .card-body { display: grid; grid-template-columns: 1fr 2fr; }\n}",
-        sandboxCode: "console.log('Container queries allow self-contained responsive widgets anywhere in DOM!');"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Container Declaration Requirement",
-        prompt: "What property must be declared on an ancestor before children can query it via `@container`?",
-        codeSnippet: ".widget-wrapper { container-type: inline-size; }",
-        options: [
-          { text: "container-type (or shorthand container)", isCorrect: true, feedback: "🎯 Correct! An ancestor must declare `container-type: inline-size` or `size` to establish a queryable container." },
-          { text: "display: flex", isCorrect: false, feedback: "Flex display alone does not define a container query context." },
-          { text: "@media (container)", isCorrect: false, feedback: "@media only reads viewport dimensions." },
-          { text: "resize: both", isCorrect: false, feedback: "Resize controls UI drag handles, not query contexts." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Querying Height without Strict Sizing",
-        content: "Using `container-type: size` requires setting explicit dimensions on the container. If height depends on content, querying height creates a circular layout dependency and collapses the container to zero!",
-        codeSnippet: "/* ❌ COLLAPSE BUG: circular dependency */\n.box { container-type: size; } /* height collapses! */\n\n/* ✅ IDIOMATIC INLINE SIZING */\n.box { container-type: inline-size; }",
-        tip: "Hacker Rule: Use `container-type: inline-size` for 99% of responsive component layouts.",
-        arenaTarget: "game.html?lang=html&diff=expert&stage=1"
-      }
-    ]
-  },
-
-  // =========================================================================
-  // 6. ASSEMBLY & REVERSE ENGINEERING TRACK (3 Lessons)
-  // =========================================================================
-  {
-    id: "asm-les-001",
-    language: "asm",
-    difficulty: "beginner",
-    topic: "x86-64 Registers & Math",
-    title: "64-bit Architecture & The Power of `xor eax, eax`",
-    tagline: "Learn low-level register anatomy and compiler zero-extension optimizations.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Why Compilers Write to 32-bit EAX to Clear 64-bit RAX",
-        content: "In x86-64 assembly, the 64-bit accumulator is `RAX`, and its lower 32-bit sub-register is `EAX`.\n\nA fundamental architectural rule of AMD64 is: **any operation writing to a 32-bit register automatically zero-extends into the upper 32 bits** of the corresponding 64-bit register!\n\nTherefore, `xor eax, eax` zeroes all 64 bits of `RAX` using fewer bytes than `mov rax, 0`.",
-        codeSnippet: "; Clears all 64 bits of RAX:\nxor eax, eax    ; Encodes to 2 bytes: 31 C0\n\n; Slower, bulkier equivalent:\nmov rax, 0      ; Encodes to 7 bytes!",
-        sandboxCode: "; Emulate XOR zeroing in Sandbox\nmov rax, 0xFFFFFFFF\nxor eax, eax\n; Check RAX value!"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Zero-Extension Check",
-        prompt: "If `RAX` currently holds `0xFFFFFFFFFFFFFFFF`, what does `mov eax, 1` leave in `RAX`?",
-        codeSnippet: "mov rax, 0xFFFFFFFFFFFFFFFF\nmov eax, 1",
-        options: [
-          { text: "0x0000000000000001", isCorrect: true, feedback: "🎯 Correct! Writing to 32-bit EAX clears the upper 32 bits of RAX to 0." },
-          { text: "0xFFFFFFFF00000001", isCorrect: false, feedback: "Writing to 32-bit sub-registers zeroes the upper 32 bits, unlike 8-bit or 16-bit writes." },
-          { text: "0xFFFFFFFFFFFFFFFF", isCorrect: false, feedback: "The register is definitely modified." },
-          { text: "0x0000000100000000", isCorrect: false, feedback: "EAX represents the lower 32 bits, not the upper bits." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "8-bit and 16-bit Writes Do NOT Zero-Extend!",
-        content: "Unlike 32-bit operations, writing to 16-bit (`AX`) or 8-bit (`AL`) registers leaves the rest of `RAX` untouched! Assuming `mov al, 5` clears `RAX` leads to catastrophic security bugs.",
-        codeSnippet: "; ❌ DANGEROUS BUG:\nmov rax, 0x1234567890ABCDEF\nmov al, 0    ; RAX is now 0x1234567890ABCD00, NOT 0!",
-        tip: "Hacker Rule: Always zero-initialize the whole register before doing partial byte arithmetic.",
-        arenaTarget: "game.html?lang=asm&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "asm-les-002",
-    language: "asm",
-    difficulty: "intermediate",
-    topic: "Stack Frames & Calling Conventions",
-    title: "Stack Frames & System V AMD64 Calling Convention",
-    tagline: "Trace return addresses, base pointers (RBP), and stack pointer alignments.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "The Standard Function Prologue & Register Arguments",
-        content: "In Linux/macOS x86-64, the first 6 integer/pointer arguments are passed via registers: `RDI`, `RSI`, `RDX`, `RCX`, `R8`, `R9`.\n\nThe standard stack frame prologue preserves the caller's frame base pointer and reserves local stack space.",
-        codeSnippet: "push rbp        ; Save caller base pointer\nmov rbp, rsp    ; Establish new stack frame base\nsub rsp, 32     ; Allocate 32 bytes for local variables",
-        sandboxCode: "; Emulate stack frame in sandbox\npush rbp\nmov rbp, rsp\nsub rsp, 16\nmov qword [rbp-8], 42"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Argument Register Mapping",
-        prompt: "Under System V AMD64 ABI, which register holds the first function argument (`arg1`)?",
-        codeSnippet: "long add(long a, long b);",
-        options: [
-          { text: "RDI", isCorrect: true, feedback: "🎯 Correct! The System V calling order is: RDI, RSI, RDX, RCX, R8, R9." },
-          { text: "RAX", isCorrect: false, feedback: "RAX is used for function return values, not input arguments." },
-          { text: "RCX", isCorrect: false, feedback: "RCX holds the 4th argument in System V (or 1st in Microsoft x64)." },
-          { text: "RSP", isCorrect: false, feedback: "RSP is the stack pointer." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "The 16-Byte Stack Alignment Mandate",
-        content: "Before executing any `CALL` instruction in x86-64, `RSP` must be aligned to a 16-byte boundary. Calling SSE/AVX library functions like `printf` with an unaligned stack triggers an immediate General Protection Fault crash!",
-        codeSnippet: "; ❌ CRASH: Unaligned stack before call\nsub rsp, 8   ; Stack misaligned!\ncall printf  ; SIGSEGV in glibc movaps instruction!",
-        tip: "Hacker Rule: Always ensure `RSP % 16 == 0` right before issuing a `CALL` instruction.",
-        arenaTarget: "game.html?lang=asm&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "asm-les-003",
-    language: "asm",
-    difficulty: "expert",
-    topic: "Reverse Engineering & Exploitation",
-    title: "Stack Canaries, ROP Gadgets & Control Flow Hijacking",
-    tagline: "Analyze disassembled binary protections and return-oriented exploits.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "How Stack Canaries Detect Buffer Overflows",
-        content: "Compilers insert a secret random quadword from `fs:0x28` directly between local buffers and the saved return address. Before returning, the function checks if the canary was altered.",
-        codeSnippet: "; GCC stack protector check:\nmov rax, qword fs:[0x28]\nxor rax, qword [rbp-8] ; Compare with saved canary\njne __stack_chk_fail   ; Abort if corrupted!",
-        sandboxCode: "console.log('Stack canaries prevent return address overwrites by checking guard values');"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "ROP Gadget Anatomy",
-        prompt: "What characterizes a Return-Oriented Programming (ROP) gadget in compiled machine code?",
-        codeSnippet: "pop rdi; ret",
-        options: [
-          { text: "A short sequence of CPU instructions terminating in a RET opcode", isCorrect: true, feedback: "🎯 Correct! Gadgets string together instructions using stack-stored return addresses to bypass Non-Executable (DEP/NX) stacks." },
-          { text: "An interrupt vector", isCorrect: false, feedback: "ROP gadgets use standard instructions, not software interrupts." },
-          { text: "A debugger breakpoint", isCorrect: false, feedback: "ROP relies on normal executable code already mapped in memory." },
-          { text: "A compiler optimization flag", isCorrect: false, feedback: "ROP is an exploitation technique." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Null-Byte Canary Leaks",
-        content: "Stack canaries deliberately begin with a `0x00` null byte to prevent string functions like `strcpy` or `printf %s` from reading past the buffer without terminating!",
-        codeSnippet: "; Canary layout in memory:\n; 0x00 | RND | RND | RND | RND | RND | RND | RND",
-        tip: "Hacker Rule: Binary protections require both ASLR (random addresses) and DEP/NX (non-executable stacks).",
-        arenaTarget: "game.html?lang=asm&diff=expert&stage=1"
-      }
-    ]
-  },
-
-  // =========================================================================
-  // 7. GO TRACK (3 Lessons)
-  // =========================================================================
-  {
-    id: "go-les-001",
-    language: "go",
-    difficulty: "beginner",
-    topic: "Slices vs Arrays",
-    title: "The Slice Header: Pointer, Length, and Capacity",
-    tagline: "Understand how slices share backing arrays until reallocation.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "A Slice is a 3-Word Descriptor",
-        content: "In Go, an array has a fixed size determined at compile time. A slice is a lightweight 24-byte header containing:\n1. `Data`: Pointer to the underlying backing array.\n2. `Len`: Number of elements currently accessed.\n3. `Cap`: Total capacity before a new heap allocation is forced.\n\nSlicing an existing slice (`b := a[1:3]`) copies only this 24-byte struct, pointing to the same backing array!",
-        codeSnippet: "a := []int{10, 20, 30}\nb := a[1:]\nb[0] = 999\nfmt.Println(a[1]) // Output: 999!",
-        sandboxCode: "package main\nimport \"fmt\"\nfunc main() {\n    a := []int{1, 2, 3}\n    b := a[1:]\n    b[0] = 99\n    fmt.Println(\"a:\", a)\n}"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Append Reallocation Boundary",
-        prompt: "When `append()` exceeds a slice's capacity (`cap`), what happens to its connection to the original backing array?",
-        codeSnippet: "s := make([]int, 2, 2)\ns = append(s, 3)",
-        options: [
-          { text: "It allocates a brand-new backing array; modifications no longer affect the old array", isCorrect: true, feedback: "🎯 Correct! Go allocates a new array, copies existing items, and points the new slice to it." },
-          { text: "It raises a panic: index out of bounds", isCorrect: false, feedback: "append() automatically grows the slice safely rather than panicking." },
-          { text: "It mutates memory past the original capacity", isCorrect: false, feedback: "Go's memory safety prevents buffer overflows by reallocating." },
-          { text: "The original array size is modified in place", isCorrect: false, feedback: "Arrays have fixed immutable size in memory." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Hidden Memory Leaks with Sub-slicing",
-        content: "If you take a tiny sub-slice (`small := hugeBuffer[:2]`), the entire huge buffer cannot be garbage collected because `small` retains a reference to the backing array!",
-        codeSnippet: "// ❌ MEMORY LEAK:\nfunc getSnippet() []byte {\n    data, _ := os.ReadFile(\"huge_1GB_file.bin\")\n    return data[:10] // Keeps entire 1GB allocated!\n}\n\n// ✅ SAFE COPY:\nfunc getSnippetSafe() []byte {\n    data, _ := os.ReadFile(\"huge_1GB_file.bin\")\n    res := make([]byte, 10)\n    copy(res, data[:10])\n    return res // 1GB array is collected!\n}",
-        tip: "Hacker Rule: Use `copy()` when storing a small slice derived from a massive dataset.",
-        arenaTarget: "game.html?lang=go&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "go-les-002",
-    language: "go",
-    difficulty: "intermediate",
-    topic: "Concurrency & Channels",
-    title: "Goroutines, Channels & Buffered Deadlock Traps",
-    tagline: "Master CSP concurrency without goroutine leaks or blocking panics.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Unbuffered Channels Require Synchronization",
-        content: "In Go, an unbuffered channel (`make(chan int)`) has zero capacity. A send operation (`ch <- val`) blocks until another goroutine is actively ready to receive (`<-ch`), synchronizing both execution paths.",
-        codeSnippet: "ch := make(chan string)\ngo func() {\n    ch <- \"ping\"\n}()\nmsg := <-ch // Synchronizes and unblocks!\nfmt.Println(msg)",
-        sandboxCode: "package main\nimport \"fmt\"\nfunc main() {\n    ch := make(chan int, 1)\n    ch <- 42\n    fmt.Println(<-ch)\n}"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Deadlock on Main Thread",
-        prompt: "What happens if a single goroutine tries to send to an unbuffered channel without a receiver?",
-        codeSnippet: "func main() {\n    ch := make(chan int)\n    ch <- 1\n}",
-        options: [
-          { text: "fatal error: all goroutines are asleep - deadlock!", isCorrect: true, feedback: "🎯 Correct! The main goroutine blocks waiting for a receiver that never arrives." },
-          { text: "Value 1 is buffered and main exits cleanly", isCorrect: false, feedback: "Unbuffered channels cannot hold items without a receiver." },
-          { text: "A nil pointer dereference panic occurs", isCorrect: false, feedback: "The channel is initialized, not nil." },
-          { text: "Execution skips to next line silently", isCorrect: false, feedback: "Channel operations block synchronously." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Sending on a Closed Channel Panic",
-        content: "Sending to a closed channel causes an immediate, unrecoverable runtime panic! Only the sender should close a channel, never the receiver.",
-        codeSnippet: "// ❌ RUNTIME PANIC:\nclose(ch)\nch <- 5 // panic: send on closed channel!",
-        tip: "Hacker Rule: Use `select` with `context.Context` to cleanly cancel long-running worker goroutines.",
-        arenaTarget: "game.html?lang=go&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "go-les-003",
-    language: "go",
-    difficulty: "expert",
-    topic: "Interfaces & Memory Allocation",
-    title: "Interface Internals: `iface` vs `eface` & Escape Analysis",
-    tagline: "Understand interface fat pointers and when stack values escape to heap.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "An Interface is a 2-Word Fat Pointer",
-        content: "In the Go runtime, an interface value is a 2-word structure:\n1. `_type` / `itab`: Pointer to type metadata and method dispatch table.\n2. `data`: Pointer to the actual concrete value.\n\nAn interface is only equal to `nil` if BOTH its type and data pointers are `nil`!",
-        codeSnippet: "var err error = (*MyError)(nil)\n// err != nil because it has a concrete type (*MyError)!\nif err != nil {\n    fmt.Println(\"Surprise! err is NOT nil!\")\n}",
-        sandboxCode: "package main\nimport \"fmt\"\ntype MyErr struct{}\nfunc (m *MyErr) Error() string { return \"err\" }\nfunc main() {\n    var err error = (*MyErr)(nil)\n    fmt.Println(\"err == nil?\", err == nil)\n}"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "The Typed Nil Trap",
-        prompt: "Why does `func check() error { var p *CustomError = nil; return p; }` return a non-nil error?",
-        codeSnippet: "var e error = check()\nfmt.Println(e == nil)",
-        options: [
-          { text: "The interface holds a non-nil type pointer (*CustomError), so e == nil is false", isCorrect: true, feedback: "🎯 Correct! An interface is only nil if both type and value pointers are null." },
-          { text: "CustomError implements Error() improperly", isCorrect: false, feedback: "Interface implementation is valid." },
-          { text: "Compiler automatically initializes pointers to non-nil", isCorrect: false, feedback: "p is explicitly nil." },
-          { text: "e is converted to a string automatically", isCorrect: false, feedback: "The comparison evaluates interface pointers." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Escape Analysis & Heap Pressure",
-        content: "Passing variables to `fmt.Println(x...)` causes `x` to escape to the heap because `fmt.Println` takes `...interface{}`. This forces heap allocations in hot loops!",
-        codeSnippet: "// In hot loops, avoid interface boxing to prevent GC overhead:\n// Prefer dedicated byte buffers over fmt.Sprintf",
-        tip: "Hacker Rule: Run `go build -gcflags=\"-m\"` to inspect compiler escape analysis decisions.",
-        arenaTarget: "game.html?lang=go&diff=expert&stage=1"
-      }
-    ]
-  },
-
-  // =========================================================================
-  // 8. RUST TRACK (3 Lessons)
-  // =========================================================================
-  {
-    id: "rust-les-001",
-    language: "rust",
-    difficulty: "beginner",
-    topic: "Ownership & Move Semantics",
-    title: "Affine Type System & Single Ownership Rules",
-    tagline: "Master compile-time memory safety without a garbage collector.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Each Value Has Exactly One Owner",
-        content: "In Rust, every resource has a single variable that owns it. When the owner goes out of scope, Rust automatically drops the value.\n\nAssigning a non-`Copy` type like `String` moves ownership: the original variable is invalidated immediately!",
-        codeSnippet: "let s1 = String::from(\"hello\");\nlet s2 = s1; // Ownership MOVED to s2!\n\n// println!(\"{}\", s1); // ❌ Compile error: use of moved value s1\nprintln!(\"{}\", s2);   // ✅ Valid!",
-        sandboxCode: "let s1 = String::from(\"Rust\");\nlet s2 = s1;\nprintln!(\"s2: {}\", s2);"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Copy vs Move Types",
-        prompt: "Why does `let y = x;` NOT invalidate `x` when `x` is an integer (`i32`)?",
-        codeSnippet: "let x: i32 = 42;\nlet y = x;\nprintln!(\"{} {}\", x, y);",
-        options: [
-          { text: "i32 implements the Copy trait, performing a fast bitwise copy on the stack", isCorrect: true, feedback: "🎯 Correct! Types with known fixed size on the stack implement Copy, so they are not moved." },
-          { text: "Rust allows multiple owners for integers", isCorrect: false, feedback: "Rust maintains single ownership; y receives an independent copy." },
-          { text: "Integers are allocated on the heap automatically", isCorrect: false, feedback: "Integers reside on the stack." },
-          { text: "The compiler optimizes it with lazy evaluation", isCorrect: false, feedback: "It is governed by the Copy trait." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Borrowing After Move in Loops",
-        content: "Moving a heap collection inside a loop body will fail on the second iteration because the variable was consumed in the first round!",
-        codeSnippet: "// ❌ COMPILE ERROR:\nlet v = vec![1, 2, 3];\nfor _ in 0..2 {\n    take_ownership(v); // Value moved on iteration 0!\n}",
-        tip: "Hacker Rule: Borrow with `&v` if the function only needs to read the data.",
-        arenaTarget: "game.html?lang=rust&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "rust-les-002",
-    language: "rust",
-    difficulty: "intermediate",
-    topic: "Borrow Checker",
-    title: "Aliasing XOR Mutability: `&T` vs `&mut T`",
-    tagline: "Prevent data races at compile time with Rust's reference rules.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Many Readers OR One Writer, Never Both",
-        content: "Rust enforces a fundamental rule at compile time:\n1. You can have any number of immutable references (`&T`).\n2. OR you can have exactly one mutable reference (`&mut T`).\n\nSimultaneous reading and writing is impossible, mathematically preventing data races!",
-        codeSnippet: "let mut data = vec![1, 2, 3];\nlet r1 = &data; // Read-only borrow\nlet r2 = &data; // Another read-only borrow (Fine!)\n\n// let w = &mut data; // ❌ Compile error: cannot borrow as mutable while borrowed as immutable",
-        sandboxCode: "let mut n = 10;\nlet r = &n;\nprintln!(\"Read: {}\", r);"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Iterator Invalidation Prevention",
-        prompt: "Why does Rust reject modifying a collection while iterating through it?",
-        codeSnippet: "let mut v = vec![1, 2];\nfor item in &v {\n    v.push(*item); // Compile error!\n}",
-        options: [
-          { text: "Pushing requires &mut v, but the for loop holds an active immutable borrow &v", isCorrect: true, feedback: "🎯 Correct! In C++, this causes undefined behavior due to vector reallocation. Rust catches it at compile time!" },
-          { text: "Vectors cannot be modified inside loops in Rust", isCorrect: false, feedback: "You can modify vectors if not simultaneously holding an immutable borrow." },
-          { text: "push() takes ownership of the vector", isCorrect: false, feedback: "push() takes &mut self." },
-          { text: "Integer dereferencing is not permitted", isCorrect: false, feedback: "*item is valid." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "RefCell Runtime Borrow Panics",
-        content: "When using interior mutability with `RefCell<T>`, the borrow rules are checked at runtime. Violating the aliasing rule causes an immediate `panic!`.",
-        codeSnippet: "let cell = RefCell::new(42);\nlet _b1 = cell.borrow_mut();\nlet _b2 = cell.borrow_mut(); // ❌ panic: AlreadyBorrowed!",
-        tip: "Hacker Rule: Keep `borrow_mut()` scopes as small as possible or use RAII braces `{}`.",
-        arenaTarget: "game.html?lang=rust&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "rust-les-003",
-    language: "rust",
-    difficulty: "expert",
-    topic: "Unsafe Rust & Invariants",
-    title: "Raw Pointers (`*const T`), Unsafe Blocks & Drop Flags",
-    tagline: "Step outside the borrow checker safely when writing low-level systems.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Unsafe Does Not Disable the Borrow Checker",
-        content: "`unsafe` grants 5 superpowers: dereferencing raw pointers, calling unsafe functions, implementing unsafe traits, mutating mutable statics, and accessing union fields.\n\nRaw pointers (`*const T`, `*mut T`) ignore borrow rules and lifetimes, requiring the programmer to manually guarantee memory validity.",
-        codeSnippet: "let mut num = 5;\nlet r1 = &num as *const i32;\nlet r2 = &mut num as *mut i32;\n\nunsafe {\n    *r2 = 99; // Dereference raw pointer\n    println!(\"r1: {}\", *r1); // 99\n}",
-        sandboxCode: "let mut x = 100;\nlet p = &mut x as *mut i32;\nunsafe { *p = 200; }\nprintln!(\"x: {}\", x);"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Undefined Behavior in Unsafe",
-        prompt: "Which action invokes immediate Undefined Behavior inside an `unsafe` block in Rust?",
-        codeSnippet: "let ptr: *const i32 = std::ptr::null();\nunsafe { *ptr; }",
-        options: [
-          { text: "Dereferencing a null pointer", isCorrect: true, feedback: "🎯 Correct! Dereferencing null, dangling, or unaligned raw pointers is immediate Undefined Behavior in Rust." },
-          { text: "Creating a raw pointer to an integer", isCorrect: false, feedback: "Creating raw pointers is completely safe; only dereferencing requires unsafe." },
-          { text: "Casting a reference to a raw pointer", isCorrect: false, feedback: "Pointer casting is safe." },
-          { text: "Passing raw pointers to safe functions", isCorrect: false, feedback: "Raw pointers can be passed freely." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Creating Multiple Mutable References to Same Location",
-        content: "Even inside `unsafe`, creating two active `&mut` references to the same memory location is INSTANT Undefined Behavior, even if you never write through them!",
-        codeSnippet: "// ❌ INSTANT UB: Two &mut to same address\nunsafe {\n  let r1 = &mut *raw_ptr;\n  let r2 = &mut *raw_ptr; // UB violated!\n}",
-        tip: "Hacker Rule: Use Miri (`cargo miri test`) to detect undefined behavior in unsafe Rust code.",
-        arenaTarget: "game.html?lang=rust&diff=expert&stage=1"
-      }
-    ]
-  },
-
-  // =========================================================================
-  // 9. JAVA TRACK (3 Lessons)
-  // =========================================================================
-  {
-    id: "java-les-001",
-    language: "java",
-    difficulty: "beginner",
-    topic: "Object References & String Pool",
-    title: "Pass-by-Value Semantics & The Java String Constant Pool",
-    tagline: "Understand why Java is strictly pass-by-value and how strings are interned.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Java is Strictly Pass-by-Value",
-        content: "In Java, everything is passed by value. When you pass an object to a method, **the reference pointer itself is copied by value**.\n\nMutating fields through the reference updates the original object, but reassigning the parameter variable does NOT change the caller's reference!",
-        codeSnippet: "void reassign(StringBuilder sb) {\n    sb = new StringBuilder(\"New\"); // Only reassigns local copy!\n}\nStringBuilder original = new StringBuilder(\"Old\");\nreassign(original);\nSystem.out.println(original); // Prints \"Old\"!",
-        sandboxCode: "StringBuilder sb = new StringBuilder(\"Arena\");\nsb.append(\" 2026\");\nSystem.out.println(sb.toString());"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "String Pool Identity Check",
-        prompt: "What will `s1 == s2` print in Java?",
-        codeSnippet: "String s1 = \"hello\";\nString s2 = new String(\"hello\");\nSystem.out.println(s1 == s2);",
-        options: [
-          { text: "false", isCorrect: true, feedback: "🎯 Correct! `==` tests object reference identity. s1 lives in the String Pool, while s2 allocates a distinct heap object." },
-          { text: "true", isCorrect: false, feedback: "Use .equals() for content comparison; == checks reference equality." },
-          { text: "NullPointerException", isCorrect: false, feedback: "Neither string is null." },
-          { text: "Compilation Error", isCorrect: false, feedback: "Comparing strings with == is valid syntax." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "String Concatenation in Tight Loops",
-        content: "Because Java Strings are immutable, using `str += item` inside a loop creates an intermediate `StringBuilder` and a new `String` on every single iteration, thrashing the garbage collector!",
-        codeSnippet: "// ❌ QUADRATIC GC THRASHING:\nString res = \"\";\nfor (int i = 0; i < 10000; i++) res += i;\n\n// ✅ O(N) LINEAR ALLOCATION:\nStringBuilder sb = new StringBuilder();\nfor (int i = 0; i < 10000; i++) sb.append(i);",
-        tip: "Hacker Rule: Always use `StringBuilder` for loop concatenations.",
-        arenaTarget: "game.html?lang=java&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "java-les-002",
-    language: "java",
-    difficulty: "intermediate",
-    topic: "Generics & Type Erasure",
-    title: "Type Erasure & PECS (`? extends T` vs `? super T`)",
-    tagline: "Master generic variance and why List<Integer> is not a List<Number>.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Generics are Erased at Runtime",
-        content: "Java generics exist only at compile time for type safety. The compiler strips all type arguments and inserts synthetic casts, replacing types with `Object` or their upper bound.\n\nTherefore, `List<Integer>` and `List<String>` share the exact same `List.class` at runtime!",
-        codeSnippet: "List<Integer> ints = new ArrayList<>();\nList<String> strs = new ArrayList<>();\nSystem.out.println(ints.getClass() == strs.getClass()); // true!",
-        sandboxCode: "List<Integer> list = List.of(1, 2, 3);\nSystem.out.println(\"Size: \" + list.size());"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Producer Extends, Consumer Super",
-        prompt: "Can you add an integer to a `List<? extends Number>`?",
-        codeSnippet: "List<? extends Number> list = new ArrayList<Integer>();\nlist.add(10); // Does this compile?",
-        options: [
-          { text: "Compilation Error: cannot add elements to ? extends wildcard", isCorrect: true, feedback: "🎯 Correct! The compiler cannot verify if the list is a List<Double>, List<Float>, etc., so writes (except null) are forbidden!" },
-          { text: "Compiles and executes normally", isCorrect: false, feedback: "? extends is read-only (producer)." },
-          { text: "Throws ClassCastException at runtime", isCorrect: false, feedback: "It fails to compile." },
-          { text: "Throws UnsupportedOperationException", isCorrect: false, feedback: "The failure is at compile-time." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Primitive Array Autoboxing Mismatch",
-        content: "`int[]` does NOT inherit from `Object[]`! Passing `int[]` to a generic method expecting `T[]` will treat the entire array as a single object of type `int[]`.",
-        codeSnippet: "int[] data = {1, 2, 3};\nList<int[]> list = Arrays.asList(data); // List of size 1 containing the array!",
-        tip: "Hacker Rule: Remember PECS: Producer Extends, Consumer Super.",
-        arenaTarget: "game.html?lang=java&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "java-les-003",
-    language: "java",
-    difficulty: "expert",
-    topic: "JVM Internals & GC",
-    title: "JVM Memory Spaces: Eden, Survivor, Tenured & Metaspace",
-    tagline: "Tune garbage collection pauses and inspect generational memory layouts.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Generational Hypothesis in the HotSpot JVM",
-        content: "Most objects die young. HotSpot divides the Heap into:\n1. **Young Generation**: Eden Space + Two Survivor Spaces (S0/S1). Minor GCs clear dead objects fast using copying algorithms.\n2. **Old (Tenured) Generation**: Long-lived objects promoted after surviving aging thresholds.",
-        codeSnippet: "// Triggering memory pressure promotes objects into Tenured\n// Metaspace holds class metadata outside the JVM Heap in native RAM.",
-        sandboxCode: "Runtime rt = Runtime.getRuntime();\nSystem.out.println(\"Free Memory (MB): \" + rt.freeMemory() / (1024*1024));"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Metaspace Allocation",
-        prompt: "Where does HotSpot allocate compiled class metadata and method bytecodes?",
-        codeSnippet: "Class.forName(\"com.example.HeavyClass\");",
-        options: [
-          { text: "Metaspace (native memory outside the main Java heap)", isCorrect: true, feedback: "🎯 Correct! Since Java 8, PermGen was replaced by Metaspace, allocating directly from native OS RAM." },
-          { text: "Eden Space", isCorrect: false, feedback: "Eden is strictly for newly instantiated heap objects." },
-          { text: "Java Thread Stack", isCorrect: false, feedback: "Stack holds local primitive variables and frame pointers." },
-          { text: "Survivor Space S0", isCorrect: false, feedback: "Survivor spaces hold young surviving objects." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Static Collection Memory Leaks",
-        content: "Appending objects to a `static` collection without removal will prevent them from ever being garbage collected, inevitably causing a fatal `java.lang.OutOfMemoryError: Java heap space`!",
-        codeSnippet: "// ❌ SLOW LEAK:\npublic class Cache {\n    private static final List<byte[]> cache = new ArrayList<>();\n    // Never cleared -> OutOfMemoryError!\n}",
-        tip: "Hacker Rule: Use `WeakHashMap` or bounded LRU caches for static caching.",
-        arenaTarget: "game.html?lang=java&diff=expert&stage=1"
-      }
-    ]
-  },
-
-  // =========================================================================
-  // 10. SQL TRACK (3 Lessons)
-  // =========================================================================
-  {
-    id: "sql-les-001",
-    language: "sql",
-    difficulty: "beginner",
-    topic: "Three-Valued Logic & NULLs",
-    title: "NULL Mechanics: TRUE, FALSE, and UNKNOWN",
-    tagline: "Master SQL's tri-state logic and why NULL = NULL is never TRUE.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "NULL Represents the Absence of a Value",
-        content: "In SQL, `NULL` is not zero, not an empty string, and not false. It represents an unknown state.\n\nAny arithmetic or equality check involving NULL yields **UNKNOWN**. `WHERE` clauses ONLY return rows where the condition evaluates to strictly **TRUE**!",
-        codeSnippet: "-- ❌ WRONG: Returns 0 rows!\nSELECT * FROM users WHERE status = NULL;\n\n-- ✅ CORRECT:\nSELECT * FROM users WHERE status IS NULL;",
-        sandboxCode: "SELECT username, xp FROM users WHERE email IS NULL;"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Tri-State NOT Evaluation",
-        prompt: "What does `NOT (NULL = 5)` evaluate to in standard SQL?",
-        codeSnippet: "SELECT * FROM items WHERE NOT (price = NULL);",
-        options: [
-          { text: "UNKNOWN (so the row is filtered out)", isCorrect: true, feedback: "🎯 Correct! NULL = 5 evaluates to UNKNOWN. Negating UNKNOWN via NOT is STILL UNKNOWN!" },
-          { text: "TRUE", isCorrect: false, feedback: "NOT UNKNOWN evaluates to UNKNOWN, not TRUE." },
-          { text: "FALSE", isCorrect: false, feedback: "It does not evaluate to FALSE." },
-          { text: "Syntax Error", isCorrect: false, feedback: "It is syntactically valid." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "The NOT IN with NULL Subquery Trap",
-        content: "If a subquery used with `NOT IN (...)` returns even a single row with `NULL`, the entire `NOT IN` expression evaluates to UNKNOWN, returning ZERO rows for the entire query!",
-        codeSnippet: "-- ❌ DANGEROUS: Returns 0 rows if blocked_ids contains NULL!\nSELECT * FROM users WHERE id NOT IN (SELECT user_id FROM blocked_ids);\n\n-- ✅ SAFE ALTERNATIVE:\nSELECT * FROM users u WHERE NOT EXISTS (\n    SELECT 1 FROM blocked_ids b WHERE b.user_id = u.id\n);",
-        tip: "Hacker Rule: Always use `NOT EXISTS` instead of `NOT IN` to guard against unexpected NULLs.",
-        arenaTarget: "game.html?lang=sql&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "sql-les-002",
-    language: "sql",
-    difficulty: "intermediate",
-    topic: "JOIN Mechanics",
-    title: "INNER vs LEFT JOIN & Cartesian Duplication",
-    tagline: "Preserve unmatched records and avoid unintentional row multiplication.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Preserving Outer Records with LEFT JOIN",
-        content: "`INNER JOIN` only outputs rows where the join predicate matches in BOTH tables. `LEFT JOIN` guarantees that every record from the left table appears at least once, filling unmatched right columns with `NULL`.",
-        codeSnippet: "SELECT u.username, o.order_id\nFROM users u\nLEFT JOIN orders o ON u.id = o.user_id;",
-        sandboxCode: "SELECT u.username, a.action FROM users u LEFT JOIN audit_logs a ON u.id = a.user_id;"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "WHERE Clause on LEFT JOIN Trap",
-        prompt: "What happens if you add `WHERE o.status = 'shipped'` on a `LEFT JOIN orders o`?",
-        codeSnippet: "SELECT u.username, o.order_id\nFROM users u\nLEFT JOIN orders o ON u.id = o.user_id\nWHERE o.status = 'shipped';",
-        options: [
-          { text: "It silently converts the query into an INNER JOIN, dropping users with no orders", isCorrect: true, feedback: "🎯 Correct! When o is unmatched, o.status is NULL. Since NULL = 'shipped' is UNKNOWN, those users are discarded!" },
-          { text: "It keeps users with no orders and sets status to shipped", isCorrect: false, feedback: "WHERE filters rows after the join is generated." },
-          { text: "Syntax Error: invalid filter", isCorrect: false, feedback: "The syntax is valid but logically flawed." },
-          { text: "Throws a runtime database exception", isCorrect: false, feedback: "It executes normally as an inner join." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Cartesian Explosion on Multi-valued Joins",
-        content: "Joining a table to two independent 1-to-many child tables (`users` -> `emails` and `users` -> `phones`) produces an $M \\times N$ Cartesian product, duplicating counts and summing totals multiple times!",
-        codeSnippet: "-- ❌ BUG: Sums will be multiplied!\nSELECT u.id, SUM(e.cost), SUM(p.amount) ...",
-        tip: "Hacker Rule: Filter outer table columns directly in the `ON` clause: `ON u.id = o.user_id AND o.status = 'shipped'`.",
-        arenaTarget: "game.html?lang=sql&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "sql-les-003",
-    language: "sql",
-    difficulty: "expert",
-    topic: "Window Functions & Analytics",
-    title: "Window Functions: `ROW_NUMBER()`, `RANK()` & `PARTITION BY`",
-    tagline: "Perform calculations across row sets without collapsing rows like GROUP BY.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Calculate Metrics Without Collapsing Rows",
-        content: "Unlike `GROUP BY`, which aggregates multiple rows into a single summary row, window functions (`OVER (...)`) retain the original row identity while computing moving averages, rankings, and running totals.",
-        codeSnippet: "SELECT username, role, xp,\n       ROW_NUMBER() OVER (PARTITION BY role ORDER BY xp DESC) as role_rank\nFROM users;",
-        sandboxCode: "SELECT username, role, xp, RANK() OVER (ORDER BY xp DESC) as global_rank FROM users;"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "ROW_NUMBER vs RANK vs DENSE_RANK",
-        prompt: "If two users tie for 1st place with identical XP, what does `DENSE_RANK()` assign to the 3rd user?",
-        codeSnippet: "SELECT username, xp, DENSE_RANK() OVER (ORDER BY xp DESC) FROM users;",
-        options: [
-          { text: "2 (No gaps in numbering)", isCorrect: true, feedback: "🎯 Correct! DENSE_RANK produces: 1, 1, 2. (Whereas standard RANK produces: 1, 1, 3 with a gap)." },
-          { text: "3 (With a gap)", isCorrect: false, feedback: "Standard RANK introduces gaps; DENSE_RANK does not." },
-          { text: "1.5", isCorrect: false, feedback: "Rank functions always assign integers." },
-          { text: "NULL", isCorrect: false, feedback: "Ranking functions always assign valid integer ranks." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Filtering Window Functions in WHERE Clause",
-        content: "Window functions execute in SQL's phase 5, AFTER the `WHERE` (phase 2) and `HAVING` (phase 4) clauses! Attempting `WHERE ROW_NUMBER() = 1` causes an immediate syntax error.",
-        codeSnippet: "-- ❌ SYNTAX ERROR:\nSELECT * FROM users WHERE ROW_NUMBER() OVER () = 1;\n\n-- ✅ IDIOMATIC FIX: Use a CTE or Subquery:\nWITH Ranked AS (\n  SELECT *, ROW_NUMBER() OVER (...) as rn FROM users\n)\nSELECT * FROM Ranked WHERE rn = 1;",
-        tip: "Hacker Rule: Wrap window function logic inside a Common Table Expression (`WITH ...`) to filter ranks.",
-        arenaTarget: "game.html?lang=sql&diff=expert&stage=1"
-      }
-    ]
-  },
-
-  // =========================================================================
-  // 11. CYBER & LINUX TRACK (3 Lessons)
-  // =========================================================================
-  {
-    id: "cyber-les-001",
-    language: "cyber",
-    difficulty: "beginner",
-    topic: "Linux File Permissions",
-    title: "Octal Notation (`chmod 755`), Inodes & Permissions",
-    tagline: "Calculate read, write, and execute bits across User, Group, and Others.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Read=4, Write=2, Execute=1",
-        content: "Linux file permissions are 3 octal digits: `[User][Group][Others]`.\nEach digit is the sum of:\n- **r (read)** = 4\n- **w (write)** = 2\n- **x (execute)** = 1\n\nTherefore, `7` ($4+2+1$) means full access, `5` ($4+1$) means read & execute, and `0` means zero access.",
-        codeSnippet: "# Grants User rwx (7), Group rx (5), Others rx (5):\nchmod 755 deploy.sh\n\n# Owner read/write only (secure keys):\nchmod 600 id_rsa",
-        sandboxCode: "ls -la /etc/passwd"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Octal Calculation Check",
-        prompt: "What octal numeric mode corresponds to `-rw-r--r--` permissions?",
-        codeSnippet: "ls -l config.json\n-rw-r--r-- 1 root root 1024 Oct 22 config.json",
-        options: [
-          { text: "644 (User: 4+2=6, Group: 4, Others: 4)", isCorrect: true, feedback: "🎯 Correct! rw- is 4+2=6, r-- is 4, and r-- is 4. Standard secure file permission." },
-          { text: "755", isCorrect: false, feedback: "755 includes execute permissions (rwxr-xr-x)." },
-          { text: "600", isCorrect: false, feedback: "600 restricts Group and Others to 0." },
-          { text: "777", isCorrect: false, feedback: "777 grants full write access to everyone." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "The `chmod 777` Security Anti-Pattern",
-        content: "Granting `777` permissions allows ANY process or unprivileged user on the machine to overwrite, inject, or tamper with your files. It is an immediate critical audit finding!",
-        codeSnippet: "# ❌ CRITICAL SECURITY VULNERABILITY:\nchmod 777 /var/www/uploads\n\n# ✅ LEAST PRIVILEGE PRINCIPLE:\nchmod 750 /var/www/uploads",
-        tip: "Hacker Rule: Use `600` for private SSH keys and `644` for public configuration files.",
-        arenaTarget: "game.html?lang=cyber&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "cyber-les-002",
-    language: "cyber",
-    difficulty: "intermediate",
-    topic: "Standard Streams & Redirection",
-    title: "File Descriptors: stdin (0), stdout (1), stderr (2) & Pipes",
-    tagline: "Tame UNIX pipelines and master `2>&1` error redirection.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Every Process Starts with 3 Open Streams",
-        content: "In Linux, every process receives:\n- `0`: Standard Input (stdin)\n- `1`: Standard Output (stdout)\n- `2`: Standard Error (stderr)\n\nPipes (`cmd1 | cmd2`) connect stdout of cmd1 directly into stdin of cmd2. By default, stderr is NOT piped!",
-        codeSnippet: "# Redirect stderr to /dev/null (silence errors):\nfind / -name \"flag.txt\" 2>/dev/null\n\n# Redirect both stdout and stderr into log.txt:\n./build.sh > log.txt 2>&1",
-        sandboxCode: "cat /etc/passwd | grep hacker"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "2>&1 Order Sensitivity",
-        prompt: "Why must `2>&1` appear AFTER `> log.txt` when redirecting both streams?",
-        codeSnippet: "cmd > log.txt 2>&1",
-        options: [
-          { text: "Shell evaluations are processed left-to-right: 1 is redirected to log.txt first, then 2 is duplicated to where 1 currently points", isCorrect: true, feedback: "🎯 Correct! If you wrote `2>&1 > log.txt`, stderr would point to the original terminal output instead of the file!" },
-          { text: "It is a strict bash syntax requirement with no mechanical difference", isCorrect: false, feedback: "Stream duplication is strictly order-dependent." },
-          { text: "2>&1 closes stdout if placed first", isCorrect: false, feedback: "It duplicates descriptor references." },
-          { text: "The shell throws a syntax error if placed in reverse", isCorrect: false, feedback: "Both compile, but produce different stream targets." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Piping to Bash from Web Traps",
-        content: "Running `curl https://example.com/install.sh | bash` executes unchecked scripts with the current user's privileges, opening complete Remote Code Execution (RCE) vectors if DNS or TLS is compromised!",
-        codeSnippet: "# ❌ DANGEROUS RCE:\ncurl -sSL https://site.com/install.sh | bash\n\n# ✅ SAFE INSPECTION:\ncurl -sSL https://site.com/install.sh -o install.sh\nless install.sh # Review code before executing!",
-        tip: "Hacker Rule: Always inspect scripts offline with checksum verification before piping to a shell.",
-        arenaTarget: "game.html?lang=cyber&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "cyber-les-003",
-    language: "cyber",
-    difficulty: "expert",
-    topic: "Privilege Escalation & Inodes",
-    title: "SUID / SGID Binaries, Capability Bits & PATH Hijacking",
-    tagline: "Identify privilege boundary breaches and unquoted system calls.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "The SUID (Set User ID) Bit",
-        content: "When a binary has the SUID bit set (`-rwsr-xr-x`), it executes with the privileges of the **file owner** (often root) rather than the user running it.\n\nIf an SUID root binary executes external commands using relative paths (e.g. `system(\"service apache2 restart\")`), it is vulnerable to PATH hijacking!",
-        codeSnippet: "# Find all SUID binaries on the system:\nfind / -perm -u=s -type f 2>/dev/null",
-        sandboxCode: "console.log('SUID binaries execute with file owner permissions regardless of invoking user');"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "SUID Flag Identification",
-        prompt: "Which character in `ls -l` indicates that the SUID bit is active and executable?",
-        codeSnippet: "-rwsr-xr-x 1 root root 88304 Feb 15 /usr/bin/passwd",
-        options: [
-          { text: "Lowercase 's' in the owner execute position", isCorrect: true, feedback: "🎯 Correct! Lowercase 's' means SUID is set AND execute permission is present. Capital 'S' indicates SUID without execute." },
-          { text: "The leading hyphen '-'", isCorrect: false, feedback: "Hyphen indicates a regular file." },
-          { text: "The digit '1'", isCorrect: false, feedback: "The digit is the hard link count." },
-          { text: "The 'x' in group position", isCorrect: false, feedback: "That indicates group execute." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Relative Command Invocations in C system()",
-        content: "If an SUID program calls `system(\"date\")` instead of `/bin/date`, an attacker can create a malicious executable named `date` in `/tmp` and prepend `/tmp` to `PATH` to achieve root shell execution!",
-        codeSnippet: "// ❌ VULNERABLE SUID C CODE:\nsystem(\"service start\");\n\n// ✅ SECURE HARDENED CODE:\nsystem(\"/usr/sbin/service start\");",
-        tip: "Hacker Rule: Always use absolute paths (`/usr/bin/cmd`) or `execve` with a sanitized environment.",
-        arenaTarget: "game.html?lang=cyber&diff=expert&stage=1"
-      }
-    ]
-  },
-
-  // =========================================================================
-  // 12. TYPESCRIPT TRACK (3 Lessons)
-  // =========================================================================
-  {
-    id: "ts-les-001",
-    language: "typescript",
-    difficulty: "beginner",
-    topic: "Structural Typing & Unknown",
-    title: "Structural Typing (Duck Typing) & `unknown` vs `any`",
-    tagline: "Enforce compile-time safety and eliminate runtime type escape hatches.",
-    estimatedMinutes: 2,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "TypeScript Uses Structural (Shape-based) Typing",
-        content: "Unlike Java or C# (nominal typing), TypeScript determines type compatibility based purely on the shape and properties of an object.\n\n`any` completely turns off the type checker. In contrast, `unknown` forces you to narrow the type with a type guard before accessing any properties!",
-        codeSnippet: "let val: unknown = JSON.parse(userInput);\n\n// val.toUpperCase(); // ❌ Compile error: Object is of type 'unknown'!\nif (typeof val === 'string') {\n  console.log(val.toUpperCase()); // ✅ Safe! Narrowed to string.\n}",
-        sandboxCode: "let val: unknown = 'SyntaxArena TS';\nif (typeof val === 'string') {\n  console.log('Uppercase:', val.toUpperCase());\n}"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Shape Compatibility",
-        prompt: "Will assigning `point3D` to a variable typed as `Point2D` compile?",
-        codeSnippet: "interface Point2D { x: number; y: number; }\nconst point3D = { x: 1, y: 2, z: 3 };\nconst p: Point2D = point3D;",
-        options: [
-          { text: "Yes, it compiles cleanly because point3D has all required properties of Point2D", isCorrect: true, feedback: "🎯 Correct! In structural typing, as long as an object satisfies the required contract, extra properties are allowed." },
-          { text: "No, point3D has an extra 'z' property causing a type mismatch", isCorrect: false, feedback: "Extra properties are accepted when assigning an existing variable." },
-          { text: "Throws a runtime TypeError", isCorrect: false, feedback: "TypeScript types do not exist at runtime." },
-          { text: "Requires an explicit cast (as Point2D)", isCorrect: false, feedback: "Structural assignment is implicit." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "The Viral Nature of `any`",
-        content: "Using `any` infects any downstream variable it touches! An `any` value assigned to other variables disables autocomplete and type safety throughout your entire codebase.",
-        codeSnippet: "// ❌ VIRAL TYPE LEAK:\nfunction parse(data: any) {\n  return data.payload; // Type of return is also 'any'!\n}",
-        tip: "Hacker Rule: Always prefer `unknown` over `any` for incoming network payloads and user inputs.",
-        arenaTarget: "game.html?lang=typescript&diff=beginner&stage=1"
-      }
-    ]
-  },
-  {
-    id: "ts-les-002",
-    language: "typescript",
-    difficulty: "intermediate",
-    topic: "Discriminated Unions & Exhaustiveness",
-    title: "Discriminated Unions & Exhaustiveness Checking with `never`",
-    tagline: "Build unshakeable state machines verified by the TypeScript compiler.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Tagging Types with a Discriminant Property",
-        content: "A discriminated union combines multiple types that all share a literal discriminant property (like `kind` or `status`).\n\nInside a `switch` statement, TypeScript narrows the type automatically. You can use the `never` type in the `default` branch to ensure all cases are handled at compile time!",
-        codeSnippet: "type State =\n  | { status: 'loading' }\n  | { status: 'success'; data: string }\n  | { status: 'error'; message: string };\n\nfunction render(s: State) {\n  switch (s.status) {\n    case 'loading': return '...';\n    case 'success': return s.data;\n    case 'error': return s.message;\n  }\n}",
-        sandboxCode: "type Action = { type: 'login'; user: string } | { type: 'logout' };\nfunction handle(a: Action) { console.log(a.type); }"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Compile-time Exhaustiveness Check",
-        prompt: "What happens if a new status `'idle'` is added to `State`, but not handled in `switch (s.status)` with an `assertNever(s)` default branch?",
-        codeSnippet: "function assertNever(x: never): never {\n  throw new Error('Unexpected object: ' + x);\n}\ndefault: return assertNever(s);",
-        options: [
-          { text: "Compiler error: Argument of type '{ status: \"idle\" }' is not assignable to parameter of type 'never'", isCorrect: true, feedback: "🎯 Correct! The compiler proves that 'idle' can reach the default branch, catching the missing case before production deployment!" },
-          { text: "Code compiles and skips execution silently", isCorrect: false, feedback: "assertNever forces a compile-time check." },
-          { text: "Runtime exception only", isCorrect: false, feedback: "The type checker catches it at build time." },
-          { text: "The state is coerced to null", isCorrect: false, feedback: "TypeScript preserves type information." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Type Assertions (`as SomeType`) Lie to the Compiler",
-        content: "Using `as Type` does NOT convert or validate data at runtime. It simply forces the compiler to trust you. If the actual object shape differs, your app will crash with `undefined is not a function` at runtime!",
-        codeSnippet: "// ❌ DANGEROUS CRASH AT RUNTIME:\nconst user = {} as User;\nuser.login(); // Uncaught TypeError: user.login is not a function!",
-        tip: "Hacker Rule: Use Zod or custom type predicates (`function isUser(x: any): x is User`) instead of `as Type`.",
-        arenaTarget: "game.html?lang=typescript&diff=intermediate&stage=1"
-      }
-    ]
-  },
-  {
-    id: "ts-les-003",
-    language: "typescript",
-    difficulty: "expert",
-    topic: "Advanced Type Metaprogramming",
-    title: "Conditional Types, `infer` Keyword & Template Literals",
-    tagline: "Build dynamic, introspective type transformers that compute types at compile-time.",
-    estimatedMinutes: 3,
-    slides: [
-      {
-        type: "concept",
-        badge: "01 // MENTAL MODEL",
-        title: "Types as Functional Programs",
-        content: "TypeScript's type system is Turing-complete. Conditional types (`T extends U ? X : Y`) act like ternary operators. The `infer` keyword allows you to deduce and extract unknown inner types dynamically!",
-        codeSnippet: "type UnpackPromise<T> = T extends Promise<infer U> ? U : T;\n\ntype Result = UnpackPromise<Promise<string>>; // Result is string!\ntype Direct = UnpackPromise<number>;          // Direct is number!",
-        sandboxCode: "type EventName<T extends string> = `on${Capitalize<T>}`;\ntype Click = EventName<'click'>; // 'onClick'"
-      },
-      {
-        type: "drill",
-        badge: "02 // INTERACTIVE CHECKPOINT",
-        title: "Infer Type Extraction",
-        prompt: "What type does `ReturnType<() => number>` evaluate to using `infer R`?",
-        codeSnippet: "type CustomReturnType<T> = T extends (...args: any[]) => infer R ? R : any;\ntype Test = CustomReturnType<() => number>;",
-        options: [
-          { text: "number", isCorrect: true, feedback: "🎯 Correct! The infer keyword inspects the return position of the function signature and resolves to number." },
-          { text: "() => number", isCorrect: false, feedback: "It unpacks the return type, not the function type." },
-          { text: "any", isCorrect: false, feedback: "The condition matches, so R is extracted." },
-          { text: "void", isCorrect: false, feedback: "The signature explicitly returns number." }
-        ]
-      },
-      {
-        type: "pitfall",
-        badge: "03 // DANGER ZONE",
-        title: "Distributive Conditional Types with Unions",
-        content: "When a bare generic parameter `T` is checked with `T extends any`, it automatically distributes over union members! To prevent distribution, wrap `T` in brackets: `[T] extends [any]`.",
-        codeSnippet: "// Distributive: (string extends any ? X : Y) | (number extends any ? X : Y)\ntype ToArray<T> = T extends any ? T[] : never;\ntype Res = ToArray<string | number>; // string[] | number[], NOT (string | number)[]!",
-        tip: "Hacker Rule: Wrap generics in tuples `[T] extends [U]` to disable unwanted union distribution.",
-        arenaTarget: "game.html?lang=typescript&diff=expert&stage=1"
+        title: "Fire-and-Forget Task Garbage Collection",
+        content: "Calling `asyncio.create_task(coro)` without keeping a reference allows Python's garbage collector to destroy the task mid-execution! Always retain task references in a set.",
+        codeSnippet: "# ❌ DANGEROUS: Task might be garbage-collected:\nasyncio.create_task(background_work())\n\n# ✅ SAFE: Retain reference until done:\nrunning_tasks = set()\nt = asyncio.create_task(background_work())\nrunning_tasks.add(t)\nt.add_done_callback(running_tasks.discard)",
+        tip: "Hacker Rule: Never fire-and-forget tasks without storing them in a lifecycle collection.",
+        arenaTarget: "game.html?lang=python&diff=expert&stage=1"
       }
     ]
   }
 ];
 
-const outContent = `/**
- * SyntaxArena Cyber Academy — Complete 36-Lesson Curriculum Catalog
- * Exactly 3 curated interactive lessons per track (Beginner, Intermediate, Expert)
- * across all 12 programming tracks:
- * Python, C, C++, Java, Cyber & Linux, JavaScript, Rust, SQL, TypeScript, Go, HTML5 & CSS, Assembly & RE.
- * Source of truth: docs/MVP_SPEC.md & docs/DESIGN_SYSTEM.md
+// Helper to generate full 60 lessons across remaining 11 tracks
+const trackGenerators = [
+  // 2. C TRACK
+  {
+    lang: "c",
+    modules: [
+      {
+        id: "c-les-001", diff: "beginner", topic: "Pointers & Memory Addresses",
+        title: "Memory Addresses, Indirection & The Dereference Operator",
+        tagline: "Understand what pointers actually store: numerical virtual addresses.",
+        concept: {
+          title: "A Pointer Holds a Byte Address in Memory",
+          content: "Every variable in C lives at a specific byte address in RAM. The address-of operator `&x` extracts that numerical location, while the dereference operator `*ptr` reads or writes the data living at that location.",
+          code: "int x = 42;\nint *ptr = &x; // ptr stores address of x\n*ptr = 99;     // directly updates x via memory indirection!\nprintf(\"%d\\n\", x); // Output: 99",
+          sandbox: "int x = 42;\nint *ptr = &x;\n*ptr = 99;\nprintf(\"x = %d, *ptr = %d\\n\", x, *ptr);"
+        },
+        drill: {
+          title: "Pointer Indirection Prediction", prompt: "What is printed by this code snippet?",
+          code: "int a = 5, b = 10;\nint *p = &a;\n*p = b;\nprintf(\"%d %d\", a, b);",
+          options: [
+            { text: "10 10", isCorrect: true, feedback: "🎯 Correct! *p = b assigns the value of b (10) to the memory location of a." },
+            { text: "5 10", isCorrect: false, feedback: "*p = b modifies variable a through its pointer." },
+            { text: "5 5", isCorrect: false, feedback: "Variable b is not modified." },
+            { text: "Compilation Error", isCorrect: false, feedback: "Assigning an integer to a dereferenced int pointer is valid C." }
+          ]
+        },
+        pitfall: {
+          title: "Uninitialized Pointer Wild Writes",
+          content: "Declaring `int *p;` without initializing it means `p` contains garbage bits. Writing `*p = 10` will attempt to write to random memory, causing a Segmentation Fault or silent corruption!",
+          code: "// ❌ DANGEROUS CRASH:\nint *p; // Wild pointer points to garbage!\n*p = 10; // SEGFAULT!\n\n// ✅ SAFE INITIALIZATION:\nint *p = NULL;",
+          tip: "Hacker Rule: Always initialize pointers to NULL or a valid address upon declaration.",
+          target: "game.html?lang=c&diff=beginner&stage=1"
+        }
+      },
+      {
+        id: "c-les-002", diff: "intermediate", topic: "Pointer Arithmetic & Array Decay",
+        title: "Array Decay to Pointers & Stride Step Multipliers",
+        tagline: "Learn how C steps through contiguous RAM based on sizeof(T).",
+        concept: {
+          title: "Pointer Arithmetic Scales by Type Size",
+          content: "In C, adding 1 to a pointer does NOT add 1 byte. It adds `sizeof(*ptr)` bytes! `ptr + 1` automatically offsets by 4 bytes for 32-bit ints, advancing to the next contiguous element.",
+          code: "int arr[3] = {10, 20, 30};\nint *p = arr;\nprintf(\"%d, %d\\n\", *p, *(p + 1)); // Output: 10, 20",
+          sandbox: "int arr[3] = {10, 20, 30};\nint *p = arr;\nprintf(\"First: %d, Second: %d\\n\", *p, *(p + 1));"
+        },
+        drill: {
+          title: "Address Increment Calculation", prompt: "If `p` is an `int*` (4 bytes each) located at address 0x1000, what is the address of `p + 2`?",
+          code: "int *p = (int*)0x1000;\n// What is the value of (p + 2)?",
+          options: [
+            { text: "0x1008", isCorrect: true, feedback: "🎯 Correct! 0x1000 + (2 * 4 bytes) = 0x1008." },
+            { text: "0x1002", isCorrect: false, feedback: "Pointer arithmetic multiplies offsets by sizeof(type), not raw bytes." },
+            { text: "0x1004", isCorrect: false, feedback: "That would be p + 1." },
+            { text: "0x2000", isCorrect: false, feedback: "The base address is only offset by 8 bytes." }
+          ]
+        },
+        pitfall: {
+          title: "Array Parameter Sizeof Decay",
+          content: "When passing an array to a function `void f(int a[])`, it decays to a raw pointer `int *a`. Inside the function, `sizeof(a)` returns pointer size (8 bytes on 64-bit), NOT the array element count!",
+          code: "void check(int a[]) {\n    // ❌ WRONG: sizeof(a) is 8 (pointer size), not 40!\n    size_t count = sizeof(a) / sizeof(a[0]);\n}",
+          tip: "Hacker Rule: Always pass explicit length arguments alongside array pointers in C.",
+          target: "game.html?lang=c&diff=intermediate&stage=1"
+        }
+      },
+      {
+        id: "c-les-003", diff: "intermediate", topic: "Dynamic Memory Allocation",
+        title: "Heap Management with malloc(), free() & Dangling Pointers",
+        tagline: "Master memory allocation outside the transient call stack frame.",
+        concept: {
+          title: "Heap Memory Persists Until Explicitly Freed",
+          content: "Variables allocated on the stack are automatically destroyed when their enclosing function returns. `malloc(bytes)` allocates persistent memory on the heap that survives until you manually call `free(ptr)`.",
+          code: "int *arr = malloc(5 * sizeof(int));\nif (arr == NULL) return 1;\narr[0] = 100;\nfree(arr); // Return memory to OS\narr = NULL; // Prevent dangling pointer!",
+          sandbox: "int *p = malloc(sizeof(int));\n*p = 777;\nprintf(\"Allocated val: %d\\n\", *p);\nfree(p);"
+        },
+        drill: {
+          title: "Dangling Pointer Risk", prompt: "What is the primary danger of accessing a pointer immediately after calling `free(p)`?",
+          code: "int *p = malloc(sizeof(int));\n*p = 50;\nfree(p);\nprintf(\"%d\", *p); // What is this?",
+          options: [
+            { text: "Undefined Behavior (Use-After-Free)", isCorrect: true, feedback: "🎯 Correct! Reading freed heap memory is a classic Use-After-Free vulnerability." },
+            { text: "Guaranteed compile-time error", isCorrect: false, feedback: "Standard C compilers cannot detect all runtime use-after-free conditions." },
+            { text: "Always prints 0", isCorrect: false, feedback: "The memory may still contain old data or be reallocated to another process." },
+            { text: "Memory is automatically reallocated", isCorrect: false, feedback: "Freed memory is deallocated and must not be dereferenced." }
+          ]
+        },
+        pitfall: {
+          title: "Double Free Memory Corruption",
+          content: "Calling `free(ptr)` twice on the same pointer corrupts the heap allocator's internal free-list, creating critical security vulnerabilities.",
+          code: "// ❌ CRITICAL BUG:\nfree(ptr);\nfree(ptr); // DOUBLE FREE ABORT!\n\n// ✅ DEFENSE:\nfree(ptr);\nptr = NULL; // free(NULL) is a safe no-op!",
+          tip: "Hacker Rule: Immediately assign freed pointers to NULL.",
+          target: "game.html?lang=c&diff=intermediate&stage=1"
+        }
+      },
+      {
+        id: "c-les-004", diff: "expert", topic: "Memory Alignment & Struct Padding",
+        title: "Struct Memory Alignment, Padding & Cache Line Packing",
+        tagline: "Discover why sizeof(struct) is larger than the sum of its fields.",
+        concept: {
+          title: "CPUs Demand Word-Aligned Memory Access",
+          content: "Modern CPUs fetch data from memory in 4-byte or 8-byte aligned words. To ensure members are aligned efficiently, the compiler inserts silent **padding bytes** between struct fields.",
+          code: "struct Demo {\n    char a;    // 1 byte\n    // 3 bytes silent padding inserted here!\n    int b;     // 4 bytes\n    char c;    // 1 byte\n    // 3 bytes padding for struct alignment!\n}; // Total: 12 bytes, NOT 6 bytes!",
+          sandbox: "struct S {\n    char a;\n    int b;\n};\nprintf(\"Sizeof struct: %zu bytes\\n\", sizeof(struct S));"
+        },
+        drill: {
+          title: "Reordering Struct Members", prompt: "How can you minimize memory padding waste in a struct definition?",
+          code: "struct Wasteful { char a; int b; char c; };",
+          options: [
+            { text: "Order fields in descending order of size (largest first)", isCorrect: true, feedback: "🎯 Correct! Placing larger types first packs bytes tightly with minimal alignment gaps." },
+            { text: "Add more char variables to fill gaps", isCorrect: false, feedback: "Adding extra fields increases overall memory usage." },
+            { text: "Change all types to pointers", isCorrect: false, feedback: "Pointers are 8 bytes each, increasing memory footprint." },
+            { text: "Use static keywords on members", isCorrect: false, feedback: "C does not allow static members in structs." }
+          ]
+        },
+        pitfall: {
+          title: "Bit-Casting Structs with memcmp",
+          content: "Comparing structs directly with `memcmp(&s1, &s2, sizeof(s1))` is dangerous because padding bytes contain uninitialized garbage bits, causing false inequality!",
+          code: "// ❌ FALSE INEQUALITY:\nif (memcmp(&s1, &s2, sizeof(s1)) == 0) // May fail due to padding!\n\n// ✅ SAFE: Compare each field explicitly:\nif (s1.a == s2.a && s1.b == s2.b)",
+          tip: "Hacker Rule: Never use memcmp for struct equality unless initialized via memset(&s, 0, sizeof(s)).",
+          target: "game.html?lang=c&diff=expert&stage=1"
+        }
+      },
+      {
+        id: "c-les-005", diff: "expert", topic: "Sequence Points & Undefined Behavior",
+        title: "Sequence Points, Precedence & Undefined Behavior in ISO C",
+        tagline: "Uncover how the compiler assumes undefined behavior is physically impossible.",
+        concept: {
+          title: "Modifying a Scalar Twice Between Sequence Points is UB",
+          content: "In ISO C, an expression like `i = i++` modifies the scalar `i` twice without an intervening sequence point. Under the C standard, this is strictly **Undefined Behavior (UB)**: the compiler is free to emit whatever machine code it chooses!",
+          code: "int i = 5;\ni = i++; // ❌ UNDEFINED BEHAVIOR: Never write this in C!\n// Clang/GCC may output 5, 6, or optimize away entirely!",
+          sandbox: "int i = 5;\nint next = i + 1;\nprintf(\"Safe sequenced increment: %d\\n\", next);"
+        },
+        drill: {
+          title: "Undefined Behavior vs Implementation-Defined", prompt: "What is the key difference between Undefined Behavior (UB) and Implementation-Defined behavior?",
+          code: "// Concept Check",
+          options: [
+            { text: "UB has zero guarantees; Implementation-Defined must be documented by compiler", isCorrect: true, feedback: "🎯 Correct! Implementation-defined requires compiler documentation (like sizeof(int)); UB allows arbitrary execution." },
+            { text: "UB always generates a compilation warning", isCorrect: false, feedback: "Compilers frequently emit no warnings for complex undefined behavior." },
+            { text: "Implementation-defined causes runtime aborts", isCorrect: false, feedback: "Implementation-defined behavior runs stably per the compiler manual." },
+            { text: "They are completely interchangeable terms", isCorrect: false, feedback: "They are distinct, formal ISO C classifications." }
+          ]
+        },
+        pitfall: {
+          title: "Compiler Optimization UB Eradication",
+          content: "Modern optimizing compilers assume UB *never* happens. If your code invokes signed integer overflow, the optimizer may delete entire security check branches!",
+          code: "// ❌ BUGGY OVERFLOW CHECK:\nif (x + 100 < x) // Compiler assumes signed overflow is impossible and deletes this if!",
+          tip: "Hacker Rule: Use unsigned types or check preconditions `if (x > INT_MAX - 100)` before adding.",
+          target: "game.html?lang=c&diff=expert&stage=1"
+        }
+      }
+    ]
+  },
+
+  // 3. C++ TRACK
+  {
+    lang: "cpp",
+    modules: [
+      {
+        id: "cpp-les-001", diff: "beginner", topic: "References & Const Correctness",
+        title: "References vs Pointers & Const Correctness",
+        tagline: "Learn how C++ references create permanent aliases without pointer indirection syntax.",
+        concept: {
+          title: "A Reference is a Permanent Binding to an Existing Object",
+          content: "Unlike a pointer, a C++ reference `int &ref = x;` cannot be null and cannot be reseated to point to another object. Passing parameters by `const T&` avoids expensive object copies while guaranteeing immutability.",
+          code: "void inspect(const std::string &s) { // Zero copy, read only!\n    std::cout << s.length() << std::endl;\n}",
+          sandbox: "std::string name = \"SyntaxArena\";\nconst std::string &alias = name;\nstd::cout << \"Length: \" << alias.length() << std::endl;"
+        },
+        drill: {
+          title: "Reference Reseating Check", prompt: "What happens when you execute `ref = y;` on an existing reference `int &ref = x;`?",
+          code: "int x = 10, y = 20;\nint &ref = x;\nref = y;\n// What is the value of x now?",
+          options: [
+            { text: "x becomes 20 (assigns y's value through the alias)", isCorrect: true, feedback: "🎯 Correct! References cannot be reseated; assigning to them writes to the referred variable (x)." },
+            { text: "ref now points to y; x stays 10", isCorrect: false, feedback: "References can never be rebound to a different object after initialization." },
+            { text: "Compiler error: references are read-only", isCorrect: false, feedback: "Non-const references are mutable." },
+            { text: "Undefined behavior", isCorrect: false, feedback: "Value assignment through references is completely well-defined." }
+          ]
+        },
+        pitfall: {
+          title: "Dangling Reference to Local Stack Variable",
+          content: "Returning a reference to a function's local variable results in an immediate dangling reference when the stack frame pops!",
+          code: "// ❌ DISASTROUS BUG:\nconst std::string& get_bad() {\n    std::string s = \"temp\";\n    return s; // Dangling reference!\n}",
+          tip: "Hacker Rule: Always return objects by value unless returning member references or parameters.",
+          target: "game.html?lang=cpp&diff=beginner&stage=1"
+        }
+      },
+      {
+        id: "cpp-les-002", diff: "intermediate", topic: "RAII & Smart Pointers",
+        title: "Resource Acquisition Is Initialization (RAII) & unique_ptr",
+        tagline: "Tie resource lifetimes to deterministic stack unwinding.",
+        concept: {
+          title: "Destructors Guarantee Resource Release on Scope Exit",
+          content: "RAII binds resources (memory, file handles, mutex locks) to object lifetime. When a stack frame exits—even via exceptions—the destructor runs automatically.\n\n`std::unique_ptr` guarantees exclusive ownership with zero runtime overhead over raw pointers!",
+          code: "{\n    auto ptr = std::make_unique<Resource>();\n    ptr->execute();\n} // Destructor runs automatically here!",
+          sandbox: "std::unique_ptr<int> num = std::make_unique<int>(42);\nstd::cout << *num << std::endl;"
+        },
+        drill: {
+          title: "Copying unique_ptr", prompt: "What happens if you attempt to copy a `std::unique_ptr` using copy assignment `p2 = p1`?",
+          code: "std::unique_ptr<int> p1 = std::make_unique<int>(10);\nstd::unique_ptr<int> p2 = p1; // Compiles?",
+          options: [
+            { text: "Compile-time error: copy constructor is deleted", isCorrect: true, feedback: "🎯 Correct! std::unique_ptr deletes its copy constructor to enforce single exclusive ownership." },
+            { text: "Both pointers share the underlying memory", isCorrect: false, feedback: "That is the role of std::shared_ptr, not unique_ptr." },
+            { text: "Runtime exception is thrown", isCorrect: false, feedback: "It fails at compile time, providing safety." },
+            { text: "Ownership is automatically transferred", isCorrect: false, feedback: "Transfer requires explicit std::move(p1)." }
+          ]
+        },
+        pitfall: {
+          title: "Cyclic References with shared_ptr",
+          content: "If two objects hold `std::shared_ptr` to each other, their reference counts never hit 0, causing a permanent memory leak! Break cycles using `std::weak_ptr`.",
+          code: "// ❌ PERMANENT MEMORY LEAK:\nstruct Node {\n    std::shared_ptr<Node> next;\n    std::shared_ptr<Node> prev; // Should be std::weak_ptr!\n};",
+          tip: "Hacker Rule: Use std::weak_ptr for back-pointers and observer relationships.",
+          target: "game.html?lang=cpp&diff=intermediate&stage=1"
+        }
+      },
+      {
+        id: "cpp-les-003", diff: "intermediate", topic: "Virtual Tables & Polymorphism",
+        title: "Virtual Method Dispatch & vptr / vtable Memory Overhead",
+        tagline: "Explore dynamic dispatch and why base class destructors must be virtual.",
+        concept: {
+          title: "Virtual Functions Route Through Compiler vtables",
+          content: "When a class declares `virtual`, the compiler inserts a hidden pointer (`vptr`) into every object instance pointing to a class-wide `vtable` array of function pointers.",
+          code: "class Base {\npublic:\n    virtual ~Base() = default; // Essential for safe polymophic deletion!\n    virtual void speak() { std::cout << \"Base\"; }\n};",
+          sandbox: "class Animal {\npublic:\n    virtual void sound() { std::cout << \"Roar!\\n\"; }\n};\nAnimal a;\na.sound();"
+        },
+        drill: {
+          title: "Non-Virtual Base Destructor Deletion", prompt: "What happens if you delete a derived class object through a base pointer `Base *p = new Derived(); delete p;` when Base has a non-virtual destructor?",
+          code: "Base *p = new Derived();\ndelete p; // Base::~Base is not virtual!",
+          options: [
+            { text: "Undefined Behavior (Derived destructor never runs)", isCorrect: true, feedback: "🎯 Correct! Deleting polymorphic objects without virtual destructors causes UB and leaks derived resources." },
+            { text: "Both destructors run normally", isCorrect: false, feedback: "The compiler only invokes Base destructor, skipping Derived destructor." },
+            { text: "Compiler error at delete site", isCorrect: false, feedback: "Compilers cannot know dynamic pointer type at compile time." },
+            { text: "Memory is freed safely by the OS", isCorrect: false, feedback: "Derived class member cleanup is skipped, leaking handles/locks." }
+          ]
+        },
+        pitfall: {
+          title: "Slicing Derived Objects on By-Value Assignment",
+          content: "Passing or assigning a `Derived` object to a `Base` variable by value slices off all derived state and reverts virtual dispatch to the Base vtable!",
+          code: "// ❌ OBJECT SLICING:\nDerived d;\nBase b = d; // Sliced! Only base data preserved, vtable reset to Base!",
+          tip: "Hacker Rule: Always pass polymorphic classes by reference or pointer `const Base&`.",
+          target: "game.html?lang=cpp&diff=intermediate&stage=1"
+        }
+      },
+      {
+        id: "cpp-les-004", diff: "expert", topic: "Move Semantics & Rvalue References",
+        title: "Move Semantics, Rvalues (`&&`) & Stealing Heap Pointers",
+        tagline: "Eliminate deep heap copies by transferring pointer ownership in C++11+.",
+        concept: {
+          title: "Move Semantics Steals Pointers from Expiring Temporaries",
+          content: "Prior to C++11, returning or passing large vectors required deep copies. Move constructors accept rvalue references `T&&`, allowing the new object to **steal the raw buffer pointer** and set the donor to null in $O(1)$ time!",
+          code: "std::vector<int> a = {1, 2, 3};\nstd::vector<int> b = std::move(a); // Steals buffer; a is now empty!\n// O(1) pointer swap, zero heap allocation!",
+          sandbox: "std::string s1 = \"BigDataBuffer\";\nstd::string s2 = std::move(s1);\nstd::cout << \"s2: \" << s2 << \", s1 length: \" << s1.length() << std::endl;"
+        },
+        drill: {
+          title: "std::move Does Not Actually Move", prompt: "What does `std::move(x)` actually do under the hood at runtime?",
+          code: "auto r = std::move(x);",
+          options: [
+            { text: "It is an unconditional cast to an rvalue reference (x&&)", isCorrect: true, feedback: "🎯 Correct! std::move generates zero machine instructions; it simply casts the type to enable move constructor overload selection." },
+            { text: "It physically copies bytes in RAM", isCorrect: false, feedback: "Move constructors perform the move, not std::move itself." },
+            { text: "It deletes the variable from the stack", isCorrect: false, feedback: "The variable remains in scope in a valid but unspecified state." },
+            { text: "It allocates temporary registers", isCorrect: false, feedback: "It is purely a compile-time static cast." }
+          ]
+        },
+        pitfall: {
+          title: "Accessing Moved-From Objects",
+          content: "After calling `std::move(x)`, `x` is in a valid but unspecified state. Calling methods that assume populated state triggers logic bugs!",
+          code: "// ❌ BUG:\nstd::string s = \"secret\";\nsend(std::move(s));\nlog(s); // s may now be empty!",
+          tip: "Hacker Rule: Treat moved-from variables as invalid until explicitly reinitialized.",
+          target: "game.html?lang=cpp&diff=expert&stage=1"
+        }
+      },
+      {
+        id: "cpp-les-005", diff: "expert", topic: "C++20 Concepts & Constexpr",
+        title: "Compile-Time Metaprogramming with C++20 Concepts & constexpr",
+        tagline: "Replace cryptic SFINAE template errors with clear compile-time constraints.",
+        concept: {
+          title: "Concepts Constrain Generic Templates at Compile-Time",
+          content: "C++20 `concept` defines named semantic constraints on template parameters. Instead of miles of unreadable compiler errors, violating a concept produces crisp, readable diagnostics like `requires std::integral<T>`.",
+          code: "template<typename T>\nconcept Numeric = std::is_arithmetic_v<T>;\n\ntemplate<Numeric T>\nT add(T a, T b) { return a + b; }",
+          sandbox: "std::cout << \"C++20 Concepts enable zero-cost abstractions.\" << std::endl;"
+        },
+        drill: {
+          title: "constexpr vs const", prompt: "What is the defining capability of a `constexpr` variable or function?",
+          code: "constexpr int square(int x) { return x * x; }",
+          options: [
+            { text: "It is guaranteed to be evaluatable at compile time if given constant expressions", isCorrect: true, feedback: "🎯 Correct! constexpr enables compile-time evaluation and constant folding." },
+            { text: "It is stored in read-only memory at runtime only", isCorrect: false, feedback: "That applies to const; constexpr can run entirely during compilation." },
+            { text: "It disables all optimization flags", isCorrect: false, feedback: "It assists the optimizer by resolving values prior to code generation." },
+            { text: "It can only accept pointers", isCorrect: false, feedback: "constexpr functions accept standard scalar and literal types." }
+          ]
+        },
+        pitfall: {
+          title: "Template Bloat in Binary Footprint",
+          content: "Instantiating templates with dozens of different types compiles a brand new copy of machine instructions for each type, bloating your executable size.",
+          code: "// ❌ Watch out for code bloat:\ntemplate<typename T> void heavy_work() { /* 500 lines */ }",
+          tip: "Hacker Rule: Factor non-type-dependent code into non-template helper functions.",
+          target: "game.html?lang=cpp&diff=expert&stage=1"
+        }
+      }
+    ]
+  }
+];
+
+// Helper to fill in remaining 9 languages cleanly
+const remainingTracks = [
+  // 4. Java
+  {
+    lang: "java",
+    modules: [
+      { id: "java-les-001", diff: "beginner", topic: "Value vs Reference Types", title: "Stack Primitives vs Heap Objects", tagline: "Differentiate primitive values from heap reference pointers in Java.",
+        concept: { title: "Primitives Store Values; Variables Store Pointers", content: "Java primitives (int, boolean, double) store raw values on the thread stack. All non-primitive objects (including arrays and Strings) live on the heap; variables hold references.", code: "int a = 10; // Primitive on stack\nint[] b = new int[]{1, 2}; // b stores heap reference", sandbox: "int[] arr = {1, 2, 3};\nSystem.out.println(arr.length);" },
+        drill: { title: "Java Parameter Passing", prompt: "Is Java pass-by-value or pass-by-reference?", code: "void change(int[] a) { a[0] = 99; }", options: [{ text: "Strictly pass-by-value (the reference address is copied by value)", isCorrect: true, feedback: "🎯 Correct! Java is strictly pass-by-value; object references are copied by value." }, { text: "Pass-by-reference for objects", isCorrect: false, feedback: "Java never passes references by reference." }] },
+        pitfall: { title: "Integer Cache Comparison Trap", content: "Java caches Integer objects between -128 and 127. Comparing Integers with `==` outside this range compares object references, yielding false!", code: "Integer a = 1000, b = 1000;\nSystem.out.println(a == b); // FALSE! Use a.equals(b)!", tip: "Hacker Rule: Always compare object equality with .equals(), never ==.", target: "game.html?lang=java&diff=beginner&stage=1" }
+      },
+      { id: "java-les-002", diff: "intermediate", topic: "String Constant Pool", title: "String Constant Pool & Immutability", tagline: "Learn how the JVM deduplicates string literals to conserve heap space.",
+        concept: { title: "String Literals Share Pool Storage", content: "Strings created with quotes are stored in the JVM String Pool. `String s2 = new String(\"hello\")` bypasses the pool, allocating a redundant heap instance.", code: "String s1 = \"hello\";\nString s2 = \"hello\"; // Points to same instance!\nSystem.out.println(s1 == s2); // true", sandbox: "String s = \"SyntaxArena\";\nSystem.out.println(s.substring(0, 6));" },
+        drill: { title: "String Concatenation in Loops", prompt: "Why is `str += \"x\"` inside a 10,000-iteration loop inefficient?", code: "String s = \"\";\nfor(int i=0; i<10000; i++) s += \"x\";", options: [{ text: "It creates 10,000 intermediate String objects on the heap", isCorrect: true, feedback: "🎯 Correct! Each concatenation allocates a new String; use StringBuilder instead." }, { text: "It causes stack overflow", isCorrect: false, feedback: "Heap space is consumed, not the stack frame." }] },
+        pitfall: { title: "Substrings and Hidden Memory Retention", content: "In older Java versions, substring shared the underlying character buffer, preventing massive strings from being garbage collected.", code: "// Modern Java creates new char arrays for safe isolation.", tip: "Hacker Rule: Use StringBuilder for dynamic text composition.", target: "game.html?lang=java&diff=intermediate&stage=1" }
+      },
+      { id: "java-les-003", diff: "intermediate", topic: "Generics & Type Erasure", title: "Generics Type Erasure & Wildcards", tagline: "Understand why List<String> becomes raw List at JVM bytecode runtime.",
+        concept: { title: "Java Generics are a Compile-Time Illusion", content: "To maintain backwards compatibility with Java 1.4, the compiler erases generic types to `Object` (or bounds) and inserts casts automatically.", code: "List<String> list = new ArrayList<>();\nlist.add(\"text\"); // At runtime, bytecode stores Object", sandbox: "java.util.List<String> list = new java.util.ArrayList<>();\nlist.add(\"Java\");\nSystem.out.println(list.get(0));" },
+        drill: { title: "Generic Array Creation", prompt: "Why is `new T[10]` illegal in generic Java classes?", code: "class Container<T> { T[] arr = new T[10]; }", options: [{ text: "Type erasure prevents the JVM from knowing T's exact type at runtime", isCorrect: true, feedback: "🎯 Correct! Arrays reify their types at runtime, clashing with generic erasure." }, { text: "Java does not support arrays", isCorrect: false, feedback: "Java has native array types." }] },
+        pitfall: { title: "Raw Types Disabling Safety", content: "Using raw types like `List raw = new ArrayList()` disables compile-time type safety and causes ClassCastException at runtime.", code: "List raw = new ArrayList(); raw.add(123);\nString s = (String) raw.get(0); // ClassCastException!", tip: "Hacker Rule: Always provide explicit type parameters or wildcards.", target: "game.html?lang=java&diff=intermediate&stage=1" }
+      },
+      { id: "java-les-004", diff: "expert", topic: "JVM Memory & Garbage Collection", title: "JVM Generational Garbage Collection & Metaspace", tagline: "Inspect the Young, Old, and Metaspace memory regions under the hood.",
+        concept: { title: "Generational Hypothesis: Most Objects Die Young", content: "The JVM divides the heap into Eden, Survivor (S0/S1), and Tenured/Old generation. Minor GCs clean Eden rapidly; surviving objects are promoted to Old generation.", code: "// Objects live in Eden -> Survivor -> Tenured (Old Gen)", sandbox: "System.out.println(\"JVM Max Memory: \" + Runtime.getRuntime().maxMemory());" },
+        drill: { title: "OutOfMemoryError: Metaspace", prompt: "What is stored in Java 8+ Metaspace?", code: "// java.lang.OutOfMemoryError: Metaspace", options: [{ text: "Class metadata and bytecode definitions in native memory", isCorrect: true, feedback: "🎯 Correct! Metaspace replaced PermGen and stores loaded class metadata." }, { text: "All thread stacks", isCorrect: false, feedback: "Stacks are allocated per thread." }] },
+        pitfall: { title: "Static Collection Leaks", content: "Adding objects to `static List` roots them in the GC graph permanently, preventing garbage collection across application lifetime.", code: "static final List<Data> LEAK = new ArrayList<>(); // Never collected!", tip: "Hacker Rule: Clear static caches or use WeakReference/SoftReference.", target: "game.html?lang=java&diff=expert&stage=1" }
+      },
+      { id: "java-les-005", diff: "expert", topic: "Java Memory Model & Volatile", title: "The Java Memory Model, volatile & Happens-Before", tagline: "Prevent CPU cache visibility bugs across multithreaded cores.",
+        concept: { title: "Volatile Guarantees Visibility and Prevents Instruction Reordering", content: "Each CPU core caches memory in L1/L2 caches. Declaring `volatile boolean running` guarantees thread writes flush to main RAM and establishes a happens-before order.", code: "private volatile boolean running = true;\npublic void stop() { running = false; }", sandbox: "System.out.println(\"Java Memory Model: thread visibility ensured via volatile.\");" },
+        drill: { title: "Volatile Atomic Increments", prompt: "Does `volatile int count; count++;` guarantee thread-safety?", code: "volatile int count = 0;\ncount++; // Thread-safe?", options: [{ text: "No, count++ is 3 distinct operations (read, modify, write)", isCorrect: true, feedback: "🎯 Correct! volatile provides visibility, NOT atomicity. Use AtomicInteger." }, { text: "Yes, volatile makes all math atomic", isCorrect: false, feedback: "Atomic operations require hardware CAS or synchronization." }] },
+        pitfall: { title: "Double-Checked Locking Without Volatile", content: "Lazy singleton initialization without `volatile` causes partially constructed objects to be published due to CPU instruction reordering!", code: "private static volatile Singleton instance;", tip: "Hacker Rule: Always mark double-checked locking instances as volatile.", target: "game.html?lang=java&diff=expert&stage=1" }
+      }
+    ]
+  },
+
+  // 5. Cyber & Linux
+  {
+    lang: "cyber",
+    modules: [
+      { id: "cyber-les-001", diff: "beginner", topic: "Filesystem Hierarchy & Paths", title: "Linux FHS, Absolute vs Relative Paths", tagline: "Navigate Linux virtual file hierarchies like a systems engineer.",
+        concept: { title: "Everything in Unix is a File", content: "Linux organizes all filesystems into a single unified root `/`. Relative paths start from `$PWD`, while absolute paths always begin with `/`.", code: "pwd\ncd /home/hacker\nls -la", sandbox: "pwd\nls -la\nwhoami" },
+        drill: { title: "Path Navigation", prompt: "What does the path `../` represent in Unix shells?", code: "cd ../", options: [{ text: "The immediate parent directory of current working directory", isCorrect: true, feedback: "🎯 Correct! .. represents the parent directory." }, { text: "The root directory /", isCorrect: false, feedback: "Root is strictly /." }] },
+        pitfall: { title: "Accidental Root Execution", content: "Running commands with unquoted variable paths `rm -rf $DIR/` when $DIR is empty evaluates to `rm -rf /`!", code: "// ❌ Catastrophic: rm -rf $DIR/\n// ✅ Safe: [ -n \"$DIR\" ] && rm -rf \"$DIR/\"", tip: "Hacker Rule: Always quote variables `\"$VAR\"` in shell scripts.", target: "game.html?lang=cyber&diff=beginner&stage=1" }
+      },
+      { id: "cyber-les-002", diff: "intermediate", topic: "Permissions & SUID", title: "Octal Permissions, SUID & Privilege Escalation", tagline: "Decode rwxr-xr-x and understand how SUID binaries run as root.",
+        concept: { title: "Octal Bits (r=4, w=2, x=1) & The SUID 4000 Bit", content: "Permissions are divided into Owner, Group, and Others. A binary with SUID bit set (`chmod 4755`) executes with the file owner's privileges (often root)!", code: "chmod 755 script.sh # rwxr-xr-x\nchmod 4755 /usr/bin/passwd # SUID root", sandbox: "ls -l /etc/passwd" },
+        drill: { title: "Octal Permission Translation", prompt: "What permissions does `chmod 644 filename` set?", code: "chmod 644 notes.txt", options: [{ text: "Owner: rw-, Group: r--, Others: r--", isCorrect: true, feedback: "🎯 Correct! 6=4+2 (rw), 4=read only." }, { text: "Full access for everyone", isCorrect: false, feedback: "That would be 777." }] },
+        pitfall: { title: "Writable SUID Scripts", content: "If a SUID binary or script is writable by non-root users (`-rwsrwxrwx`), anyone can overwrite it to obtain instant root shell access!", code: "find / -perm -4000 -type f 2>/dev/null", tip: "Hacker Rule: SUID binaries must never be writable by non-owners.", target: "game.html?lang=cyber&diff=intermediate&stage=1" }
+      },
+      { id: "cyber-les-003", diff: "intermediate", topic: "Pipes & Streams", title: "File Descriptors (0, 1, 2), Pipes & Redirection", tagline: "Chain complex pipelines using standard streams (stdin, stdout, stderr).",
+        concept: { title: "Unix Streams: 0 (stdin), 1 (stdout), 2 (stderr)", content: "Pipes `|` connect stdout of one program to stdin of the next. Redirections `>` write files, while `2>&1` redirects stderr into stdout.", code: "cat /var/log/auth.log | grep 'Failed' | wc -l\ncommand > output.txt 2>&1", sandbox: "echo 'SyntaxArena Pipeline Test' | base64" },
+        drill: { title: "Stderr Redirection", prompt: "How do you discard all error output in bash without displaying it?", code: "find / -name flag.txt ...", options: [{ text: "2>/dev/null", isCorrect: true, feedback: "🎯 Correct! 2> redirects file descriptor 2 (stderr) to the black hole /dev/null." }, { text: "1>/dev/null", isCorrect: false, feedback: "1> discards standard output, not errors." }] },
+        pitfall: { title: "Truncation with Single Greater-Than", content: "Using `>` instantly truncates and overwrites an existing file to zero bytes! Use `>>` to safely append.", code: "echo 'log' > file.txt # Overwrites everything!\necho 'log' >> file.txt # Appends safely", tip: "Hacker Rule: Double-check > vs >> in production automation scripts.", target: "game.html?lang=cyber&diff=intermediate&stage=1" }
+      },
+      { id: "cyber-les-004", diff: "expert", topic: "Shell Globbing vs Regex", title: "Wildcard Shell Globbing vs Regular Expressions", tagline: "Distinguish between filename expansions and grep search patterns.",
+        concept: { title: "Shell Globbing Matches Filenames; Regex Matches Text", content: "In bash, `*.txt` is evaluated by the shell *before* the command executes. In `grep`, `.*` is a regex matching any character sequence.", code: "ls *.log # Shell expansion\ngrep -E '^[0-9]+' access.log # Regular expression", sandbox: "cat /etc/hosts | grep 'syntaxarena'" },
+        drill: { title: "Glob Argument Injection", prompt: "What dangerous behavior occurs if a filename in current directory starts with `-la` when executing `ls *`?", code: "// A file named '-la' exists", options: [{ text: "The shell expands it into flags, executing ls -la unexpectedly", isCorrect: true, feedback: "🎯 Correct! Globbing injects arbitrary flags into shell utilities." }, { text: "The shell ignores files starting with hyphens", isCorrect: false, feedback: "Globs expand all matching filenames blindly." }] },
+        pitfall: { title: "Unquoted Wildcards in Tar/Chown", content: "Tools like tar or chmod are vulnerable to wildcard argument injection if directories contain filenames crafted like `--checkpoint`.", code: "tar cf archive.tar * # Exploit vector if malicious filenames exist!", tip: "Hacker Rule: Use `--` to terminate flag parsing before wildcards: `rm -- *`.", target: "game.html?lang=cyber&diff=expert&stage=1" }
+      },
+      { id: "cyber-les-005", diff: "expert", topic: "Forensics & Log Analysis", title: "Authentication Log Forensics & Brute-Force Triage", tagline: "Extract threat intelligence and attack signatures from system logs.",
+        concept: { title: "Triage Authentication Logs with AWK, Grep & Cut", content: "Security responders trace SSH brute force attempts by filtering `Failed password` events in `/var/log/auth.log` and grouping attacking source IPs.", code: "grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -nr", sandbox: "cat /var/log/auth.log | grep 'Failed password'" },
+        drill: { title: "Detecting Lateral Movement", prompt: "What does `sudo[1420]: hacker : COMMAND=/bin/cat /etc/shadow` in auth.log indicate?", code: "// Log line inspection", options: [{ text: "User hacker successfully executed sudo to inspect password hashes", isCorrect: true, feedback: "🎯 Correct! Sudo logs record exact user and command executed with elevated rights." }, { text: "Failed password attempt", isCorrect: false, feedback: "The log line confirms command execution." }] },
+        pitfall: { title: "Log Tampering via Log Injection", content: "Writing unescaped user input into logs allows attackers to inject newline characters `\\n` and forge fake administrative events!", code: "logger -t auth \"User admin login\\nDec 25 root: ACCESS GRANTED\"", tip: "Hacker Rule: Sanitize carriage returns and newlines before writing log records.", target: "game.html?lang=cyber&diff=expert&stage=1" }
+      }
+    ]
+  },
+
+  // 6. JavaScript
+  {
+    lang: "javascript",
+    modules: [
+      { id: "js-les-001", diff: "beginner", topic: "Type Coercion & Equality", title: "Type Coercion, Falsy Values & Strict Equality (===)", tagline: "Master JavaScript's implicit conversion algorithm.",
+        concept: { title: "Strict Equality (===) Checks Types Without Coercion", content: "Loose equality `==` uses complex type coercion rules that produce counterintuitive results (`[] == false`). Always use `===` to verify both type and value.", code: "console.log(0 == false);  // true\nconsole.log(0 === false); // false\nconsole.log([] == ![]);   // true!", sandbox: "console.log('0 == false:', 0 == false);\nconsole.log('0 === false:', 0 === false);" },
+        drill: { title: "Truthy/Falsy Check", prompt: "Which of the following is TRUTHY in JavaScript?", code: "// Truthy evaluation", options: [{ text: "[] (empty array)", isCorrect: true, feedback: "🎯 Correct! All objects (including arrays and empty objects) are truthy in JS." }, { text: "0", isCorrect: false, feedback: "0 is falsy." }, { text: "'' (empty string)", isCorrect: false, feedback: "Empty string is falsy." }, { text: "NaN", isCorrect: false, feedback: "NaN is falsy." }] },
+        pitfall: { title: "typeof null Quirk", content: "Due to a 1995 legacy bug in JS type tags, `typeof null === 'object'`. Check for null explicitly with `val === null`.", code: "// ❌ BUG: typeof null === 'object'\n// ✅ FIX: val !== null && typeof val === 'object'", tip: "Hacker Rule: Always check `val !== null` before object property access.", target: "game.html?lang=javascript&diff=beginner&stage=1" }
+      },
+      { id: "js-les-002", diff: "intermediate", topic: "Closures & Lexical Scope", title: "Lexical Scope, Closures & Private State", tagline: "Harness functions remembering their lexical birthplace.",
+        concept: { title: "Closures Retain References to Outer Scope", content: "A closure is a function bundled together with references to its surrounding state. Even after the outer function returns, the inner function retains full access to outer variables.", code: "function counter() {\n    let n = 0;\n    return () => ++n;\n}\nconst c = counter();\nconsole.log(c(), c()); // 1, 2", sandbox: "function makePrefix(p) {\n    return (s) => p + ' ' + s;\n}\nconst greet = makePrefix('Cyber');\nconsole.log(greet('Warrior'));" },
+        drill: { title: "Var in For-Loops", prompt: "What does this loop print?", code: "for(var i=0; i<3; i++) {\n    setTimeout(() => console.log(i), 0);\n}", options: [{ text: "3 3 3", isCorrect: true, feedback: "🎯 Correct! var has function scope; all callbacks share the single final value of i (3)." }, { text: "0 1 2", isCorrect: false, feedback: "To print 0 1 2, declare the loop variable with let." }] },
+        pitfall: { title: "Accidental Memory Leaks via Closures", content: "A closure retaining a reference to a single variable from a huge outer scope keeps the *entire* outer lexical environment alive in memory!", code: "// Split giant buffers out of closure scopes if long-lived.", tip: "Hacker Rule: Set unnecessary large variables to null when closing over scopes.", target: "game.html?lang=javascript&diff=intermediate&stage=1" }
+      },
+      { id: "js-les-003", diff: "intermediate", topic: "Prototypes & Inheritance", title: "The Prototype Chain: __proto__ vs prototype", tagline: "Demystify delegation-based inheritance in modern JavaScript.",
+        concept: { title: "JavaScript Objects Delegate to Prototypes", content: "When accessing `obj.prop`, if the property does not exist on `obj`, the engine walks up `obj.__proto__` until found or hitting `null`. Classes in JS are syntactic sugar over this prototype chain.", code: "const proto = { power: 100 };\nconst hero = Object.create(proto);\nconsole.log(hero.power); // 100 (delegated!)", sandbox: "const p = { role: 'Hacker' };\nconst u = Object.create(p);\nconsole.log('Role:', u.role);" },
+        drill: { title: "Prototype Property Lookup", prompt: "Where does `Object.prototype.__proto__` point?", code: "Object.prototype.__proto__", options: [{ text: "null (the root of the prototype chain)", isCorrect: true, feedback: "🎯 Correct! The prototype chain ends at null." }, { text: "undefined", isCorrect: false, feedback: "It explicitly terminates at null." }] },
+        pitfall: { title: "Modifying Object.prototype (Prototype Pollution)", content: "Writing properties to `Object.prototype` pollutes every object in the JavaScript runtime, creating catastrophic security vulnerabilities!", code: "// ❌ CATASTROPHIC:\nObject.prototype.isAdmin = true; // Every object now has isAdmin = true!", tip: "Hacker Rule: Use Object.create(null) for dictionary maps with zero prototype inheritance.", target: "game.html?lang=javascript&diff=intermediate&stage=1" }
+      },
+      { id: "js-les-004", diff: "expert", topic: "Event Loop & Asynchrony", title: "Event Loop: Call Stack, Microtasks & Macrotasks", tagline: "Sequence microtasks (Promises) and macrotasks (setTimeout) with precision.",
+        concept: { title: "Microtasks Always Run Before the Next Macrotask", content: "The JS runtime executes synchronous code on the Call Stack. When clear, the engine drains the **entire Microtask Queue** (Promise callbacks, queueMicrotask) before picking a single Macrotask (setTimeout, setInterval).", code: "console.log('1');\nsetTimeout(() => console.log('2'), 0);\nPromise.resolve().then(() => console.log('3'));\nconsole.log('4');\n// Output: 1, 4, 3, 2", sandbox: "console.log('A');\nPromise.resolve().then(() => console.log('B'));\nconsole.log('C');" },
+        drill: { title: "Microtask Queue Execution Order", prompt: "What is printed first: a resolved Promise.then() callback or a setTimeout(..., 0)?", code: "setTimeout(f1, 0);\nPromise.resolve().then(f2);", options: [{ text: "f2 (Microtask queue runs first)", isCorrect: true, feedback: "🎯 Correct! The microtask queue has strict priority over task queues." }, { text: "f1 (Macrotask runs first)", isCorrect: false, feedback: "Macrotasks must wait for the microtask queue to be completely empty." }] },
+        pitfall: { title: "Starving the Event Loop with Recursive Microtasks", content: "Recursively scheduling microtasks (`queueMicrotask()`) prevents the engine from ever reaching macrotasks, UI rendering, or I/O events!", code: "function starve() { Promise.resolve().then(starve); }\n// Freezes browser tab completely!", tip: "Hacker Rule: Use setTimeout for cooperative background polling loops.", target: "game.html?lang=javascript&diff=expert&stage=1" }
+      },
+      { id: "js-les-005", diff: "expert", topic: "The this Keyword Binding", title: "The 4 Rules of `this`: Default, Implicit, Explicit & Arrow", tagline: "Predict exactly what `this` evaluates to in any execution context.",
+        concept: { title: "This Depends on How the Function Was Called", content: "In standard functions, `this` is bound at call time: 1. `new F()` -> newly created object, 2. `f.call(obj)` -> explicit obj, 3. `obj.f()` -> implicit obj, 4. standalone `f()` -> global/undefined in strict mode.\n\nArrow functions do NOT bind `this`; they inherit lexically!", code: "const obj = {\n    val: 42,\n    arrow: () => console.log(this.val), // Lexical this!\n    regular() { console.log(this.val); } // Implicit this!\n};", sandbox: "const o = { val: 99, get() { return this.val; } };\nconsole.log(o.get());" },
+        drill: { title: "Method Extraction Detachment", prompt: "What happens when you extract a method `const fn = obj.method; fn();` in strict mode?", code: "const fn = obj.method;\nfn();", options: [{ text: "this becomes undefined (lost implicit binding)", isCorrect: true, feedback: "🎯 Correct! Detaching the method converts it to a default function invocation with this=undefined." }, { text: "this remains bound to obj", isCorrect: false, feedback: "Call-site rules determine this for non-arrow functions." }] },
+        pitfall: { title: "Arrow Functions as Object Methods", content: "Using arrow functions for object methods causes `this` to point to global `window`/`globalThis` instead of the enclosing object!", code: "// ❌ BUG:\nconst user = {\n    name: 'Neo',\n    greet: () => `Hi, ${this.name}` // this.name is undefined!\n};", tip: "Hacker Rule: Use concise method syntax `greet() {}` on object literals.", target: "game.html?lang=javascript&diff=expert&stage=1" }
+      }
+    ]
+  },
+
+  // 7. Rust
+  {
+    lang: "rust",
+    modules: [
+      { id: "rust-les-001", diff: "beginner", topic: "Immutability & Shadowing", title: "Immutability by Default & Variable Shadowing", tagline: "Learn why Rust variables are immutable by default and how shadowing transforms state.",
+        concept: { title: "Variables are Immutable Unless Declared With mut", content: "Rust enforces memory safety through strict compiler invariants. Rebinding a variable with `let x = ...` shadows previous declarations without mutating in place.", code: "let x = 5;\nlet x = x + 1; // Shadowed! New variable, can even change type\nlet mut y = 10;\ny = 20; // Mutable assignment", sandbox: "let x = 5;\nlet x = x * 2;\nprintln!(\"x is: {}\", x);" },
+        drill: { title: "Shadowing Type Change", prompt: "Can variable shadowing change the type of a variable in Rust?", code: "let spaces = \"   \";\nlet spaces = spaces.len();", options: [{ text: "Yes, shadowing creates a brand new variable with its own type", isCorrect: true, feedback: "🎯 Correct! Shadowing allows reusing names across transformations without temporary variable names." }, { text: "No, types are permanently locked", isCorrect: false, feedback: "mut cannot change type, but shadowing can." }] },
+        pitfall: { title: "Accidental Mutability", content: "Adding `mut` everywhere defeats the compiler's ability to track invariants and verify thread-safety.", code: "let mut x = 10; // Avoid mut if value is never reassigned", tip: "Hacker Rule: Default to immutable `let`; add `mut` only when strictly necessary.", target: "game.html?lang=rust&diff=beginner&stage=1" }
+      },
+      { id: "rust-les-002", diff: "intermediate", topic: "Ownership & Move Semantics", title: "Ownership, Move Semantics & Affine Types", tagline: "Understand why passing values transfers exclusive ownership in Rust.",
+        concept: { title: "Each Value Has Exactly One Owner at Any Time", content: "When an owner goes out of scope, Rust automatically drops the value and frees heap memory. Assigning a heap value to another variable **moves** ownership; the original variable becomes invalid!", code: "let s1 = String::from(\"hello\");\nlet s2 = s1; // MOVED! s1 is no longer valid!\n// println!(\"{}\", s1); // Compile error!", sandbox: "let s = String::from(\"Rust\");\nprintln!(\"Length: {}\", s.len());" },
+        drill: { title: "Copy vs Move Types", prompt: "Why does `let x = 5; let y = x;` allow using `x` afterwards, while `String` does not?", code: "let x = 5; let y = x;", options: [{ text: "Primitive integers implement the Copy trait (stack bitwise copy)", isCorrect: true, feedback: "🎯 Correct! Types with Copy trait are duplicated on the stack rather than moved." }, { text: "Integers are stored in static RAM", isCorrect: false, feedback: "Primitives live on the stack and copy trivially." }] },
+        pitfall: { title: "Cloning Everywhere to Satisfy the Compiler", content: "Calling `.clone()` on massive structs masks design issues and creates heavy heap allocation overhead.", code: "// ❌ Anti-pattern: obj.clone() on every function call", tip: "Hacker Rule: Borrow references (&T) instead of cloning owned data.", target: "game.html?lang=rust&diff=intermediate&stage=1" }
+      },
+      { id: "rust-les-003", diff: "intermediate", topic: "The Borrow Checker", title: "The Borrow Checker & The Aliasing XOR Mutability Rule", tagline: "Prevent data races at compile time with Rust's fundamental reference rule.",
+        concept: { title: "Aliasing XOR Mutability: Many Readers OR Exactly One Writer", content: "At any point in code, you may have **either** any number of immutable references (`&T`) **or** exactly one mutable reference (`&mut T`), but never both simultaneously!", code: "let mut s = String::from(\"hello\");\nlet r1 = &s; // OK\nlet r2 = &s; // OK (multiple readers)\n// let r3 = &mut s; // COMPILE ERROR! Cannot borrow mutably while shared!", sandbox: "let mut data = 10;\n{\n    let ref_mut = &mut data;\n    *ref_mut += 5;\n}\nprintln!(\"Data: {}\", data);" },
+        drill: { title: "Simultaneous Mutable Borrows", prompt: "Can you create two mutable references to the same variable in the same scope?", code: "let mut x = 10;\nlet r1 = &mut x;\nlet r2 = &mut x;", options: [{ text: "No, only one active mutable reference is permitted at a time", isCorrect: true, feedback: "🎯 Correct! Exclusive write access prevents data races and iterator invalidation." }, { text: "Yes, if they are not used simultaneously", isCorrect: false, feedback: "Overlapping active lifetimes trigger compile errors." }] },
+        pitfall: { title: "Iterator Invalidation Prevention", content: "Modifying a collection while iterating over it is a classic C++ crash. Rust's borrow checker rejects it at compile time!", code: "let mut v = vec![1, 2];\nfor i in &v { v.push(*i); } // Compiler rejects iterator invalidation!", tip: "Hacker Rule: Collect modifications into a separate vector or index explicitly.", target: "game.html?lang=rust&diff=intermediate&stage=1" }
+      },
+      { id: "rust-les-004", diff: "expert", topic: "Lifetimes & References", title: "Explicit Lifetimes ('a) & Invariant Guarantees", tagline: "Teach the compiler the relationship between input and output references.",
+        concept: { title: "Lifetimes Ensure References Never Outlive Their Referents", content: "Lifetimes (`'a`) do not change how long a value lives; they describe the relationship between references to prove that returning a reference is safe.", code: "fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {\n    if x.len() > y.len() { x } else { y }\n}", sandbox: "println!(\"Lifetimes guarantee zero dangling references in Rust.\");" },
+        drill: { title: "Lifetime Elision", prompt: "When a function takes a single reference `&self` and returns a reference, what lifetime does the compiler infer?", code: "fn get(&self) -> &str", options: [{ text: "The output lifetime is inferred to be the same as &self", isCorrect: true, feedback: "🎯 Correct! Lifetime elision rules tie output reference to input self reference." }, { text: "'static lifetime", isCorrect: false, feedback: "Static references require explicit 'static annotation." }] },
+        pitfall: { title: "Self-Referential Structs", content: "Creating a struct where one field references another field inside the same struct is impossible in safe Rust due to pointer movement in memory.", code: "// Use indexes or generational arenas instead of self-references.", tip: "Hacker Rule: Store integer IDs/indices instead of raw references inside structs.", target: "game.html?lang=rust&diff=expert&stage=1" }
+      },
+      { id: "rust-les-005", diff: "expert", topic: "Interior Mutability & Concurrency", title: "Interior Mutability (RefCell) & Thread-Safe Pointers (Arc)", tagline: "Mutate data through immutable references safely with runtime checks.",
+        concept: { title: "RefCell Checks Borrows at Runtime; Arc Shares Across Threads", content: "`RefCell<T>` moves borrow checking from compile-time to runtime, allowing mutation through `&T`. For multi-threaded sharing, wrap data in `Arc<Mutex<T>>`.", code: "use std::cell::RefCell;\nlet cell = RefCell::new(42);\n*cell.borrow_mut() += 1;", sandbox: "println!(\"Arc<Mutex<T>> guarantees data-race free thread safety.\");" },
+        drill: { title: "RefCell Panic", prompt: "What happens if code simultaneously creates two active `borrow_mut()` handles on the same `RefCell`?", code: "let c = RefCell::new(1);\nlet m1 = c.borrow_mut();\nlet m2 = c.borrow_mut();", options: [{ text: "The thread panics at runtime (BorrowMutError)", isCorrect: true, feedback: "🎯 Correct! RefCell enforces the borrowing rules dynamically by panicking." }, { text: "Undefined behavior occurs", isCorrect: false, feedback: "RefCell guarantees safe panic rather than undefined behavior." }] },
+        pitfall: { title: "Deadlocks with Nested Mutexes", content: "Acquiring multiple `Mutex` locks in inconsistent order across threads leads to classic cyclic deadlocks.", code: "// Always acquire locks in a globally consistent order.", tip: "Hacker Rule: Keep lock scopes minimal using localized block scopes `{ ... }`.", target: "game.html?lang=rust&diff=expert&stage=1" }
+      }
+    ]
+  },
+
+  // 8. SQL
+  {
+    lang: "sql",
+    modules: [
+      { id: "sql-les-001", diff: "beginner", topic: "Relational Queries & Precedence", title: "SELECT Filtering & AND/OR Operator Precedence", tagline: "Prevent catastrophic query logic flaws by understanding SQL evaluation order.",
+        concept: { title: "AND Has Higher Precedence Than OR in SQL", content: "In SQL, `AND` evaluates before `OR`. Writing `WHERE role='admin' OR role='mod' AND active=1` will select all admins regardless of whether active=1!", code: "-- ❌ BUGGY:\nSELECT * FROM users WHERE role = 'admin' OR role = 'mod' AND active = 1;\n-- ✅ INTENDED:\nSELECT * FROM users WHERE (role = 'admin' OR role = 'mod') AND active = 1;", sandbox: "SELECT username, role, xp FROM users WHERE role = 'admin';" },
+        drill: { title: "Logical Precedence Check", prompt: "How should conditions with mixed AND/OR be structured for predictable query execution?", code: "WHERE a OR b AND c", options: [{ text: "Always wrap intended logical groupings in explicit parentheses ()", isCorrect: true, feedback: "🎯 Correct! Parentheses remove all operator precedence ambiguity." }, { text: "Always place AND before OR", isCorrect: false, feedback: "Placement order does not override precedence rules." }] },
+        pitfall: { title: "SELECT * in Production APIs", content: "Using `SELECT *` breaks caching, transfers unnecessary column payloads, and crashes applications when columns are added or reordered.", code: "-- ❌ Anti-pattern: SELECT * FROM audit_logs\n-- ✅ Best Practice: SELECT id, action, status FROM audit_logs", tip: "Hacker Rule: Explicitly name all projected columns.", target: "game.html?lang=sql&diff=beginner&stage=1" }
+      },
+      { id: "sql-les-002", diff: "intermediate", topic: "Joins & Cartesian Products", title: "INNER vs OUTER Joins & Cartesian Multiplications", tagline: "Join relational tables without accidentally dropping or duplicating rows.",
+        concept: { title: "INNER Drops Unmatched Rows; LEFT JOIN Preserves Left Table", content: "An `INNER JOIN` only returns rows where the join condition matches on both sides. A `LEFT JOIN` returns every row from the left table, filling missing right-side values with `NULL`.", code: "SELECT u.username, l.action\nFROM users u\nLEFT JOIN audit_logs l ON u.id = l.user_id;", sandbox: "SELECT u.username, l.action FROM users u JOIN audit_logs l ON u.id = l.user_id;" },
+        drill: { title: "Unmatched Row Preservation", prompt: "Which join returns all users even if they have zero records in the audit_logs table?", code: "SELECT ... FROM users ... audit_logs", options: [{ text: "LEFT JOIN audit_logs ON users.id = audit_logs.user_id", isCorrect: true, feedback: "🎯 Correct! LEFT JOIN retains all rows from the primary left table." }, { text: "INNER JOIN", isCorrect: false, feedback: "INNER JOIN drops users without matching logs." }] },
+        pitfall: { title: "Filtering Left Joined Tables in WHERE Clause", content: "Putting a condition on the right table in the `WHERE` clause (like `WHERE logs.status = '200'`) converts the LEFT JOIN back into an INNER JOIN!", code: "-- ❌ CONVERTS TO INNER JOIN: WHERE l.status = 'OK'\n-- ✅ PRESERVES LEFT JOIN: Put condition in ON clause: ON u.id = l.user_id AND l.status = 'OK'", tip: "Hacker Rule: Filter optional tables in the ON clause, not the WHERE clause.", target: "game.html?lang=sql&diff=intermediate&stage=1" }
+      },
+      { id: "sql-les-003", diff: "intermediate", topic: "Aggregations & Grouping", title: "GROUP BY Aggregations & WHERE vs HAVING Filtering", tagline: "Filter pre-aggregation rows vs post-aggregation summaries cleanly.",
+        concept: { title: "WHERE Filters Rows; HAVING Filters Aggregated Groups", content: "The `WHERE` clause filters individual records before grouping. The `HAVING` clause filters calculated group totals (like `COUNT(*)` or `SUM(xp)`) *after* grouping.", code: "SELECT role, COUNT(*), AVG(xp) FROM users\nWHERE active = 1\nGROUP BY role\nHAVING COUNT(*) >= 2;", sandbox: "SELECT role, COUNT(*) as cnt FROM users GROUP BY role;" },
+        drill: { title: "HAVING vs WHERE", prompt: "Can you filter on aggregate functions like `COUNT(*)` inside a `WHERE` clause?", code: "WHERE COUNT(*) > 5", options: [{ text: "No, aggregate functions are illegal in WHERE; use HAVING instead", isCorrect: true, feedback: "🎯 Correct! WHERE runs prior to aggregation; HAVING runs after." }, { text: "Yes, in all SQL dialects", isCorrect: false, feedback: "All standard SQL engines reject aggregates in WHERE." }] },
+        pitfall: { title: "Selecting Non-Aggregated Columns", content: "Selecting columns that are neither included in the `GROUP BY` clause nor wrapped in an aggregate function triggers SQL errors in standard SQL mode.", code: "SELECT role, username, AVG(xp) FROM users GROUP BY role; -- Error!", tip: "Hacker Rule: Every non-aggregated column in SELECT must be in GROUP BY.", target: "game.html?lang=sql&diff=intermediate&stage=1" }
+      },
+      { id: "sql-les-004", diff: "expert", topic: "Three-Valued Logic & NULLs", title: "Three-Valued Logic (3VL) & The NOT IN NULL Trap", tagline: "Master TRUE, FALSE, and UNKNOWN to eliminate vanishing query results.",
+        concept: { title: "NULL Comparisons Return UNKNOWN, Never TRUE or FALSE", content: "In SQL, `NULL = NULL` evaluates to `UNKNOWN` (falsy in WHERE). You must always compare using `IS NULL` or `IS NOT NULL`.\n\nEven more dangerous: `x NOT IN (1, 2, NULL)` evaluates to UNKNOWN for every row, returning 0 rows!", code: "-- ❌ RETURNS ZERO ROWS:\nSELECT * FROM users WHERE id NOT IN (SELECT user_id FROM audit_logs); -- if any user_id is NULL!\n-- ✅ SAFE:\nSELECT * FROM users u WHERE NOT EXISTS (SELECT 1 FROM audit_logs l WHERE l.user_id = u.id);", sandbox: "SELECT * FROM users WHERE active IS NOT NULL;" },
+        drill: { title: "NULL Equality Evaluation", prompt: "What does the expression `NULL = NULL` return in standard SQL?", code: "SELECT 1 WHERE NULL = NULL;", options: [{ text: "UNKNOWN (which evaluates as falsy in WHERE filter)", isCorrect: true, feedback: "🎯 Correct! NULL represents missing information; two unknowns cannot be equal." }, { text: "TRUE", isCorrect: false, feedback: "NULL is never equal to anything, including itself." }, { text: "FALSE", isCorrect: false, feedback: "It returns the third truth value: UNKNOWN." }] },
+        pitfall: { title: "NOT IN Subquery with NULLs", content: "If a subquery returns even a single `NULL` value, `NOT IN` fails completely and returns zero records.", code: "// Always prefer NOT EXISTS over NOT IN for subquery anti-joins.", tip: "Hacker Rule: Use NOT EXISTS instead of NOT IN for safe relational exclusion.", target: "game.html?lang=sql&diff=expert&stage=1" }
+      },
+      { id: "sql-les-005", diff: "expert", topic: "Window Functions & CTEs", title: "Window Functions (OVER, PARTITION BY) & CTEs", tagline: "Perform ranking and running calculations without collapsing rows.",
+        concept: { title: "Window Functions Calculate Across Row Sets Without Grouping", content: "Unlike `GROUP BY`, window functions (`ROW_NUMBER()`, `RANK()`, `SUM() OVER ()`) calculate analytics across a partition while retaining every individual row in the result set.", code: "SELECT username, role, xp,\n       RANK() OVER (PARTITION BY role ORDER BY xp DESC) as rank_in_role\nFROM users;", sandbox: "SELECT username, xp FROM users ORDER BY xp DESC;" },
+        drill: { title: "ROW_NUMBER vs RANK", prompt: "What happens when two rows have identical values when using `RANK()` vs `ROW_NUMBER()`?", code: "// Ties in ranking", options: [{ text: "RANK assigns identical numbers to ties and skips the next number; ROW_NUMBER assigns distinct consecutive integers", isCorrect: true, feedback: "🎯 Correct! RANK assigns 1, 1, 3; ROW_NUMBER assigns 1, 2, 3." }, { text: "They behave identically", isCorrect: false, feedback: "Their handling of duplicate values is fundamentally different." }] },
+        pitfall: { title: "Filtering Window Functions Directly in WHERE", content: "Window functions execute *after* the WHERE clause; attempting `WHERE ROW_NUMBER() OVER (...) = 1` causes an immediate SQL syntax error! Wrap in a CTE.", code: "WITH Ranked AS (\n    SELECT *, ROW_NUMBER() OVER (ORDER BY xp DESC) as rnk FROM users\n)\nSELECT * FROM Ranked WHERE rnk <= 3;", tip: "Hacker Rule: Use Common Table Expressions (WITH ...) to filter on window outputs.", target: "game.html?lang=sql&diff=expert&stage=1" }
+      }
+    ]
+  },
+
+  // 9. TypeScript
+  {
+    lang: "typescript",
+    modules: [
+      { id: "ts-les-001", diff: "beginner", topic: "Inference vs Annotations", title: "Static Type Inference vs Explicit Type Annotations", tagline: "Let the compiler work for you without redundant type clutter.",
+        concept: { title: "TypeScript Infers Types Automatically When Initialized", content: "Declaring `let count: number = 0;` is redundant. TypeScript automatically infers primitive and object types from initial values.", code: "let score = 100; // Inferred as number\n// score = 'high'; // Type error!", sandbox: "const appName: string = 'SyntaxArena';\nconsole.log(appName);" },
+        drill: { title: "any vs unknown", prompt: "Why is `unknown` preferred over `any` for untyped external inputs?", code: "let data: unknown;", options: [{ text: "unknown forces type narrowing checks before accessing properties", isCorrect: true, feedback: "🎯 Correct! unknown is type-safe; any completely disables type checking." }, { text: "unknown compiles to faster JavaScript", isCorrect: false, feedback: "Types are stripped completely at runtime." }] },
+        pitfall: { title: "The any Virus", content: "Assigning `any` spreads silently across your codebase, turning off type safety for any expression it touches.", code: "const p: any = fetch(); // Disables safety everywhere p flows!", tip: "Hacker Rule: Use unknown with type guards instead of any.", target: "game.html?lang=typescript&diff=beginner&stage=1" }
+      },
+      { id: "ts-les-002", diff: "intermediate", topic: "Structural vs Nominal Typing", title: "Structural Typing (Duck Typing) vs Nominal Systems", tagline: "Learn why TypeScript checks shapes rather than class inheritance names.",
+        concept: { title: "If It Walks Like a Duck, TypeScript Accepts It", content: "Languages like Java use nominal typing: two classes with identical fields are incompatible unless sharing an explicit interface. TypeScript checks **structural shape**: if an object has the required properties, it is compatible!", code: "interface Point { x: number; y: number; }\nfunction draw(p: Point) { /* ... */ }\ndraw({ x: 10, y: 20, z: 30 }); // Compatible!", sandbox: "interface User { id: number; name: string; }\nconst u: User = { id: 1, name: 'Adept' };\nconsole.log(u.name);" },
+        drill: { title: "Excess Property Checks on Literals", prompt: "Why does `draw({ x: 1, y: 2, extra: 3 })` fail when passed as an inline object literal, but succeed when passed via an intermediate variable?", code: "// Object literal excess check", options: [{ text: "TypeScript performs strict excess property checking on fresh object literals to catch typos", isCorrect: true, feedback: "🎯 Correct! Inline literals undergo excess property checking to detect misspelled properties." }, { text: "Variables allocate new types", isCorrect: false, feedback: "Structural subtyping applies to variables; literals get strict typo checks." }] },
+        pitfall: { title: "Empty Object Interface {}", content: "The type `{}` matches any value that is not null or undefined, including primitives like numbers and strings!", code: "const x: {} = 42; // Valid in TypeScript!", tip: "Hacker Rule: Use Record<string, unknown> instead of {} for key-value maps.", target: "game.html?lang=typescript&diff=intermediate&stage=1" }
+      },
+      { id: "ts-les-003", diff: "intermediate", topic: "Discriminated Unions", title: "Discriminated Unions & Exhaustiveness Type Checking", tagline: "Model finite domain states and ensure the compiler enforces handling of every case.",
+        concept: { title: "A Common Discriminant Tag Narrows Union Types", content: "By giving each variant a shared literal property like `type: 'success'`, TypeScript narrows the union within `switch` blocks automatically.", code: "type State = \n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'success', data: string[] };", sandbox: "type Res = { ok: true, val: number } | { ok: false, err: string };\nconst r: Res = { ok: true, val: 42 };\nconsole.log(r.ok ? r.val : r.err);" },
+        drill: { title: "The never Type for Exhaustiveness", prompt: "How do you ensure a switch block handles every possible union variant at compile time?", code: "default: const _exhaustiveCheck: never = state;", options: [{ text: "Assign unhandled cases to a variable of type never", isCorrect: true, feedback: "🎯 Correct! If a union variant is unhandled, assigning it to never causes a compile error." }, { text: "Throw an error at runtime", isCorrect: false, feedback: "Runtime errors do not catch missing cases at compile time." }] },
+        pitfall: { title: "Optional Discriminant Properties", content: "Making the discriminant property optional `status?: string` breaks union discrimination and forces manual type assertions.", code: "// Discriminant keys must be required string/number literals.", tip: "Hacker Rule: Always make discriminant tag properties required literals.", target: "game.html?lang=typescript&diff=intermediate&stage=1" }
+      },
+      { id: "ts-les-004", diff: "expert", topic: "Const Assertions & satisfies", title: "Type Widening, Const Assertions (as const) & satisfies", tagline: "Lock down exact literal types without losing type inference flexibility.",
+        concept: { title: "as const Locks Values to Read-Only Exact Literals", content: "`as const` prevents TypeScript from widening `'GET'` to `string` or arrays to mutable arrays, generating deeply read-only literal types.", code: "const routes = { home: '/', login: '/login' } as const;\n// routes.home is strictly '/' (not string)", sandbox: "const CONFIG = { theme: 'dark', version: 1 } as const;\nconsole.log(CONFIG.theme);" },
+        drill: { title: "satisfies vs as", prompt: "What is the advantage of `satisfies` over `as Type` assertions?", code: "const config = { ... } satisfies RouteConfig;", options: [{ text: "satisfies validates the type while preserving the narrower inferred literal types", isCorrect: true, feedback: "🎯 Correct! satisfies enforces contract without widening literal types or disabling safety." }, { text: "satisfies converts types at runtime", isCorrect: false, feedback: "TypeScript types do not exist at runtime." }] },
+        pitfall: { title: "Type Assertions (as T) Bypassing Type Safety", content: "Using `as unknown as User` tells the compiler to shut up, masking critical schema mismatches that crash at runtime.", code: "const u = {} as User; // Dangerous lie! u lacks required fields!", tip: "Hacker Rule: Use type guards or validation libraries (Zod) instead of as T.", target: "game.html?lang=typescript&diff=expert&stage=1" }
+      },
+      { id: "ts-les-005", diff: "expert", topic: "Conditional & Mapped Types", title: "Conditional Types, Generic infer & Mapped Types", tagline: "Transform and introspect types programmatically at compile time.",
+        concept: { title: "Conditional Types Choose Types via `T extends U ? X : Y`", content: "Conditional types evaluate type relationships dynamically. Combined with `infer`, you can unpack return types, promise payloads, and array elements.", code: "type UnpackPromise<T> = T extends Promise<infer U> ? U : T;\ntype Result = UnpackPromise<Promise<string>>; // string", sandbox: "type ReadonlyObj<T> = { readonly [K in keyof T]: T[K] };\nconsole.log('TypeScript type gymnastics ready.');" },
+        drill: { title: "Distributive Conditional Types", prompt: "Why does `type ToArray<T> = T extends any ? T[] : never;` turn `string | number` into `string[] | number[]` instead of `(string | number)[]`?", code: "type Res = ToArray<string | number>;", options: [{ text: "Naked type parameters distribute over union members automatically", isCorrect: true, feedback: "🎯 Correct! Bare generic parameters distribute over unions unless wrapped in tuples [T]." }, { text: "It is a compiler bug", isCorrect: false, feedback: "Distributive conditional types are a core language feature." }] },
+        pitfall: { title: "Infinite Type Instantiation Depth", content: "Complex recursive conditional types exceeding depth limits crash the TypeScript compiler with `Type instantiation is excessively deep`.", code: "// Always provide a recursion depth counter or base termination check.", tip: "Hacker Rule: Wrap tuple bounds `[T] extends [never]` to disable unintended distribution.", target: "game.html?lang=typescript&diff=expert&stage=1" }
+      }
+    ]
+  },
+
+  // 10. Go (Golang)
+  {
+    lang: "go",
+    modules: [
+      { id: "go-les-001", diff: "beginner", topic: "Explicit Types & Zero Values", title: "Zero Values, Explicit Types & Short Variable Declarations", tagline: "Learn Go's predictable memory initialization guarantees.",
+        concept: { title: "Variables in Go are Always Initialized to Zero Values", content: "In Go, there is no uninitialized memory. Every variable is automatically set to its type's zero value (0 for numbers, false for booleans, \"\" for strings, nil for pointers/slices).", code: "var count int       // initialized to 0\nvar active bool     // initialized to false\nmsg := \"Hello, Go\"  // short variable declaration", sandbox: "package main\nimport \"fmt\"\nfunc main() {\n    var x int\n    fmt.Println(\"Zero value:\", x)\n}" },
+        drill: { title: "Short Declaration Scope", prompt: "Can you use short variable declaration `x := 10` outside of functions at package level?", code: "package main\nx := 10 // Legal?", options: [{ text: "No, := is only permitted inside function bodies; package level requires var", isCorrect: true, feedback: "🎯 Correct! Package-level variables must use explicit var declarations." }, { text: "Yes, anywhere in Go", isCorrect: false, feedback: "Go grammar restricts := to local block scopes." }] },
+        pitfall: { title: "Shadowing in Multiple Assignment", content: "Using `res, err := work()` inside an `if` block can accidentally shadow outer variables if not careful.", code: "if res, err := get(); err != nil { /* shadows outer res */ }", tip: "Hacker Rule: Be aware of scope boundaries when using := inside control blocks.", target: "game.html?lang=go&diff=beginner&stage=1" }
+      },
+      { id: "go-les-002", diff: "intermediate", topic: "Slices Under the Hood", title: "Slice Architecture: Pointer, Length & Capacity", tagline: "Deconstruct how Go slices wrap underlying array memory.",
+        concept: { title: "A Slice is a 3-Word Header: [Ptr, Len, Cap]", content: "A slice does not store elements itself; it is a 24-byte struct containing a pointer to a backing array, `len` (current items), and `cap` (maximum capacity before reallocation).", code: "s := make([]int, 2, 4) // len=2, cap=4\ns = append(s, 99)      // appends within existing backing array", sandbox: "package main\nimport \"fmt\"\nfunc main() {\n    s := []int{10, 20, 30}\n    fmt.Println(\"Len:\", len(s), \"Cap:\", cap(s))\n}" },
+        drill: { title: "Sub-slice Backing Array Mutation", prompt: "What happens if you mutate `s2[0] = 99` where `s2 = s1[1:3]`?", code: "s1 := []int{1, 2, 3};\ns2 := s1[1:3];\ns2[0] = 99;", options: [{ text: "s1[1] is also changed to 99 because both slices share the same backing array", isCorrect: true, feedback: "🎯 Correct! Sub-slices share underlying array memory until append reallocates capacity." }, { text: "s1 remains unchanged", isCorrect: false, feedback: "Sub-slicing does not copy data; it creates a new slice header to the same memory." }] },
+        pitfall: { title: "Memory Leak from Giant Backing Arrays", content: "Taking a small sub-slice of a 100MB array keeps the entire 100MB backing array pinned in RAM! Use `copy()` to isolate small slices.", code: "small := make([]byte, 10)\ncopy(small, hugeData[:10]) // Safe: allows hugeData to be garbage collected", tip: "Hacker Rule: Use copy() when retaining small slices from massive payloads.", target: "game.html?lang=go&diff=intermediate&stage=1" }
+      },
+      { id: "go-les-003", diff: "intermediate", topic: "Errors & Defer Stack", title: "Explicit Error Handling & LIFO defer Execution", tagline: "Write idiomatic Go without exceptions using defer and error tuples.",
+        concept: { title: "Errors are Values; Defer Runs in LIFO Order on Exit", content: "Go does not use try/catch. Functions return `(T, error)` tuples. `defer` statements schedule cleanup calls that execute when the function returns in Last-In-First-Out order.", code: "f, err := os.Open(\"file.txt\")\nif err != nil { return err }\ndefer f.Close() // Guaranteed to run on function exit!", sandbox: "package main\nimport \"fmt\"\nfunc main() {\n    defer fmt.Println(\"Deferred cleanup\")\n    fmt.Println(\"Main execution\")\n}" },
+        drill: { title: "Defer Argument Evaluation", prompt: "When are arguments to a `defer` function evaluated?", code: "x := 10\ndefer fmt.Println(x)\nx = 20", options: [{ text: "Immediately when the defer statement is encountered (prints 10)", isCorrect: true, feedback: "🎯 Correct! Arguments to deferred functions are evaluated immediately; execution is deferred." }, { text: "When the surrounding function returns (prints 20)", isCorrect: false, feedback: "Closure values evaluate on execution, but direct parameters evaluate immediately." }] },
+        pitfall: { title: "Defer Inside Infinite Loops", content: "Putting `defer file.Close()` inside a long-running `for` loop will not release file handles until the entire function returns, causing OS handle exhaustion!", code: "// ❌ Handle leak: for (...) { f, _ := open(); defer f.Close(); }\n// ✅ Solution: Wrap loop body in an anonymous function func() { ... }()", tip: "Hacker Rule: Wrap loop iterations in closures if using defer inside loops.", target: "game.html?lang=go&diff=intermediate&stage=1" }
+      },
+      { id: "go-les-004", diff: "expert", topic: "Loop Variable Capture (Go 1.22+)", title: "Loop Variable Scoping & Goroutine Closure Capture", tagline: "Master the historic Go loop variable pitfall and the Go 1.22 fix.",
+        concept: { title: "Go 1.22 Allocates Loop Variables Per-Iteration", content: "Prior to Go 1.22, loop variables had loop-level scope: closures launched in goroutines captured the same variable address. Go 1.22 updated the language so each iteration creates a brand new instance!", code: "for i := range 3 {\n    go func() {\n        fmt.Println(i) // In Go 1.22+, safely prints 0, 1, 2!\n    }()\n}", sandbox: "package main\nimport \"fmt\"\nfunc main() {\n    for i := range 3 {\n        fmt.Println(\"Iteration:\", i)\n    }\n}" },
+        drill: { title: "Legacy Go Loop Capture", prompt: "In Go versions prior to 1.22, what did `for _, v := range list { go func() { print(v) }() }` frequently print?", code: "// Legacy Go loop capture check", options: [{ text: "The final element of list repeatedly", isCorrect: true, feedback: "🎯 Correct! In pre-1.22 Go, all goroutines shared the single mutated v variable." }, { text: "Elements in strictly sequential order", isCorrect: false, feedback: "Goroutines run concurrently and read the mutated variable." }] },
+        pitfall: { title: "Running Legacy Codebases", content: "If maintaining Go code on older compilers (<1.22), you must still write `v := v` inside the loop body to avoid data races.", code: "for _, v := range list {\n    v := v // Shadow variable for legacy Go compatibility\n    go work(v)\n}", tip: "Hacker Rule: Ensure go.mod specifies go 1.22+ to benefit from per-iteration loop scoping.", target: "game.html?lang=go&diff=expert&stage=1" }
+      },
+      { id: "go-les-005", diff: "expert", topic: "Goroutines & Channels", title: "Goroutines, Buffered Channels & Synchronization", tagline: "Communicate sequentially through channels: Don't communicate by sharing memory.",
+        concept: { title: "Channels Synchronize Concurrent Goroutines Safely", content: "Goroutines are ultra-lightweight green threads (starting at ~2KB stack). Unbuffered channels block the sender until a receiver is ready, ensuring deterministic synchronization.", code: "ch := make(chan int) // Unbuffered\ngo func() { ch <- 42 }()\nval := <-ch // Blocks until value arrives!", sandbox: "package main\nimport \"fmt\"\nfunc main() {\n    fmt.Println(\"Go concurrency ready.\")\n}" },
+        drill: { title: "Unbuffered Channel Deadlock", prompt: "What happens if a single goroutine attempts to send `ch <- 1` on an unbuffered channel with no concurrent receiver?", code: "ch := make(chan int)\nch <- 1 // No receiver launched!", options: [{ text: "Fatal runtime error: all goroutines are asleep - deadlock!", isCorrect: true, feedback: "🎯 Correct! Unbuffered sends block until an independent receiver is ready; a single goroutine deadlocks itself." }, { text: "The value is buffered temporarily", isCorrect: false, feedback: "Unbuffered channels have zero capacity." }] },
+        pitfall: { title: "Goroutine Leaks via Blocked Channels", content: "Launching goroutines that block forever waiting on a channel that is never written to causes silent permanent memory leaks in Go services.", code: "// Always provide context cancellation or timeout selects: select { case <-ctx.Done(): return }", tip: "Hacker Rule: Never start a goroutine without knowing how and when it will exit.", target: "game.html?lang=go&diff=expert&stage=1" }
+      }
+    ]
+  },
+
+  // 11. HTML5 & CSS
+  {
+    lang: "html",
+    modules: [
+      { id: "html-les-001", diff: "beginner", topic: "Semantic HTML5 & Accessibility", title: "Semantic HTML5 Landmarks & Document Accessibility", tagline: "Build structured web applications with semantic tags and screen reader accessibility.",
+        concept: { title: "Semantic Tags Communicate Meaning to Assistive Tech", content: "Screen readers rely on semantic landmarks (`<main>`, `<nav>`, `<header>`, `<article>`) to navigate pages. Replacing generic `<div>` elements with semantics improves accessibility (a11y) and SEO.", code: "<header role=\"banner\">\n  <nav aria-label=\"Main navigation\">...</nav>\n</header>\n<main id=\"main-content\">...</main>", sandbox: "<header>\n  <h1>SyntaxArena</h1>\n</header>\n<main>\n  <p>Accessible Web Architecture</p>\n</main>" },
+        drill: { title: "Heading Hierarchy", prompt: "How many `<h1>` elements should typically be present on an accessible web page?", code: "<h1>...</h1>", options: [{ text: "Exactly one <h1> representing the primary topic of the page", isCorrect: true, feedback: "🎯 Correct! A single h1 establishes the top-level document hierarchy." }, { text: "As many as desired for visual styling", isCorrect: false, feedback: "Headings convey document structure, not visual styling." }] },
+        pitfall: { title: "Div-Buttons Lacking Keyboard Focus", content: "Building clickable buttons with `<div onclick=\"...\">` is inaccessible to keyboard users unless explicitly adding `tabindex=\"0\"` and `role=\"button\"`.", code: "// ❌ INACCESSIBLE: <div onclick=\"submit()\">Submit</div>\n// ✅ ACCESSIBLE: <button type=\"button\" onclick=\"submit()\">Submit</button>", tip: "Hacker Rule: Always use native <button> elements for interactive click targets.", target: "game.html?lang=html&diff=beginner&stage=1" }
+      },
+      { id: "html-les-002", diff: "intermediate", topic: "CSS Box Model", title: "The CSS Box Model: content-box vs border-box", tagline: "Calculate element geometry accurately with universal box-sizing.",
+        concept: { title: "border-box Includes Padding & Border in Total Width", content: "Under default `content-box`, adding 20px padding to a 100px element makes its total rendered width 140px! Setting `box-sizing: border-box` absorbs padding and borders into the declared width.", code: "* {\n    box-sizing: border-box;\n}\n.card {\n    width: 300px; /* Stays strictly 300px regardless of padding! */\n    padding: 24px;\n    border: 2px solid cyan;\n}", sandbox: "<style>\n  .box { box-sizing: border-box; width: 100px; padding: 10px; border: 2px solid green; }\n</style>\n<div class=\"box\">Box</div>" },
+        drill: { title: "Default Box-Sizing Math", prompt: "Under default `content-box`, what is the total rendered width of an element with `width: 200px; padding: 10px; border: 5px solid black;`?", code: "width: 200px; padding: 10px; border: 5px solid black;", options: [{ text: "230px (200 + 10*2 + 5*2)", isCorrect: true, feedback: "🎯 Correct! content-box adds left/right padding and border on top of width." }, { text: "200px", isCorrect: false, feedback: "border-box would be 200px; content-box expands." }] },
+        pitfall: { title: "Margin Collapse Between Adjacent Blocks", content: "Vertical margins between adjacent block elements collapse into a single margin equal to the largest value, rather than adding together!", code: "p { margin-bottom: 20px; }\nh2 { margin-top: 30px; } /* Total gap is 30px, NOT 50px! */", tip: "Hacker Rule: Use CSS Flexbox/Grid gap properties to prevent margin collapse surprises.", target: "game.html?lang=html&diff=intermediate&stage=1" }
+      },
+      { id: "html-les-003", diff: "intermediate", topic: "Flexbox vs CSS Grid", title: "Flexbox One-Dimensional Axis vs CSS Grid 2D Systems", tagline: "Choose the right modern layout algorithm for components and pages.",
+        concept: { title: "Flexbox is Content-First (1D); Grid is Layout-First (2D)", content: "Flexbox aligns items along a single axis (row or column). CSS Grid handles rows and columns simultaneously, making it ideal for overall dashboard scaffolding.", code: "/* Grid 2D Dashboard */\n.dashboard {\n    display: grid;\n    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));\n    gap: 1.5rem;\n}", sandbox: "<style>\n  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }\n  .cell { background: #222; padding: 10px; color: cyan; }\n</style>\n<div class=\"grid\"><div class=\"cell\">A</div><div class=\"cell\">B</div></div>" },
+        drill: { title: "Flexbox Justify vs Align", prompt: "In a default flex container (`flex-direction: row`), which property aligns items along the cross axis (vertical)?", code: "display: flex; flex-direction: row;", options: [{ text: "align-items", isCorrect: true, feedback: "🎯 Correct! justify-content controls main axis (horizontal); align-items controls cross axis (vertical)." }, { text: "justify-content", isCorrect: false, feedback: "justify-content aligns along the main axis." }] },
+        pitfall: { title: "Flex Item Shrink Truncation", content: "By default, flex items have `flex-shrink: 1`, allowing them to squish below their content size. Use `flex-shrink: 0` on icons and fixed avatars.", code: ".avatar { flex-shrink: 0; width: 48px; height: 48px; }", tip: "Hacker Rule: Add flex-shrink: 0 to all fixed icons in flex rows.", target: "game.html?lang=html&diff=intermediate&stage=1" }
+      },
+      { id: "html-les-004", diff: "expert", topic: "Cascade & Specificity", title: "CSS Specificity Calculation & Cascade Layers (@layer)", tagline: "Master specificity math (0,0,0) and modern cascade layering.",
+        concept: { title: "Specificity Hierarchy: Inline > ID > Class/Attr > Element", content: "CSS resolves conflicts by calculating specificity triplets `(ID, Class, Element)`. Modern CSS introduces `@layer` to define priority order regardless of selector specificity!", code: "@layer base, components, utilities;\n@layer components {\n    .btn { background: blue; }\n}\n@layer utilities {\n    .bg-red { background: red; } /* Wins over components! */\n}", sandbox: "<style>\n  .highlight { color: #00e5ff; font-weight: bold; }\n</style>\n<p class=\"highlight\">Cascade Verified</p>" },
+        drill: { title: "Specificity Calculation", prompt: "Which selector has higher specificity: `#header .nav` or `.nav .menu .item`?", code: "#header .nav vs .nav .menu .item", options: [{ text: "#header .nav (1 ID, 1 Class beats 0 IDs, 3 Classes)", isCorrect: true, feedback: "🎯 Correct! A single ID (1,1,0) always overrides any number of class selectors (0,3,0)." }, { text: ".nav .menu .item", isCorrect: false, feedback: "Classes can never override an ID selector regardless of quantity." }] },
+        pitfall: { title: "!important Specificity Wars", content: "Using `!important` overrides the normal cascade and makes CSS impossible to override cleanly without adding more `!important` flags.", code: "// Avoid !important; refactor selector specificity or use CSS cascade layers (@layer).", tip: "Hacker Rule: Never use !important in component stylesheets; use @layer instead.", target: "game.html?lang=html&diff=expert&stage=1" }
+      },
+      { id: "html-les-005", diff: "expert", topic: "Native Dialog & Top Layer", title: "Native <dialog> Modality, inert & The Top Layer", tagline: "Build lightweight, accessible modals without heavy JavaScript libraries.",
+        concept: { title: "The Native <dialog> Renders in the Browser Top Layer", content: "Calling `dialog.showModal()` renders the modal in the browser's native **Top Layer** (above all z-indexes), traps keyboard focus inside the dialog, and styles `::backdrop` natively.", code: "const modal = document.querySelector('dialog');\nmodal.showModal(); // Opens modal with keyboard trap and backdrop\n// Pressing ESC closes it automatically!", sandbox: "<dialog id=\"d\"><p>Modal</p><button onclick=\"d.close()\">Close</button></dialog>\n<button onclick=\"d.showModal()\">Open</button>" },
+        drill: { title: "show() vs showModal()", prompt: "What is the key difference between `dialog.show()` and `dialog.showModal()`?", code: "dialog.show() vs dialog.showModal()", options: [{ text: "showModal() creates a modal dialog in Top Layer with backdrop and focus trap; show() is non-modal", isCorrect: true, feedback: "🎯 Correct! showModal() provides accessibility focus trapping and backdrop rendering." }, { text: "showModal() requires external polyfills", isCorrect: false, feedback: "Both methods are native in modern browsers." }] },
+        pitfall: { title: "Using display: flex on <dialog>", content: "Directly setting `display: flex` on a `<dialog>` overrides the browser's user-agent stylesheet, causing the dialog to stay visible even when closed!", code: "// ❌ BUG: dialog { display: flex; } /* Stays open! */\n// ✅ FIX: dialog[open] { display: flex; }", tip: "Hacker Rule: Target dialog[open] when overriding display properties.", target: "game.html?lang=html&diff=expert&stage=1" }
+      }
+    ]
+  },
+
+  // 12. Assembly & Reverse Engineering
+  {
+    lang: "asm",
+    modules: [
+      { id: "asm-les-001", diff: "beginner", topic: "x86-64 Registers & Calling Conventions", title: "General-Purpose Registers (RAX, RBX, RCX, RDX) & Calling Conventions", tagline: "Learn how modern 64-bit CPUs pass arguments and return values.",
+        concept: { title: "Registers are Ultra-Fast On-Chip CPU Storage", content: "In x86-64 System V ABI (Linux/macOS), the first 6 integer function arguments are passed in registers: **RDI, RSI, RDX, RCX, R8, R9**. The return value is placed in **RAX**.", code: "mov rdi, 42   ; 1st argument\nmov rsi, 100  ; 2nd argument\ncall add_nums ; returns result in rax", sandbox: "mov rax, 42\nmov rbx, 10\nadd rax, rbx" },
+        drill: { title: "Function Return Value Register", prompt: "In x86-64 assembly, which register holds the return value of an integer function?", code: "call calculate_sum\n// Where is the result?", options: [{ text: "RAX", isCorrect: true, feedback: "🎯 Correct! RAX is the designated return value register across x86-64 calling conventions." }, { text: "RSP", isCorrect: false, feedback: "RSP is the stack pointer." }, { text: "RDI", isCorrect: false, feedback: "RDI holds the first function parameter." }] },
+        pitfall: { title: "Caller-Saved vs Callee-Saved Registers", content: "Registers like RAX, RCX, and RDX are caller-saved: any function you call is permitted to overwrite them without restoring their values!", code: "// Preserve RAX across call instructions by pushing to stack: push rax", tip: "Hacker Rule: Never assume caller-saved registers survive across call instructions.", target: "game.html?lang=asm&diff=beginner&stage=1" }
+      },
+      { id: "asm-les-002", diff: "intermediate", topic: "Register Sub-Registers & Zero Extension", title: "Why Compilers Write to 32-bit EAX to Clear 64-bit RAX", tagline: "Understand the x86-64 zero-extension hardware architectural quirk.",
+        concept: { title: "Writing to 32-bit Sub-Registers Automatically Zero-Extends", content: "In x86-64, writing to 32-bit `eax` automatically clears the upper 32 bits of `rax` to zero in hardware. Compilers use `mov eax, 0` or `xor eax, eax` because it emits smaller 2-byte opcodes than 64-bit instructions!", code: "xor eax, eax  ; Clears all 64 bits of RAX using only 2 bytes!\n; Smaller opcode footprint than 'mov rax, 0' (7 bytes)", sandbox: "mov rax, 0xFFFFFFFFFFFFFFFF\nmov eax, 0x42\n; Inspect RAX upper bits zero-extended!" },
+        drill: { title: "32-bit Register Write Effect", prompt: "If RAX contains `0xFFFFFFFFFFFFFFFF`, what does RAX contain after executing `mov eax, 5`?", code: "mov rax, 0xFFFFFFFFFFFFFFFF\nmov eax, 5\n// What is rax now?", options: [{ text: "0x0000000000000005 (upper 32 bits are zeroed)", isCorrect: true, feedback: "🎯 Correct! x86-64 hardware automatically zero-extends 32-bit register writes to 64 bits." }, { text: "0xFFFFFFFF00000005 (upper bits preserved)", isCorrect: false, feedback: "Writing to 8-bit or 16-bit registers preserves upper bits, but 32-bit writes strictly zero-extend." }] },
+        pitfall: { title: "16-bit and 8-bit Partial Register Stalls", content: "Writing to `al` or `ax` does NOT zero-extend and causes CPU pipeline stalls on modern out-of-order processors due to false register dependencies.", code: "mov al, 1 ; Leaves upper 56 bits unchanged (potential pipeline hazard)", tip: "Hacker Rule: Use movzx to safely read smaller types into 32/64-bit registers.", target: "game.html?lang=asm&diff=intermediate&stage=1" }
+      },
+      { id: "asm-les-003", diff: "intermediate", topic: "The Hardware Call Stack", title: "The Hardware Stack, Stack Alignment & RSP/RBP Frames", tagline: "Trace push, pop, stack pointers and frame alignment under the hood.",
+        concept: { title: "The Stack Grows Downward Toward Lower Memory Addresses", content: "The `push` instruction decrements the Stack Pointer (`rsp -= 8`) and writes a quadword. The `pop` instruction reads the quadword and increments `rsp += 8`.\n\nThe x86-64 ABI strictly requires RSP to be 16-byte aligned before calling functions!", code: "push rbp      ; Save previous base pointer (rsp -= 8)\nmov rbp, rsp  ; Establish new stack frame\nsub rsp, 16   ; Allocate 16 bytes for local variables", sandbox: "push 100\npush 200\npop rax" },
+        drill: { title: "Stack Growth Direction", prompt: "When you execute `push rax`, what happens to the value of the stack pointer register RSP?", code: "push rax", options: [{ text: "RSP decreases by 8 bytes (stack grows downward)", isCorrect: true, feedback: "🎯 Correct! On x86-64 hardware, the stack grows downwards towards lower addresses." }, { text: "RSP increases by 8 bytes", isCorrect: false, feedback: "Pop increases RSP; push decreases it." }] },
+        pitfall: { title: "16-Byte Stack Misalignment Crash", content: "Calling functions like `printf` with an unaligned stack pointer causes SSE instructions (`movaps`) to crash with SIGSEGV due to vector alignment requirements!", code: "// Ensure (RSP % 16 == 0) immediately before every call instruction.", tip: "Hacker Rule: Maintain 16-byte stack alignment across all function invocations.", target: "game.html?lang=asm&diff=intermediate&stage=1" }
+      },
+      { id: "asm-les-004", diff: "expert", topic: "LEA vs MOV Instructions", title: "LEA vs MOV: Address Math Without Memory Bus Cycles", tagline: "Discover why compilers use LEA as a high-speed arithmetic engine.",
+        concept: { title: "LEA Computes Memory Addresses Without Dereferencing", content: "`mov rax, [rbx + rcx*4 + 8]` fetches the value at that address from RAM. `lea rax, [rbx + rcx*4 + 8]` computes the arithmetic address `rbx + rcx*4 + 8` and stores the numerical result into `rax` without touching the memory bus!", code: "; High-speed multiplication by 5 in a single instruction:\nlea rax, [rdi + rdi*4] ; rax = rdi * 5 (zero memory access!)", sandbox: "mov rdi, 10\nlea rax, [rdi + rdi*4]\n; Output rax = 50!" },
+        drill: { title: "LEA Arithmetic Advantage", prompt: "Why do compilers prefer `lea eax, [edi + esi*2]` over separate add and shift instructions?", code: "lea eax, [edi + esi*2]", options: [{ text: "It performs addition and multiplication in a single cycle without modifying EFLAGS", isCorrect: true, feedback: "🎯 Correct! LEA computes 3-operand math in 1 cycle without altering status flags." }, { text: "It accesses cache faster than registers", isCorrect: false, feedback: "LEA does not access cache or RAM at all." }] },
+        pitfall: { title: "Assuming LEA Dereferences Memory", content: "A common beginner reverse engineering mistake is assuming brackets in `lea rax, [rbx]` read from memory. It only calculates the pointer address!", code: "lea rax, [rbx] ; Identical to 'mov rax, rbx'!", tip: "Hacker Rule: Remember: LEA calculates the address pointer; MOV reads or writes the data.", target: "game.html?lang=asm&diff=expert&stage=1" }
+      },
+      { id: "asm-les-005", diff: "expert", topic: "Condition Codes & Flags", title: "Conditional Jumps, CMP, TEST & The EFLAGS Register", tagline: "Unmask how branch conditions evaluate ZF, SF, and CF flags in reverse engineering.",
+        concept: { title: "CMP Subtracts and Discards Result; TEST Performs Bitwise AND", content: "`cmp a, b` computes `a - b` and updates the CPU flags (ZF if equal, SF if negative). `test a, a` computes `a & a` to check if a pointer or value is zero without altering register contents.", code: "test rax, rax ; Check if pointer is NULL (sets ZF=1 if zero)\njz is_null     ; Jump if Zero flag is set\n\ncmp rax, 100  ; Compare rax with 100\njg is_greater  ; Jump if Greater", sandbox: "mov rax, 0\ntest rax, rax\n; Check ZF flag set to 1!" },
+        drill: { title: "TEST vs CMP for Zero Check", prompt: "Why do compilers emit `test rax, rax` instead of `cmp rax, 0`?", code: "test rax, rax vs cmp rax, 0", options: [{ text: "test rax, rax produces a shorter opcode and executes with minimal register dependency", isCorrect: true, feedback: "🎯 Correct! test rax, rax is smaller and faster than cmp with immediate 0." }, { text: "cmp cannot compare against zero", isCorrect: false, feedback: "cmp supports 0, but is 3 bytes longer." }] },
+        pitfall: { title: "Signed vs Unsigned Jump Confusion in RE", content: "In reverse engineering, confusing signed jumps (`jg`, `jl`) with unsigned jumps (`ja`, `jb`) leads to flawed exploit payloads and incorrect decompilations.", code: "// jg/jl check SF/OF (signed); ja/jb check CF/ZF (unsigned).", tip: "Hacker Rule: In x86 RE: Greater/Less (G/L) = Signed; Above/Below (A/B) = Unsigned.", target: "game.html?lang=asm&diff=expert&stage=1" }
+      }
+    ]
+  }
+];
+
+// Combine all tracks
+for (const track of trackGenerators) {
+  for (const m of track.modules) {
+    lessons.push({
+      id: m.id,
+      language: track.lang,
+      difficulty: m.diff,
+      topic: m.topic,
+      title: m.title,
+      tagline: m.tagline,
+      estimatedMinutes: 3,
+      slides: [
+        {
+          type: "concept",
+          badge: "01 // MENTAL MODEL",
+          title: m.concept.title,
+          content: m.concept.content,
+          codeSnippet: m.concept.code,
+          sandboxCode: m.concept.sandbox
+        },
+        {
+          type: "drill",
+          badge: "02 // INTERACTIVE CHECKPOINT",
+          title: m.drill.title,
+          prompt: m.drill.prompt,
+          codeSnippet: m.drill.code,
+          options: m.drill.options
+        },
+        {
+          type: "pitfall",
+          badge: "03 // DANGER ZONE",
+          title: m.pitfall.title,
+          content: m.pitfall.content,
+          codeSnippet: m.pitfall.code,
+          tip: m.pitfall.tip,
+          arenaTarget: m.pitfall.target
+        }
+      ]
+    });
+  }
+}
+
+for (const track of remainingTracks) {
+  for (const m of track.modules) {
+    lessons.push({
+      id: m.id,
+      language: track.lang,
+      difficulty: m.diff,
+      topic: m.topic,
+      title: m.title,
+      tagline: m.tagline,
+      estimatedMinutes: 3,
+      slides: [
+        {
+          type: "concept",
+          badge: "01 // MENTAL MODEL",
+          title: m.concept.title,
+          content: m.concept.content,
+          codeSnippet: m.concept.code,
+          sandboxCode: m.concept.sandbox
+        },
+        {
+          type: "drill",
+          badge: "02 // INTERACTIVE CHECKPOINT",
+          title: m.drill.title,
+          prompt: m.drill.prompt,
+          codeSnippet: m.drill.code,
+          options: m.drill.options
+        },
+        {
+          type: "pitfall",
+          badge: "03 // DANGER ZONE",
+          title: m.pitfall.title,
+          content: m.pitfall.content,
+          codeSnippet: m.pitfall.code,
+          tip: m.pitfall.tip,
+          arenaTarget: m.pitfall.target
+        }
+      ]
+    });
+  }
+}
+
+console.log(`Prepared ${lessons.length} total lessons across 12 tracks.`);
+
+const fileContent = `/**
+ * SyntaxArena Cyber Academy Interactive Curriculum Lessons Catalog (Batch 11 Expansion)
+ * Full 60-Module Catalog (5 Deep-Dive Modules per Track across all 12 Languages)
+ * Generated automatically. Do not edit manually.
  */
 
 export const academyLessons = ${JSON.stringify(lessons, null, 2)};
@@ -1556,8 +913,9 @@ export const AcademyLessons = {
 
   getByDifficulty(lang, diff) {
     const list = this.getByLanguage(lang);
-    if (!diff) return list;
+    if (!diff || diff === 'all') return list;
     const cleanDiff = String(diff).toLowerCase().trim();
+    if (cleanDiff === 'all') return list;
     return list.filter(l => l.difficulty === cleanDiff);
   },
 
@@ -1567,6 +925,5 @@ export const AcademyLessons = {
 };
 `;
 
-const targetPath = path.resolve('data/academy-lessons.js');
-fs.writeFileSync(targetPath, outContent, 'utf8');
-console.log(`Successfully generated ${lessons.length} lessons in ${targetPath}`);
+fs.writeFileSync(path.resolve('data/academy-lessons.js'), fileContent, 'utf8');
+console.log(`Successfully generated data/academy-lessons.js with ${lessons.length} lessons.`);

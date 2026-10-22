@@ -175,11 +175,17 @@
               </select>
             </div>
 
-            <!-- Difficulty Pills Filter -->
-            <div style="display: flex; gap: var(--space-1);">
-              <button class="btn-arcade btn-sm is-active" data-diff-filter="beginner" style="padding: 4px 10px; font-size: 11px;">Beginner</button>
-              <button class="btn-arcade btn-sm" data-diff-filter="intermediate" style="padding: 4px 10px; font-size: 11px;">Intermediate</button>
-              <button class="btn-arcade btn-sm" data-diff-filter="expert" style="padding: 4px 10px; font-size: 11px;">Expert</button>
+            <!-- Difficulty Pills & Diploma Action -->
+            <div style="display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap;">
+              <div style="display: flex; gap: var(--space-1);">
+                <button class="btn-arcade btn-sm" data-diff-filter="all" style="padding: 4px 10px; font-size: 11px;">All (5)</button>
+                <button class="btn-arcade btn-sm is-active" data-diff-filter="beginner" style="padding: 4px 10px; font-size: 11px;">Beginner</button>
+                <button class="btn-arcade btn-sm" data-diff-filter="intermediate" style="padding: 4px 10px; font-size: 11px;">Intermediate</button>
+                <button class="btn-arcade btn-sm" data-diff-filter="expert" style="padding: 4px 10px; font-size: 11px;">Expert</button>
+              </div>
+              <button id="btn-track-diploma" class="btn-arcade btn-neutral btn-sm" style="padding: 4px 10px; font-size: 11px;" title="View Track Mastery Certificate">
+                🎓 Track Diploma
+              </button>
             </div>
           </div>
         </div>
@@ -253,6 +259,63 @@
 
       </div>
 
+    </div>
+
+    <!-- Track Graduation Diploma Modal -->
+    <div id="modal-track-diploma" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="diploma-title">
+      <div class="modal-dialog diploma-modal-dialog">
+        <div class="diploma-certificate card card-raised" id="diploma-certificate-frame">
+          <div class="diploma-border-inner">
+            <div class="diploma-header">
+              <div class="diploma-badge-logo">🏛️</div>
+              <div class="diploma-inst-title">SYNTAX ARENA CYBER ACADEMY</div>
+              <h2 id="diploma-title" class="diploma-heading">CERTIFICATE OF TRACK MASTERY</h2>
+              <div class="diploma-sub-heading">OFFICIAL CURRICULUM ACCREDITATION</div>
+            </div>
+
+            <div class="diploma-body">
+              <p class="diploma-awarded-text">THIS IS PROUDLY CONFERRED UPON</p>
+              <div id="diploma-callsign" class="diploma-callsign">ScriptAdept</div>
+              <p class="diploma-completion-text">
+                FOR DEMONSTRATING PROFICIENCY &amp; CONQUERING ALL 5 MODULES IN
+              </p>
+              <div id="diploma-track-name" class="diploma-track-name">PYTHON 3 CORE &amp; ARCHITECTURE</div>
+              <p id="diploma-curriculum-summary" class="diploma-curriculum-summary">
+                Verified Mastery: Variables &amp; Heap Memory, Scope &amp; Closures, Generators &amp; Streaming, Metaprogramming &amp; Dunder Protocols, Asyncio Event Loops.
+              </p>
+            </div>
+
+            <div class="diploma-footer">
+              <div class="diploma-meta-block">
+                <span class="diploma-meta-label">ISSUE DATE</span>
+                <span id="diploma-issue-date" class="diploma-meta-val">2026-10-22</span>
+              </div>
+              <div class="diploma-seal-container">
+                <div class="diploma-seal">
+                  <span class="diploma-seal-stars">★ ★ ★</span>
+                  <span class="diploma-seal-text">VERIFIED<br>SCHOLAR</span>
+                </div>
+              </div>
+              <div class="diploma-meta-block">
+                <span class="diploma-meta-label">VERIFICATION ID</span>
+                <span id="diploma-serial-id" class="diploma-meta-val">SA-CERT-PY-88A92</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="diploma-actions no-print">
+          <button id="btn-print-diploma" class="btn-arcade btn-primary btn-md" type="button">
+            <span>🖨️ Print / Save PDF</span>
+          </button>
+          <button id="btn-copy-diploma-id" class="btn-arcade btn-outline btn-md" type="button">
+            <span>📋 Copy Certificate ID</span>
+          </button>
+          <button id="btn-close-diploma" class="btn-arcade btn-neutral btn-md" type="button">
+            <span>✕ Close</span>
+          </button>
+        </div>
+      </div>
     </div>
   </main>
 

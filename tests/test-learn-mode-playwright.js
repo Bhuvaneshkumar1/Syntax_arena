@@ -112,6 +112,55 @@ async function runLearnModeTest() {
     const codeTerminal = page.locator('#slide-body-container .code-terminal');
     testAssert(await codeTerminal.isVisible(), 'Slide 1 displays syntax-highlighted code terminal');
 
+    // 3b. Testing Live Code Runner in Slide 1
+    console.log('\n--- 3b. Testing Live Code Runner in Slide 1 ---');
+    const codeEditor = page.locator('#slide-code-editor');
+    testAssert(await codeEditor.isVisible(), 'Slide 1 displays interactive code editor textarea');
+    const editorVal = await codeEditor.inputValue();
+    testAssert(editorVal.length > 5, `Code editor contains concept code snippet (${editorVal.length} chars)`);
+
+    const runBtn = page.locator('#btn-slide-run-code');
+    testAssert(await runBtn.isVisible(), 'Live Run Code button is visible');
+    await runBtn.click();
+    await page.waitForTimeout(600);
+
+    const outputTray = page.locator('#slide-terminal-output');
+    testAssert(await outputTray.isVisible(), 'Terminal output tray opens after clicking Run Code');
+
+    const outputBody = page.locator('#slide-output-body');
+    const outputText = await outputBody.textContent();
+    testAssert(outputText.length > 0, `Terminal stdout contains execution output (got: "${outputText.trim()}")`);
+
+    const runMetrics = page.locator('#slide-output-metrics');
+    const metricsText = await runMetrics.textContent();
+    testAssert(metricsText.includes('EXECUTED IN') || metricsText.includes('STATUS: 0'), `Execution metrics updated (got: "${metricsText}")`);
+
+    const resetBtn = page.locator('#btn-slide-reset-code');
+    testAssert(await resetBtn.isVisible(), 'Code reset button is visible');
+    await resetBtn.click();
+    await page.waitForTimeout(200);
+
+    // 3c. Testing Track Graduation Diploma in learn.html
+    console.log('\n--- 3c. Testing Track Graduation Diploma in learn.html ---');
+    const btnDiploma = page.locator('#btn-track-diploma');
+    testAssert(await btnDiploma.isVisible(), 'Action bar displays Track Diploma button');
+    await btnDiploma.click();
+    await page.waitForTimeout(400);
+
+    const diplomaModal = page.locator('#modal-track-diploma');
+    testAssert(await diplomaModal.isVisible(), 'Track graduation diploma modal opens on button click');
+
+    const diplomaTitle = page.locator('#diploma-title');
+    testAssert((await diplomaTitle.textContent()).includes('CERTIFICATE OF TRACK MASTERY'), 'Diploma heading displays CERTIFICATE OF TRACK MASTERY');
+
+    const diplomaSerial = page.locator('#diploma-serial-id');
+    testAssert((await diplomaSerial.textContent()).startsWith('SA-CERT-'), `Diploma displays verifiable serial hash (got: "${await diplomaSerial.textContent()}")`);
+
+    const btnCloseDiploma = page.locator('#btn-close-diploma');
+    await btnCloseDiploma.click();
+    await page.waitForTimeout(300);
+    testAssert(!await diplomaModal.isVisible(), 'Diploma modal closes when clicking Close button');
+
     // 4. Slide 2: Interactive Checkpoint Drill
     console.log('\n--- 4. Testing Interactive Checkpoint Drill ---');
     await btnNext.click();
@@ -159,15 +208,24 @@ async function runLearnModeTest() {
 
     const asmSlideTitle = page.locator('#slide-main-title');
     const slideText = await asmSlideTitle.textContent();
-    testAssert(slideText.includes('Compilers') || slideText.includes('RAX') || slideText.includes('Architecture'), `Loads Assembly curriculum lesson (got: "${slideText}")`);
+    testAssert(slideText.includes('Compilers') || slideText.includes('RAX') || slideText.includes('Architecture') || slideText.includes('Registers') || slideText.includes('CPU'), `Loads Assembly curriculum lesson (got: "${slideText}")`);
 
-    // 7. Track Switching Test (JavaScript)
-    console.log('\n--- 7. Testing Track Switching (JavaScript) ---');
+    // 7. Track Switching Test (JavaScript) & All Filter (5 Modules)
+    console.log('\n--- 7. Testing Track Switching (JavaScript) & 5 Deep-Dive Modules ---');
     await langSelect.selectOption('javascript');
     await page.waitForTimeout(400);
 
     const jsTag = page.locator('#lesson-track-tag');
     testAssert((await jsTag.textContent()).includes('JAVASCRIPT'), `Header tag updates to JAVASCRIPT track (got: "${await jsTag.textContent()}")`);
+
+    // Test All (5) filter
+    const diffPillAll = page.locator('button[data-diff-filter="all"]');
+    testAssert(await diffPillAll.count() >= 1, 'Difficulty filter includes "All (5)" filter pill');
+    await diffPillAll.click();
+    await page.waitForTimeout(300);
+    const allLessonBtns = page.locator('.lesson-nav-btn');
+    const allCount = await allLessonBtns.count();
+    testAssert(allCount === 5, `Deep-dive curriculum provides 5 modules for JavaScript track (found: ${allCount})`);
 
     // 8. In-Arena Study Linkage Check
     console.log('\n--- 8. Testing In-Arena Academy Study Linkage (game.html) ---');
@@ -186,11 +244,28 @@ async function runLearnModeTest() {
 
     const statLessons = page.locator('#stat-lessons-mastered');
     testAssert(await statLessons.isVisible(), 'Career metrics strip displays Lessons Mastered stat');
-    testAssert((await statLessons.textContent()).includes('/ 36'), `Lessons Mastered stat formatted against 36 lessons (got: "${await statLessons.textContent()}")`);
+    testAssert((await statLessons.textContent()).includes('/ 60'), `Lessons Mastered stat formatted against 60 modules (got: "${await statLessons.textContent()}")`);
+
+    const academyBadge = page.locator('#academy-progress-badge');
+    testAssert(await academyBadge.isVisible(), 'Academy section badge is visible');
+    testAssert((await academyBadge.textContent()).includes('/ 60 Mastered'), `Academy section badge shows / 60 Mastered (got: "${await academyBadge.textContent()}")`);
 
     const academyCurriculumGrid = page.locator('#academy-curriculum-grid > div');
     const academyCardCount = await academyCurriculumGrid.count();
     testAssert(academyCardCount === 12, `Cyber Academy Curriculum Grid displays cards for all 12 tracks (found: ${academyCardCount})`);
+
+    // Test clicking Diploma button on an academy card in progress.html
+    const firstDiplomaBtn = academyCurriculumGrid.first().locator('.btn-track-diploma');
+    testAssert(await firstDiplomaBtn.isVisible(), 'Track card includes Diploma button');
+    await firstDiplomaBtn.click();
+    await page.waitForTimeout(400);
+
+    const progDiplomaModal = page.locator('#modal-track-diploma');
+    testAssert(await progDiplomaModal.isVisible(), 'Progress page diploma modal opens on clicking Track Diploma button');
+    const progCloseBtn = page.locator('#btn-close-diploma');
+    await progCloseBtn.click();
+    await page.waitForTimeout(300);
+    testAssert(!await progDiplomaModal.isVisible(), 'Progress page diploma modal closes on clicking Close');
 
     const filterSubject = page.locator('#filter-badges-subject');
     const hasAcademyOption = await filterSubject.locator('option[value="academy"]').count();

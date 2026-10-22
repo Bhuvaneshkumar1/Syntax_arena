@@ -178,7 +178,7 @@
           </div>
           <div class="card" style="padding: 1.25rem; text-align: center;">
             <div style="font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Lessons Mastered</div>
-            <div id="stat-lessons-mastered" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-cyan); margin-top: 0.25rem;">0 / 36</div>
+            <div id="stat-lessons-mastered" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-cyan); margin-top: 0.25rem;">0 / 60</div>
           </div>
         </div>
       </section>
@@ -298,7 +298,7 @@
             <p class="page-subtitle">Track your interactive lesson progression and checkpoint drills across all 12 programming tracks.</p>
           </div>
           <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <span id="academy-progress-badge" class="badge badge-cyan">0 / 36 Mastered</span>
+            <span id="academy-progress-badge" class="badge badge-cyan">0 / 60 Mastered</span>
             <a href="learn.html" class="btn-arcade btn-primary btn-sm">Enter Academy →</a>
           </div>
         </div>
@@ -495,6 +495,63 @@
       </section>
 
     </div>
+
+    <!-- Track Graduation Diploma Modal -->
+    <div id="modal-track-diploma" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="diploma-title">
+      <div class="modal-dialog diploma-modal-dialog">
+        <div class="diploma-certificate card card-raised" id="diploma-certificate-frame">
+          <div class="diploma-border-inner">
+            <div class="diploma-header">
+              <div class="diploma-badge-logo">🏛️</div>
+              <div class="diploma-inst-title">SYNTAX ARENA CYBER ACADEMY</div>
+              <h2 id="diploma-title" class="diploma-heading">CERTIFICATE OF TRACK MASTERY</h2>
+              <div class="diploma-sub-heading">OFFICIAL CURRICULUM ACCREDITATION</div>
+            </div>
+
+            <div class="diploma-body">
+              <p class="diploma-awarded-text">THIS IS PROUDLY CONFERRED UPON</p>
+              <div id="diploma-callsign" class="diploma-callsign">ScriptAdept</div>
+              <p class="diploma-completion-text">
+                FOR DEMONSTRATING PROFICIENCY &amp; CONQUERING ALL 5 MODULES IN
+              </p>
+              <div id="diploma-track-name" class="diploma-track-name">PYTHON 3 CORE &amp; ARCHITECTURE</div>
+              <p id="diploma-curriculum-summary" class="diploma-curriculum-summary">
+                Verified Mastery: Variables &amp; Heap Memory, Scope &amp; Closures, Generators &amp; Streaming, Metaprogramming &amp; Dunder Protocols, Asyncio Event Loops.
+              </p>
+            </div>
+
+            <div class="diploma-footer">
+              <div class="diploma-meta-block">
+                <span class="diploma-meta-label">ISSUE DATE</span>
+                <span id="diploma-issue-date" class="diploma-meta-val">2026-10-22</span>
+              </div>
+              <div class="diploma-seal-container">
+                <div class="diploma-seal">
+                  <span class="diploma-seal-stars">★ ★ ★</span>
+                  <span class="diploma-seal-text">VERIFIED<br>SCHOLAR</span>
+                </div>
+              </div>
+              <div class="diploma-meta-block">
+                <span class="diploma-meta-label">VERIFICATION ID</span>
+                <span id="diploma-serial-id" class="diploma-meta-val">SA-CERT-PY-88A92</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="diploma-actions no-print">
+          <button id="btn-print-diploma" class="btn-arcade btn-primary btn-md" type="button">
+            <span>🖨️ Print / Save PDF</span>
+          </button>
+          <button id="btn-copy-diploma-id" class="btn-arcade btn-outline btn-md" type="button">
+            <span>📋 Copy Certificate ID</span>
+          </button>
+          <button id="btn-close-diploma" class="btn-arcade btn-neutral btn-md" type="button">
+            <span>✕ Close</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer class="app-footer">
@@ -515,7 +572,7 @@
   <!-- Live Progression & Analytics Dashboard Script -->
   <script>
     (function() {
-      const { Utils, State, Profile, AVATAR_CATALOG, Gamification, ACHIEVEMENTS, UNLOCKABLE_THEMES, CHALLENGE_MODES, Analytics, UI, AudioEngine } = window;
+      const { Utils, State, Profile, AVATAR_CATALOG, Gamification, ACHIEVEMENTS, UNLOCKABLE_THEMES, CHALLENGE_MODES, Analytics, UI, AudioEngine, AcademyLessons } = window;
 
       document.addEventListener('DOMContentLoaded', () => {
       const activeProf = State.get('activeProfile') || Profile.getActiveProfile();
@@ -618,10 +675,10 @@
 
       const completedLessons = Array.isArray(activeProf?.completedLessons) ? activeProf.completedLessons : [];
       const statLessons = Utils.qs('#stat-lessons-mastered');
-      if (statLessons) statLessons.textContent = `${completedLessons.length} / 36`;
+      if (statLessons) statLessons.textContent = `${completedLessons.length} / 60`;
 
       const academyBadge = Utils.qs('#academy-progress-badge');
-      if (academyBadge) academyBadge.textContent = `${completedLessons.length} / 36 Mastered`;
+      if (academyBadge) academyBadge.textContent = `${completedLessons.length} / 60 Mastered`;
 
       // 3. Language Performance Grid (Python, C, C++, Java)
       const langGrid = Utils.qs('#language-performance-grid');
@@ -757,8 +814,120 @@
         });
       }
 
-      // 4b. Cyber Academy Curriculum Grid
+      // 4b. Cyber Academy Curriculum Grid & Track Graduation Diplomas
       const academyGrid = Utils.qs('#academy-curriculum-grid');
+      const trackMetaDetails = {
+        python:     { name: 'Python 3 Core & Architecture', icon: '🐍', tag: 'tag-python' },
+        c:          { name: 'C Systems & Memory Architecture', icon: '⚙️', tag: 'tag-c' },
+        cpp:        { name: 'C++ Modern Systems & Templates', icon: '⚡', tag: 'tag-cpp' },
+        java:       { name: 'Java JVM Internals & Concurrency', icon: '☕', tag: 'tag-java' },
+        cyber:      { name: 'Linux Kernel & Cybersecurity', icon: '🛡️', tag: 'tag-cyber' },
+        javascript: { name: 'JavaScript Engine & Async Runtime', icon: '🟨', tag: 'tag-javascript' },
+        rust:       { name: 'Rust Systems & Memory Safety', icon: '🦀', tag: 'tag-rust' },
+        sql:        { name: 'SQL Query Optimization & Relational Engines', icon: '🗄️', tag: 'tag-sql' },
+        typescript: { name: 'TypeScript Type-Level Engineering', icon: '🔷', tag: 'tag-typescript' },
+        go:         { name: 'Go Concurrency & Channels', icon: '🐹', tag: 'tag-go' },
+        html:       { name: 'HTML5, CSS & Web Architecture', icon: '🌐', tag: 'tag-html' },
+        asm:        { name: 'x86_64 Assembly & Reverse Engineering', icon: '💻', tag: 'tag-asm' }
+      };
+
+      function openTrackDiplomaModal(trackId) {
+        const modal = Utils.qs('#modal-track-diploma');
+        if (!modal) return;
+
+        const meta = trackMetaDetails[trackId] || { name: `${trackId.toUpperCase()} Core Track` };
+        const lessons = (typeof AcademyLessons !== 'undefined' && AcademyLessons.getByLanguage)
+          ? AcademyLessons.getByLanguage(trackId)
+          : [];
+        const total = lessons.length || 5;
+        const comp = lessons.filter(l =>
+          completedLessons.includes(l.id) || completedLessons.includes(`${trackId}-${l.difficulty}`)
+        ).length;
+
+        const callsign = (activeProf && activeProf.username) || 'ScriptAdept';
+        const callsignEl = Utils.qs('#diploma-callsign');
+        const trackNameEl = Utils.qs('#diploma-track-name');
+        const summaryEl = Utils.qs('#diploma-curriculum-summary');
+        const issueDateEl = Utils.qs('#diploma-issue-date');
+        const serialEl = Utils.qs('#diploma-serial-id');
+
+        if (callsignEl) callsignEl.textContent = callsign;
+        if (trackNameEl) trackNameEl.textContent = meta.name.toUpperCase();
+        if (summaryEl) {
+          if (comp >= total) {
+            summaryEl.innerHTML = `<strong>Accreditation Level: 100% Complete (${comp}/${total} Modules Mastered)</strong><br>Demonstrated verifiable mastery across syntax semantics, checkpoint drills, and production pitfall mitigation.`;
+          } else {
+            summaryEl.innerHTML = `<strong>Current Progress: ${comp}/${total} Modules Completed</strong><br>Complete all 5 modules in ${meta.name} to earn verified Grandmaster graduation status.`;
+          }
+        }
+
+        const dateStr = new Date().toISOString().slice(0, 10);
+        if (issueDateEl) issueDateEl.textContent = dateStr;
+
+        let hashNum = 0;
+        const seed = `${callsign}-${trackId}-syntaxarena`;
+        for (let i = 0; i < seed.length; i++) {
+          hashNum = (hashNum << 5) - hashNum + seed.charCodeAt(i);
+          hashNum |= 0;
+        }
+        const hashHex = Math.abs(hashNum).toString(16).toUpperCase().padStart(6, '0').slice(0, 6);
+        const serialId = `SA-CERT-${trackId.toUpperCase().slice(0, 4)}-${hashHex}`;
+        if (serialEl) serialEl.textContent = serialId;
+
+        modal.style.display = 'flex';
+        modal.classList.add('is-open');
+
+        if (comp >= total) {
+          if (typeof UI !== 'undefined' && UI.triggerConfetti) UI.triggerConfetti();
+          if (typeof AudioEngine !== 'undefined' && AudioEngine.playBadge) AudioEngine.playBadge();
+          if (typeof UI !== 'undefined' && UI.showToast) UI.showToast(`🎓 Track Diploma loaded for ${meta.name}!`, 'success');
+        } else {
+          if (typeof AudioEngine !== 'undefined' && AudioEngine.playClick) AudioEngine.playClick();
+          if (typeof UI !== 'undefined' && UI.showToast) UI.showToast(`Diploma preview: ${comp}/${total} lessons completed`, 'info');
+        }
+      }
+
+      function closeTrackDiplomaModal() {
+        const modal = Utils.qs('#modal-track-diploma');
+        if (modal) {
+          modal.classList.remove('is-open');
+          modal.style.display = 'none';
+        }
+      }
+
+      // Wire diploma actions once
+      const btnCloseDip = Utils.qs('#btn-close-diploma');
+      if (btnCloseDip) btnCloseDip.onclick = closeTrackDiplomaModal;
+
+      const modalDip = Utils.qs('#modal-track-diploma');
+      if (modalDip) {
+        modalDip.onclick = (e) => {
+          if (e.target === modalDip) closeTrackDiplomaModal();
+        };
+      }
+
+      const btnPrintDip = Utils.qs('#btn-print-diploma');
+      if (btnPrintDip) {
+        btnPrintDip.onclick = () => window.print();
+      }
+
+      const btnCopyDip = Utils.qs('#btn-copy-diploma-id');
+      if (btnCopyDip) {
+        btnCopyDip.onclick = () => {
+          const serialEl = Utils.qs('#diploma-serial-id');
+          const text = serialEl ? serialEl.textContent : '';
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+              if (typeof UI !== 'undefined' && UI.showToast) UI.showToast('📋 Certificate ID copied to clipboard!', 'success');
+            }).catch(() => {
+              if (typeof UI !== 'undefined' && UI.showToast) UI.showToast(`Serial: ${text}`, 'info');
+            });
+          } else {
+            if (typeof UI !== 'undefined' && UI.showToast) UI.showToast(`Serial: ${text}`, 'info');
+          }
+        };
+      }
+
       if (academyGrid) {
         academyGrid.innerHTML = '';
         const allTracks = [
@@ -777,10 +946,15 @@
         ];
 
         allTracks.forEach(t => {
-          const trackCompleted = ['beginner', 'intermediate', 'expert'].filter(d =>
-            completedLessons.includes(`${t.id}-${d}`)
+          const lessonsForTrack = (typeof AcademyLessons !== 'undefined' && AcademyLessons.getByLanguage)
+            ? AcademyLessons.getByLanguage(t.id)
+            : [];
+          const totalInTrack = lessonsForTrack.length || 5;
+          const trackCompleted = lessonsForTrack.filter(l =>
+            completedLessons.includes(l.id) || completedLessons.includes(`${t.id}-${l.difficulty}`)
           ).length;
-          const percent = Math.round((trackCompleted / 3) * 100);
+          const percent = Math.min(100, Math.round((trackCompleted / totalInTrack) * 100));
+          const isMastered = trackCompleted >= totalInTrack;
 
           const card = document.createElement('div');
           card.className = 'card card-raised';
@@ -797,21 +971,30 @@
                   <span style="font-size: 1.25rem;">${t.icon}</span>
                   <span class="tag-lang ${t.tag}" style="font-size: 11px;">${t.name}</span>
                 </div>
-                <span class="badge ${trackCompleted === 3 ? 'badge-emerald' : trackCompleted > 0 ? 'badge-cyan' : 'badge-neutral'}">
-                  ${trackCompleted}/3 Lessons
+                <span class="badge ${isMastered ? 'badge-emerald' : trackCompleted > 0 ? 'badge-cyan' : 'badge-neutral'}">
+                  ${trackCompleted}/${totalInTrack} Lessons
                 </span>
               </div>
               <div style="height: 6px; background: var(--bg-surface-raised); border-radius: var(--radius-full); overflow: hidden; margin-top: 0.5rem;">
-                <div style="width: ${percent}%; height: 100%; background: ${trackCompleted === 3 ? 'var(--color-success)' : 'var(--color-primary)'}; transition: width 0.3s ease;"></div>
+                <div style="width: ${percent}%; height: 100%; background: ${isMastered ? 'var(--color-success)' : 'var(--color-primary)'}; transition: width 0.3s ease;"></div>
               </div>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem; margin-top: 0.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem; margin-top: 0.25rem; gap: 0.5rem;">
               <span style="font-size: 11px; color: var(--text-muted);">${percent}% Mastered</span>
-              <a href="learn.html?lang=${t.id}" class="btn-arcade btn-neutral btn-sm" style="font-size: 11px; padding: 0.2rem 0.5rem;">
-                Study Track →
-              </a>
+              <div style="display: flex; gap: 0.35rem;">
+                <button type="button" class="btn-arcade ${isMastered ? 'btn-primary' : 'btn-neutral'} btn-sm btn-track-diploma" data-track-id="${t.id}" style="font-size: 10px; padding: 0.2rem 0.45rem;">
+                  🎓 Diploma
+                </button>
+                <a href="learn.html?lang=${t.id}" class="btn-arcade btn-neutral btn-sm" style="font-size: 10px; padding: 0.2rem 0.45rem;">
+                  Study →
+                </a>
+              </div>
             </div>
           `;
+          const dipBtn = card.querySelector('.btn-track-diploma');
+          if (dipBtn) {
+            dipBtn.addEventListener('click', () => openTrackDiplomaModal(t.id));
+          }
           academyGrid.appendChild(card);
         });
       }
