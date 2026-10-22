@@ -551,7 +551,7 @@ export const Analytics = {
 
     // 5. Polyglot Track Exploration
     const campaign = (profile && profile.campaign) || {};
-    const unplayedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].filter(l => {
+    const unplayedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'].filter(l => {
       const camp = campaign[l];
       return !camp || (camp.beginnerStars === 0 && camp.unlockedTier === 'beginner');
     });
@@ -566,7 +566,8 @@ export const Analytics = {
         cyber: 'Cyber & Linux',
         javascript: 'JavaScript',
         rust: 'Rust',
-        sql: 'SQL'
+        sql: 'SQL',
+        typescript: 'TypeScript'
       };
       const langTitle = titles[nextLang] || nextLang.toUpperCase();
       recs.push({

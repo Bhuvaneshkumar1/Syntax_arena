@@ -16,6 +16,7 @@ const files = [
   'data/javascript-questions.js',
   'data/rust-questions.js',
   'data/sql-questions.js',
+  'data/typescript-questions.js',
   'data/endless-questions.js',
   'js/data/index.js',
   'js/utils.js',

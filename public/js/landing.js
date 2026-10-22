@@ -114,7 +114,7 @@ export const LandingPage = {
    * @param {boolean} [saveState=true]
    */
   selectLanguage(lang, saveState = true) {
-    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].includes(lang)) return;
+    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'].includes(lang)) return;
     this.selectedLanguage = lang;
 
     const cards = Utils.qsa('#language-tracks-container .card-selectable');
@@ -480,7 +480,8 @@ export const LandingPage = {
 
     const meta = {
       python: 'Python 3', c: 'C', cpp: 'C++', java: 'Java',
-      cyber: 'Cyber & Linux', javascript: 'JavaScript', rust: 'Rust', sql: 'SQL'
+      cyber: 'Cyber & Linux', javascript: 'JavaScript', rust: 'Rust', sql: 'SQL',
+      typescript: 'TypeScript'
     };
     const langName = meta[lang] || 'Python 3';
     const diffCapitalized = diff.charAt(0).toUpperCase() + diff.slice(1);

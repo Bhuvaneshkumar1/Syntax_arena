@@ -12,6 +12,7 @@ import { cyberQuestions } from '../../data/cyber-questions.js';
 import { javascriptQuestions } from '../../data/javascript-questions.js';
 import { rustQuestions } from '../../data/rust-questions.js';
 import { sqlQuestions } from '../../data/sql-questions.js';
+import { typescriptQuestions } from '../../data/typescript-questions.js';
 import { endlessQuestions } from '../../data/endless-questions.js';
 
 export const LANGUAGE_METADATA = {
@@ -86,6 +87,15 @@ export const LANGUAGE_METADATA = {
     tagClass: 'tag-sql',
     color: '#336791',
     accentColor: '#4AA3DF'
+  },
+  typescript: {
+    id: 'typescript',
+    name: 'TypeScript (v5+)',
+    version: 'TypeScript 5.4+',
+    filename: 'solution.ts',
+    tagClass: 'tag-typescript',
+    color: '#3178C6',
+    accentColor: '#58A6FF'
   }
 };
 
@@ -106,6 +116,8 @@ export const QuestionRepository = {
       case 'javascript': return javascriptQuestions;
       case 'rust': return rustQuestions;
       case 'sql': return sqlQuestions;
+      case 'ts':
+      case 'typescript': return typescriptQuestions;
       case 'python':
       default:
         return pythonQuestions;

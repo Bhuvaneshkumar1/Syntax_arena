@@ -5,7 +5,7 @@
  * Source of truth: docs/QUESTION_SCHEMA.md
  */
 
-export const ALLOWED_LANGUAGES = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'];
+export const ALLOWED_LANGUAGES = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'];
 export const ALLOWED_DIFFICULTIES = ['beginner', 'intermediate', 'expert'];
 export const ALLOWED_TYPES = [
   'multiple_choice', 'multiple-choice',
@@ -44,7 +44,7 @@ export const QuestionValidator = {
     const seenIds = new Set();
     const stats = {
       total: questions.length,
-      byLanguage: { python: 0, c: 0, cpp: 0, java: 0, cyber: 0, javascript: 0, rust: 0, sql: 0 },
+      byLanguage: { python: 0, c: 0, cpp: 0, java: 0, cyber: 0, javascript: 0, rust: 0, sql: 0, typescript: 0 },
       byTier: {
         python: { beginner: 0, intermediate: 0, expert: 0 },
         c: { beginner: 0, intermediate: 0, expert: 0 },
@@ -53,7 +53,8 @@ export const QuestionValidator = {
         cyber: { beginner: 0, intermediate: 0, expert: 0 },
         javascript: { beginner: 0, intermediate: 0, expert: 0 },
         rust: { beginner: 0, intermediate: 0, expert: 0 },
-        sql: { beginner: 0, intermediate: 0, expert: 0 }
+        sql: { beginner: 0, intermediate: 0, expert: 0 },
+        typescript: { beginner: 0, intermediate: 0, expert: 0 }
       },
       byType: {}
     };
@@ -77,10 +78,11 @@ export const QuestionValidator = {
 
     // Check exact inventory matrix if requested
     if (options.checkExactInventory) {
-      if (questions.length !== 480) {
+      const expectedTotal = ALLOWED_LANGUAGES.length * 60;
+      if (questions.length !== expectedTotal) {
         errors.push({
           field: 'totalCount',
-          message: `Expected exactly 480 questions in catalog, found: ${questions.length}`
+          message: `Expected exactly ${expectedTotal} questions in catalog, found: ${questions.length}`
         });
       }
 
@@ -142,7 +144,7 @@ export const QuestionValidator = {
       }
       seenIds.add(q.id);
 
-      const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3}$/;
+      const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3}$/;
       if (!idPattern.test(q.id)) {
         errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' does not match standard pattern format.` });
       }

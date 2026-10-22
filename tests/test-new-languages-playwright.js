@@ -28,9 +28,9 @@ import { chromium } from 'playwright';
 
   const trackCards = page.locator('#language-tracks-container .card-selectable');
   const trackCount = await trackCards.count();
-  assert(trackCount === 8, `Landing page displays 8 language track cards (found ${trackCount})`);
+  assert(trackCount === 9, `Landing page displays 9 language track cards (found ${trackCount})`);
 
-  const expectedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'];
+  const expectedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'];
   for (const lang of expectedLangs) {
     const card = page.locator(`#language-tracks-container [data-lang="${lang}"]`);
     assert(await card.count() === 1, `Track card exists for ${lang}`);
@@ -40,23 +40,24 @@ import { chromium } from 'playwright';
     assert(isSelected, `Track card ${lang} becomes selected on click`);
   }
 
-  // 2. Onboarding Wizard: 8 language cards in Step 2
+  // 2. Onboarding Wizard: 9 language cards in Step 2
   console.log('\n--- 2. Testing Onboarding Wizard Language Selection ---');
   const wizardLangCards = page.locator('#wizard-lang-grid .card-selectable');
   const wizardCount = await wizardLangCards.count();
-  assert(wizardCount === 8, `Onboarding wizard displays 8 language options (found ${wizardCount})`);
+  assert(wizardCount === 9, `Onboarding wizard displays 9 language options (found ${wizardCount})`);
   for (const lang of expectedLangs) {
     const wCard = page.locator(`#wizard-lang-grid [data-lang="${lang}"]`);
     assert(await wCard.count() === 1, `Wizard card exists for ${lang}`);
   }
 
-  // 3. Arena Gameplay: Verify new 4 languages initialize and play
+  // 3. Arena Gameplay: Verify new 5 languages initialize and play
   console.log('\n--- 3. Testing Arena Gameplay for New Tracks ---');
   const newLangs = [
     { lang: 'cyber', expectedPrompt: true, expectedHUD: 'Cyber' },
     { lang: 'javascript', expectedPrompt: true, expectedHUD: 'JavaScript' },
     { lang: 'rust', expectedPrompt: true, expectedHUD: 'Rust' },
-    { lang: 'sql', expectedPrompt: true, expectedHUD: 'SQL' }
+    { lang: 'sql', expectedPrompt: true, expectedHUD: 'SQL' },
+    { lang: 'typescript', expectedPrompt: true, expectedHUD: 'TypeScript' }
   ];
 
   for (const item of newLangs) {
@@ -69,7 +70,7 @@ import { chromium } from 'playwright';
     const hudTag = (await page.locator('#hud-lang-tag').textContent()).trim();
     assert(hudTag.includes(item.expectedHUD), `[${item.lang}] HUD displays correct language tag (got "${hudTag}")`);
 
-    const options = page.locator('.option-card');
+    const options = page.locator('.option-card, .line-pill-btn');
     const optCount = await options.count();
     assert(optCount >= 2, `[${item.lang}] Renders interactive answer options (count: ${optCount})`);
 
@@ -95,7 +96,7 @@ import { chromium } from 'playwright';
 
   const filterOptions = page.locator('#filter-history-lang option');
   const filterCount = await filterOptions.count();
-  assert(filterCount === 9, `Language filter dropdown has 9 options (All + 8 languages, got ${filterCount})`);
+  assert(filterCount === 10, `Language filter dropdown has 10 options (All + 9 languages, got ${filterCount})`);
 
   for (const lang of expectedLangs) {
     const opt = page.locator(`#filter-history-lang option[value="${lang}"]`);
@@ -104,7 +105,7 @@ import { chromium } from 'playwright';
 
   const langCards = page.locator('#language-performance-grid > div');
   const cardCount = await langCards.count();
-  assert(cardCount === 8, `Language performance grid displays exactly 8 track cards (found ${cardCount})`);
+  assert(cardCount === 9, `Language performance grid displays exactly 9 track cards (found ${cardCount})`);
 
   await browser.close();
 

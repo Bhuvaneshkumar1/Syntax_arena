@@ -944,6 +944,66 @@ export const SandboxManager = {
     };
   },
 
+  /**
+   * Run TypeScript code client-side by stripping types and executing in the JS sandbox.
+   * @param {string} code
+   * @returns {{ success: boolean, output: string, error: string|null, elapsedMs: number }}
+   */
+  runTypeScript(code) {
+    const start = performance.now();
+    try {
+      let jsCode = code;
+      // Strip interfaces and type aliases
+      jsCode = jsCode.replace(/interface\s+[A-Za-z0-9_]+(?:\s+extends\s+[A-Za-z0-9_,\s]+)?\s*\{[\s\S]*?\}/g, '');
+      jsCode = jsCode.replace(/type\s+[A-Za-z0-9_]+(?:\s*<[^>]+>)?\s*=\s*[\s\S]*?;/g, '');
+      
+      // Strip enums into runtime JS objects
+      jsCode = jsCode.replace(/enum\s+([A-Za-z0-9_]+)\s*\{([^}]+)\}/g, (match, enumName, members) => {
+        const lines = members.split(',').map(m => m.trim()).filter(Boolean);
+        let currVal = 0;
+        const entries = [];
+        for (const line of lines) {
+          const parts = line.split('=').map(p => p.trim());
+          const key = parts[0];
+          if (parts[1]) {
+            const valNum = Number(parts[1]);
+            if (!isNaN(valNum)) currVal = valNum;
+            entries.push(`${enumName}["${key}"] = ${parts[1]}; ${enumName}[${parts[1]}] = "${key}";`);
+          } else {
+            entries.push(`${enumName}["${key}"] = ${currVal}; ${enumName}[${currVal}] = "${key}";`);
+            currVal++;
+          }
+        }
+        return `var ${enumName} = {}; ${entries.join(' ')}`;
+      });
+
+      // Strip "as const", "as any", "as T", "satisfies T"
+      jsCode = jsCode.replace(/\s+as\s+[A-Za-z0-9_<>\[\]|&\s]+/g, '');
+      jsCode = jsCode.replace(/\s+satisfies\s+[A-Za-z0-9_<>\[\]|&\s]+/g, '');
+      jsCode = jsCode.replace(/<[A-Za-z0-9_,\s]+>(?=\()/g, '');
+      
+      // Strip property / parameter / variable type annotations ": Type"
+      jsCode = jsCode.replace(/:\s*[A-Za-z0-9_<>\[\]|&]+(?=[,)={;])/g, '');
+
+      const jsRes = this.runJS(jsCode);
+      const elapsed = Math.round(performance.now() - start);
+
+      return {
+        success: jsRes.success,
+        output: jsRes.output,
+        error: jsRes.error,
+        elapsedMs: elapsed
+      };
+    } catch (err) {
+      return {
+        success: false,
+        output: '',
+        error: err.toString(),
+        elapsedMs: Math.round(performance.now() - start)
+      };
+    }
+  },
+
   /* ==========================================================================
      C / C++ / JAVA / RUST SYNTAX & CHALLENGE SIMULATOR
      Interactive client-side simulation of systems compilation and outputs

@@ -147,6 +147,9 @@
         <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="javascript">
           🌐 JavaScript
         </button>
+        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="typescript">
+          📘 TypeScript
+        </button>
         <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="systems">
           ⚡ C / C++ / Java / Rust
         </button>
@@ -410,6 +413,48 @@ console.log("Double 21:", double(21));
 console.log("Triple 14:", triple(14));
 `,
           blank: `console.log("Hello from JavaScript Engine!");\n`
+        }
+      },
+
+      typescript: {
+        title: 'TypeScript Compiler & Sandbox',
+        subtitle: 'Static typing, generics, interfaces, and utility types with live execution.',
+        badge: '📘 TypeScript 5.4+',
+        filename: 'solution.ts',
+        templates: {
+          generics: `// Generic Stack Implementation
+class Stack<T> {
+  private items: T[] = [];
+  push(item: T): void { this.items.push(item); }
+  pop(): T | undefined { return this.items.pop(); }
+  peek(): T | undefined { return this.items[this.items.length - 1]; }
+  size(): number { return this.items.length; }
+}
+
+const numStack = new Stack<number>();
+numStack.push(10);
+numStack.push(20);
+numStack.push(30);
+console.log("Popped:", numStack.pop());
+console.log("Top:", numStack.peek());
+console.log("Size:", numStack.size());
+`,
+          interfaces: `// Discriminated Union & Type Narrowing
+type Shape =
+  | { kind: "circle"; radius: number }
+  | { kind: "square"; side: number };
+
+function getArea(s: Shape): number {
+  switch (s.kind) {
+    case "circle": return Math.PI * s.radius ** 2;
+    case "square": return s.side ** 2;
+  }
+}
+
+console.log("Circle Area:", getArea({ kind: "circle", radius: 5 }).toFixed(2));
+console.log("Square Area:", getArea({ kind: "square", side: 4 }));
+`,
+          blank: `console.log("Hello from TypeScript 5.4+!");\n`
         }
       },
 
@@ -743,6 +788,26 @@ fn main() {
                 const errEl = document.createElement('div');
                 errEl.style.color = 'var(--color-coral, #f43f5e)';
                 errEl.innerHTML = `⚠️ <strong>JavaScript Runtime Error:</strong>\n${Utils.escapeHTML(res.error)}`;
+                consoleOutput.appendChild(errEl);
+              }
+            }
+          } else if (currentEnv === 'typescript') {
+            const res = SandboxManager.runTypeScript(code);
+            runBtn.disabled = false;
+            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
+            if (consoleOutput) {
+              consoleOutput.innerHTML = '';
+              if (res.output) {
+                const outEl = document.createElement('div');
+                outEl.style.whiteSpace = 'pre-wrap';
+                outEl.style.color = 'var(--color-primary-light, #38bdf8)';
+                outEl.textContent = res.output;
+                consoleOutput.appendChild(outEl);
+              }
+              if (res.error) {
+                const errEl = document.createElement('div');
+                errEl.style.color = 'var(--color-coral, #f43f5e)';
+                errEl.innerHTML = `⚠️ <strong>TypeScript / Runtime Error:</strong>\n${Utils.escapeHTML(res.error)}`;
                 consoleOutput.appendChild(errEl);
               }
             }

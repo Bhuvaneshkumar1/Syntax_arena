@@ -13,6 +13,7 @@ import { cyberQuestions } from '../data/cyber-questions.js';
 import { javascriptQuestions } from '../data/javascript-questions.js';
 import { rustQuestions } from '../data/rust-questions.js';
 import { sqlQuestions } from '../data/sql-questions.js';
+import { typescriptQuestions } from '../data/typescript-questions.js';
 import { endlessQuestions } from '../data/endless-questions.js';
 import { QuestionValidator } from './question-validator.js';
 
@@ -25,7 +26,8 @@ const ALL_QUESTIONS = Object.freeze([
   ...cyberQuestions,
   ...javascriptQuestions,
   ...rustQuestions,
-  ...sqlQuestions
+  ...sqlQuestions,
+  ...typescriptQuestions
 ]);
 
 // Build index maps for fast O(1) lookups
@@ -38,7 +40,8 @@ const LANG_TIER_INDEX = {
   cyber: { beginner: [], intermediate: [], expert: [] },
   javascript: { beginner: [], intermediate: [], expert: [] },
   rust: { beginner: [], intermediate: [], expert: [] },
-  sql: { beginner: [], intermediate: [], expert: [] }
+  sql: { beginner: [], intermediate: [], expert: [] },
+  typescript: { beginner: [], intermediate: [], expert: [] }
 };
 
 ALL_QUESTIONS.forEach(q => {
@@ -161,12 +164,17 @@ export const QuestionBank = {
   getStats() {
     const stats = {
       total: ALL_QUESTIONS.length,
-      byLanguage: { python: 0, c: 0, cpp: 0, java: 0 },
+      byLanguage: { python: 0, c: 0, cpp: 0, java: 0, cyber: 0, javascript: 0, rust: 0, sql: 0, typescript: 0 },
       byTier: {
         python: { beginner: 0, intermediate: 0, expert: 0 },
         c: { beginner: 0, intermediate: 0, expert: 0 },
         cpp: { beginner: 0, intermediate: 0, expert: 0 },
-        java: { beginner: 0, intermediate: 0, expert: 0 }
+        java: { beginner: 0, intermediate: 0, expert: 0 },
+        cyber: { beginner: 0, intermediate: 0, expert: 0 },
+        javascript: { beginner: 0, intermediate: 0, expert: 0 },
+        rust: { beginner: 0, intermediate: 0, expert: 0 },
+        sql: { beginner: 0, intermediate: 0, expert: 0 },
+        typescript: { beginner: 0, intermediate: 0, expert: 0 }
       },
       byType: {}
     };

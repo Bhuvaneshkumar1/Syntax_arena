@@ -463,7 +463,8 @@ class StorageManager {
       cyber:      { ...defaultProf.campaign.cyber,      ...(p?.campaign?.cyber || {}) },
       javascript: { ...defaultProf.campaign.javascript, ...(p?.campaign?.javascript || {}) },
       rust:       { ...defaultProf.campaign.rust,       ...(p?.campaign?.rust || {}) },
-      sql:        { ...defaultProf.campaign.sql,        ...(p?.campaign?.sql || {}) }
+      sql:        { ...defaultProf.campaign.sql,        ...(p?.campaign?.sql || {}) },
+      typescript: { ...defaultProf.campaign.typescript, ...(p?.campaign?.typescript || {}) }
     };
 
     return {
@@ -472,7 +473,7 @@ class StorageManager {
       avatarId: typeof p?.avatarId === 'string' ? p.avatarId : defaultProf.avatarId,
       onboardingComplete: Boolean(p?.onboardingComplete),
       preferences: {
-        language: ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].includes(p?.preferences?.language) ? p.preferences.language : 'python',
+        language: ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'].includes(p?.preferences?.language) ? p.preferences.language : 'python',
         difficulty: ['beginner', 'intermediate', 'expert'].includes(p?.preferences?.difficulty) ? p.preferences.difficulty : 'beginner'
       },
       createdAt: typeof p?.createdAt === 'number' ? p.createdAt : Date.now(),

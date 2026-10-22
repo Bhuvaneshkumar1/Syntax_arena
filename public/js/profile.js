@@ -101,7 +101,8 @@ export const Profile = {
         cyber:      { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
         javascript: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
         rust:       { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
-        sql:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
+        sql:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+        typescript: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
       },
       completedTiers: {},
       unlockedAchievements: [],
@@ -196,7 +197,7 @@ export const Profile = {
       avatarId: safeAvatar,
       onboardingComplete: true,
       preferences: {
-        language: ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].includes(language) ? language : 'python',
+        language: ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'].includes(language) ? language : 'python',
         difficulty: ['beginner', 'intermediate', 'expert'].includes(difficulty) ? difficulty : 'beginner'
       }
     };

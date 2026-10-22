@@ -10403,6 +10403,1834 @@ var sqlQuestions = window.sqlQuestions = [
 
 /* --- End of data/sql-questions.js --- */
 
+/* --- Start of data/typescript-questions.js --- */
+/**
+ * SyntaxArena Question Bank — TypeScript (v5+)
+ * Exactly 60 curated challenges: 20 Beginner, 20 Intermediate, 20 Expert.
+ * Standard: TypeScript 5.4+
+ * Source of truth: docs/QUESTION_SCHEMA.md
+ */
+
+var typescriptQuestions = window.typescriptQuestions = [
+  {
+    "id": "ts-beg-001",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "type_annotations",
+    "subtopic": "primitive_types",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What happens when compiling and running this basic TypeScript variable assignment?",
+    "code": "let age: number = 25;\nage = \"30\" as any;\nconsole.log(typeof age);",
+    "options": [
+      "\"string\"",
+      "\"number\"",
+      "Compile Error: Type \"string\" not assignable",
+      "undefined"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "TypeScript types are erased at runtime during JavaScript compilation.",
+    "explanation": "TypeScript is erased at runtime. Using \"as any\" bypasses compile-time checks, and JavaScript assigns the string \"30\", so `typeof age` evaluates to \"string\" at runtime.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "primitives",
+      "type_erasure"
+    ]
+  },
+  {
+    "id": "ts-beg-002",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "arrays_and_tuples",
+    "subtopic": "tuple_types",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of inspecting this TypeScript tuple by index?",
+    "code": "const point: [number, string] = [10, \"origin\"];\nconsole.log(point[0] + 5, point[1].toUpperCase());",
+    "options": [
+      "15 ORIGIN",
+      "10 origin",
+      "15 origin",
+      "Compile error: Tuple index out of bounds"
+    ],
+    "correctAnswer": "15 ORIGIN",
+    "acceptedAnswers": [
+      "15 ORIGIN"
+    ],
+    "hint": "Tuples have fixed types at specific numerical indices.",
+    "explanation": "In tuple `[number, string]`, `point[0]` is typed as `number` (10 + 5 = 15) and `point[1]` is `string` (\"origin\".toUpperCase() = \"ORIGIN\"). Output is `15 ORIGIN`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "arrays"
+    ]
+  },
+  {
+    "id": "ts-beg-003",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "find_bug",
+    "topic": "unknown_vs_any",
+    "subtopic": "type_safety",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Which line causes a TypeScript compiler error due to strict type safety on unknown?",
+    "code": "1: function processValue(val: unknown) {\n2:   const a: any = val;\n3:   const len = val.length;\n4:   if (typeof val === \"string\") console.log(val.toUpperCase());\n5: }",
+    "options": [
+      "Line 3",
+      "Line 2",
+      "Line 4",
+      "Line 1"
+    ],
+    "correctAnswer": "Line 3",
+    "acceptedAnswers": [
+      "Line 3",
+      "3"
+    ],
+    "targetLine": 3,
+    "hint": "The unknown type requires type narrowing or casting before properties can be accessed.",
+    "explanation": "TypeScript forbids accessing properties on values of type `unknown` without prior type narrowing or assertion. Line 3 (`val.length`) produces compiler error `Object is of type \"unknown\"`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unknown",
+      "type_safety"
+    ]
+  },
+  {
+    "id": "ts-beg-004",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional_properties",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this function print when the optional property is omitted?",
+    "code": "interface User {\n  id: number;\n  bio?: string;\n}\nconst u: User = { id: 1 };\nconsole.log(u.bio ?? \"No Bio\");",
+    "options": [
+      "\"No Bio\"",
+      "undefined",
+      "null",
+      "Compile error: bio is required"
+    ],
+    "correctAnswer": "\"No Bio\"",
+    "acceptedAnswers": [
+      "\"No Bio\""
+    ],
+    "hint": "Optional properties default to undefined when omitted.",
+    "explanation": "In interface `User`, `bio?` is optional. Since `u.bio` is undefined, the nullish coalescing operator `??` falls back to \"No Bio\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "optional"
+    ]
+  },
+  {
+    "id": "ts-beg-005",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric_enums",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What are the default numerical values assigned to this TypeScript enum?",
+    "code": "enum Direction {\n  North,\n  East,\n  South,\n  West\n}\nconsole.log(Direction.North, Direction.West);",
+    "options": [
+      "0 3",
+      "1 4",
+      "\"North\" \"West\"",
+      "undefined undefined"
+    ],
+    "correctAnswer": "0 3",
+    "acceptedAnswers": [
+      "0 3"
+    ],
+    "hint": "Numeric enums in TypeScript auto-increment starting from 0 by default.",
+    "explanation": "By default, uninitialized numeric enums start at index 0. North=0, East=1, South=2, West=3. Output is `0 3`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "numeric"
+    ]
+  },
+  {
+    "id": "ts-beg-006",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "reverse_mapping",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by reverse lookup on a numeric enum?",
+    "code": "enum Role {\n  User = 1,\n  Admin = 2\n}\nconsole.log(Role[1]);",
+    "options": [
+      "\"User\"",
+      "1",
+      "undefined",
+      "Compile error"
+    ],
+    "correctAnswer": "\"User\"",
+    "acceptedAnswers": [
+      "\"User\""
+    ],
+    "hint": "Numeric enums generate bidirectional reverse mappings in compiled JavaScript.",
+    "explanation": "Numeric enums in TypeScript create reverse lookup mappings where `Role[1]` evaluates to the member name string `\"User\"`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "reverse_mapping"
+    ]
+  },
+  {
+    "id": "ts-beg-007",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "complete_code",
+    "topic": "union_types",
+    "subtopic": "type_narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Which operator completes the type guard to narrow the union type?",
+    "code": "function printLength(x: string | number) {\n  if (___ x === \"string\") {\n    console.log(x.length);\n  }\n}",
+    "options": [
+      "typeof",
+      "instanceof",
+      "typeis",
+      "is"
+    ],
+    "correctAnswer": "typeof",
+    "acceptedAnswers": [
+      "typeof"
+    ],
+    "hint": "JavaScript primitive type checks use this standard unary operator.",
+    "explanation": "Using `typeof x === \"string\"` narrows `x` from `string | number` down to `string` in TypeScript control flow analysis.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "typeof"
+    ]
+  },
+  {
+    "id": "ts-beg-008",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "type_inference",
+    "subtopic": "array_literal_inference",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What inferred type does TypeScript assign to `items` without explicit annotations?",
+    "code": "const items = [1, \"two\", false];\nconsole.log(typeof items[1]);",
+    "options": [
+      "\"string\"",
+      "(number | string | boolean)[]",
+      "any[]",
+      "[number, string, boolean]"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "At runtime `typeof items[1]` evaluates JavaScript types, while TypeScript infers (number | string | boolean)[].",
+    "explanation": "TypeScript infers `(number | string | boolean)[]` for the array, and at runtime `typeof items[1]` (\"two\") returns `\"string\"`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "inference",
+      "arrays"
+    ]
+  },
+  {
+    "id": "ts-beg-009",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "literal_types",
+    "subtopic": "union_of_literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What happens when invoking this function with a matching string literal?",
+    "code": "type Theme = \"dark\" | \"light\";\nfunction applyTheme(t: Theme): string {\n  return `theme-${t}`;\n}\nconsole.log(applyTheme(\"dark\"));",
+    "options": [
+      "\"theme-dark\"",
+      "\"theme-light\"",
+      "Compile error: Theme is a type not a value",
+      "undefined"
+    ],
+    "correctAnswer": "\"theme-dark\"",
+    "acceptedAnswers": [
+      "\"theme-dark\""
+    ],
+    "hint": "Literal union types constrain arguments to a specific closed set of allowed values.",
+    "explanation": "The literal string `\"dark\"` satisfies the `Theme` union constraint, returning `\"theme-dark\"`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "literal_types",
+      "unions"
+    ]
+  },
+  {
+    "id": "ts-beg-010",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "find_bug",
+    "topic": "readonly_modifier",
+    "subtopic": "immutable_properties",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Which line triggers a compiler error when attempting to mutate a readonly property?",
+    "code": "1: interface Config {\n2:   readonly host: string;\n3: }\n4: const cfg: Config = { host: \"localhost\" };\n5: cfg.host = \"127.0.0.1\";",
+    "options": [
+      "Line 5",
+      "Line 4",
+      "Line 2",
+      "Line 1"
+    ],
+    "correctAnswer": "Line 5",
+    "acceptedAnswers": [
+      "Line 5",
+      "5"
+    ],
+    "targetLine": 5,
+    "hint": "Properties marked with readonly cannot be assigned outside object initialization.",
+    "explanation": "Line 5 attempts to reassign `cfg.host`. The TypeScript compiler throws `Cannot assign to \"host\" because it is a read-only property`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "readonly",
+      "interfaces"
+    ]
+  },
+  {
+    "id": "ts-beg-011",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "functions",
+    "subtopic": "void_return",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime return value of a TypeScript function with return type `void`?",
+    "code": "function logMessage(): void {\n  console.log(\"Logged\");\n}\nconsole.log(logMessage());",
+    "options": [
+      "Logged followed by undefined",
+      "Logged followed by null",
+      "Logged followed by void",
+      "Compile error: void cannot be printed"
+    ],
+    "correctAnswer": "Logged followed by undefined",
+    "acceptedAnswers": [
+      "Logged followed by undefined"
+    ],
+    "hint": "In compiled JavaScript, functions without an explicit return statement return undefined.",
+    "explanation": "In TypeScript, `void` indicates the caller should ignore the return value. In JavaScript execution, the function logs \"Logged\" and implicitly returns `undefined`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "functions",
+      "void"
+    ]
+  },
+  {
+    "id": "ts-beg-012",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "type_assertions",
+    "subtopic": "as_operator",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this type assertion do at runtime?",
+    "code": "const raw: any = \"42\";\nconst num = raw as number;\nconsole.log(typeof num);",
+    "options": [
+      "\"string\"",
+      "\"number\"",
+      "42",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Type assertions (as T) perform zero runtime casting or conversions.",
+    "explanation": "Type assertions only tell the TypeScript compiler how to treat a value during static analysis. At runtime, `raw` is still the string `\"42\"`, so `typeof num` is `\"string\"`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "type_assertions",
+      "as_keyword"
+    ]
+  },
+  {
+    "id": "ts-beg-013",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "complete_code",
+    "topic": "type_aliases",
+    "subtopic": "alias_syntax",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Which keyword is used to declare a custom type alias in TypeScript?",
+    "code": "___ Coordinate = { x: number; y: number; };\nconst pt: Coordinate = { x: 5, y: 10 };",
+    "options": [
+      "type",
+      "alias",
+      "interface",
+      "typedef"
+    ],
+    "correctAnswer": "type",
+    "acceptedAnswers": [
+      "type"
+    ],
+    "hint": "Type aliases are declared with the 4-letter keyword `type`.",
+    "explanation": "The `type` keyword creates a new name for any type definition, including object literals, unions, and primitives.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "type_alias",
+      "syntax"
+    ]
+  },
+  {
+    "id": "ts-beg-014",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "non_null_assertion",
+    "subtopic": "exclamation_mark_operator",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does the non-null assertion operator `!` tell the TypeScript compiler?",
+    "code": "function getName(name: string | null): string {\n  return name!;\n}\nconsole.log(getName(\"Alice\"));",
+    "options": [
+      "\"Alice\"",
+      "null",
+      "Compile error: ! is a syntax error here",
+      "undefined"
+    ],
+    "correctAnswer": "\"Alice\"",
+    "acceptedAnswers": [
+      "\"Alice\""
+    ],
+    "hint": "Postfix ! asserts that a variable is neither null nor undefined.",
+    "explanation": "The postfix `!` operator is the non-null assertion operator. It removes `null` and `undefined` from the type at compile time. At runtime with \"Alice\", it simply returns \"Alice\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "non_null",
+      "assertions"
+    ]
+  },
+  {
+    "id": "ts-beg-015",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "classes",
+    "subtopic": "parameter_properties",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by this class using parameter property shorthand?",
+    "code": "class Hero {\n  constructor(public name: string, private level: number = 1) {}\n  getLevel() { return this.level; }\n}\nconst h = new Hero(\"Knight\");\nconsole.log(h.name, h.getLevel());",
+    "options": [
+      "Knight 1",
+      "Knight undefined",
+      "undefined 1",
+      "Compile error: private field accessed"
+    ],
+    "correctAnswer": "Knight 1",
+    "acceptedAnswers": [
+      "Knight 1"
+    ],
+    "hint": "Declaring public or private directly in constructor parameters automatically initializes class fields.",
+    "explanation": "TypeScript parameter properties automatically declare and assign class instance properties with matching visibility. Output is `Knight 1`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "classes",
+      "parameter_properties"
+    ]
+  },
+  {
+    "id": "ts-beg-016",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "interface_extension",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by accessing properties on an extended interface?",
+    "code": "interface Shape {\n  color: string;\n}\ninterface Circle extends Shape {\n  radius: number;\n}\nconst c: Circle = { color: \"blue\", radius: 5 };\nconsole.log(c.color, c.radius);",
+    "options": [
+      "blue 5",
+      "undefined 5",
+      "blue undefined",
+      "Compile error: cannot extend interface"
+    ],
+    "correctAnswer": "blue 5",
+    "acceptedAnswers": [
+      "blue 5"
+    ],
+    "hint": "An interface extends another interface inheriting all its properties.",
+    "explanation": "The `Circle` interface inherits `color: string` from `Shape` and adds `radius: number`. Both properties are accessible.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "inheritance"
+    ]
+  },
+  {
+    "id": "ts-beg-017",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "find_bug",
+    "topic": "strict_null_checks",
+    "subtopic": "null_assignment",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Under strictNullChecks, which line produces a compiler error?",
+    "code": "1: let title: string = \"SyntaxArena\";\n2: let subtitle: string | null = null;\n3: title = null;\n4: subtitle = \"Coding Arena\";",
+    "options": [
+      "Line 3",
+      "Line 2",
+      "Line 4",
+      "Line 1"
+    ],
+    "correctAnswer": "Line 3",
+    "acceptedAnswers": [
+      "Line 3",
+      "3"
+    ],
+    "targetLine": 3,
+    "hint": "Under strictNullChecks, null and undefined cannot be assigned to string unless explicitly in the union.",
+    "explanation": "`title` has type `string`. With strictNullChecks enabled, assigning `null` on Line 3 fails with `Type \"null\" is not assignable to type \"string\"`.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "strictNullChecks",
+      "null_safety"
+    ]
+  },
+  {
+    "id": "ts-beg-018",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "arrays",
+    "subtopic": "readonly_arrays",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of reading from a ReadonlyArray in TypeScript?",
+    "code": "const nums: readonly number[] = [1, 2, 3];\nconsole.log(nums.length, nums[0]);",
+    "options": [
+      "3 1",
+      "3 undefined",
+      "undefined 1",
+      "Compile error"
+    ],
+    "correctAnswer": "3 1",
+    "acceptedAnswers": [
+      "3 1"
+    ],
+    "hint": "ReadonlyArray permits all read operations (length, indexing, map) but forbids mutations (push, pop, splice).",
+    "explanation": "Reading properties like `nums.length` (3) and `nums[0]` (1) is completely valid on `readonly number[]`. Mutating operations like `.push()` would be blocked.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "arrays",
+      "readonly"
+    ]
+  },
+  {
+    "id": "ts-beg-019",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "multiple_choice",
+    "topic": "any_vs_unknown",
+    "subtopic": "conceptual_difference",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the primary conceptual difference between `any` and `unknown` in TypeScript?",
+    "code": "let a: any = \"hello\";\nlet b: unknown = \"world\";\na.toUpperCase(); // OK\n// b.toUpperCase(); // Error",
+    "options": [
+      "`unknown` requires type checking before performing operations, while `any` disables all type checking",
+      "`any` is faster at runtime than `unknown`",
+      "`unknown` can only hold primitive types while `any` holds objects",
+      "`any` cannot be assigned to variables of other types"
+    ],
+    "correctAnswer": "`unknown` requires type checking before performing operations, while `any` disables all type checking",
+    "acceptedAnswers": [
+      "`unknown` requires type checking before performing operations, while `any` disables all type checking"
+    ],
+    "hint": "`unknown` is the type-safe counterpart of `any`.",
+    "explanation": "`unknown` is a type-safe top type: anything can be assigned to `unknown`, but nothing can be done with an `unknown` value without first asserting or narrowing its type.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unknown",
+      "any",
+      "theory"
+    ]
+  },
+  {
+    "id": "ts-beg-020",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "const_assertions",
+    "subtopic": "literal_widening_prevention",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by accessing an element of an array declared with `as const`?",
+    "code": "const colors = [\"red\", \"green\", \"blue\"] as const;\nconsole.log(colors[0], colors.length);",
+    "options": [
+      "red 3",
+      "string 3",
+      "red undefined",
+      "Compile error"
+    ],
+    "correctAnswer": "red 3",
+    "acceptedAnswers": [
+      "red 3"
+    ],
+    "hint": "`as const` creates a readonly tuple with literal member types.",
+    "explanation": "`as const` prevents literal widening, creating a readonly tuple `readonly [\"red\", \"green\", \"blue\"]`. `colors[0]` is `\"red\"` and `colors.length` is 3.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "tuples"
+    ]
+  },
+  {
+    "id": "ts-int-001",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "generic_functions",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this generic identity function output when invoked with different types?",
+    "code": "function wrap<T>(item: T): { value: T } {\n  return { value: item };\n}\nconsole.log(wrap(\"TS\").value, wrap(100).value + 1);",
+    "options": [
+      "TS 101",
+      "TS 1001",
+      "undefined NaN",
+      "Compile error: Generic type inference failed"
+    ],
+    "correctAnswer": "TS 101",
+    "acceptedAnswers": [
+      "TS 101"
+    ],
+    "hint": "Generic parameter T preserves the exact argument type without casting.",
+    "explanation": "`wrap(\"TS\")` infers `T=string`, returning `{ value: \"TS\" }`. `wrap(100)` infers `T=number`, allowing `100 + 1 = 101`. Output is `TS 101`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "generics",
+      "inference"
+    ]
+  },
+  {
+    "id": "ts-int-002",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "discriminated_unions",
+    "subtopic": "tagged_union_pattern",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by pattern matching on this discriminated union?",
+    "code": "type Action =\n  | { type: \"add\"; amount: number }\n  | { type: \"reset\" };\nfunction reducer(state: number, action: Action): number {\n  switch (action.type) {\n    case \"add\": return state + action.amount;\n    case \"reset\": return 0;\n  }\n}\nconsole.log(reducer(10, { type: \"add\", amount: 5 }));",
+    "options": [
+      "15",
+      "0",
+      "10",
+      "NaN"
+    ],
+    "correctAnswer": "15",
+    "acceptedAnswers": [
+      "15"
+    ],
+    "hint": "The common literal property \"type\" allows TypeScript to discriminate the union variant.",
+    "explanation": "Inside `case \"add\"`, TypeScript narrows `action` to `{ type: \"add\"; amount: number }`, allowing direct access to `action.amount`. 10 + 5 = 15.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "discriminated_unions",
+      "pattern_matching"
+    ]
+  },
+  {
+    "id": "ts-int-003",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "complete_code",
+    "topic": "type_predicates",
+    "subtopic": "custom_type_guards",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Which return type annotation makes `isString` a valid user-defined type guard?",
+    "code": "function isString(val: unknown): ___ {\n  return typeof val === \"string\";\n}\nconst item: unknown = \"Arena\";\nif (isString(item)) console.log(item.toUpperCase());",
+    "options": [
+      "val is string",
+      "boolean",
+      "string",
+      "typeof string"
+    ],
+    "correctAnswer": "val is string",
+    "acceptedAnswers": [
+      "val is string"
+    ],
+    "hint": "Type predicates use the syntax: parameterName is Type.",
+    "explanation": "The return type `val is string` is a type predicate. When the function returns true, TypeScript narrows `val` to `string` in calling scopes.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "type_predicates",
+      "type_guards"
+    ]
+  },
+  {
+    "id": "ts-int-004",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "partial_and_required",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does `Partial<T>` do to an interface definition?",
+    "code": "interface Config {\n  host: string;\n  port: number;\n}\ntype OptionalConfig = Partial<Config>;\nconst c: OptionalConfig = { host: \"127.0.0.1\" };\nconsole.log(c.host, c.port ?? 8080);",
+    "options": [
+      "127.0.0.1 8080",
+      "127.0.0.1 undefined",
+      "Compile error: port is missing",
+      "127.0.0.1 null"
+    ],
+    "correctAnswer": "127.0.0.1 8080",
+    "acceptedAnswers": [
+      "127.0.0.1 8080"
+    ],
+    "hint": "Partial<T> turns all properties of T into optional properties.",
+    "explanation": "`Partial<Config>` makes both `host` and `port` optional (`host?: string; port?: number;`). Omitting `port` leaves it undefined, resolving to 8080 via `??`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "partial"
+    ]
+  },
+  {
+    "id": "ts-int-005",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "pick_and_omit",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What properties are retained in `Omit<Person, \"password\">`?",
+    "code": "interface Person {\n  id: number;\n  name: string;\n  password: string;\n}\ntype PublicPerson = Omit<Person, \"password\">;\nconst p: PublicPerson = { id: 1, name: \"Bob\" };\nconsole.log(Object.keys(p).join(\",\"));",
+    "options": [
+      "id,name",
+      "id,name,password",
+      "password",
+      "Compile error"
+    ],
+    "correctAnswer": "id,name",
+    "acceptedAnswers": [
+      "id,name"
+    ],
+    "hint": "Omit<T, K> constructs a type by removing keys K from T.",
+    "explanation": "`Omit<Person, \"password\">` constructs a type with only `id` and `name`. Object.keys produces `\"id,name\"`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "omit"
+    ]
+  },
+  {
+    "id": "ts-int-006",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "keyof_operator",
+    "subtopic": "keyof_and_indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by this generic property getter using `keyof` and indexed access?",
+    "code": "function getProp<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\nconst user = { name: \"Carol\", score: 95 };\nconsole.log(getProp(user, \"score\") + 5);",
+    "options": [
+      "100",
+      "955",
+      "NaN",
+      "Compile error: K cannot index T"
+    ],
+    "correctAnswer": "100",
+    "acceptedAnswers": [
+      "100"
+    ],
+    "hint": "K extends keyof T guarantees key is a valid property on T, returning the exact type T[K].",
+    "explanation": "`K extends keyof T` ensures `\"score\"` is a key of `user`. The return type is `number` (`user.score`), so 95 + 5 = 100.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "keyof",
+      "generics"
+    ]
+  },
+  {
+    "id": "ts-int-007",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record_type",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by indexing into this `Record<string, number>` map?",
+    "code": "type ScoreTable = Record<\"Alice\" | \"Bob\", number>;\nconst scores: ScoreTable = {\n  Alice: 100,\n  Bob: 85\n};\nconsole.log(scores.Alice + scores.Bob);",
+    "options": [
+      "185",
+      "10085",
+      "NaN",
+      "Compile error"
+    ],
+    "correctAnswer": "185",
+    "acceptedAnswers": [
+      "185"
+    ],
+    "hint": "Record<K, T> constructs an object type whose keys are K and values are T.",
+    "explanation": "`Record<\"Alice\" | \"Bob\", number>` requires keys \"Alice\" and \"Bob\" with number values. 100 + 85 = 185.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "record"
+    ]
+  },
+  {
+    "id": "ts-int-008",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "find_bug",
+    "topic": "generic_constraints",
+    "subtopic": "extends_keyword",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Which line causes a compiler error when passing an invalid argument to the generic constraint?",
+    "code": "1: function logLength<T extends { length: number }>(arg: T): number {\n2:   return arg.length;\n3: }\n4: logLength(\"hello\");\n5: logLength([1, 2, 3]);\n6: logLength(42);",
+    "options": [
+      "Line 6",
+      "Line 5",
+      "Line 4",
+      "Line 1"
+    ],
+    "correctAnswer": "Line 6",
+    "acceptedAnswers": [
+      "Line 6",
+      "6"
+    ],
+    "targetLine": 6,
+    "hint": "Numbers in JavaScript do not have a .length property.",
+    "explanation": "Line 6 passes the number `42`. Numbers do not satisfy `{ length: number }`, causing compiler error `Argument of type \"number\" is not assignable to parameter of type \"{ length: number; }\"`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "generics",
+      "constraints"
+    ]
+  },
+  {
+    "id": "ts-int-009",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "intersection_types",
+    "subtopic": "combining_interfaces",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this intersection type produce?",
+    "code": "type Name = { name: string };\ntype Age = { age: number };\ntype Person = Name & Age;\nconst p: Person = { name: \"Dan\", age: 30 };\nconsole.log(`${p.name} is ${p.age}`);",
+    "options": [
+      "Dan is 30",
+      "Dan is undefined",
+      "undefined is 30",
+      "Compile error"
+    ],
+    "correctAnswer": "Dan is 30",
+    "acceptedAnswers": [
+      "Dan is 30"
+    ],
+    "hint": "Intersection types (&) merge the requirements of both types into one.",
+    "explanation": "`Name & Age` requires both `name` and `age`. The object `{ name: \"Dan\", age: 30 }` satisfies both, printing `Dan is 30`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "intersections",
+      "types"
+    ]
+  },
+  {
+    "id": "ts-int-010",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "declaration_merging",
+    "subtopic": "interface_merging",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What happens when two interfaces with the same name are declared in the same scope?",
+    "code": "interface Box {\n  height: number;\n}\ninterface Box {\n  width: number;\n}\nconst b: Box = { height: 10, width: 20 };\nconsole.log(b.height * b.width);",
+    "options": [
+      "200",
+      "Compile error: Duplicate identifier \"Box\"",
+      "NaN",
+      "undefined"
+    ],
+    "correctAnswer": "200",
+    "acceptedAnswers": [
+      "200"
+    ],
+    "hint": "TypeScript automatically merges multiple interface declarations with the same name.",
+    "explanation": "Interface declaration merging combines both declarations into a single `Box` interface requiring both `height` and `width`. 10 * 20 = 200.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "declaration_merging",
+      "interfaces"
+    ]
+  },
+  {
+    "id": "ts-int-011",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "exhaustiveness_checking",
+    "subtopic": "never_type_assertion",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What role does `never` play in this exhaustive switch statement?",
+    "code": "type Status = \"ready\" | \"done\";\nfunction check(s: Status) {\n  switch (s) {\n    case \"ready\": return 1;\n    case \"done\": return 2;\n    default:\n      const _exhaustive: never = s;\n      return _exhaustive;\n  }\n}\nconsole.log(check(\"ready\") + check(\"done\"));",
+    "options": [
+      "3",
+      "NaN",
+      "undefined",
+      "Compile error: s is not never"
+    ],
+    "correctAnswer": "3",
+    "acceptedAnswers": [
+      "3"
+    ],
+    "hint": "If all cases are handled, the default branch is unreachable and s has type never.",
+    "explanation": "Since both `\"ready\"` and `\"done\"` are handled, TypeScript verifies that `s` has type `never` in the default case. At runtime, 1 + 2 = 3.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "never",
+      "exhaustive_check"
+    ]
+  },
+  {
+    "id": "ts-int-012",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "satisfies_operator",
+    "subtopic": "satisfies_vs_annotation",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "How does the `satisfies` operator differ from an explicit type annotation here?",
+    "code": "type Palette = Record<string, string | number[]>;\nconst p = {\n  primary: \"#ff0000\",\n  accent: [255, 0, 0]\n} satisfies Palette;\nconsole.log(p.primary.toUpperCase());",
+    "options": [
+      "#FF0000",
+      "Compile error: Property toUpperCase does not exist on string | number[]",
+      "undefined",
+      "null"
+    ],
+    "correctAnswer": "#FF0000",
+    "acceptedAnswers": [
+      "#FF0000"
+    ],
+    "hint": "satisfies validates against a type contract without widening property types.",
+    "explanation": "Unlike a type annotation (`const p: Palette = ...`) which widens `primary` to `string | number[]`, `satisfies` preserves the literal inferred type `string` for `primary`, allowing `.toUpperCase()`. Output is `#FF0000`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "satisfies",
+      "type_widening"
+    ]
+  },
+  {
+    "id": "ts-int-013",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "exclude_and_extract",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What type does `Exclude<T, U>` evaluate to here?",
+    "code": "type Primitive = string | number | boolean;\ntype NonString = Exclude<Primitive, string>;\nconst val: NonString = 42;\nconsole.log(typeof val);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "\"boolean\"",
+      "Compile error"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Exclude<T, U> removes from T all union members assignable to U.",
+    "explanation": "`Exclude<string | number | boolean, string>` yields `number | boolean`. Assigning 42 makes `typeof val` evaluate to `\"number\"`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "exclude"
+    ]
+  },
+  {
+    "id": "ts-int-014",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "typeof_operator",
+    "subtopic": "type_query_on_values",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by using TypeScript type query `typeof` on an existing object?",
+    "code": "const config = { maxRetries: 3, debug: true };\ntype AppConfig = typeof config;\nconst userCfg: AppConfig = { maxRetries: 5, debug: false };\nconsole.log(userCfg.maxRetries, userCfg.debug);",
+    "options": [
+      "5 false",
+      "3 true",
+      "undefined undefined",
+      "Compile error"
+    ],
+    "correctAnswer": "5 false",
+    "acceptedAnswers": [
+      "5 false"
+    ],
+    "hint": "In type position, typeof queries the compile-time type of a JavaScript value.",
+    "explanation": "In type position, `typeof config` produces `{ maxRetries: number; debug: boolean }`. `userCfg` satisfies this type and outputs `5 false`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "typeof",
+      "type_query"
+    ]
+  },
+  {
+    "id": "ts-int-015",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "find_bug",
+    "topic": "const_assertions",
+    "subtopic": "deep_readonly",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Which line causes a compiler error due to deep readonly const assertion?",
+    "code": "1: const settings = {\n2:   endpoint: \"/api/v1\",\n3:   retries: 3\n4: } as const;\n5: settings.retries = 5;",
+    "options": [
+      "Line 5",
+      "Line 4",
+      "Line 3",
+      "Line 1"
+    ],
+    "correctAnswer": "Line 5",
+    "acceptedAnswers": [
+      "Line 5",
+      "5"
+    ],
+    "targetLine": 5,
+    "hint": "`as const` makes all nested properties readonly.",
+    "explanation": "`as const` marks all properties as readonly with literal types. Attempting to assign `settings.retries = 5` fails on Line 5 with `Cannot assign to \"retries\" because it is a read-only property`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "as_const",
+      "immutability"
+    ]
+  },
+  {
+    "id": "ts-int-016",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "in_operator",
+    "subtopic": "property_narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does property existence check via the `in` operator narrow here?",
+    "code": "type Dog = { bark: () => string };\ntype Cat = { meow: () => string };\nfunction speak(pet: Dog | Cat): string {\n  if (\"bark\" in pet) return pet.bark();\n  return pet.meow();\n}\nconst dog: Dog = { bark: () => \"Woof!\" };\nconsole.log(speak(dog));",
+    "options": [
+      "\"Woof!\"",
+      "undefined",
+      "Compile error: \"bark\" is not a valid property of Cat",
+      "null"
+    ],
+    "correctAnswer": "\"Woof!\"",
+    "acceptedAnswers": [
+      "\"Woof!\""
+    ],
+    "hint": "The \"in\" operator acts as a type guard for discriminating objects by property existence.",
+    "explanation": "`\"bark\" in pet` narrows `pet` to `Dog` inside the if branch, safely calling `.bark()`. Output is `\"Woof!\"`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "in_operator",
+      "type_guards"
+    ]
+  },
+  {
+    "id": "ts-int-017",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "index_signatures",
+    "subtopic": "dynamic_keys",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this index signature allow?",
+    "code": "interface StringMap {\n  [key: string]: number;\n  count: number;\n}\nconst map: StringMap = { count: 10, bonus: 5 };\nconsole.log(map.count + map[\"bonus\"]);",
+    "options": [
+      "15",
+      "NaN",
+      "105",
+      "Compile error: bonus not declared"
+    ],
+    "correctAnswer": "15",
+    "acceptedAnswers": [
+      "15"
+    ],
+    "hint": "An index signature `[key: string]: number` allows arbitrary string keys with number values.",
+    "explanation": "`[key: string]: number` permits any string property that has a number value. Both `map.count` (10) and `map[\"bonus\"]` (5) are numbers. 10 + 5 = 15.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "index_signatures",
+      "objects"
+    ]
+  },
+  {
+    "id": "ts-int-018",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "abstract_classes",
+    "subtopic": "abstract_methods",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by calling a concrete implementation of an abstract class?",
+    "code": "abstract class Worker {\n  abstract work(): string;\n  start() { return `Starting: ${this.work()}`; }\n}\nclass Coder extends Worker {\n  work() { return \"Compiling TS\"; }\n}\nconsole.log(new Coder().start());",
+    "options": [
+      "Starting: Compiling TS",
+      "Starting: undefined",
+      "Compile error: Cannot instantiate abstract class",
+      "null"
+    ],
+    "correctAnswer": "Starting: Compiling TS",
+    "acceptedAnswers": [
+      "Starting: Compiling TS"
+    ],
+    "hint": "Derived classes must implement all abstract methods before instantiation.",
+    "explanation": "`Coder` implements `work()`. Calling `.start()` on `new Coder()` prints `Starting: Compiling TS`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "abstract_classes",
+      "oop"
+    ]
+  },
+  {
+    "id": "ts-int-019",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "multiple_choice",
+    "topic": "interface_vs_type",
+    "subtopic": "when_to_use_which",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Which feature is exclusive to `interface` that `type` aliases cannot perform?",
+    "code": "// Example A\ninterface Window { customProp: string; }\n// Example B\ntype Window = { customProp: string; }; // Error: Duplicate identifier",
+    "options": [
+      "Declaration merging (augmenting existing definitions across files)",
+      "Union types (|)",
+      "Tuple representations",
+      "Primitive alias definitions"
+    ],
+    "correctAnswer": "Declaration merging (augmenting existing definitions across files)",
+    "acceptedAnswers": [
+      "Declaration merging (augmenting existing definitions across files)"
+    ],
+    "hint": "Interfaces can be reopened and augmented, which is critical for extending third-party library types.",
+    "explanation": "Only `interface` supports declaration merging, allowing developers to extend window, global, or library types by declaring the interface multiple times.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "interface",
+      "type",
+      "theory"
+    ]
+  },
+  {
+    "id": "ts-int-020",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "function_overloads",
+    "subtopic": "overload_signatures",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by invoking this overloaded function with different argument types?",
+    "code": "function combine(a: number, b: number): number;\nfunction combine(a: string, b: string): string;\nfunction combine(a: any, b: any): any {\n  return a + b;\n}\nconsole.log(combine(10, 20), combine(\"A\", \"B\"));",
+    "options": [
+      "30 AB",
+      "30 undefined",
+      "1020 AB",
+      "Compile error"
+    ],
+    "correctAnswer": "30 AB",
+    "acceptedAnswers": [
+      "30 AB"
+    ],
+    "hint": "The implementation signature is hidden from callers; only the overload signatures are visible.",
+    "explanation": "TypeScript selects the number overload for `(10, 20)` yielding 30, and the string overload for `(\"A\", \"B\")` yielding `\"AB\"`. Output is `30 AB`.",
+    "points": 200,
+    "estimatedSeconds": 35,
+    "tags": [
+      "typescript",
+      "function_overloads",
+      "signatures"
+    ]
+  },
+  {
+    "id": "ts-exp-001",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "conditional_types",
+    "subtopic": "basic_conditional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this conditional type evaluate to when checking if T is an array?",
+    "code": "type IsArray<T> = T extends any[] ? \"yes\" : \"no\";\ntype A = IsArray<string[]>;\ntype B = IsArray<number>;\nconst res: `${A}-${B}` = \"yes-no\";\nconsole.log(res);",
+    "options": [
+      "yes-no",
+      "yes-yes",
+      "no-no",
+      "Compile error"
+    ],
+    "correctAnswer": "yes-no",
+    "acceptedAnswers": [
+      "yes-no"
+    ],
+    "hint": "Conditional types take the form `T extends U ? X : Y`.",
+    "explanation": "`string[] extends any[]` is true (`\"yes\"`). `number extends any[]` is false (`\"no\"`). The template literal type is `\"yes-no\"`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "conditional_types",
+      "advanced"
+    ]
+  },
+  {
+    "id": "ts-exp-002",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "infer_keyword",
+    "subtopic": "element_type_extraction",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What type does the `infer` keyword extract from the array type?",
+    "code": "type ElementOf<T> = T extends (infer E)[] ? E : never;\ntype Num = ElementOf<number[]>;\nconst val: Num = 42;\nconsole.log(typeof val);",
+    "options": [
+      "\"number\"",
+      "\"object\"",
+      "never",
+      "Compile error"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "`infer E` introduces a type variable to be deduced by the compiler within conditional types.",
+    "explanation": "`T extends (infer E)[]` pattern matches `number[]`, deducing `E = number`. `val` is typed as `number`, so `typeof val` is `\"number\"`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "infer",
+      "conditional_types"
+    ]
+  },
+  {
+    "id": "ts-exp-003",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "multiple_choice",
+    "topic": "distributive_conditionals",
+    "subtopic": "union_distribution",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What happens when a naked type parameter in a conditional type receives a union type?",
+    "code": "type ToArray<T> = T extends any ? T[] : never;\ntype Result = ToArray<string | number>;",
+    "options": [
+      "It distributes across the union, producing string[] | number[]",
+      "It produces (string | number)[]",
+      "It evaluates to never",
+      "It throws a compile-time circular reference error"
+    ],
+    "correctAnswer": "It distributes across the union, producing string[] | number[]",
+    "acceptedAnswers": [
+      "It distributes across the union, producing string[] | number[]"
+    ],
+    "hint": "Distributive conditional types distribute over union members automatically unless wrapped in a tuple `[T]`.",
+    "explanation": "When conditional types act on a naked type parameter, they distribute over union types: `ToArray<string | number>` expands to `ToArray<string> | ToArray<number>` = `string[] | number[]`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "distributive_conditionals",
+      "unions"
+    ]
+  },
+  {
+    "id": "ts-exp-004",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "distributive_conditionals",
+    "subtopic": "preventing_distribution",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "How does wrapping the type parameter in tuple brackets `[T]` affect conditional evaluation?",
+    "code": "type NonDistributive<T> = [T] extends [string | number] ? \"union-match\" : \"other\";\ntype Res = NonDistributive<string | number>;\nconst msg: Res = \"union-match\";\nconsole.log(msg);",
+    "options": [
+      "union-match",
+      "other",
+      "Compile error",
+      "undefined"
+    ],
+    "correctAnswer": "union-match",
+    "acceptedAnswers": [
+      "union-match"
+    ],
+    "hint": "Surrounding T with square brackets `[T]` disables union distribution.",
+    "explanation": "Wrapping `[T]` prevents distribution. `[string | number]` extends `[string | number]` directly, evaluating to `\"union-match\"`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "conditional_types",
+      "distribution"
+    ]
+  },
+  {
+    "id": "ts-exp-005",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "mapped_types",
+    "subtopic": "key_remapping_as",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this mapped type using key remapping with `as` and template literals?",
+    "code": "interface Events {\n  click: number;\n  hover: string;\n}\ntype Getters<T> = {\n  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K];\n};\ntype EventGetters = Getters<Events>;\nconst handlers: EventGetters = {\n  getClick: () => 42,\n  getHover: () => \"active\"\n};\nconsole.log(handlers.getClick(), handlers.getHover());",
+    "options": [
+      "42 active",
+      "click hover",
+      "undefined undefined",
+      "Compile error: Capitalize not valid"
+    ],
+    "correctAnswer": "42 active",
+    "acceptedAnswers": [
+      "42 active"
+    ],
+    "hint": "Key remapping `as` transforms original property names into custom template strings.",
+    "explanation": "Key remapping transforms `\"click\"` -> `\"getClick\"` and `\"hover\"` -> `\"getHover\"`, returning the respective property types. Output is `42 active`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "mapped_types",
+      "key_remapping"
+    ]
+  },
+  {
+    "id": "ts-exp-006",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "mapped_types",
+    "subtopic": "modifier_removal",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does the `-readonly` and `-?` modifier syntax do in mapped types?",
+    "code": "interface Locked {\n  readonly title?: string;\n}\ntype Unlocked<T> = {\n  -readonly [K in keyof T]-?: T[K];\n};\ntype Plain = Unlocked<Locked>;\nconst item: Plain = { title: \"Unlocked\" };\nitem.title = \"Mutable\";\nconsole.log(item.title);",
+    "options": [
+      "Mutable",
+      "Unlocked",
+      "Compile error: Cannot assign to readonly property",
+      "undefined"
+    ],
+    "correctAnswer": "Mutable",
+    "acceptedAnswers": [
+      "Mutable"
+    ],
+    "hint": "Prefixing modifiers with minus (-readonly, -?) strips them from the resulting type.",
+    "explanation": "`-readonly` strips immutability and `-?` strips optionality, making `title` a required, mutable `string`. `item.title = \"Mutable\"` succeeds.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "mapped_types",
+      "modifiers"
+    ]
+  },
+  {
+    "id": "ts-exp-007",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "template_literal_types",
+    "subtopic": "string_combinations",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "How many total string combinations are generated by this template literal product?",
+    "code": "type Dim = \"x\" | \"y\";\ntype Dir = \"pos\" | \"neg\";\ntype Axis = `${Dim}_${Dir}`;\nconst axes: Axis[] = [\"x_pos\", \"x_neg\", \"y_pos\", \"y_neg\"];\nconsole.log(axes.length);",
+    "options": [
+      "4",
+      "2",
+      "8",
+      "Compile error"
+    ],
+    "correctAnswer": "4",
+    "acceptedAnswers": [
+      "4"
+    ],
+    "hint": "Template literal types produce the cartesian product of union members.",
+    "explanation": "Template literal unions compute the full cartesian product: 2 dimensions × 2 directions = 4 union members: `\"x_pos\" | \"x_neg\" | \"y_pos\" | \"y_neg\"`. Output is 4.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "template_literals",
+      "cartesian_product"
+    ]
+  },
+  {
+    "id": "ts-exp-008",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "return_type_and_parameters",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What types are extracted by `Parameters<T>` and `ReturnType<T>`?",
+    "code": "function add(a: number, b: number): number {\n  return a + b;\n}\ntype AddParams = Parameters<typeof add>;\ntype AddReturn = ReturnType<typeof add>;\nconst args: AddParams = [10, 20];\nconst sum: AddReturn = add(...args);\nconsole.log(sum);",
+    "options": [
+      "30",
+      "1020",
+      "undefined",
+      "Compile error"
+    ],
+    "correctAnswer": "30",
+    "acceptedAnswers": [
+      "30"
+    ],
+    "hint": "Parameters<F> extracts a tuple of function parameters, and ReturnType<F> extracts the return type.",
+    "explanation": "`Parameters<typeof add>` extracts `[number, number]`. `ReturnType<typeof add>` is `number`. `add(10, 20)` evaluates to 30.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "parameters",
+      "return_type"
+    ]
+  },
+  {
+    "id": "ts-exp-009",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "awaited_unwrapping",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does `Awaited<T>` produce when given nested Promise types?",
+    "code": "type NestedPromise = Promise<Promise<string>>;\ntype Unwrapped = Awaited<NestedPromise>;\nconst str: Unwrapped = \"Resolved!\";\nconsole.log(str);",
+    "options": [
+      "Resolved!",
+      "Promise<string>",
+      "[object Promise]",
+      "Compile error"
+    ],
+    "correctAnswer": "Resolved!",
+    "acceptedAnswers": [
+      "Resolved!"
+    ],
+    "hint": "Awaited<T> recursively unwraps nested Promise types.",
+    "explanation": "`Awaited<T>` models `await` operations recursively unwrapping `Promise<Promise<string>>` down to the innermost resolved value `string`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "awaited",
+      "promises"
+    ]
+  },
+  {
+    "id": "ts-exp-010",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "find_bug",
+    "topic": "function_variance",
+    "subtopic": "strict_function_types",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Under --strictFunctionTypes, which line produces a contravariance error when assigning function callbacks?",
+    "code": "1: class Animal { name = \"animal\"; }\n2: class Dog extends Animal { bark = () => \"woof\"; }\n3: let handleAnimal: (a: Animal) => void = (a) => console.log(a.name);\n4: let handleDog: (d: Dog) => void = (d) => console.log(d.bark());\n5: handleDog = handleAnimal; // OK\n6: handleAnimal = handleDog; // Error?",
+    "options": [
+      "Line 6",
+      "Line 5",
+      "Line 4",
+      "Line 3"
+    ],
+    "correctAnswer": "Line 6",
+    "acceptedAnswers": [
+      "Line 6",
+      "6"
+    ],
+    "targetLine": 6,
+    "hint": "Function parameters are contravariant: a handler for Dog cannot be assigned to an Animal handler.",
+    "explanation": "Line 6 triggers error: `handleDog` expects a `Dog` with `.bark()`. If assigned to `handleAnimal`, an arbitrary `Animal` (like a Cat) could be passed, crashing at runtime. Function parameters are contravariant.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "contravariance",
+      "strictFunctionTypes"
+    ]
+  },
+  {
+    "id": "ts-exp-011",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "branded_types",
+    "subtopic": "nominal_typing_pattern",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What pattern is used to simulate nominal types in TypeScript's structural type system?",
+    "code": "type USD = number & { readonly __brand: unique symbol };\ntype EUR = number & { readonly __brand: unique symbol };\nfunction makeUSD(n: number) { return n as USD; }\nconst wallet = makeUSD(50);\nconsole.log(typeof wallet, wallet + 10);",
+    "options": [
+      "number 60",
+      "USD 60",
+      "object 5010",
+      "Compile error"
+    ],
+    "correctAnswer": "number 60",
+    "acceptedAnswers": [
+      "number 60"
+    ],
+    "hint": "Branded types attach an unconstructable property to enforce compile-time safety on identical underlying primitives.",
+    "explanation": "Branded types are pure compile-time constructs. At runtime, `wallet` is a standard JavaScript number (50). `typeof wallet` is `\"number\"` and 50 + 10 = 60.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "branded_types",
+      "nominal_typing"
+    ]
+  },
+  {
+    "id": "ts-exp-012",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "indexed_access",
+    "subtopic": "union_of_values",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What type does `T[keyof T]` produce for this interface?",
+    "code": "interface StatusMap {\n  online: 1;\n  offline: 0;\n}\ntype Values = StatusMap[keyof StatusMap];\nconst v: Values = 1;\nconsole.log(v);",
+    "options": [
+      "1",
+      "0",
+      "1 | 0",
+      "Compile error"
+    ],
+    "correctAnswer": "1",
+    "acceptedAnswers": [
+      "1"
+    ],
+    "hint": "Indexing an object type with `keyof T` produces the union of all its property value types.",
+    "explanation": "`keyof StatusMap` is `\"online\" | \"offline\"`. Indexing `StatusMap[\"online\" | \"offline\"]` yields the union of values: `1 | 0`. Assigning 1 outputs `1`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "indexed_access",
+      "keyof"
+    ]
+  },
+  {
+    "id": "ts-exp-013",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "tuple_spreads",
+    "subtopic": "rest_elements_in_tuples",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by spreading rest elements into a TypeScript tuple?",
+    "code": "type StringFirstThenNumbers = [string, ...number[]];\nconst tuple: StringFirstThenNumbers = [\"ID\", 101, 102, 103];\nconsole.log(tuple[0], tuple.slice(1).reduce((a, b) => a + b, 0));",
+    "options": [
+      "ID 306",
+      "ID 101",
+      "undefined 0",
+      "Compile error"
+    ],
+    "correctAnswer": "ID 306",
+    "acceptedAnswers": [
+      "ID 306"
+    ],
+    "hint": "Tuple rest elements allow typed variable-length sub-sequences.",
+    "explanation": "`tuple[0]` is `\"ID\"`. `tuple.slice(1)` is `[101, 102, 103]`. Summing them gives 306. Output is `ID 306`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "tuples",
+      "rest_elements"
+    ]
+  },
+  {
+    "id": "ts-exp-014",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "complete_code",
+    "topic": "override_keyword",
+    "subtopic": "inheritance_safety",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Which TypeScript keyword ensures a subclass method explicitly overrides a superclass method?",
+    "code": "class Base {\n  render(): string { return \"base\"; }\n}\nclass Sub extends Base {\n  ___ render(): string { return \"sub\"; }\n}",
+    "options": [
+      "override",
+      "overwrite",
+      "overload",
+      "virtual"
+    ],
+    "correctAnswer": "override",
+    "acceptedAnswers": [
+      "override"
+    ],
+    "hint": "The keyword was introduced in TS 4.3 with the `--noImplicitOverride` compiler flag.",
+    "explanation": "The `override` keyword guarantees that a method with the same name exists in the base class, preventing subtle bugs if the base class method is renamed.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "classes",
+      "override"
+    ]
+  },
+  {
+    "id": "ts-exp-015",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "recursive_types",
+    "subtopic": "deep_readonly",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What happens when evaluating nested properties on this recursive type?",
+    "code": "type Nested<T> = { val: T; next?: Nested<T> };\nconst chain: Nested<number> = { val: 1, next: { val: 2 } };\nconsole.log(chain.val + (chain.next?.val ?? 0));",
+    "options": [
+      "3",
+      "1",
+      "NaN",
+      "Compile error: Recursive type definition circular"
+    ],
+    "correctAnswer": "3",
+    "acceptedAnswers": [
+      "3"
+    ],
+    "hint": "TypeScript supports recursive type references in object properties.",
+    "explanation": "TypeScript handles recursive types cleanly. `chain.val` (1) + `chain.next.val` (2) = 3.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "recursive_types",
+      "generics"
+    ]
+  },
+  {
+    "id": "ts-exp-016",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "multiple_choice",
+    "topic": "type_widening",
+    "subtopic": "literal_widening_rules",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "Why does `let x = \"hello\"` have type `string`, while `const x = \"hello\"` has type `\"hello\"`?",
+    "code": "let a = \"hello\";   // type string\nconst b = \"hello\"; // type \"hello\"",
+    "options": [
+      "let variables can be reassigned to any string, while const variables are immutable bindings",
+      "const variables are allocated in read-only memory",
+      "let variables are typed as any by default",
+      "The compiler cannot infer types for let variables"
+    ],
+    "correctAnswer": "let variables can be reassigned to any string, while const variables are immutable bindings",
+    "acceptedAnswers": [
+      "let variables can be reassigned to any string, while const variables are immutable bindings"
+    ],
+    "hint": "Consider whether the variable reference can be changed after assignment.",
+    "explanation": "Because `let` variables can be mutated later, TypeScript widens literal types to their broader primitive type (`string`). Because `const` cannot be reassigned, the literal type `\"hello\"` is preserved.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "literal_widening",
+      "type_inference"
+    ]
+  },
+  {
+    "id": "ts-exp-017",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "this_parameter",
+    "subtopic": "explicit_this_typing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What happens to the fake `this` parameter in TypeScript function signatures at runtime?",
+    "code": "function show(this: { id: number }) {\n  return this.id;\n}\nconst obj = { id: 77, show };\nconsole.log(obj.show());",
+    "options": [
+      "77",
+      "undefined",
+      "Compile error: this is a reserved keyword",
+      "NaN"
+    ],
+    "correctAnswer": "77",
+    "acceptedAnswers": [
+      "77"
+    ],
+    "hint": "The first parameter named `this` is completely erased during compilation into JavaScript.",
+    "explanation": "TypeScript uses a leading fake `this` parameter to declare the expected `this` context for static analysis. It is erased from JavaScript output, so `obj.show()` correctly returns 77.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "this_parameter",
+      "functions"
+    ]
+  },
+  {
+    "id": "ts-exp-018",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "conditional_types",
+    "subtopic": "tuple_flattening",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this conditional type unwrap?",
+    "code": "type Flatten<T> = T extends (infer Item)[] ? Item : T;\ntype A = Flatten<string[]>;\ntype B = Flatten<number>;\nconst valA: A = \"hello\";\nconst valB: B = 10;\nconsole.log(typeof valA, typeof valB);",
+    "options": [
+      "string number",
+      "object number",
+      "string string",
+      "Compile error"
+    ],
+    "correctAnswer": "string number",
+    "acceptedAnswers": [
+      "string number"
+    ],
+    "hint": "If T is an array, it extracts the element type; otherwise, it leaves T unchanged.",
+    "explanation": "`Flatten<string[]>` extracts `string`. `Flatten<number>` returns `number` directly. Output is `string number`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "infer",
+      "conditional_types"
+    ]
+  },
+  {
+    "id": "ts-exp-019",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "intrinsic_string_manipulation",
+    "subtopic": "uppercase_lowercase",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed by this intrinsic string manipulation utility?",
+    "code": "type Action = \"start\" | \"stop\";\ntype ActionEvent = `on_${Uppercase<Action>}`;\nconst e: ActionEvent = \"on_START\";\nconsole.log(e);",
+    "options": [
+      "on_START",
+      "on_start",
+      "ON_START",
+      "Compile error"
+    ],
+    "correctAnswer": "on_START",
+    "acceptedAnswers": [
+      "on_START"
+    ],
+    "hint": "Uppercase<T> transforms string literal types to uppercase within the compiler.",
+    "explanation": "`Uppercase<\"start\" | \"stop\">` produces `\"START\" | \"STOP\"`. The template literal yields `\"on_START\" | \"on_STOP\"`. Output is `on_START`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "template_literals",
+      "intrinsic"
+    ]
+  },
+  {
+    "id": "ts-exp-020",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "const_type_parameters",
+    "subtopic": "ts_5_const_generics",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What inferred type does TypeScript 5.0+ `const` generic parameter assign to the return value?",
+    "code": "function asTuple<const T extends readonly unknown[]>(arr: T): T {\n  return arr;\n}\nconst t = asTuple([\"a\", 1]);\nconsole.log(t[0], t[1]);",
+    "options": [
+      "a 1",
+      "string number",
+      "undefined undefined",
+      "Compile error"
+    ],
+    "correctAnswer": "a 1",
+    "acceptedAnswers": [
+      "a 1"
+    ],
+    "hint": "<const T> enforces literal const inference on arguments without requiring `as const` at call sites.",
+    "explanation": "In TypeScript 5.0+, `<const T>` automatically infers literal readonly tuple types (`readonly [\"a\", 1]`). Output is `a 1`.",
+    "points": 300,
+    "estimatedSeconds": 40,
+    "tags": [
+      "typescript",
+      "const_generics",
+      "ts5"
+    ]
+  }
+];
+
+/* --- End of data/typescript-questions.js --- */
+
 /* --- Start of data/endless-questions.js --- */
 /**
  * SyntaxArena Endless Mode Question Catalog (Item 16)
@@ -58172,6 +60000,6009 @@ var endlessQuestions = window.endlessQuestions = {
       ]
     }
   ]
+,
+  typescript: [
+  {
+    "id": "ts-end-001",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_1\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-002",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(20));",
+    "options": [
+      "20",
+      "30",
+      "40",
+      "NaN"
+    ],
+    "correctAnswer": "20",
+    "acceptedAnswers": [
+      "20"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 20.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-003",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v3\", 3];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v3 3",
+      "v4 4",
+      "v5 5",
+      "NaN"
+    ],
+    "correctAnswer": "v3 3",
+    "acceptedAnswers": [
+      "v3 3"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v3 3.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-004",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 4;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-005",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_5: 10 };\nconsole.log(map.key_5);",
+    "options": [
+      "10",
+      "11",
+      "12",
+      "NaN"
+    ],
+    "correctAnswer": "10",
+    "acceptedAnswers": [
+      "10"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 10.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-006",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 6 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-007",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [7, 14] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "21",
+      "24",
+      "27",
+      "NaN"
+    ],
+    "correctAnswer": "21",
+    "acceptedAnswers": [
+      "21"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 21.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-008",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 8, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "NaN"
+    ],
+    "correctAnswer": "9",
+    "acceptedAnswers": [
+      "9"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 9.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-009",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_9\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-010",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(100));",
+    "options": [
+      "100",
+      "110",
+      "120",
+      "NaN"
+    ],
+    "correctAnswer": "100",
+    "acceptedAnswers": [
+      "100"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 100.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-011",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v11\", 11];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v11 11",
+      "v12 12",
+      "v13 13",
+      "NaN"
+    ],
+    "correctAnswer": "v11 11",
+    "acceptedAnswers": [
+      "v11 11"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v11 11.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-012",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 12;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-013",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_13: 18 };\nconsole.log(map.key_13);",
+    "options": [
+      "18",
+      "19",
+      "20",
+      "NaN"
+    ],
+    "correctAnswer": "18",
+    "acceptedAnswers": [
+      "18"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 18.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-014",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 14 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-015",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [15, 30] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "45",
+      "48",
+      "51",
+      "NaN"
+    ],
+    "correctAnswer": "45",
+    "acceptedAnswers": [
+      "45"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 45.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-016",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 16, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "17",
+      "18",
+      "19",
+      "NaN"
+    ],
+    "correctAnswer": "17",
+    "acceptedAnswers": [
+      "17"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 17.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-017",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_17\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-018",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(180));",
+    "options": [
+      "180",
+      "190",
+      "200",
+      "NaN"
+    ],
+    "correctAnswer": "180",
+    "acceptedAnswers": [
+      "180"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 180.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-019",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v19\", 19];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v19 19",
+      "v20 20",
+      "v21 21",
+      "NaN"
+    ],
+    "correctAnswer": "v19 19",
+    "acceptedAnswers": [
+      "v19 19"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v19 19.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-020",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 20;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-021",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_21: 26 };\nconsole.log(map.key_21);",
+    "options": [
+      "26",
+      "27",
+      "28",
+      "NaN"
+    ],
+    "correctAnswer": "26",
+    "acceptedAnswers": [
+      "26"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 26.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-022",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 22 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-023",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [23, 46] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "69",
+      "72",
+      "75",
+      "NaN"
+    ],
+    "correctAnswer": "69",
+    "acceptedAnswers": [
+      "69"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 69.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-024",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 24, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "25",
+      "26",
+      "27",
+      "NaN"
+    ],
+    "correctAnswer": "25",
+    "acceptedAnswers": [
+      "25"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 25.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-025",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_25\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-026",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(260));",
+    "options": [
+      "260",
+      "270",
+      "280",
+      "NaN"
+    ],
+    "correctAnswer": "260",
+    "acceptedAnswers": [
+      "260"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 260.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-027",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v27\", 27];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v27 27",
+      "v28 28",
+      "v29 29",
+      "NaN"
+    ],
+    "correctAnswer": "v27 27",
+    "acceptedAnswers": [
+      "v27 27"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v27 27.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-028",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 28;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-029",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_29: 34 };\nconsole.log(map.key_29);",
+    "options": [
+      "34",
+      "35",
+      "36",
+      "NaN"
+    ],
+    "correctAnswer": "34",
+    "acceptedAnswers": [
+      "34"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 34.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-030",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 30 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-031",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [31, 62] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "93",
+      "96",
+      "99",
+      "NaN"
+    ],
+    "correctAnswer": "93",
+    "acceptedAnswers": [
+      "93"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 93.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-032",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 32, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "33",
+      "34",
+      "35",
+      "NaN"
+    ],
+    "correctAnswer": "33",
+    "acceptedAnswers": [
+      "33"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 33.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-033",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_33\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-034",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(340));",
+    "options": [
+      "340",
+      "350",
+      "360",
+      "NaN"
+    ],
+    "correctAnswer": "340",
+    "acceptedAnswers": [
+      "340"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 340.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-035",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v35\", 35];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v35 35",
+      "v36 36",
+      "v37 37",
+      "NaN"
+    ],
+    "correctAnswer": "v35 35",
+    "acceptedAnswers": [
+      "v35 35"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v35 35.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-036",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 36;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-037",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_37: 42 };\nconsole.log(map.key_37);",
+    "options": [
+      "42",
+      "43",
+      "44",
+      "NaN"
+    ],
+    "correctAnswer": "42",
+    "acceptedAnswers": [
+      "42"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 42.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-038",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 38 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-039",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [39, 78] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "117",
+      "120",
+      "123",
+      "NaN"
+    ],
+    "correctAnswer": "117",
+    "acceptedAnswers": [
+      "117"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 117.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-040",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 40, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "41",
+      "42",
+      "43",
+      "NaN"
+    ],
+    "correctAnswer": "41",
+    "acceptedAnswers": [
+      "41"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 41.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-041",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_41\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-042",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(420));",
+    "options": [
+      "420",
+      "430",
+      "440",
+      "NaN"
+    ],
+    "correctAnswer": "420",
+    "acceptedAnswers": [
+      "420"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 420.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-043",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v43\", 43];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v43 43",
+      "v44 44",
+      "v45 45",
+      "NaN"
+    ],
+    "correctAnswer": "v43 43",
+    "acceptedAnswers": [
+      "v43 43"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v43 43.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-044",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 44;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-045",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_45: 50 };\nconsole.log(map.key_45);",
+    "options": [
+      "50",
+      "51",
+      "52",
+      "NaN"
+    ],
+    "correctAnswer": "50",
+    "acceptedAnswers": [
+      "50"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 50.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-046",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 46 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-047",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [47, 94] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "141",
+      "144",
+      "147",
+      "NaN"
+    ],
+    "correctAnswer": "141",
+    "acceptedAnswers": [
+      "141"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 141.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-048",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 48, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "49",
+      "50",
+      "51",
+      "NaN"
+    ],
+    "correctAnswer": "49",
+    "acceptedAnswers": [
+      "49"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 49.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-049",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_49\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-050",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(500));",
+    "options": [
+      "500",
+      "510",
+      "520",
+      "NaN"
+    ],
+    "correctAnswer": "500",
+    "acceptedAnswers": [
+      "500"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 500.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-051",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v51\", 51];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v51 51",
+      "v52 52",
+      "v53 53",
+      "NaN"
+    ],
+    "correctAnswer": "v51 51",
+    "acceptedAnswers": [
+      "v51 51"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v51 51.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-052",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 52;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-053",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_53: 58 };\nconsole.log(map.key_53);",
+    "options": [
+      "58",
+      "59",
+      "60",
+      "NaN"
+    ],
+    "correctAnswer": "58",
+    "acceptedAnswers": [
+      "58"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 58.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-054",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 54 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-055",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [55, 110] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "165",
+      "168",
+      "171",
+      "NaN"
+    ],
+    "correctAnswer": "165",
+    "acceptedAnswers": [
+      "165"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 165.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-056",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 56, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "57",
+      "58",
+      "59",
+      "NaN"
+    ],
+    "correctAnswer": "57",
+    "acceptedAnswers": [
+      "57"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 57.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-057",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_57\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-058",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(580));",
+    "options": [
+      "580",
+      "590",
+      "600",
+      "NaN"
+    ],
+    "correctAnswer": "580",
+    "acceptedAnswers": [
+      "580"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 580.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-059",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v59\", 59];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v59 59",
+      "v60 60",
+      "v61 61",
+      "NaN"
+    ],
+    "correctAnswer": "v59 59",
+    "acceptedAnswers": [
+      "v59 59"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v59 59.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-060",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 60;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-061",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_61: 66 };\nconsole.log(map.key_61);",
+    "options": [
+      "66",
+      "67",
+      "68",
+      "NaN"
+    ],
+    "correctAnswer": "66",
+    "acceptedAnswers": [
+      "66"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 66.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-062",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 62 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-063",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [63, 126] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "189",
+      "192",
+      "195",
+      "NaN"
+    ],
+    "correctAnswer": "189",
+    "acceptedAnswers": [
+      "189"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 189.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-064",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 64, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "65",
+      "66",
+      "67",
+      "NaN"
+    ],
+    "correctAnswer": "65",
+    "acceptedAnswers": [
+      "65"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 65.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-065",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_65\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-066",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(660));",
+    "options": [
+      "660",
+      "670",
+      "680",
+      "NaN"
+    ],
+    "correctAnswer": "660",
+    "acceptedAnswers": [
+      "660"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 660.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-067",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v67\", 67];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v67 67",
+      "v68 68",
+      "v69 69",
+      "NaN"
+    ],
+    "correctAnswer": "v67 67",
+    "acceptedAnswers": [
+      "v67 67"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v67 67.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-068",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 68;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-069",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_69: 74 };\nconsole.log(map.key_69);",
+    "options": [
+      "74",
+      "75",
+      "76",
+      "NaN"
+    ],
+    "correctAnswer": "74",
+    "acceptedAnswers": [
+      "74"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 74.",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-070",
+    "language": "typescript",
+    "difficulty": "beginner",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 70 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 100,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-071",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [71, 142] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "213",
+      "216",
+      "219",
+      "NaN"
+    ],
+    "correctAnswer": "213",
+    "acceptedAnswers": [
+      "213"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 213.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-072",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 72, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "73",
+      "74",
+      "75",
+      "NaN"
+    ],
+    "correctAnswer": "73",
+    "acceptedAnswers": [
+      "73"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 73.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-073",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_73\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-074",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(740));",
+    "options": [
+      "740",
+      "750",
+      "760",
+      "NaN"
+    ],
+    "correctAnswer": "740",
+    "acceptedAnswers": [
+      "740"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 740.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-075",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v75\", 75];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v75 75",
+      "v76 76",
+      "v77 77",
+      "NaN"
+    ],
+    "correctAnswer": "v75 75",
+    "acceptedAnswers": [
+      "v75 75"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v75 75.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-076",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 76;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-077",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_77: 82 };\nconsole.log(map.key_77);",
+    "options": [
+      "82",
+      "83",
+      "84",
+      "NaN"
+    ],
+    "correctAnswer": "82",
+    "acceptedAnswers": [
+      "82"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 82.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-078",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 78 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-079",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [79, 158] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "237",
+      "240",
+      "243",
+      "NaN"
+    ],
+    "correctAnswer": "237",
+    "acceptedAnswers": [
+      "237"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 237.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-080",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 80, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "81",
+      "82",
+      "83",
+      "NaN"
+    ],
+    "correctAnswer": "81",
+    "acceptedAnswers": [
+      "81"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 81.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-081",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_81\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-082",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(820));",
+    "options": [
+      "820",
+      "830",
+      "840",
+      "NaN"
+    ],
+    "correctAnswer": "820",
+    "acceptedAnswers": [
+      "820"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 820.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-083",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v83\", 83];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v83 83",
+      "v84 84",
+      "v85 85",
+      "NaN"
+    ],
+    "correctAnswer": "v83 83",
+    "acceptedAnswers": [
+      "v83 83"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v83 83.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-084",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 84;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-085",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_85: 90 };\nconsole.log(map.key_85);",
+    "options": [
+      "90",
+      "91",
+      "92",
+      "NaN"
+    ],
+    "correctAnswer": "90",
+    "acceptedAnswers": [
+      "90"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 90.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-086",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 86 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-087",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [87, 174] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "261",
+      "264",
+      "267",
+      "NaN"
+    ],
+    "correctAnswer": "261",
+    "acceptedAnswers": [
+      "261"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 261.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-088",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 88, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "89",
+      "90",
+      "91",
+      "NaN"
+    ],
+    "correctAnswer": "89",
+    "acceptedAnswers": [
+      "89"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 89.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-089",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_89\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-090",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(900));",
+    "options": [
+      "900",
+      "910",
+      "920",
+      "NaN"
+    ],
+    "correctAnswer": "900",
+    "acceptedAnswers": [
+      "900"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 900.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-091",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v91\", 91];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v91 91",
+      "v92 92",
+      "v93 93",
+      "NaN"
+    ],
+    "correctAnswer": "v91 91",
+    "acceptedAnswers": [
+      "v91 91"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v91 91.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-092",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 92;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-093",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_93: 98 };\nconsole.log(map.key_93);",
+    "options": [
+      "98",
+      "99",
+      "100",
+      "NaN"
+    ],
+    "correctAnswer": "98",
+    "acceptedAnswers": [
+      "98"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 98.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-094",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 94 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-095",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [95, 190] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "285",
+      "288",
+      "291",
+      "NaN"
+    ],
+    "correctAnswer": "285",
+    "acceptedAnswers": [
+      "285"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 285.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-096",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 96, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "97",
+      "98",
+      "99",
+      "NaN"
+    ],
+    "correctAnswer": "97",
+    "acceptedAnswers": [
+      "97"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 97.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-097",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_97\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-098",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(980));",
+    "options": [
+      "980",
+      "990",
+      "1000",
+      "NaN"
+    ],
+    "correctAnswer": "980",
+    "acceptedAnswers": [
+      "980"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 980.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-099",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v99\", 99];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v99 99",
+      "v100 100",
+      "v101 101",
+      "NaN"
+    ],
+    "correctAnswer": "v99 99",
+    "acceptedAnswers": [
+      "v99 99"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v99 99.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-100",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 100;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-101",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_101: 106 };\nconsole.log(map.key_101);",
+    "options": [
+      "106",
+      "107",
+      "108",
+      "NaN"
+    ],
+    "correctAnswer": "106",
+    "acceptedAnswers": [
+      "106"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 106.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-102",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 102 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-103",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [103, 206] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "309",
+      "312",
+      "315",
+      "NaN"
+    ],
+    "correctAnswer": "309",
+    "acceptedAnswers": [
+      "309"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 309.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-104",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 104, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "105",
+      "106",
+      "107",
+      "NaN"
+    ],
+    "correctAnswer": "105",
+    "acceptedAnswers": [
+      "105"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 105.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-105",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_105\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-106",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1060));",
+    "options": [
+      "1060",
+      "1070",
+      "1080",
+      "NaN"
+    ],
+    "correctAnswer": "1060",
+    "acceptedAnswers": [
+      "1060"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1060.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-107",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v107\", 107];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v107 107",
+      "v108 108",
+      "v109 109",
+      "NaN"
+    ],
+    "correctAnswer": "v107 107",
+    "acceptedAnswers": [
+      "v107 107"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v107 107.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-108",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 108;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-109",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_109: 114 };\nconsole.log(map.key_109);",
+    "options": [
+      "114",
+      "115",
+      "116",
+      "NaN"
+    ],
+    "correctAnswer": "114",
+    "acceptedAnswers": [
+      "114"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 114.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-110",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 110 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-111",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [111, 222] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "333",
+      "336",
+      "339",
+      "NaN"
+    ],
+    "correctAnswer": "333",
+    "acceptedAnswers": [
+      "333"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 333.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-112",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 112, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "113",
+      "114",
+      "115",
+      "NaN"
+    ],
+    "correctAnswer": "113",
+    "acceptedAnswers": [
+      "113"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 113.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-113",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_113\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-114",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1140));",
+    "options": [
+      "1140",
+      "1150",
+      "1160",
+      "NaN"
+    ],
+    "correctAnswer": "1140",
+    "acceptedAnswers": [
+      "1140"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1140.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-115",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v115\", 115];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v115 115",
+      "v116 116",
+      "v117 117",
+      "NaN"
+    ],
+    "correctAnswer": "v115 115",
+    "acceptedAnswers": [
+      "v115 115"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v115 115.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-116",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 116;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-117",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_117: 122 };\nconsole.log(map.key_117);",
+    "options": [
+      "122",
+      "123",
+      "124",
+      "NaN"
+    ],
+    "correctAnswer": "122",
+    "acceptedAnswers": [
+      "122"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 122.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-118",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 118 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-119",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [119, 238] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "357",
+      "360",
+      "363",
+      "NaN"
+    ],
+    "correctAnswer": "357",
+    "acceptedAnswers": [
+      "357"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 357.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-120",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 120, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "121",
+      "122",
+      "123",
+      "NaN"
+    ],
+    "correctAnswer": "121",
+    "acceptedAnswers": [
+      "121"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 121.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-121",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_121\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-122",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1220));",
+    "options": [
+      "1220",
+      "1230",
+      "1240",
+      "NaN"
+    ],
+    "correctAnswer": "1220",
+    "acceptedAnswers": [
+      "1220"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1220.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-123",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v123\", 123];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v123 123",
+      "v124 124",
+      "v125 125",
+      "NaN"
+    ],
+    "correctAnswer": "v123 123",
+    "acceptedAnswers": [
+      "v123 123"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v123 123.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-124",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 124;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-125",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_125: 130 };\nconsole.log(map.key_125);",
+    "options": [
+      "130",
+      "131",
+      "132",
+      "NaN"
+    ],
+    "correctAnswer": "130",
+    "acceptedAnswers": [
+      "130"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 130.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-126",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 126 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-127",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [127, 254] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "381",
+      "384",
+      "387",
+      "NaN"
+    ],
+    "correctAnswer": "381",
+    "acceptedAnswers": [
+      "381"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 381.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-128",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 128, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "129",
+      "130",
+      "131",
+      "NaN"
+    ],
+    "correctAnswer": "129",
+    "acceptedAnswers": [
+      "129"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 129.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-129",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_129\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-130",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1300));",
+    "options": [
+      "1300",
+      "1310",
+      "1320",
+      "NaN"
+    ],
+    "correctAnswer": "1300",
+    "acceptedAnswers": [
+      "1300"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1300.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-131",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v131\", 131];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v131 131",
+      "v132 132",
+      "v133 133",
+      "NaN"
+    ],
+    "correctAnswer": "v131 131",
+    "acceptedAnswers": [
+      "v131 131"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v131 131.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-132",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 132;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-133",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_133: 138 };\nconsole.log(map.key_133);",
+    "options": [
+      "138",
+      "139",
+      "140",
+      "NaN"
+    ],
+    "correctAnswer": "138",
+    "acceptedAnswers": [
+      "138"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 138.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-134",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 134 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-135",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [135, 270] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "405",
+      "408",
+      "411",
+      "NaN"
+    ],
+    "correctAnswer": "405",
+    "acceptedAnswers": [
+      "405"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 405.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-136",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 136, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "137",
+      "138",
+      "139",
+      "NaN"
+    ],
+    "correctAnswer": "137",
+    "acceptedAnswers": [
+      "137"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 137.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-137",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_137\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-138",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1380));",
+    "options": [
+      "1380",
+      "1390",
+      "1400",
+      "NaN"
+    ],
+    "correctAnswer": "1380",
+    "acceptedAnswers": [
+      "1380"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1380.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-139",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v139\", 139];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v139 139",
+      "v140 140",
+      "v141 141",
+      "NaN"
+    ],
+    "correctAnswer": "v139 139",
+    "acceptedAnswers": [
+      "v139 139"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v139 139.",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-140",
+    "language": "typescript",
+    "difficulty": "intermediate",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 140;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 200,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-141",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_141: 146 };\nconsole.log(map.key_141);",
+    "options": [
+      "146",
+      "147",
+      "148",
+      "NaN"
+    ],
+    "correctAnswer": "146",
+    "acceptedAnswers": [
+      "146"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 146.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-142",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 142 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-143",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [143, 286] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "429",
+      "432",
+      "435",
+      "NaN"
+    ],
+    "correctAnswer": "429",
+    "acceptedAnswers": [
+      "429"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 429.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-144",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 144, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "145",
+      "146",
+      "147",
+      "NaN"
+    ],
+    "correctAnswer": "145",
+    "acceptedAnswers": [
+      "145"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 145.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-145",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_145\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-146",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1460));",
+    "options": [
+      "1460",
+      "1470",
+      "1480",
+      "NaN"
+    ],
+    "correctAnswer": "1460",
+    "acceptedAnswers": [
+      "1460"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1460.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-147",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v147\", 147];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v147 147",
+      "v148 148",
+      "v149 149",
+      "NaN"
+    ],
+    "correctAnswer": "v147 147",
+    "acceptedAnswers": [
+      "v147 147"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v147 147.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-148",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 148;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-149",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_149: 154 };\nconsole.log(map.key_149);",
+    "options": [
+      "154",
+      "155",
+      "156",
+      "NaN"
+    ],
+    "correctAnswer": "154",
+    "acceptedAnswers": [
+      "154"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 154.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-150",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 150 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-151",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [151, 302] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "453",
+      "456",
+      "459",
+      "NaN"
+    ],
+    "correctAnswer": "453",
+    "acceptedAnswers": [
+      "453"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 453.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-152",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 152, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "153",
+      "154",
+      "155",
+      "NaN"
+    ],
+    "correctAnswer": "153",
+    "acceptedAnswers": [
+      "153"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 153.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-153",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_153\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-154",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1540));",
+    "options": [
+      "1540",
+      "1550",
+      "1560",
+      "NaN"
+    ],
+    "correctAnswer": "1540",
+    "acceptedAnswers": [
+      "1540"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1540.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-155",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v155\", 155];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v155 155",
+      "v156 156",
+      "v157 157",
+      "NaN"
+    ],
+    "correctAnswer": "v155 155",
+    "acceptedAnswers": [
+      "v155 155"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v155 155.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-156",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 156;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-157",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_157: 162 };\nconsole.log(map.key_157);",
+    "options": [
+      "162",
+      "163",
+      "164",
+      "NaN"
+    ],
+    "correctAnswer": "162",
+    "acceptedAnswers": [
+      "162"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 162.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-158",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 158 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-159",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [159, 318] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "477",
+      "480",
+      "483",
+      "NaN"
+    ],
+    "correctAnswer": "477",
+    "acceptedAnswers": [
+      "477"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 477.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-160",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 160, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "161",
+      "162",
+      "163",
+      "NaN"
+    ],
+    "correctAnswer": "161",
+    "acceptedAnswers": [
+      "161"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 161.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-161",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_161\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-162",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1620));",
+    "options": [
+      "1620",
+      "1630",
+      "1640",
+      "NaN"
+    ],
+    "correctAnswer": "1620",
+    "acceptedAnswers": [
+      "1620"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1620.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-163",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v163\", 163];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v163 163",
+      "v164 164",
+      "v165 165",
+      "NaN"
+    ],
+    "correctAnswer": "v163 163",
+    "acceptedAnswers": [
+      "v163 163"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v163 163.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-164",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 164;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-165",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_165: 170 };\nconsole.log(map.key_165);",
+    "options": [
+      "170",
+      "171",
+      "172",
+      "NaN"
+    ],
+    "correctAnswer": "170",
+    "acceptedAnswers": [
+      "170"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 170.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-166",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 166 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-167",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [167, 334] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "501",
+      "504",
+      "507",
+      "NaN"
+    ],
+    "correctAnswer": "501",
+    "acceptedAnswers": [
+      "501"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 501.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-168",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 168, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "169",
+      "170",
+      "171",
+      "NaN"
+    ],
+    "correctAnswer": "169",
+    "acceptedAnswers": [
+      "169"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 169.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-169",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_169\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-170",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1700));",
+    "options": [
+      "1700",
+      "1710",
+      "1720",
+      "NaN"
+    ],
+    "correctAnswer": "1700",
+    "acceptedAnswers": [
+      "1700"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1700.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-171",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v171\", 171];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v171 171",
+      "v172 172",
+      "v173 173",
+      "NaN"
+    ],
+    "correctAnswer": "v171 171",
+    "acceptedAnswers": [
+      "v171 171"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v171 171.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-172",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 172;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-173",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_173: 178 };\nconsole.log(map.key_173);",
+    "options": [
+      "178",
+      "179",
+      "180",
+      "NaN"
+    ],
+    "correctAnswer": "178",
+    "acceptedAnswers": [
+      "178"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 178.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-174",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 174 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-175",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [175, 350] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "525",
+      "528",
+      "531",
+      "NaN"
+    ],
+    "correctAnswer": "525",
+    "acceptedAnswers": [
+      "525"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 525.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-176",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 176, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "177",
+      "178",
+      "179",
+      "NaN"
+    ],
+    "correctAnswer": "177",
+    "acceptedAnswers": [
+      "177"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 177.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-177",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_177\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-178",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1780));",
+    "options": [
+      "1780",
+      "1790",
+      "1800",
+      "NaN"
+    ],
+    "correctAnswer": "1780",
+    "acceptedAnswers": [
+      "1780"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1780.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-179",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v179\", 179];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v179 179",
+      "v180 180",
+      "v181 181",
+      "NaN"
+    ],
+    "correctAnswer": "v179 179",
+    "acceptedAnswers": [
+      "v179 179"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v179 179.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-180",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 180;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-181",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_181: 186 };\nconsole.log(map.key_181);",
+    "options": [
+      "186",
+      "187",
+      "188",
+      "NaN"
+    ],
+    "correctAnswer": "186",
+    "acceptedAnswers": [
+      "186"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 186.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-182",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 182 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-183",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [183, 366] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "549",
+      "552",
+      "555",
+      "NaN"
+    ],
+    "correctAnswer": "549",
+    "acceptedAnswers": [
+      "549"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 549.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-184",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 184, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "185",
+      "186",
+      "187",
+      "NaN"
+    ],
+    "correctAnswer": "185",
+    "acceptedAnswers": [
+      "185"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 185.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-185",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_185\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-186",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1860));",
+    "options": [
+      "1860",
+      "1870",
+      "1880",
+      "NaN"
+    ],
+    "correctAnswer": "1860",
+    "acceptedAnswers": [
+      "1860"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1860.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-187",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v187\", 187];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v187 187",
+      "v188 188",
+      "v189 189",
+      "NaN"
+    ],
+    "correctAnswer": "v187 187",
+    "acceptedAnswers": [
+      "v187 187"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v187 187.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-188",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 188;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-189",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_189: 194 };\nconsole.log(map.key_189);",
+    "options": [
+      "194",
+      "195",
+      "196",
+      "NaN"
+    ],
+    "correctAnswer": "194",
+    "acceptedAnswers": [
+      "194"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 194.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-190",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 190 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-191",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [191, 382] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "573",
+      "576",
+      "579",
+      "NaN"
+    ],
+    "correctAnswer": "573",
+    "acceptedAnswers": [
+      "573"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 573.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-192",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 192, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "193",
+      "194",
+      "195",
+      "NaN"
+    ],
+    "correctAnswer": "193",
+    "acceptedAnswers": [
+      "193"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 193.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-193",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "types",
+    "subtopic": "primitives",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the inferred type of this variable?",
+    "code": "const val = \"TS_193\";\nconsole.log(typeof val);",
+    "options": [
+      "\"string\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"string\"",
+    "acceptedAnswers": [
+      "\"string\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"string\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-194",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "generics",
+    "subtopic": "identity",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the output of this generic identity call?",
+    "code": "function id<T>(x: T): T { return x; }\nconsole.log(id(1940));",
+    "options": [
+      "1940",
+      "1950",
+      "1960",
+      "NaN"
+    ],
+    "correctAnswer": "1940",
+    "acceptedAnswers": [
+      "1940"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 1940.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "generics",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-195",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "tuples",
+    "subtopic": "indexed_access",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this tuple access output?",
+    "code": "const t: [string, number] = [\"v195\", 195];\nconsole.log(t[0], t[1]);",
+    "options": [
+      "v195 195",
+      "v196 196",
+      "v197 197",
+      "NaN"
+    ],
+    "correctAnswer": "v195 195",
+    "acceptedAnswers": [
+      "v195 195"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces v195 195.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "tuples",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-196",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "unions",
+    "subtopic": "narrowing",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed after typeof narrowing?",
+    "code": "const x: string | number = 196;\nconsole.log(typeof x);",
+    "options": [
+      "\"number\"",
+      "\"string\"",
+      "NaN",
+      "Option_3"
+    ],
+    "correctAnswer": "\"number\"",
+    "acceptedAnswers": [
+      "\"number\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"number\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "unions",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-197",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "utility_types",
+    "subtopic": "record",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this Record lookup evaluate to?",
+    "code": "const map: Record<string, number> = { key_197: 202 };\nconsole.log(map.key_197);",
+    "options": [
+      "202",
+      "203",
+      "204",
+      "NaN"
+    ],
+    "correctAnswer": "202",
+    "acceptedAnswers": [
+      "202"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 202.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "utility_types",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-198",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "interfaces",
+    "subtopic": "optional",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is printed when accessing the optional property?",
+    "code": "interface Item { id: number; tag?: string; }\nconst it: Item = { id: 198 };\nconsole.log(it.tag ?? \"default\");",
+    "options": [
+      "\"default\"",
+      "\"other\"",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": "\"default\"",
+    "acceptedAnswers": [
+      "\"default\""
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces \"default\".",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "interfaces",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-199",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "as_const",
+    "subtopic": "literals",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What is the runtime value of this as const tuple?",
+    "code": "const coords = [199, 398] as const;\nconsole.log(coords[0] + coords[1]);",
+    "options": [
+      "597",
+      "600",
+      "603",
+      "NaN"
+    ],
+    "correctAnswer": "597",
+    "acceptedAnswers": [
+      "597"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 597.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "as_const",
+      "endless"
+    ]
+  },
+  {
+    "id": "ts-end-200",
+    "language": "typescript",
+    "difficulty": "expert",
+    "type": "predict_output",
+    "topic": "enums",
+    "subtopic": "numeric",
+    "standardVersion": "TypeScript 5.4+",
+    "prompt": "What does this numeric enum value print?",
+    "code": "enum Step { First = 200, Second }\nconsole.log(Step.Second);",
+    "options": [
+      "201",
+      "202",
+      "203",
+      "NaN"
+    ],
+    "correctAnswer": "201",
+    "acceptedAnswers": [
+      "201"
+    ],
+    "hint": "Analyze how TypeScript static types compile and evaluate in JavaScript.",
+    "explanation": "TypeScript type checks this snippet at compile time, and at runtime the JavaScript expression produces 201.",
+    "points": 300,
+    "estimatedSeconds": 30,
+    "tags": [
+      "typescript",
+      "enums",
+      "endless"
+    ]
+  }
+]
 };
 
 /* --- End of data/endless-questions.js --- */
@@ -58182,6 +66013,7 @@ var endlessQuestions = window.endlessQuestions = {
  * Unified access to Python, C, C++, and Java challenges.
  * Source of truth: docs/QUESTION_SCHEMA.md
  */
+
 
 
 
@@ -58264,6 +66096,15 @@ var LANGUAGE_METADATA = window.LANGUAGE_METADATA = {
     tagClass: 'tag-sql',
     color: '#336791',
     accentColor: '#4AA3DF'
+  },
+  typescript: {
+    id: 'typescript',
+    name: 'TypeScript (v5+)',
+    version: 'TypeScript 5.4+',
+    filename: 'solution.ts',
+    tagClass: 'tag-typescript',
+    color: '#3178C6',
+    accentColor: '#58A6FF'
   }
 };
 
@@ -58284,6 +66125,8 @@ var QuestionRepository = window.QuestionRepository = {
       case 'javascript': return javascriptQuestions;
       case 'rust': return rustQuestions;
       case 'sql': return sqlQuestions;
+      case 'ts':
+      case 'typescript': return typescriptQuestions;
       case 'python':
       default:
         return pythonQuestions;
@@ -58924,7 +66767,8 @@ class StorageManager {
       cyber:      { ...defaultProf.campaign.cyber,      ...(p?.campaign?.cyber || {}) },
       javascript: { ...defaultProf.campaign.javascript, ...(p?.campaign?.javascript || {}) },
       rust:       { ...defaultProf.campaign.rust,       ...(p?.campaign?.rust || {}) },
-      sql:        { ...defaultProf.campaign.sql,        ...(p?.campaign?.sql || {}) }
+      sql:        { ...defaultProf.campaign.sql,        ...(p?.campaign?.sql || {}) },
+      typescript: { ...defaultProf.campaign.typescript, ...(p?.campaign?.typescript || {}) }
     };
 
     return {
@@ -58933,7 +66777,7 @@ class StorageManager {
       avatarId: typeof p?.avatarId === 'string' ? p.avatarId : defaultProf.avatarId,
       onboardingComplete: Boolean(p?.onboardingComplete),
       preferences: {
-        language: ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].includes(p?.preferences?.language) ? p.preferences.language : 'python',
+        language: ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'].includes(p?.preferences?.language) ? p.preferences.language : 'python',
         difficulty: ['beginner', 'intermediate', 'expert'].includes(p?.preferences?.difficulty) ? p.preferences.difficulty : 'beginner'
       },
       createdAt: typeof p?.createdAt === 'number' ? p.createdAt : Date.now(),
@@ -59080,7 +66924,8 @@ var Profile = window.Profile = {
         cyber:      { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
         javascript: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
         rust:       { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
-        sql:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
+        sql:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' },
+        typescript: { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
       },
       completedTiers: {},
       unlockedAchievements: [],
@@ -59175,7 +67020,7 @@ var Profile = window.Profile = {
       avatarId: safeAvatar,
       onboardingComplete: true,
       preferences: {
-        language: ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].includes(language) ? language : 'python',
+        language: ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'].includes(language) ? language : 'python',
         difficulty: ['beginner', 'intermediate', 'expert'].includes(difficulty) ? difficulty : 'beginner'
       }
     };
@@ -59385,7 +67230,7 @@ var Profile = window.Profile = {
  * Source of truth: docs/QUESTION_SCHEMA.md
  */
 
-var ALLOWED_LANGUAGES = window.ALLOWED_LANGUAGES = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'];
+var ALLOWED_LANGUAGES = window.ALLOWED_LANGUAGES = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'];
 var ALLOWED_DIFFICULTIES = window.ALLOWED_DIFFICULTIES = ['beginner', 'intermediate', 'expert'];
 var ALLOWED_TYPES = window.ALLOWED_TYPES = [
   'multiple_choice', 'multiple-choice',
@@ -59424,7 +67269,7 @@ var QuestionValidator = window.QuestionValidator = {
     const seenIds = new Set();
     const stats = {
       total: questions.length,
-      byLanguage: { python: 0, c: 0, cpp: 0, java: 0, cyber: 0, javascript: 0, rust: 0, sql: 0 },
+      byLanguage: { python: 0, c: 0, cpp: 0, java: 0, cyber: 0, javascript: 0, rust: 0, sql: 0, typescript: 0 },
       byTier: {
         python: { beginner: 0, intermediate: 0, expert: 0 },
         c: { beginner: 0, intermediate: 0, expert: 0 },
@@ -59433,7 +67278,8 @@ var QuestionValidator = window.QuestionValidator = {
         cyber: { beginner: 0, intermediate: 0, expert: 0 },
         javascript: { beginner: 0, intermediate: 0, expert: 0 },
         rust: { beginner: 0, intermediate: 0, expert: 0 },
-        sql: { beginner: 0, intermediate: 0, expert: 0 }
+        sql: { beginner: 0, intermediate: 0, expert: 0 },
+        typescript: { beginner: 0, intermediate: 0, expert: 0 }
       },
       byType: {}
     };
@@ -59457,10 +67303,11 @@ var QuestionValidator = window.QuestionValidator = {
 
     // Check exact inventory matrix if requested
     if (options.checkExactInventory) {
-      if (questions.length !== 480) {
+      const expectedTotal = ALLOWED_LANGUAGES.length * 60;
+      if (questions.length !== expectedTotal) {
         errors.push({
           field: 'totalCount',
-          message: `Expected exactly 480 questions in catalog, found: ${questions.length}`
+          message: `Expected exactly ${expectedTotal} questions in catalog, found: ${questions.length}`
         });
       }
 
@@ -59522,7 +67369,7 @@ var QuestionValidator = window.QuestionValidator = {
       }
       seenIds.add(q.id);
 
-      const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3}$/;
+      const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3}$/;
       if (!idPattern.test(q.id)) {
         errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' does not match standard pattern format.` });
       }
@@ -59635,6 +67482,7 @@ var QuestionValidator = window.QuestionValidator = {
 
 
 
+
 // Aggregate master collection
 const ALL_QUESTIONS = Object.freeze([
   ...pythonQuestions,
@@ -59644,7 +67492,8 @@ const ALL_QUESTIONS = Object.freeze([
   ...cyberQuestions,
   ...javascriptQuestions,
   ...rustQuestions,
-  ...sqlQuestions
+  ...sqlQuestions,
+  ...typescriptQuestions
 ]);
 
 // Build index maps for fast O(1) lookups
@@ -59657,7 +67506,8 @@ const LANG_TIER_INDEX = {
   cyber: { beginner: [], intermediate: [], expert: [] },
   javascript: { beginner: [], intermediate: [], expert: [] },
   rust: { beginner: [], intermediate: [], expert: [] },
-  sql: { beginner: [], intermediate: [], expert: [] }
+  sql: { beginner: [], intermediate: [], expert: [] },
+  typescript: { beginner: [], intermediate: [], expert: [] }
 };
 
 ALL_QUESTIONS.forEach(q => {
@@ -59780,12 +67630,17 @@ var QuestionBank = window.QuestionBank = {
   getStats() {
     const stats = {
       total: ALL_QUESTIONS.length,
-      byLanguage: { python: 0, c: 0, cpp: 0, java: 0 },
+      byLanguage: { python: 0, c: 0, cpp: 0, java: 0, cyber: 0, javascript: 0, rust: 0, sql: 0, typescript: 0 },
       byTier: {
         python: { beginner: 0, intermediate: 0, expert: 0 },
         c: { beginner: 0, intermediate: 0, expert: 0 },
         cpp: { beginner: 0, intermediate: 0, expert: 0 },
-        java: { beginner: 0, intermediate: 0, expert: 0 }
+        java: { beginner: 0, intermediate: 0, expert: 0 },
+        cyber: { beginner: 0, intermediate: 0, expert: 0 },
+        javascript: { beginner: 0, intermediate: 0, expert: 0 },
+        rust: { beginner: 0, intermediate: 0, expert: 0 },
+        sql: { beginner: 0, intermediate: 0, expert: 0 },
+        typescript: { beginner: 0, intermediate: 0, expert: 0 }
       },
       byType: {}
     };
@@ -62255,7 +70110,7 @@ var Analytics = window.Analytics = {
 
     // 5. Polyglot Track Exploration
     const campaign = (profile && profile.campaign) || {};
-    const unplayedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].filter(l => {
+    const unplayedLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'].filter(l => {
       const camp = campaign[l];
       return !camp || (camp.beginnerStars === 0 && camp.unlockedTier === 'beginner');
     });
@@ -62270,7 +70125,8 @@ var Analytics = window.Analytics = {
         cyber: 'Cyber & Linux',
         javascript: 'JavaScript',
         rust: 'Rust',
-        sql: 'SQL'
+        sql: 'SQL',
+        typescript: 'TypeScript'
       };
       const langTitle = titles[nextLang] || nextLang.toUpperCase();
       recs.push({
@@ -64612,6 +72468,66 @@ var SandboxManager = window.SandboxManager = {
     };
   },
 
+  /**
+   * Run TypeScript code client-side by stripping types and executing in the JS sandbox.
+   * @param {string} code
+   * @returns {{ success: boolean, output: string, error: string|null, elapsedMs: number }}
+   */
+  runTypeScript(code) {
+    const start = performance.now();
+    try {
+      let jsCode = code;
+      // Strip interfaces and type aliases
+      jsCode = jsCode.replace(/interface\s+[A-Za-z0-9_]+(?:\s+extends\s+[A-Za-z0-9_,\s]+)?\s*\{[\s\S]*?\}/g, '');
+      jsCode = jsCode.replace(/type\s+[A-Za-z0-9_]+(?:\s*<[^>]+>)?\s*=\s*[\s\S]*?;/g, '');
+      
+      // Strip enums into runtime JS objects
+      jsCode = jsCode.replace(/enum\s+([A-Za-z0-9_]+)\s*\{([^}]+)\}/g, (match, enumName, members) => {
+        const lines = members.split(',').map(m => m.trim()).filter(Boolean);
+        let currVal = 0;
+        const entries = [];
+        for (const line of lines) {
+          const parts = line.split('=').map(p => p.trim());
+          const key = parts[0];
+          if (parts[1]) {
+            const valNum = Number(parts[1]);
+            if (!isNaN(valNum)) currVal = valNum;
+            entries.push(`${enumName}["${key}"] = ${parts[1]}; ${enumName}[${parts[1]}] = "${key}";`);
+          } else {
+            entries.push(`${enumName}["${key}"] = ${currVal}; ${enumName}[${currVal}] = "${key}";`);
+            currVal++;
+          }
+        }
+        return `var ${enumName} = {}; ${entries.join(' ')}`;
+      });
+
+      // Strip "as const", "as any", "as T", "satisfies T"
+      jsCode = jsCode.replace(/\s+as\s+[A-Za-z0-9_<>\[\]|&\s]+/g, '');
+      jsCode = jsCode.replace(/\s+satisfies\s+[A-Za-z0-9_<>\[\]|&\s]+/g, '');
+      jsCode = jsCode.replace(/<[A-Za-z0-9_,\s]+>(?=\()/g, '');
+      
+      // Strip property / parameter / variable type annotations ": Type"
+      jsCode = jsCode.replace(/:\s*[A-Za-z0-9_<>\[\]|&]+(?=[,)={;])/g, '');
+
+      const jsRes = this.runJS(jsCode);
+      const elapsed = Math.round(performance.now() - start);
+
+      return {
+        success: jsRes.success,
+        output: jsRes.output,
+        error: jsRes.error,
+        elapsedMs: elapsed
+      };
+    } catch (err) {
+      return {
+        success: false,
+        output: '',
+        error: err.toString(),
+        elapsedMs: Math.round(performance.now() - start)
+      };
+    }
+  },
+
   /* ==========================================================================
      C / C++ / JAVA / RUST SYNTAX & CHALLENGE SIMULATOR
      Interactive client-side simulation of systems compilation and outputs
@@ -65449,7 +73365,7 @@ var LandingPage = window.LandingPage = {
    * @param {boolean} [saveState=true]
    */
   selectLanguage(lang, saveState = true) {
-    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'].includes(lang)) return;
+    if (!['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'].includes(lang)) return;
     this.selectedLanguage = lang;
 
     const cards = Utils.qsa('#language-tracks-container .card-selectable');
@@ -65815,7 +73731,8 @@ var LandingPage = window.LandingPage = {
 
     const meta = {
       python: 'Python 3', c: 'C', cpp: 'C++', java: 'Java',
-      cyber: 'Cyber & Linux', javascript: 'JavaScript', rust: 'Rust', sql: 'SQL'
+      cyber: 'Cyber & Linux', javascript: 'JavaScript', rust: 'Rust', sql: 'SQL',
+      typescript: 'TypeScript'
     };
     const langName = meta[lang] || 'Python 3';
     const diffCapitalized = diff.charAt(0).toUpperCase() + diff.slice(1);
@@ -66085,11 +74002,12 @@ var Gameplay = window.Gameplay = {
     const params = Router.getQueryParams();
     const activeProfile = State.get('activeProfile') || Profile.getActiveProfile();
 
-    const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql'];
+    const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript'];
     const ALLOWED_DIFFS = ['beginner', 'intermediate', 'expert'];
     const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless'];
 
     let rawLang = (params.lang || (activeProfile && activeProfile.preferences?.language) || 'python').toLowerCase();
+    if (rawLang === 'ts') rawLang = 'typescript';
     if (!ALLOWED_LANGS.includes(rawLang)) {
       console.warn(`[Gameplay] Unknown language "${params.lang}". Falling back to Python.`);
       UI.showToast(`Unsupported track "${params.lang}". Loaded Python track.`, 'info');
