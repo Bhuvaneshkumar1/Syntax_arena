@@ -56,6 +56,7 @@ export function createDefaultProfile(id = 'prof-default01', username = 'ScriptAd
       asm:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
     },
     completedTiers: {},
+    completedLessons: [],
     stageStars: {},
     completedStages: {},
     unlockedAchievements: [],

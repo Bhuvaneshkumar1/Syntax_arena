@@ -91,6 +91,13 @@ export const App = {
         if (controller && typeof controller.init === 'function') {
           await controller.init();
         }
+      } else if (currentPage === 'learn') {
+        const controller = (typeof window !== 'undefined' && window.LearnController)
+          ? window.LearnController
+          : (await import('./learn.js')).LearnController;
+        if (controller && typeof controller.init === 'function') {
+          controller.init();
+        }
       }
 
       // 10. Mask URL with UUID replacing .html filename in address bar

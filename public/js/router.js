@@ -16,13 +16,17 @@ export const Router = {
     // 1. Authoritative check: data-page on body tag
     if (typeof document !== 'undefined' && document.body) {
       const bodyPage = document.body.getAttribute('data-page');
-      if (bodyPage && ['index', 'game', 'results', 'progress', 'settings'].includes(bodyPage)) {
+      if (bodyPage && ['index', 'game', 'results', 'progress', 'settings', 'learn'].includes(bodyPage)) {
         return bodyPage;
       }
     }
 
     // 2. Unambiguous DOM landmark checks
     if (typeof document !== 'undefined') {
+      if (document.getElementById('academy-workspace-card') ||
+          document.getElementById('academy-lang-select')) {
+        return 'learn';
+      }
       if (document.getElementById('answer-interface-container') ||
           document.getElementById('code-terminal-container') ||
           document.getElementById('q-prompt-text') ||
@@ -59,6 +63,11 @@ export const Router = {
       const last = segments.length > 0 ? segments[segments.length - 1] : '';
       const hash = (window.location.hash || '').toLowerCase();
 
+      if (last === 'learn' || last === 'learn.html' || last === 'academy' ||
+          path.endsWith('learn.html') || path.endsWith('/learn') || path.includes('/academy') ||
+          hash.includes('/academy')) {
+        return 'learn';
+      }
       if (last === 'game' || last === 'game.html' || last === 'arena' ||
           path.endsWith('game.html') || path.endsWith('/game') || path.includes('/arena') ||
           hash.includes('/arena')) {

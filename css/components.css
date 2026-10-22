@@ -1454,5 +1454,160 @@
   box-shadow: var(--shadow-tactile-lg) var(--color-primary-edge);
 }
 
+/* ==========================================================================
+   CYBER ACADEMY (LEARN MODE) STYLES
+   ========================================================================== */
+.academy-layout {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 880px) {
+  .academy-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lesson-nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.lesson-nav-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  width: 100%;
+}
+
+.lesson-nav-btn:hover {
+  background: var(--bg-surface-raised);
+  border-color: var(--color-primary-edge);
+  color: var(--text-primary);
+  transform: translateX(2px);
+}
+
+.lesson-nav-btn.is-active {
+  background: rgba(0, 229, 255, 0.08);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.15);
+}
+
+.lesson-nav-btn.is-completed .lesson-status-icon {
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+.lesson-status-icon {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.lesson-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.lesson-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lesson-nav-btn.is-active .lesson-title {
+  color: var(--color-primary);
+}
+
+.lesson-sub {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Slide Progress Dots */
+.slide-dots-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.slide-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--transition-fast);
+}
+
+.slide-dot:hover {
+  transform: scale(1.2);
+  border-color: var(--color-primary);
+}
+
+.slide-dot.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary-edge);
+  box-shadow: 0 0 8px var(--color-primary);
+  transform: scale(1.25);
+}
+
+.slide-dot.is-passed {
+  background: var(--color-success);
+  border-color: var(--color-success-edge);
+}
+
+/* Inline Code in Academy Prose */
+.inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+}
+
+/* Drill Option Cards */
+.drill-option-card {
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.drill-option-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.drill-option-card.is-correct {
+  border-color: var(--color-success) !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.drill-option-card.is-incorrect {
+  border-color: var(--color-danger) !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
 
 

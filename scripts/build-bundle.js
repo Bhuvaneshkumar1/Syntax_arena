@@ -21,6 +21,7 @@ const files = [
   'data/html-questions.js',
   'data/asm-questions.js',
   'data/endless-questions.js',
+  'data/academy-lessons.js',
   'js/data/index.js',
   'js/utils.js',
   'js/storage.js',
@@ -38,6 +39,7 @@ const files = [
   'js/ui.js',
   'js/router.js',
   'js/sandbox-manager.js',
+  'js/learn.js',
   'js/onboarding.js',
   'js/landing.js',
   'js/gameplay.js',
@@ -89,6 +91,7 @@ if (!fs.existsSync(publicDir)) {
 const staticEntries = [
   'index.html',
   'game.html',
+  'learn.html',
   'sandbox.html',
   'results.html',
   'progress.html',

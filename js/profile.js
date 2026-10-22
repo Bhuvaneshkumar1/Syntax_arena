@@ -108,6 +108,7 @@ export const Profile = {
         asm:        { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
       },
       completedTiers: {},
+      completedLessons: [],
       unlockedAchievements: [],
       purchasedBadges: [],
       missedQuestionIds: [],
@@ -397,5 +398,45 @@ export const Profile = {
       message: `Successfully unlocked ${itemId} for ${cost} points!`,
       profile: updated
     };
+  },
+
+  /**
+   * Record completion of an academy micro-lesson and award Scholar XP bonus.
+   * @param {string} lessonId
+   * @returns {{ recorded: boolean, xpEarned: number }}
+   */
+  recordLessonCompleted(lessonId) {
+    const profile = this.getActiveProfile();
+    if (!profile) return { recorded: false, xpEarned: 0 };
+
+    if (!Array.isArray(profile.completedLessons)) {
+      profile.completedLessons = [];
+    }
+
+    if (!profile.completedLessons.includes(lessonId)) {
+      profile.completedLessons.push(lessonId);
+      const xpEarned = 50;
+      profile.xp = (profile.xp || 0) + xpEarned;
+      profile.lifetimeXP = (profile.lifetimeXP || 0) + xpEarned;
+      profile.totalScore = (profile.totalScore || 0) + xpEarned;
+      this.updateProfile(profile.id, {
+        completedLessons: profile.completedLessons,
+        xp: profile.xp,
+        lifetimeXP: profile.lifetimeXP,
+        totalScore: profile.totalScore
+      });
+      return { recorded: true, xpEarned };
+    }
+    return { recorded: false, xpEarned: 0 };
+  },
+
+  /**
+   * Check if a lesson is already completed.
+   * @param {string} lessonId
+   * @returns {boolean}
+   */
+  isLessonCompleted(lessonId) {
+    const profile = this.getActiveProfile();
+    return Boolean(profile && Array.isArray(profile.completedLessons) && profile.completedLessons.includes(lessonId));
   }
 };
