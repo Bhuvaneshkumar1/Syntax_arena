@@ -36,66 +36,63 @@
   text-decoration: none;
 }
 
-/* Primary Button (Electric Laser Cyan) */
+/* Primary Button (Electric Studio Indigo) */
 .btn-primary {
   background-color: var(--color-primary);
   border-color: var(--color-primary-edge);
   color: var(--text-inverse);
-  box-shadow: var(--shadow-specular), var(--shadow-tactile-md) var(--color-primary-edge), 0 0 16px var(--color-primary-glow);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-md) var(--color-primary-edge);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-specular), var(--shadow-tactile-lg) var(--color-primary-edge), 0 0 24px var(--color-primary-glow);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-lg) var(--color-primary-edge);
   background-color: var(--color-primary-hover);
-  filter: brightness(1.05);
 }
 
 .btn-primary:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: var(--shadow-specular-subtle), var(--shadow-depressed) var(--color-primary-edge), 0 0 8px var(--color-primary-glow);
+  transform: translateY(3px);
+  box-shadow: var(--shadow-specular-subtle), var(--shadow-depressed) var(--color-primary-edge);
   transition-duration: 0.04s;
 }
 
-/* Success Button (Terminal Emerald) */
+/* Success Button (Studio Emerald) */
 .btn-success {
   background-color: var(--color-success);
   border-color: var(--color-success-edge);
   color: var(--text-inverse);
-  box-shadow: var(--shadow-specular), var(--shadow-tactile-md) var(--color-success-edge), 0 0 16px var(--color-success-glow);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-md) var(--color-success-edge);
 }
 
 .btn-success:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-specular), var(--shadow-tactile-lg) var(--color-success-edge), 0 0 24px var(--color-success-glow);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-lg) var(--color-success-edge);
   background-color: var(--color-success-hover);
-  filter: brightness(1.05);
 }
 
 .btn-success:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: var(--shadow-specular-subtle), var(--shadow-depressed) var(--color-success-edge), 0 0 8px var(--color-success-glow);
+  transform: translateY(3px);
+  box-shadow: var(--shadow-specular-subtle), var(--shadow-depressed) var(--color-success-edge);
   transition-duration: 0.04s;
 }
 
-/* Danger Button (Coral Flare) */
+/* Danger Button (Studio Crimson) */
 .btn-danger {
   background-color: var(--color-danger);
   border-color: var(--color-danger-edge);
   color: #FFFFFF;
-  box-shadow: var(--shadow-specular), var(--shadow-tactile-md) var(--color-danger-edge), 0 0 16px var(--color-danger-glow);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-md) var(--color-danger-edge);
 }
 
 .btn-danger:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-specular), var(--shadow-tactile-lg) var(--color-danger-edge), 0 0 24px var(--color-danger-glow);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-lg) var(--color-danger-edge);
   background-color: var(--color-danger-hover);
-  filter: brightness(1.05);
 }
 
 .btn-danger:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: var(--shadow-specular-subtle), var(--shadow-depressed) var(--color-danger-edge), 0 0 8px var(--color-danger-glow);
+  transform: translateY(3px);
+  box-shadow: var(--shadow-specular-subtle), var(--shadow-depressed) var(--color-danger-edge);
   transition-duration: 0.04s;
 }
 
@@ -109,13 +106,13 @@
 
 .btn-neutral:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-specular-subtle), var(--shadow-tactile-lg) var(--color-neutral-edge), 0 0 12px rgba(0, 240, 255, 0.15);
+  box-shadow: var(--shadow-specular-subtle), var(--shadow-tactile-lg) var(--color-neutral-edge);
   background-color: var(--color-neutral-hover);
   border-color: var(--color-primary);
 }
 
 .btn-neutral:active:not(:disabled) {
-  transform: translateY(4px);
+  transform: translateY(3px);
   box-shadow: var(--shadow-depressed) var(--color-neutral-edge);
   transition-duration: 0.04s;
 }
@@ -125,19 +122,19 @@
   background-color: transparent;
   border-color: var(--border-strong);
   color: var(--text-secondary);
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
 }
 
 .btn-outline:hover:not(:disabled) {
   background-color: var(--bg-surface-raised);
-  color: var(--color-primary);
+  color: var(--text-primary);
   border-color: var(--color-primary);
   transform: translateY(-1px);
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 12px var(--color-primary-glow);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
 }
 
 .btn-outline:active:not(:disabled) {
-  transform: translateY(2px);
+  transform: translateY(1px);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
   transition-duration: 0.04s;
 }
@@ -1064,12 +1061,12 @@
 .option-card:hover:not(:disabled) {
   border-color: var(--color-primary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-specular-subtle), 0 6px 0 var(--color-neutral-edge), 0 0 16px var(--color-primary-glow);
+  box-shadow: var(--shadow-specular-subtle), 0 5px 0 var(--color-neutral-edge);
 }
 
 .option-card:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow: var(--shadow-specular-subtle), 0 1px 0 var(--color-neutral-edge), 0 0 8px var(--color-primary-glow);
+  transform: translateY(2px);
+  box-shadow: var(--shadow-specular-subtle), 0 1px 0 var(--color-neutral-edge);
   transition-duration: 0.04s;
 }
 
@@ -1079,25 +1076,25 @@
 }
 
 .option-card.is-selected {
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.16) 0%, rgba(0, 240, 255, 0.06) 100%);
+  background-color: rgba(99, 102, 241, 0.12);
   border-color: var(--color-primary);
-  box-shadow: var(--shadow-specular-subtle), 0 4px 0 var(--color-primary-edge), 0 0 18px var(--color-primary-glow);
+  box-shadow: var(--shadow-specular-subtle), 0 3px 0 var(--color-primary-edge);
   font-weight: 700;
 }
 
 .option-card.is-correct {
-  background: linear-gradient(135deg, rgba(0, 255, 157, 0.2) 0%, rgba(0, 255, 157, 0.08) 100%) !important;
+  background-color: rgba(16, 185, 129, 0.14) !important;
   border-color: var(--color-success) !important;
   color: var(--color-success) !important;
-  box-shadow: var(--shadow-specular), 0 4px 0 var(--color-success-edge), 0 0 24px var(--color-success-glow) !important;
+  box-shadow: var(--shadow-specular-subtle), 0 3px 0 var(--color-success-edge) !important;
   animation: cardSuccessPop 0.32s var(--ease-spring);
 }
 
 .option-card.is-incorrect {
-  background: linear-gradient(135deg, rgba(255, 51, 102, 0.2) 0%, rgba(255, 51, 102, 0.08) 100%) !important;
+  background-color: rgba(244, 63, 94, 0.14) !important;
   border-color: var(--color-danger) !important;
   color: var(--color-danger) !important;
-  box-shadow: var(--shadow-specular), 0 4px 0 var(--color-danger-edge), 0 0 20px var(--color-danger-glow) !important;
+  box-shadow: var(--shadow-specular-subtle), 0 3px 0 var(--color-danger-edge) !important;
   animation: cardErrorShake 0.35s ease-in-out;
 }
 
@@ -1662,7 +1659,7 @@
 .drill-option-card:hover {
   border-color: var(--color-primary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-specular-subtle), 0 5px 0 var(--border-strong), 0 0 14px var(--color-primary-glow);
+  box-shadow: var(--shadow-specular-subtle), 0 5px 0 var(--border-strong);
 }
 
 .drill-option-card:active {
@@ -1673,15 +1670,15 @@
 
 .drill-option-card.is-correct {
   border-color: var(--color-success) !important;
-  background: linear-gradient(135deg, rgba(0, 255, 157, 0.2) 0%, rgba(0, 255, 157, 0.08) 100%) !important;
-  box-shadow: var(--shadow-specular), 0 3px 0 var(--color-success-edge), 0 0 18px var(--color-success-glow) !important;
+  background-color: rgba(16, 185, 129, 0.14) !important;
+  box-shadow: var(--shadow-specular-subtle), 0 3px 0 var(--color-success-edge) !important;
   animation: cardSuccessPop 0.32s var(--ease-spring);
 }
 
 .drill-option-card.is-incorrect {
   border-color: var(--color-danger) !important;
-  background: linear-gradient(135deg, rgba(255, 51, 102, 0.2) 0%, rgba(255, 51, 102, 0.08) 100%) !important;
-  box-shadow: var(--shadow-specular), 0 3px 0 var(--color-danger-edge), 0 0 16px var(--color-danger-glow) !important;
+  background-color: rgba(244, 63, 94, 0.14) !important;
+  box-shadow: var(--shadow-specular-subtle), 0 3px 0 var(--color-danger-edge) !important;
   animation: cardErrorShake 0.35s ease-in-out;
 }
 

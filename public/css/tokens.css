@@ -6,62 +6,62 @@
 /* High-performance offline system typography stack (Zero external network calls) */
 :root {
   /* ==========================================================================
-     CANVAS & SURFACE HIERARCHY (CYBERPUNK NEO-ARCADE - DEFAULT)
+     CANVAS & SURFACE HIERARCHY (LINEAR / RAYCAST STUDIO SLATE - DEFAULT)
      ========================================================================== */
-  --bg-app:             #070A12; /* Deep obsidian space void */
-  --bg-surface-base:    #0D1321; /* High-tech console ground */
-  --bg-surface-raised:  #141D33; /* Elevated cockpit glass */
-  --bg-surface-overlay: #1C2744; /* Floating HUD dialogs & tooltips */
-  --bg-code-terminal:   #04070D; /* Deep recessed console background */
+  --bg-app:             #0B0D13; /* Deep obsidian graphite void */
+  --bg-surface-base:    #11141D; /* Matte slate panel ground */
+  --bg-surface-raised:  #171B26; /* Elevated cockpit slate card */
+  --bg-surface-overlay: #1E2332; /* Floating HUD dialogs, menus, tooltips */
+  --bg-code-terminal:   #07090E; /* Recessed terminal console */
 
   /* BORDERS & DIVIDERS */
-  --border-subtle:      #1A263D; /* Sleek structural dividers */
-  --border-strong:      #2D4268; /* Active boundaries and headers */
-  --border-focus:       #00F0FF; /* High-visibility cyber laser outline */
+  --border-subtle:      #1F2432; /* Ultra-crisp architectural divider */
+  --border-strong:      #2E364B; /* Active card boundary / section divider */
+  --border-focus:       #6366F1; /* High-visibility electric indigo outline */
 
   /* TYPOGRAPHIC INK */
-  --text-primary:       #F0F6FC; /* Crisp luminescent heading and active text */
-  --text-secondary:     #9BB0CF; /* Explanations, metadata, labels */
-  --text-muted:         #5D7290; /* Inactive states, line numbers */
-  --text-inverse:       #070A12; /* Text on bright accent buttons */
+  --text-primary:       #F1F5F9; /* Crisp heading and active readable text */
+  --text-secondary:     #94A3B8; /* Slate explanations, metadata, labels */
+  --text-muted:         #64748B; /* Inactive line numbers, quiet captions */
+  --text-inverse:       #FFFFFF; /* Text on vibrant accent buttons */
 
   /* ==========================================================================
-     TACTILE ARCADE ACCENTS (SURFACE + 3D EDGE PAIRS)
+     STUDIO TACTILE ACCENTS (CLEAN, SOPHISTICATED, HIGH-CONTRAST)
      ========================================================================== */
-  /* Primary Action: Laser Cyan */
-  --color-primary:        #00F0FF;
-  --color-primary-edge:   #008B99;
-  --color-primary-hover:  #4DF4FF;
-  --color-primary-glow:   rgba(0, 240, 255, 0.35);
+  /* Primary Action: Electric Indigo / Cobalt */
+  --color-primary:        #6366F1;
+  --color-primary-edge:   #4338CA;
+  --color-primary-hover:  #818CF8;
+  --color-primary-glow:   rgba(99, 102, 241, 0.22);
 
-  /* Success & Affirmation: Terminal Emerald */
-  --color-success:        #00FF9D;
-  --color-success-edge:   #009E5E;
-  --color-success-hover:  #4DFFB8;
-  --color-success-glow:   rgba(0, 255, 157, 0.35);
+  /* Success & Affirmation: Studio Emerald */
+  --color-success:        #10B981;
+  --color-success-edge:   #059669;
+  --color-success-hover:  #34D399;
+  --color-success-glow:   rgba(16, 185, 129, 0.22);
 
-  /* Warning & Caution: Solar Amber */
-  --color-warning:        #FFB800;
-  --color-warning-edge:   #B38000;
-  --color-warning-hover:  #FFC933;
-  --color-warning-glow:   rgba(255, 184, 0, 0.35);
+  /* Warning & Caution: Studio Amber */
+  --color-warning:        #F59E0B;
+  --color-warning-edge:   #D97706;
+  --color-warning-hover:  #FBBF24;
+  --color-warning-glow:   rgba(245, 158, 11, 0.22);
 
-  /* Danger & Error: Coral Flare */
-  --color-danger:         #FF3366;
-  --color-danger-edge:    #B31940;
-  --color-danger-hover:   #FF668C;
-  --color-danger-glow:    rgba(255, 51, 102, 0.35);
+  /* Danger & Error: Studio Crimson */
+  --color-danger:         #F43F5E;
+  --color-danger-edge:    #BE123C;
+  --color-danger-hover:   #FB7185;
+  --color-danger-glow:    rgba(244, 63, 94, 0.22);
 
-  /* Streak Flame: Hyper Violet */
-  --color-violet:         #BD00FF;
-  --color-violet-edge:    #7A00A6;
-  --color-violet-hover:   #D24DFF;
-  --color-violet-glow:    rgba(189, 0, 255, 0.35);
+  /* Streak Flame: Studio Violet */
+  --color-violet:         #8B5CF6;
+  --color-violet-edge:    #6D28D9;
+  --color-violet-hover:   #A78BFA;
+  --color-violet-glow:    rgba(139, 92, 246, 0.22);
 
-  /* Neutral Tactile Button */
-  --color-neutral:        #141C2E;
-  --color-neutral-edge:   #090E18;
-  --color-neutral-hover:  #1F2C46;
+  /* Neutral Studio Button */
+  --color-neutral:        #141824;
+  --color-neutral-edge:   #0D1018;
+  --color-neutral-hover:  #1C2233;
 
   /* ==========================================================================
      LANGUAGE BRAND COLORS
@@ -134,16 +134,16 @@
   /* ==========================================================================
      TACTILE 3D SHADOWS & SPECULAR HIGHLIGHTS
      ========================================================================== */
-  --shadow-specular:        inset 0 1px 0 rgba(255, 255, 255, 0.32), inset 0 -1px 0 rgba(0, 0, 0, 0.38);
-  --shadow-specular-subtle: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+  --shadow-specular:        inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  --shadow-specular-subtle: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
   --shadow-tactile-sm:      0 2px 0;
-  --shadow-tactile-md:      0 5px 0;
-  --shadow-tactile-lg:      0 7px 0;
+  --shadow-tactile-md:      0 4px 0;
+  --shadow-tactile-lg:      0 6px 0;
   --shadow-depressed:       0 1px 0;
 
   /* ELEVATION AMBIENT SHADOWS */
-  --shadow-elevation-card:  0 8px 32px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
-  --shadow-elevation-modal: 0 20px 60px -4px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 240, 255, 0.15);
+  --shadow-elevation-card:  0 4px 24px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-elevation-modal: 0 16px 48px -4px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
 
   /* ==========================================================================
      TRANSITIONS & EASINGS (SPRING RECOIL)

@@ -11,15 +11,12 @@
 @keyframes cardSuccessPop {
   0% {
     transform: scale(1);
-    filter: brightness(1);
   }
   40% {
-    transform: scale(1.028) translateY(-3px);
-    filter: brightness(1.2) drop-shadow(0 0 12px var(--color-success-glow));
+    transform: scale(1.02) translateY(-2px);
   }
   100% {
     transform: scale(1) translateY(0);
-    filter: brightness(1);
   }
 }
 
@@ -29,12 +26,10 @@
     transform: translateX(0);
   }
   20%, 60% {
-    transform: translateX(-5px);
-    filter: drop-shadow(0 0 8px var(--color-danger-glow));
+    transform: translateX(-4px);
   }
   40%, 80% {
-    transform: translateX(5px);
-    filter: drop-shadow(0 0 8px var(--color-danger-glow));
+    transform: translateX(4px);
   }
 }
 
