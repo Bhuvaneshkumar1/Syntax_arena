@@ -27,6 +27,10 @@ body {
   font-family: var(--font-body);
   font-size: var(--text-base);
   background-color: var(--bg-app);
+  background-image:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(0, 240, 255, 0.08) 0%, transparent 70%),
+    radial-gradient(circle at 100% 100%, rgba(189, 0, 255, 0.05) 0%, transparent 50%);
+  background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
   display: flex;
@@ -40,24 +44,29 @@ body {
 ::selection {
   background-color: var(--color-primary);
   color: var(--text-inverse);
+  text-shadow: none;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--bg-app);
+  border-left: 1px solid rgba(0, 240, 255, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
+  border: 2px solid var(--bg-app);
   border-radius: var(--radius-full);
+  transition: background-color var(--transition-fast);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--color-primary);
+  box-shadow: 0 0 10px var(--color-primary-glow);
 }
 
 /* ==========================================================================

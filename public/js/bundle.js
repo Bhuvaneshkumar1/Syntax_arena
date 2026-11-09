@@ -97648,7 +97648,7 @@ class ProceduralAudioEngine {
      ========================================================================== */
 
   /**
-   * Tactile button press click (15ms sine decay).
+   * Tactile mechanical switch click (dual-harmonic microswitch click synthesis).
    */
   playClick() {
     const vol = this._getVolume();
@@ -97657,21 +97657,65 @@ class ProceduralAudioEngine {
     if (!ctx) return;
 
     try {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
       const now = ctx.currentTime;
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(600, now);
-      osc.frequency.exponentialRampToValueAtTime(150, now + 0.03);
+      // 1. Transient click snap (1800Hz -> 700Hz in 8ms)
+      const snapOsc = ctx.createOscillator();
+      const snapGain = ctx.createGain();
+      snapOsc.type = 'triangle';
+      snapOsc.frequency.setValueAtTime(1800, now);
+      snapOsc.frequency.exponentialRampToValueAtTime(700, now + 0.008);
 
-      gain.gain.setValueAtTime(vol * 0.25, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+      snapGain.gain.setValueAtTime(vol * 0.35, now);
+      snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
+
+      snapOsc.connect(snapGain);
+      snapGain.connect(ctx.destination);
+      snapOsc.start(now);
+      snapOsc.stop(now + 0.015);
+
+      // 2. Tactile chamber body resonance (260Hz -> 90Hz in 25ms)
+      const bodyOsc = ctx.createOscillator();
+      const bodyGain = ctx.createGain();
+      bodyOsc.type = 'sine';
+      bodyOsc.frequency.setValueAtTime(260, now);
+      bodyOsc.frequency.exponentialRampToValueAtTime(90, now + 0.025);
+
+      bodyGain.gain.setValueAtTime(vol * 0.28, now);
+      bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.028);
+
+      bodyOsc.connect(bodyGain);
+      bodyGain.connect(ctx.destination);
+      bodyOsc.start(now);
+      bodyOsc.stop(now + 0.032);
+    } catch (_) {}
+  }
+
+  /**
+   * Subtle cyber hover micro-tick (4ms transient tick at 850Hz).
+   */
+  playHover() {
+    const vol = this._getVolume();
+    if (vol <= 0) return;
+    const ctx = this._getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(850, now);
+      osc.frequency.exponentialRampToValueAtTime(400, now + 0.008);
+
+      gain.gain.setValueAtTime(vol * 0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.008);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.035);
+      osc.stop(now + 0.01);
     } catch (_) {}
   }
 

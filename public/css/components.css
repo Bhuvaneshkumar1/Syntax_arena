@@ -7,6 +7,7 @@
    TACTILE 3D BUTTONS
    ========================================================================== */
 .btn-arcade {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -26,68 +27,76 @@
   transition: transform var(--transition-fast),
               box-shadow var(--transition-fast),
               background-color var(--transition-base),
-              border-color var(--transition-base);
+              border-color var(--transition-base),
+              filter var(--transition-fast);
+  will-change: transform, box-shadow;
 }
 
 .btn-arcade:hover {
   text-decoration: none;
 }
 
-/* Primary Button (Electric Cyan) */
+/* Primary Button (Electric Laser Cyan) */
 .btn-primary {
   background-color: var(--color-primary);
   border-color: var(--color-primary-edge);
   color: var(--text-inverse);
-  box-shadow: var(--shadow-tactile-md) var(--color-primary-edge);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-md) var(--color-primary-edge), 0 0 16px var(--color-primary-glow);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-tactile-lg) var(--color-primary-edge);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-lg) var(--color-primary-edge), 0 0 24px var(--color-primary-glow);
   background-color: var(--color-primary-hover);
+  filter: brightness(1.05);
 }
 
 .btn-primary:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow: var(--shadow-depressed) var(--color-primary-edge);
+  transform: translateY(4px);
+  box-shadow: var(--shadow-specular-subtle), var(--shadow-depressed) var(--color-primary-edge), 0 0 8px var(--color-primary-glow);
+  transition-duration: 0.04s;
 }
 
 /* Success Button (Terminal Emerald) */
 .btn-success {
   background-color: var(--color-success);
   border-color: var(--color-success-edge);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-tactile-md) var(--color-success-edge);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-md) var(--color-success-edge), 0 0 16px var(--color-success-glow);
 }
 
 .btn-success:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-tactile-lg) var(--color-success-edge);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-lg) var(--color-success-edge), 0 0 24px var(--color-success-glow);
   background-color: var(--color-success-hover);
+  filter: brightness(1.05);
 }
 
 .btn-success:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow: var(--shadow-depressed) var(--color-success-edge);
+  transform: translateY(4px);
+  box-shadow: var(--shadow-specular-subtle), var(--shadow-depressed) var(--color-success-edge), 0 0 8px var(--color-success-glow);
+  transition-duration: 0.04s;
 }
 
 /* Danger Button (Coral Flare) */
 .btn-danger {
   background-color: var(--color-danger);
   border-color: var(--color-danger-edge);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-tactile-md) var(--color-danger-edge);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-md) var(--color-danger-edge), 0 0 16px var(--color-danger-glow);
 }
 
 .btn-danger:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-tactile-lg) var(--color-danger-edge);
+  box-shadow: var(--shadow-specular), var(--shadow-tactile-lg) var(--color-danger-edge), 0 0 24px var(--color-danger-glow);
   background-color: var(--color-danger-hover);
+  filter: brightness(1.05);
 }
 
 .btn-danger:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow: var(--shadow-depressed) var(--color-danger-edge);
+  transform: translateY(4px);
+  box-shadow: var(--shadow-specular-subtle), var(--shadow-depressed) var(--color-danger-edge), 0 0 8px var(--color-danger-glow);
+  transition-duration: 0.04s;
 }
 
 /* Neutral / Surface Button */
@@ -95,19 +104,20 @@
   background-color: var(--color-neutral);
   border-color: var(--border-strong);
   color: var(--text-primary);
-  box-shadow: var(--shadow-tactile-md) var(--color-neutral-edge);
+  box-shadow: var(--shadow-specular-subtle), var(--shadow-tactile-md) var(--color-neutral-edge);
 }
 
 .btn-neutral:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-tactile-lg) var(--color-neutral-edge);
+  box-shadow: var(--shadow-specular-subtle), var(--shadow-tactile-lg) var(--color-neutral-edge), 0 0 12px rgba(0, 240, 255, 0.15);
   background-color: var(--color-neutral-hover);
   border-color: var(--color-primary);
 }
 
 .btn-neutral:active:not(:disabled) {
-  transform: translateY(3px);
+  transform: translateY(4px);
   box-shadow: var(--shadow-depressed) var(--color-neutral-edge);
+  transition-duration: 0.04s;
 }
 
 /* Outline Ghost Button */
@@ -115,17 +125,21 @@
   background-color: transparent;
   border-color: var(--border-strong);
   color: var(--text-secondary);
-  box-shadow: none;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
 }
 
 .btn-outline:hover:not(:disabled) {
   background-color: var(--bg-surface-raised);
-  color: var(--text-primary);
-  border-color: var(--text-muted);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 12px var(--color-primary-glow);
 }
 
 .btn-outline:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  transition-duration: 0.04s;
 }
 
 /* Button Sizes */
@@ -176,6 +190,12 @@
 .card-interactive:hover {
   border-color: var(--color-primary);
   transform: translateY(-2px);
+  box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.65), 0 0 18px var(--color-primary-glow);
+}
+
+.card-interactive:active {
+  transform: translateY(1px);
+  transition-duration: 0.04s;
 }
 
 .card-header {
@@ -1016,6 +1036,7 @@
 }
 
 .option-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -1028,16 +1049,28 @@
   font-size: var(--text-sm);
   text-align: left;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: var(--shadow-tactile-sm) var(--color-neutral-edge);
+  user-select: none;
+  transition: transform var(--transition-fast),
+              box-shadow var(--transition-fast),
+              border-color var(--transition-base),
+              background-color var(--transition-base),
+              color var(--transition-base);
+  box-shadow: var(--shadow-specular-subtle), 0 4px 0 var(--color-neutral-edge), 0 4px 12px rgba(0, 0, 0, 0.35);
   outline: none;
   min-height: 52px;
+  will-change: transform, box-shadow;
 }
 
 .option-card:hover:not(:disabled) {
   border-color: var(--color-primary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-tactile-md) var(--color-neutral-edge);
+  box-shadow: var(--shadow-specular-subtle), 0 6px 0 var(--color-neutral-edge), 0 0 16px var(--color-primary-glow);
+}
+
+.option-card:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: var(--shadow-specular-subtle), 0 1px 0 var(--color-neutral-edge), 0 0 8px var(--color-primary-glow);
+  transition-duration: 0.04s;
 }
 
 .option-card:focus-visible {
@@ -1046,44 +1079,70 @@
 }
 
 .option-card.is-selected {
-  background-color: rgba(0, 229, 255, 0.12);
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.16) 0%, rgba(0, 240, 255, 0.06) 100%);
   border-color: var(--color-primary);
-  box-shadow: var(--shadow-tactile-md) var(--color-primary-edge);
+  box-shadow: var(--shadow-specular-subtle), 0 4px 0 var(--color-primary-edge), 0 0 18px var(--color-primary-glow);
   font-weight: 700;
 }
 
 .option-card.is-correct {
-  background-color: rgba(16, 185, 129, 0.15);
-  border-color: var(--color-success);
-  color: var(--color-success);
+  background: linear-gradient(135deg, rgba(0, 255, 157, 0.2) 0%, rgba(0, 255, 157, 0.08) 100%) !important;
+  border-color: var(--color-success) !important;
+  color: var(--color-success) !important;
+  box-shadow: var(--shadow-specular), 0 4px 0 var(--color-success-edge), 0 0 24px var(--color-success-glow) !important;
+  animation: cardSuccessPop 0.32s var(--ease-spring);
 }
 
 .option-card.is-incorrect {
-  background-color: rgba(239, 68, 68, 0.15);
-  border-color: var(--color-danger);
-  color: var(--color-danger);
+  background: linear-gradient(135deg, rgba(255, 51, 102, 0.2) 0%, rgba(255, 51, 102, 0.08) 100%) !important;
+  border-color: var(--color-danger) !important;
+  color: var(--color-danger) !important;
+  box-shadow: var(--shadow-specular), 0 4px 0 var(--color-danger-edge), 0 0 20px var(--color-danger-glow) !important;
+  animation: cardErrorShake 0.35s ease-in-out;
 }
 
 .option-key-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: var(--radius-sm);
   background-color: var(--bg-surface-raised);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-strong);
   font-family: var(--font-display);
   font-weight: 800;
   font-size: var(--text-xs);
   flex-shrink: 0;
   color: var(--color-primary);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all var(--transition-fast);
+}
+
+.option-card:hover:not(:disabled) .option-key-badge {
+  border-color: var(--color-primary);
+  text-shadow: 0 0 6px var(--color-primary-glow);
 }
 
 .option-card.is-selected .option-key-badge {
   background-color: var(--color-primary);
   color: var(--text-inverse);
   border-color: var(--color-primary-edge);
+  box-shadow: 0 2px 0 var(--color-primary-edge);
+}
+
+.option-card.is-correct .option-key-badge {
+  background-color: var(--color-success);
+  color: var(--text-inverse);
+  border-color: var(--color-success-edge);
+  box-shadow: 0 2px 0 var(--color-success-edge);
+}
+
+.option-card.is-incorrect .option-key-badge {
+  background-color: var(--color-danger);
+  color: #FFFFFF;
+  border-color: var(--color-danger-edge);
+  box-shadow: 0 2px 0 var(--color-danger-edge);
 }
 
 /* Fill the Code Input Field */
@@ -1590,23 +1649,40 @@
 
 /* Drill Option Cards */
 .drill-option-card {
-  transition: transform var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+  position: relative;
+  transition: transform var(--transition-fast),
+              box-shadow var(--transition-fast),
+              border-color var(--transition-fast),
+              background-color var(--transition-fast);
+  cursor: pointer;
+  user-select: none;
+  box-shadow: var(--shadow-specular-subtle), 0 3px 0 var(--border-strong);
 }
 
 .drill-option-card:hover {
   border-color: var(--color-primary);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-specular-subtle), 0 5px 0 var(--border-strong), 0 0 14px var(--color-primary-glow);
+}
+
+.drill-option-card:active {
+  transform: translateY(2px);
+  box-shadow: var(--shadow-specular-subtle), 0 1px 0 var(--border-strong);
+  transition-duration: 0.04s;
 }
 
 .drill-option-card.is-correct {
   border-color: var(--color-success) !important;
-  background: rgba(16, 185, 129, 0.15) !important;
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, rgba(0, 255, 157, 0.2) 0%, rgba(0, 255, 157, 0.08) 100%) !important;
+  box-shadow: var(--shadow-specular), 0 3px 0 var(--color-success-edge), 0 0 18px var(--color-success-glow) !important;
+  animation: cardSuccessPop 0.32s var(--ease-spring);
 }
 
 .drill-option-card.is-incorrect {
   border-color: var(--color-danger) !important;
-  background: rgba(239, 68, 68, 0.15) !important;
+  background: linear-gradient(135deg, rgba(255, 51, 102, 0.2) 0%, rgba(255, 51, 102, 0.08) 100%) !important;
+  box-shadow: var(--shadow-specular), 0 3px 0 var(--color-danger-edge), 0 0 16px var(--color-danger-glow) !important;
+  animation: cardErrorShake 0.35s ease-in-out;
 }
 
 /* =============================================================================

@@ -6,62 +6,62 @@
 /* High-performance offline system typography stack (Zero external network calls) */
 :root {
   /* ==========================================================================
-     CANVAS & SURFACE HIERARCHY (DARK THEME - DEFAULT)
+     CANVAS & SURFACE HIERARCHY (CYBERPUNK NEO-ARCADE - DEFAULT)
      ========================================================================== */
-  --bg-app:             #0B0F17; /* Deep midnight void */
-  --bg-surface-base:    #111827; /* Ground level containers */
-  --bg-surface-raised:  #1A2234; /* Elevated cards and panels */
-  --bg-surface-overlay: #243048; /* Floating modals, tooltips, drawers */
-  --bg-code-terminal:   #080C14; /* Deep recessed console background */
+  --bg-app:             #070A12; /* Deep obsidian space void */
+  --bg-surface-base:    #0D1321; /* High-tech console ground */
+  --bg-surface-raised:  #141D33; /* Elevated cockpit glass */
+  --bg-surface-overlay: #1C2744; /* Floating HUD dialogs & tooltips */
+  --bg-code-terminal:   #04070D; /* Deep recessed console background */
 
   /* BORDERS & DIVIDERS */
-  --border-subtle:      #1F2B3E; /* Muted card borders */
-  --border-strong:      #33435C; /* Active boundaries and headers */
-  --border-focus:       #00E5FF; /* High-visibility keyboard outline */
+  --border-subtle:      #1A263D; /* Sleek structural dividers */
+  --border-strong:      #2D4268; /* Active boundaries and headers */
+  --border-focus:       #00F0FF; /* High-visibility cyber laser outline */
 
   /* TYPOGRAPHIC INK */
-  --text-primary:       #F8FAFC; /* Crisp heading and active text */
-  --text-secondary:     #94A3B8; /* Explanations, metadata, labels */
-  --text-muted:         #64748B; /* Inactive states, line numbers */
-  --text-inverse:       #0B0F17; /* Text on bright accent buttons */
+  --text-primary:       #F0F6FC; /* Crisp luminescent heading and active text */
+  --text-secondary:     #9BB0CF; /* Explanations, metadata, labels */
+  --text-muted:         #5D7290; /* Inactive states, line numbers */
+  --text-inverse:       #070A12; /* Text on bright accent buttons */
 
   /* ==========================================================================
      TACTILE ARCADE ACCENTS (SURFACE + 3D EDGE PAIRS)
      ========================================================================== */
-  /* Primary Action: Electric Cyan */
-  --color-primary:        #00E5FF;
-  --color-primary-edge:   #0097A7;
-  --color-primary-hover:  #33ECFF;
-  --color-primary-glow:   rgba(0, 229, 255, 0.25);
+  /* Primary Action: Laser Cyan */
+  --color-primary:        #00F0FF;
+  --color-primary-edge:   #008B99;
+  --color-primary-hover:  #4DF4FF;
+  --color-primary-glow:   rgba(0, 240, 255, 0.35);
 
   /* Success & Affirmation: Terminal Emerald */
-  --color-success:        #10B981;
-  --color-success-edge:   #047857;
-  --color-success-hover:  #34D399;
-  --color-success-glow:   rgba(16, 185, 129, 0.25);
+  --color-success:        #00FF9D;
+  --color-success-edge:   #009E5E;
+  --color-success-hover:  #4DFFB8;
+  --color-success-glow:   rgba(0, 255, 157, 0.35);
 
-  /* Warning & Caution: Cyber Amber */
-  --color-warning:        #F59E0B;
-  --color-warning-edge:   #B45309;
-  --color-warning-hover:  #FBBF24;
-  --color-warning-glow:   rgba(245, 158, 11, 0.25);
+  /* Warning & Caution: Solar Amber */
+  --color-warning:        #FFB800;
+  --color-warning-edge:   #B38000;
+  --color-warning-hover:  #FFC933;
+  --color-warning-glow:   rgba(255, 184, 0, 0.35);
 
   /* Danger & Error: Coral Flare */
-  --color-danger:         #EF4444;
-  --color-danger-edge:    #B91C1C;
-  --color-danger-hover:   #F87171;
-  --color-danger-glow:    rgba(239, 68, 68, 0.25);
+  --color-danger:         #FF3366;
+  --color-danger-edge:    #B31940;
+  --color-danger-hover:   #FF668C;
+  --color-danger-glow:    rgba(255, 51, 102, 0.35);
 
-  /* Streak Flame: Neon Violet */
-  --color-violet:         #8B5CF6;
-  --color-violet-edge:    #6D28D9;
-  --color-violet-hover:   #A78BFA;
-  --color-violet-glow:    rgba(139, 92, 246, 0.25);
+  /* Streak Flame: Hyper Violet */
+  --color-violet:         #BD00FF;
+  --color-violet-edge:    #7A00A6;
+  --color-violet-hover:   #D24DFF;
+  --color-violet-glow:    rgba(189, 0, 255, 0.35);
 
   /* Neutral Tactile Button */
-  --color-neutral:        #1E293B;
-  --color-neutral-edge:   #0F172A;
-  --color-neutral-hover:  #334155;
+  --color-neutral:        #141C2E;
+  --color-neutral-edge:   #090E18;
+  --color-neutral-hover:  #1F2C46;
 
   /* ==========================================================================
      LANGUAGE BRAND COLORS
@@ -132,25 +132,27 @@
   --radius-full: 9999px;   /* Pills, circle avatars */
 
   /* ==========================================================================
-     TACTILE 3D SHADOWS
+     TACTILE 3D SHADOWS & SPECULAR HIGHLIGHTS
      ========================================================================== */
-  --shadow-tactile-sm:  0 2px 0;
-  --shadow-tactile-md:  0 4px 0;
-  --shadow-tactile-lg:  0 6px 0;
-  --shadow-depressed:   0 1px 0;
+  --shadow-specular:        inset 0 1px 0 rgba(255, 255, 255, 0.32), inset 0 -1px 0 rgba(0, 0, 0, 0.38);
+  --shadow-specular-subtle: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+  --shadow-tactile-sm:      0 2px 0;
+  --shadow-tactile-md:      0 5px 0;
+  --shadow-tactile-lg:      0 7px 0;
+  --shadow-depressed:       0 1px 0;
 
   /* ELEVATION AMBIENT SHADOWS */
-  --shadow-elevation-card:  0 4px 20px -2px rgba(0, 0, 0, 0.4);
-  --shadow-elevation-modal: 0 16px 48px -4px rgba(0, 0, 0, 0.7);
+  --shadow-elevation-card:  0 8px 32px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-elevation-modal: 0 20px 60px -4px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 240, 255, 0.15);
 
   /* ==========================================================================
-     TRANSITIONS & EASINGS
+     TRANSITIONS & EASINGS (SPRING RECOIL)
      ========================================================================== */
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.18, 1.25, 0.4, 1.3);
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-fast: 0.12s var(--ease-spring);
-  --transition-base: 0.2s ease-in-out;
-  --transition-slow: 0.35s ease-out;
+  --transition-fast: 0.1s var(--ease-spring);
+  --transition-base: 0.18s ease-in-out;
+  --transition-slow: 0.32s ease-out;
 
   /* ==========================================================================
      Z-INDEX LAYERING
