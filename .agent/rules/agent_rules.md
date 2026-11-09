@@ -99,3 +99,4 @@ Before declaring any coding task complete or pushing changes:
 3. **Clean Git State**:
    - Commit only intended modifications with conventional semantic commit messages (`feat:`, `fix:`, `refactor:`, `test:`).
    - Clean up any temporary wrapper scripts or debug artifacts prior to pushing.
+

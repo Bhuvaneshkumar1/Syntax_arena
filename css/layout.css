@@ -318,6 +318,27 @@
   font-size: var(--text-base);
 }
 
+@media (max-width: 1360px) {
+  .header-container {
+    padding: 0 var(--space-3);
+    gap: var(--space-2);
+  }
+  .app-nav {
+    gap: 3px;
+  }
+  .nav-link {
+    padding: 6px 8px;
+    font-size: var(--text-xs);
+    gap: 4px;
+  }
+  #btn-nav-play {
+    display: none;
+  }
+  .profile-pill .profile-name {
+    display: none;
+  }
+}
+
 @media (max-width: 820px) {
   .btn-mobile-menu {
     display: flex;
@@ -340,9 +361,9 @@
 
 .hero-preview-card {
   background-color: var(--bg-surface-raised);
-  border: 2px solid var(--border-strong);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-elevation-card), 0 0 30px rgba(0, 229, 255, 0.12);
+  box-shadow: var(--shadow-elevation-card), var(--shadow-specular);
   overflow: hidden;
   text-align: left;
 }

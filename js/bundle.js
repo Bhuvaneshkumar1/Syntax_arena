@@ -103760,14 +103760,14 @@ var LearnController = window.LearnController = {
           ` : ''}
 
           ${slide.tip ? `
-            <div class="pitfall-tip-pill" style="display: inline-block; padding: 4px 12px; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--color-primary); border-radius: var(--radius-full); font-size: var(--text-xs); color: var(--color-primary); font-family: var(--font-mono);">
+            <div class="pitfall-tip-pill" style="display: inline-block; padding: 4px 12px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--color-primary); border-radius: var(--radius-full); font-size: var(--text-xs); color: var(--color-primary); font-family: var(--font-mono);">
               ${Utils.escapeHtml(slide.tip)}
             </div>
           ` : ''}
         </div>
 
         <!-- Call to Battle Test Arena CTA Card -->
-        <div class="arena-launch-card" style="background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(16, 185, 129, 0.15)); border: 2px solid var(--color-primary); border-radius: var(--radius-lg); padding: var(--space-6); text-align: center;">
+        <div class="arena-launch-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.12)); border: 1px solid var(--color-primary); border-radius: var(--radius-lg); padding: var(--space-6); text-align: center;">
           <h2 style="font-size: var(--text-2xl); color: var(--text-primary); margin-bottom: var(--space-2);">
             ⚔️ You Are Battle Ready!
           </h2>
@@ -105184,7 +105184,8 @@ var LandingPage = window.LandingPage = {
     const menuBtn = Utils.qs('#btn-mobile-menu');
     const drawer = Utils.qs('#mobile-nav-drawer');
 
-    if (!menuBtn || !drawer) return;
+    if (!menuBtn || !drawer || menuBtn.dataset.hasMobileMenuBinding) return;
+    menuBtn.dataset.hasMobileMenuBinding = 'true';
 
     menuBtn.addEventListener('click', () => {
       AudioEngine.playClick();
@@ -107873,6 +107874,48 @@ var App = window.App = {
           AudioEngine.stopMusic();
         }
         UI.showToast(nextEnabled ? 'Audio & Ambient Music Enabled' : 'All Audio Muted', 'info');
+      });
+    }
+
+    // Mobile navigation drawer toggle
+    const menuBtn = Utils.qs('#btn-mobile-menu');
+    const drawer = Utils.qs('#mobile-nav-drawer');
+    if (menuBtn && drawer && !menuBtn.dataset.hasMobileMenuBinding) {
+      menuBtn.dataset.hasMobileMenuBinding = 'true';
+      Utils.on(menuBtn, 'click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        AudioEngine.playClick();
+        const isOpen = drawer.classList.contains('is-open');
+        const nextState = !isOpen;
+        drawer.classList.toggle('is-open', nextState);
+        menuBtn.setAttribute('aria-expanded', nextState ? 'true' : 'false');
+        menuBtn.setAttribute('aria-label', nextState ? 'Close navigation menu' : 'Open navigation menu');
+      });
+
+      // Close on link or button click inside drawer
+      const drawerLinks = drawer.querySelectorAll('a, button');
+      drawerLinks.forEach(link => {
+        Utils.on(link, 'click', () => {
+          drawer.classList.remove('is-open');
+          menuBtn.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Close on outside click
+      document.addEventListener('click', (e) => {
+        if (drawer.classList.contains('is-open') && !drawer.contains(e.target) && !menuBtn.contains(e.target)) {
+          drawer.classList.remove('is-open');
+          menuBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Close on Escape key
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
+          drawer.classList.remove('is-open');
+          menuBtn.setAttribute('aria-expanded', 'false');
+        }
       });
     }
 

@@ -56,6 +56,12 @@
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
       <line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>
     </symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+    </symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+    </symbol>
   </svg>
 
   <header class="app-header">
@@ -92,6 +98,10 @@
           <svg class="nav-icon"><use href="#icon-settings"></use></svg>
           <span>Settings</span>
         </a>
+        <a href="admin.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-shield"></use></svg>
+          <span>Admin</span>
+        </a>
       </nav>
 
       <div class="header-actions">
@@ -105,7 +115,42 @@
           <span class="profile-avatar-mini" aria-hidden="true">🦊</span>
           <span class="profile-name">ScriptAdept</span>
         </a>
+        <button id="btn-mobile-menu" class="btn-mobile-menu" aria-expanded="false" aria-controls="mobile-nav-drawer" aria-label="Open navigation menu">
+          <svg width="20" height="20" aria-hidden="true"><use href="#icon-menu"></use></svg>
+        </button>
       </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav-drawer" class="mobile-nav-drawer" aria-label="Mobile Navigation Drawer">
+      <a href="index.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-code"></use></svg>
+        <span>Hub</span>
+      </a>
+      <a href="game.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
+        <span>Arena</span>
+      </a>
+      <a href="sandbox.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-code"></use></svg>
+        <span>Sandbox</span>
+      </a>
+      <a href="results.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-trophy"></use></svg>
+        <span>Results</span>
+      </a>
+      <a href="progress.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-chart"></use></svg>
+        <span>Progress</span>
+      </a>
+      <a href="settings.html" class="nav-link" aria-current="page">
+        <svg class="nav-icon"><use href="#icon-settings"></use></svg>
+        <span>Settings</span>
+      </a>
+      <a href="admin.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-shield"></use></svg>
+        <span>Admin Console</span>
+      </a>
     </div>
   </header>
 

@@ -171,3 +171,4 @@ runBookReaderTest().catch(err => {
   console.error('Playwright Test Failed:', err);
   process.exit(1);
 });
+

@@ -223,6 +223,48 @@ export const App = {
       });
     }
 
+    // Mobile navigation drawer toggle
+    const menuBtn = Utils.qs('#btn-mobile-menu');
+    const drawer = Utils.qs('#mobile-nav-drawer');
+    if (menuBtn && drawer && !menuBtn.dataset.hasMobileMenuBinding) {
+      menuBtn.dataset.hasMobileMenuBinding = 'true';
+      Utils.on(menuBtn, 'click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        AudioEngine.playClick();
+        const isOpen = drawer.classList.contains('is-open');
+        const nextState = !isOpen;
+        drawer.classList.toggle('is-open', nextState);
+        menuBtn.setAttribute('aria-expanded', nextState ? 'true' : 'false');
+        menuBtn.setAttribute('aria-label', nextState ? 'Close navigation menu' : 'Open navigation menu');
+      });
+
+      // Close on link or button click inside drawer
+      const drawerLinks = drawer.querySelectorAll('a, button');
+      drawerLinks.forEach(link => {
+        Utils.on(link, 'click', () => {
+          drawer.classList.remove('is-open');
+          menuBtn.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Close on outside click
+      document.addEventListener('click', (e) => {
+        if (drawer.classList.contains('is-open') && !drawer.contains(e.target) && !menuBtn.contains(e.target)) {
+          drawer.classList.remove('is-open');
+          menuBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Close on Escape key
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
+          drawer.classList.remove('is-open');
+          menuBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
     // Modal Close Buttons
     const modalCloseButtons = Utils.qsa('[data-close-modal]');
     modalCloseButtons.forEach(btn => {

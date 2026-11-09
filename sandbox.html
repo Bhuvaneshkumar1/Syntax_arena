@@ -52,6 +52,12 @@
     <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polygon points="5 3 19 12 5 21 5 3"></polygon>
     </symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+    </symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+    </symbol>
   </svg>
 
   <!-- Header Shell -->
@@ -93,6 +99,10 @@
           <svg class="nav-icon"><use href="#icon-settings"></use></svg>
           <span>Settings</span>
         </a>
+        <a href="admin.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-shield"></use></svg>
+          <span>Admin</span>
+        </a>
       </nav>
 
       <div class="header-actions">
@@ -106,7 +116,42 @@
           <span class="profile-avatar-mini" aria-hidden="true">🦊</span>
           <span class="profile-name">ScriptAdept</span>
         </a>
+        <button id="btn-mobile-menu" class="btn-mobile-menu" aria-expanded="false" aria-controls="mobile-nav-drawer" aria-label="Open navigation menu">
+          <svg width="20" height="20" aria-hidden="true"><use href="#icon-menu"></use></svg>
+        </button>
       </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav-drawer" class="mobile-nav-drawer" aria-label="Mobile Navigation Drawer">
+      <a href="index.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-code"></use></svg>
+        <span>Hub</span>
+      </a>
+      <a href="game.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
+        <span>Arena</span>
+      </a>
+      <a href="learn.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-bulb"></use></svg>
+        <span>Academy</span>
+      </a>
+      <a href="sandbox.html" class="nav-link" aria-current="page">
+        <svg class="nav-icon"><use href="#icon-code"></use></svg>
+        <span>Sandbox</span>
+      </a>
+      <a href="progress.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-chart"></use></svg>
+        <span>Progress</span>
+      </a>
+      <a href="settings.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-settings"></use></svg>
+        <span>Settings</span>
+      </a>
+      <a href="admin.html" class="nav-link">
+        <svg class="nav-icon"><use href="#icon-shield"></use></svg>
+        <span>Admin Console</span>
+      </a>
     </div>
   </header>
 
@@ -173,16 +218,16 @@
         
         <!-- Toolbar Bar -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; max-width: 100%;">
             <label for="template-select" style="font-size: var(--text-xs); font-family: var(--font-display); font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
               Starter Snippets:
             </label>
-            <select id="template-select" class="form-select" style="padding: 4px 10px; font-size: 12px; width: auto; min-width: 240px;">
+            <select id="template-select" class="form-select" style="padding: 4px 10px; font-size: 12px; width: auto; max-width: 100%; min-width: 140px;">
               <!-- Populated dynamically based on active environment -->
             </select>
           </div>
 
-          <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
             <button id="btn-page-reset" class="btn-arcade btn-neutral btn-sm" type="button" title="Reset current snippet">
               ↺ Reset
             </button>
@@ -198,7 +243,7 @@
         </div>
 
         <!-- Editor & Terminal Grid -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="sandbox-workspace-grid">
           
           <!-- Code Editor Side -->
           <div style="display: flex; flex-direction: column;">

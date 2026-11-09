@@ -97,6 +97,7 @@ const staticEntries = [
   'results.html',
   'progress.html',
   'settings.html',
+  'admin.html',
   'favicon.ico',
   'favicon.svg',
   'LICENSE',

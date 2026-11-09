@@ -1235,14 +1235,14 @@ export const LearnController = {
           ` : ''}
 
           ${slide.tip ? `
-            <div class="pitfall-tip-pill" style="display: inline-block; padding: 4px 12px; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--color-primary); border-radius: var(--radius-full); font-size: var(--text-xs); color: var(--color-primary); font-family: var(--font-mono);">
+            <div class="pitfall-tip-pill" style="display: inline-block; padding: 4px 12px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--color-primary); border-radius: var(--radius-full); font-size: var(--text-xs); color: var(--color-primary); font-family: var(--font-mono);">
               ${Utils.escapeHtml(slide.tip)}
             </div>
           ` : ''}
         </div>
 
         <!-- Call to Battle Test Arena CTA Card -->
-        <div class="arena-launch-card" style="background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(16, 185, 129, 0.15)); border: 2px solid var(--color-primary); border-radius: var(--radius-lg); padding: var(--space-6); text-align: center;">
+        <div class="arena-launch-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.12)); border: 1px solid var(--color-primary); border-radius: var(--radius-lg); padding: var(--space-6); text-align: center;">
           <h2 style="font-size: var(--text-2xl); color: var(--text-primary); margin-bottom: var(--space-2);">
             ⚔️ You Are Battle Ready!
           </h2>

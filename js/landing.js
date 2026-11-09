@@ -603,7 +603,8 @@ export const LandingPage = {
     const menuBtn = Utils.qs('#btn-mobile-menu');
     const drawer = Utils.qs('#mobile-nav-drawer');
 
-    if (!menuBtn || !drawer) return;
+    if (!menuBtn || !drawer || menuBtn.dataset.hasMobileMenuBinding) return;
+    menuBtn.dataset.hasMobileMenuBinding = 'true';
 
     menuBtn.addEventListener('click', () => {
       AudioEngine.playClick();
