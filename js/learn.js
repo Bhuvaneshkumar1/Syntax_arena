@@ -20,6 +20,7 @@ export const LearnController = {
   currentLesson: null,
   currentSlideIndex: 0,
   drillAnswered: false,
+  viewMode: 'slides',
 
   /**
    * Track metadata mapping for graduation diplomas and displays
@@ -56,9 +57,22 @@ export const LearnController = {
     const urlLang = params.get('lang');
     const urlDiff = params.get('diff');
     const urlLesson = params.get('lesson');
+    const urlMode = params.get('mode');
 
     if (urlLang) this.activeLang = urlLang.toLowerCase();
     if (urlDiff) this.activeDiff = urlDiff.toLowerCase();
+
+    if (urlMode === 'book' || urlMode === 'slides') {
+      this.viewMode = urlMode;
+    } else {
+      const savedMode = (typeof localStorage !== 'undefined') ? localStorage.getItem('syntaxarena_academy_view_mode') : null;
+      if (savedMode === 'book' || savedMode === 'slides') {
+        this.viewMode = savedMode;
+      } else {
+        const isAutomated = (typeof navigator !== 'undefined' && navigator.webdriver);
+        this.viewMode = isAutomated ? 'slides' : 'book';
+      }
+    }
 
     this.bindEvents();
     this.renderTrackSelector();
@@ -70,6 +84,21 @@ export const LearnController = {
    * Bind event listeners for Academy navigation
    */
   bindEvents() {
+    // View Mode Segmented Control (Handbook vs Slides)
+    const btnViewBook = Utils.qs('#btn-view-book');
+    const btnViewSlides = Utils.qs('#btn-view-slides');
+
+    if (btnViewBook) {
+      btnViewBook.addEventListener('click', () => {
+        this.setViewMode('book');
+      });
+    }
+
+    if (btnViewSlides) {
+      btnViewSlides.addEventListener('click', () => {
+        this.setViewMode('slides');
+      });
+    }
     // Language dropdown
     const langSelect = Utils.qs('#academy-lang-select');
     if (langSelect) {
@@ -269,13 +298,545 @@ export const LearnController = {
           this.currentSlideIndex = 0;
           Utils.qsa('.lesson-nav-btn').forEach(b => b.classList.remove('is-active'));
           btn.classList.add('is-active');
-          this.renderSlide();
+          this.renderCurrentLesson();
         }
       });
     });
 
-    this.renderSlide();
+    this.renderCurrentLesson();
     this.updateDiplomaButton();
+  },
+
+  /**
+   * Set View Mode ('book' or 'slides')
+   */
+  setViewMode(mode) {
+    if (mode !== 'book' && mode !== 'slides') return;
+    this.viewMode = mode;
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('syntaxarena_academy_view_mode', mode);
+      } catch (e) {}
+    }
+    this.updateViewModePills();
+    this.renderCurrentLesson();
+    if (typeof AudioEngine !== 'undefined' && AudioEngine.playClick) {
+      AudioEngine.playClick();
+    }
+  },
+
+  /**
+   * Update active state of segmented view mode pills
+   */
+  updateViewModePills() {
+    const btnBook = Utils.qs('#btn-view-book');
+    const btnSlides = Utils.qs('#btn-view-slides');
+    if (btnBook && btnSlides) {
+      btnBook.classList.toggle('is-active', this.viewMode === 'book');
+      btnSlides.classList.toggle('is-active', this.viewMode === 'slides');
+      btnBook.setAttribute('aria-pressed', this.viewMode === 'book' ? 'true' : 'false');
+      btnSlides.setAttribute('aria-pressed', this.viewMode === 'slides' ? 'true' : 'false');
+    }
+  },
+
+  /**
+   * Render either Book View or Slide View based on active viewMode
+   */
+  renderCurrentLesson() {
+    this.updateViewModePills();
+    if (this.viewMode === 'book') {
+      this.renderBookView();
+    } else {
+      this.renderSlide();
+    }
+  },
+
+  /**
+   * Render Comprehensive Chapter Book View
+   */
+  renderBookView() {
+    if (!this.currentLesson) {
+      this.renderEmptyLesson();
+      return;
+    }
+
+    const lesson = this.currentLesson;
+    const isCompleted = Profile.isLessonCompleted(lesson.id);
+    const bookSections = lesson.bookSections || [];
+
+    const conceptSection = bookSections.find(s => s.type === 'conceptual_model') || (lesson.slides && lesson.slides[0]) || {};
+    const sandboxSection = bookSections.find(s => s.type === 'interactive_sandbox') || {};
+    const checkpointSection = bookSections.find(s => s.type === 'diagnostic_checkpoint') || (lesson.slides && lesson.slides[1]) || {};
+    const pitfallSection = bookSections.find(s => s.type === 'pitfalls_and_security') || (lesson.slides && lesson.slides[2]) || {};
+
+    const ext = this.getFileExt(lesson.language);
+    const initialCode = sandboxSection.sandboxCode || conceptSection.sandboxCode || conceptSection.codeSnippet || '';
+    const arenaUrl = pitfallSection.arenaTarget || (lesson.slides && lesson.slides[2] && lesson.slides[2].arenaTarget) || `game.html?lang=${lesson.language}&diff=${lesson.difficulty}&stage=1`;
+
+    // Calculate adjacent lessons
+    const allForLang = AcademyLessons.getByLanguage(lesson.language);
+    const currentIndex = allForLang.findIndex(l => l.id === lesson.id);
+    const prevLesson = currentIndex > 0 ? allForLang[currentIndex - 1] : null;
+    const nextLesson = currentIndex >= 0 && currentIndex < allForLang.length - 1 ? allForLang[currentIndex + 1] : null;
+
+    // Header info
+    const tagEl = Utils.qs('#lesson-track-tag');
+    const topicEl = Utils.qs('#lesson-topic-title');
+    const titleEl = Utils.qs('#slide-main-title');
+    const badgeEl = Utils.qs('#slide-type-badge');
+    const progressText = Utils.qs('#slide-step-counter');
+    const dotsContainer = Utils.qs('#slide-progress-dots');
+    const footer = Utils.qs('#academy-workspace-card .card-footer');
+
+    if (tagEl) {
+      tagEl.textContent = `${lesson.language.toUpperCase()} // ${lesson.difficulty.toUpperCase()}`;
+      tagEl.className = `tag tag-${lesson.language}`;
+    }
+    if (topicEl) topicEl.textContent = `${lesson.topic} • ${lesson.estimatedMinutes || 5} min read`;
+    if (titleEl) titleEl.textContent = lesson.title;
+    if (badgeEl) badgeEl.textContent = '📖 COMPREHENSIVE TEXTBOOK';
+    if (progressText) progressText.textContent = `Chapter Handbook (${lesson.estimatedMinutes || 5}m read)`;
+
+    // In Book View, clear slide step dots and hide bottom slide footer
+    if (dotsContainer) dotsContainer.innerHTML = '';
+    if (footer) footer.style.display = 'none';
+
+    const bodyContainer = Utils.qs('#slide-body-container');
+    if (!bodyContainer) return;
+
+    bodyContainer.innerHTML = `
+      <div class="academy-book-reader animate-fade-in">
+
+        <!-- Chapter Header Banner -->
+        <header class="book-chapter-header">
+          <div class="book-chapter-pretitle">CHAPTER MODULE // ${Utils.escapeHtml(lesson.id.toUpperCase())}</div>
+          <h1 class="book-chapter-title">${Utils.escapeHtml(lesson.title)}</h1>
+          <p class="book-chapter-tagline">${Utils.escapeHtml(lesson.tagline || '')}</p>
+
+          <div class="book-meta-bar">
+            <span class="book-meta-item">⏱️ ${lesson.estimatedMinutes || 5} Min Read</span>
+            <span class="book-meta-item">🎯 ${(lesson.objectives || []).length} Objectives</span>
+            <span class="book-meta-item">⚡ Live Memory Tracer</span>
+            <span class="book-meta-item">🎓 +50 Scholar XP</span>
+          </div>
+
+          <!-- Objectives Checklist -->
+          <div class="book-objectives-card">
+            <h4 class="book-objectives-heading">Key Learning Objectives</h4>
+            <ul class="book-objectives-list">
+              ${(lesson.objectives || []).map(obj => `
+                <li><span class="obj-check">✓</span> <span>${Utils.escapeHtml(obj)}</span></li>
+              `).join('')}
+            </ul>
+          </div>
+
+          <!-- Executive Summary -->
+          <div class="book-summary-card">
+            <p class="book-summary-text">${this.formatProse(lesson.chapterSummary)}</p>
+          </div>
+        </header>
+
+        <!-- Chapter Quick Table of Contents -->
+        <nav class="book-toc-pill-nav" aria-label="Chapter sections navigation">
+          <a href="#book-sec-model" class="book-toc-pill">§1 Mental Model</a>
+          <a href="#book-sec-syntax" class="book-toc-pill">§2 Syntax Anatomy</a>
+          <a href="#book-sec-sandbox" class="book-toc-pill">§3 Live Runner &amp; Memory</a>
+          <a href="#book-sec-checkpoint" class="book-toc-pill">§4 Checkpoint Drill</a>
+          <a href="#book-sec-deepdive" class="book-toc-pill">§5 Deep-Dive Analysis</a>
+          <a href="#book-sec-pitfalls" class="book-toc-pill">§6 Danger Zone</a>
+          <a href="#book-sec-takeaways" class="book-toc-pill">§7 Takeaways</a>
+        </nav>
+
+        <!-- Section 1: Conceptual Mental Model & Theory -->
+        <section id="book-sec-model" class="book-section">
+          <div class="book-section-header">
+            <span class="book-section-num">01</span>
+            <h3 class="book-section-title">${Utils.escapeHtml(conceptSection.title || 'Architectural Mental Model')}</h3>
+          </div>
+          <div class="book-section-body">
+            <div class="academy-prose">
+              ${this.formatProse(conceptSection.content)}
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2: Syntax Anatomy & Reference Code -->
+        <section id="book-sec-syntax" class="book-section">
+          <div class="book-section-header">
+            <span class="book-section-num">02</span>
+            <h3 class="book-section-title">Syntax Anatomy &amp; Practical Reference</h3>
+          </div>
+          <div class="book-section-body">
+            <div class="code-terminal">
+              <div class="code-terminal-header">
+                <span>reference_${lesson.language}.${ext}</span>
+                <span class="badge badge-neutral">Production Reference</span>
+              </div>
+              <pre class="code-terminal-pre"><code>${Utils.escapeHtml(conceptSection.codeSnippet || '')}</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 3: Interactive Live Code Runner & Memory Tracer -->
+        <section id="book-sec-sandbox" class="book-section">
+          <div class="book-section-header">
+            <span class="book-section-num">03</span>
+            <h3 class="book-section-title">${Utils.escapeHtml(sandboxSection.title || 'Interactive Execution & Memory Tracer')}</h3>
+          </div>
+          <div class="book-section-body">
+            <p class="book-section-desc">${this.formatProse(sandboxSection.content || 'Test your understanding by modifying and executing the code below:')}</p>
+
+            <!-- Code Runner Terminal (IDs match Slide mode for complete compatibility) -->
+            <div class="code-terminal" style="margin-bottom: var(--space-4);">
+              <div class="code-terminal-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-family: var(--font-mono); font-size: 11px; color: var(--color-cyan);">chapter_sandbox.${ext}</span>
+                  <span class="badge badge-emerald" style="font-size: 9px;">LIVE EDITABLE</span>
+                </div>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                  <button id="btn-slide-run-code" class="btn-arcade btn-primary btn-sm" type="button" style="padding: 3px 12px; font-size: 11px;" title="Execute snippet live in browser">
+                    ▶️ Run Code
+                  </button>
+                  <button id="btn-slide-reset-code" class="btn-arcade btn-neutral btn-sm" type="button" style="padding: 3px 10px; font-size: 11px;" title="Restore original lesson code">
+                    ↺ Reset
+                  </button>
+                  <a href="sandbox.html?env=${lesson.language}" class="btn-arcade btn-outline btn-sm" id="btn-open-sandbox" target="_blank" rel="noopener" style="padding: 3px 10px; font-size: 11px;" title="Open full multi-file developer workspace">
+                    🛠️ Full Sandbox ↗
+                  </a>
+                </div>
+              </div>
+
+              <textarea id="slide-code-editor" class="code-terminal-editor" spellcheck="false" rows="8">${Utils.escapeHtml(initialCode)}</textarea>
+
+              <div id="slide-terminal-output" class="code-terminal-output" style="display: none;" role="region" aria-label="Code execution output tray">
+                <div class="code-terminal-output-header">
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+                    <strong>CONSOLE OUTPUT</strong>
+                  </span>
+                  <span id="slide-output-metrics">READY</span>
+                </div>
+                <pre id="slide-output-body" class="code-terminal-output-body"></pre>
+              </div>
+            </div>
+
+            <!-- Visual Memory & Pointer Inspector -->
+            <div id="lesson-memory-inspector" class="card card-raised visual-memory-card" style="margin-top: 1rem; padding: 1rem; border-color: rgba(139, 92, 246, 0.35); background: rgba(13, 22, 38, 0.7);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="badge badge-violet" style="font-size: 10px;">⚡ MEMORY TRACER</span>
+                  <span style="font-weight: 700; font-size: var(--text-sm); font-family: var(--font-display);">Stack &amp; Heap Visual Pointer Inspector</span>
+                </div>
+                <span class="badge badge-cyan" style="font-size: 10px;">x86-64 Architecture</span>
+              </div>
+              <div id="lesson-memory-container" class="memory-grid-container">
+                <!-- Dynamically populated by MemoryInspector -->
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Section 4: Diagnostic Checkpoint Drill -->
+        <section id="book-sec-checkpoint" class="book-section">
+          <div class="book-section-header">
+            <span class="book-section-num">04</span>
+            <h3 class="book-section-title">${Utils.escapeHtml(checkpointSection.title || 'Diagnostic Knowledge Checkpoint')}</h3>
+          </div>
+          <div class="book-section-body">
+            <div class="academy-drill-view">
+              <p style="font-size: var(--text-base); color: var(--text-primary); font-weight: 600; margin-bottom: var(--space-3);">
+                ${Utils.escapeHtml(checkpointSection.prompt || '')}
+              </p>
+
+              ${checkpointSection.codeSnippet ? `
+                <div class="code-terminal" style="margin-bottom: var(--space-4);">
+                  <div class="code-terminal-header">
+                    <span>checkpoint_challenge.${ext}</span>
+                    <span>Zero-Stress Practice</span>
+                  </div>
+                  <pre class="code-terminal-pre"><code>${Utils.escapeHtml(checkpointSection.codeSnippet)}</code></pre>
+                </div>
+              ` : ''}
+
+              <div class="drill-options-grid" id="drill-options-container" style="display: grid; gap: var(--space-3); margin-bottom: var(--space-4);">
+                ${(checkpointSection.drillOptions || checkpointSection.options || []).map((opt, idx) => `
+                  <button class="option-card drill-option-card" data-opt-idx="${idx}" style="text-align: left; padding: var(--space-3) var(--space-4);">
+                    <span class="option-marker" style="display: inline-block; width: 24px; font-weight: bold; color: var(--text-muted);">${String.fromCharCode(65 + idx)}.</span>
+                    <span class="option-text">${Utils.escapeHtml(opt.text)}</span>
+                  </button>
+                `).join('')}
+              </div>
+
+              <div id="drill-feedback-box" class="feedback-panel" style="display: none; padding: var(--space-4); border-radius: var(--radius-md);">
+                <p id="drill-feedback-text" style="margin: 0; font-size: var(--text-sm); line-height: 1.5;"></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 5: Engine Internals Deep-Dive Analysis -->
+        <section id="book-sec-deepdive" class="book-section">
+          <div class="book-section-header">
+            <span class="book-section-num">05</span>
+            <h3 class="book-section-title">Engine Internals &amp; Deep-Dive Analysis</h3>
+          </div>
+          <div class="book-section-body">
+            <details class="book-deep-dive-card" open>
+              <summary class="book-deep-dive-summary">
+                <span>🔬 <strong>Deep Dive:</strong> ${Utils.escapeHtml(conceptSection.deepDive ? conceptSection.deepDive.title : 'Internal Mechanics')}</span>
+                <span class="deep-dive-toggle-icon">▼</span>
+              </summary>
+              <div class="book-deep-dive-content">
+                <div class="academy-prose" style="margin-bottom: var(--space-3);">
+                  ${this.formatProse(conceptSection.deepDive ? conceptSection.deepDive.content : '')}
+                </div>
+                ${conceptSection.deepDive && conceptSection.deepDive.code ? `
+                  <div class="code-terminal">
+                    <div class="code-terminal-header">
+                      <span>engine_internals.${ext}</span>
+                      <span class="badge badge-violet">Low-Level Spec</span>
+                    </div>
+                    <pre class="code-terminal-pre"><code>${Utils.escapeHtml(conceptSection.deepDive.code)}</code></pre>
+                  </div>
+                ` : ''}
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <!-- Section 6: Production Danger Zone & Edge Cases -->
+        <section id="book-sec-pitfalls" class="book-section">
+          <div class="book-section-header">
+            <span class="book-section-num">06</span>
+            <h3 class="book-section-title">${Utils.escapeHtml(pitfallSection.title || 'Production Danger Zone & Security Traps')}</h3>
+          </div>
+          <div class="book-section-body">
+            <div class="pitfall-alert-card" style="background: rgba(245, 158, 11, 0.08); border: 1px solid var(--color-warning); border-radius: var(--radius-md); padding: var(--space-5);">
+              <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); color: var(--color-warning); font-weight: 700; font-family: var(--font-mono); font-size: var(--text-sm);">
+                <span>⚠️ CRITICAL FAILURE PATTERN &amp; DEFENSIVE CODING</span>
+              </div>
+              <div class="academy-prose" style="margin-bottom: var(--space-4);">
+                ${this.formatProse(pitfallSection.content)}
+              </div>
+
+              ${pitfallSection.codeSnippet ? `
+                <div class="code-terminal" style="margin-bottom: var(--space-3); border-color: rgba(245, 158, 11, 0.4);">
+                  <div class="code-terminal-header">
+                    <span>vulnerability_vs_remediation.${ext}</span>
+                    <span style="color: var(--color-warning);">Vulnerability Trap</span>
+                  </div>
+                  <pre class="code-terminal-pre"><code>${Utils.escapeHtml(pitfallSection.codeSnippet)}</code></pre>
+                </div>
+              ` : ''}
+
+              ${pitfallSection.tip ? `
+                <div class="pitfall-tip-pill" style="display: inline-block; padding: 4px 12px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--color-primary); border-radius: var(--radius-full); font-size: var(--text-xs); color: var(--color-primary); font-family: var(--font-mono);">
+                  ${Utils.escapeHtml(pitfallSection.tip)}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 7: Key Engineering Takeaways -->
+        <section id="book-sec-takeaways" class="book-section">
+          <div class="book-section-header">
+            <span class="book-section-num">07</span>
+            <h3 class="book-section-title">Core Engineering Takeaways</h3>
+          </div>
+          <div class="book-section-body">
+            <div class="book-takeaways-card">
+              <ul class="book-takeaways-list">
+                ${(pitfallSection.takeaways || []).map(t => `
+                  <li><span class="takeaway-bullet">💎</span> <span>${Utils.escapeHtml(t)}</span></li>
+                `).join('')}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Chapter Completion & Battle Navigation Footer -->
+        <footer class="book-chapter-footer">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-4); margin-bottom: var(--space-5);">
+            <div>
+              <button id="btn-book-mark-complete" class="btn-arcade ${isCompleted ? 'btn-neutral' : 'btn-primary'} btn-md">
+                <span>${isCompleted ? '✓ Chapter Mastered (+50 XP)' : '🎓 Complete Chapter & Claim +50 XP'}</span>
+              </button>
+            </div>
+            <div style="display: flex; gap: var(--space-2);">
+              ${prevLesson ? `<button id="btn-book-prev-chapter" class="btn-arcade btn-neutral btn-md" data-target-id="${prevLesson.id}">⬅️ Prev: ${Utils.escapeHtml(prevLesson.title.split(':')[0])}</button>` : ''}
+              ${nextLesson ? `<button id="btn-book-next-chapter" class="btn-arcade btn-outline btn-md" data-target-id="${nextLesson.id}">Next: ${Utils.escapeHtml(nextLesson.title.split(':')[0])} ➡️</button>` : ''}
+            </div>
+          </div>
+
+          <div class="arena-launch-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.12)); border: 1px solid var(--color-primary); border-radius: var(--radius-lg); padding: var(--space-6); text-align: center;">
+            <h3 style="font-size: var(--text-xl); color: var(--text-primary); margin-bottom: var(--space-2);">
+              ⚔️ Battle Ready: Test Your Skills in the Arena
+            </h3>
+            <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto var(--space-4); font-size: var(--text-sm);">
+              Apply what you mastered in this chapter under timed battle conditions to earn ranked LP and climb the leaderboards!
+            </p>
+            <a href="${arenaUrl}" class="btn-arcade btn-primary btn-lg" id="btn-launch-arena-test" style="font-size: var(--text-base); padding: var(--space-3) var(--space-8);">
+              <span>Enter ${lesson.language.toUpperCase()} Battle Arena ⚔️</span>
+            </a>
+          </div>
+        </footer>
+
+      </div>
+    `;
+
+    // Render initial Visual Memory Model
+    const memContainer = bodyContainer.querySelector('#lesson-memory-container');
+    if (memContainer && typeof MemoryInspector !== 'undefined') {
+      const model = MemoryInspector.generateMemoryModel(initialCode, lesson.language);
+      MemoryInspector.render(memContainer, model);
+    }
+
+    // Bind Live Code Runner events
+    const runBtn = bodyContainer.querySelector('#btn-slide-run-code');
+    const resetBtn = bodyContainer.querySelector('#btn-slide-reset-code');
+    const editor = bodyContainer.querySelector('#slide-code-editor');
+
+    if (runBtn) {
+      runBtn.addEventListener('click', () => {
+        this.executeSlideCode(conceptSection);
+      });
+    }
+
+    if (resetBtn && editor) {
+      resetBtn.addEventListener('click', () => {
+        editor.value = initialCode;
+        const outputTray = bodyContainer.querySelector('#slide-terminal-output');
+        if (outputTray) outputTray.style.display = 'none';
+
+        if (memContainer && typeof MemoryInspector !== 'undefined') {
+          const model = MemoryInspector.generateMemoryModel(initialCode, lesson.language);
+          MemoryInspector.render(memContainer, model);
+        }
+
+        if (typeof AudioEngine !== 'undefined' && AudioEngine.playClick) {
+          AudioEngine.playClick();
+        }
+        UI.showToast('↺ Code restored to chapter starting state', 'info');
+      });
+    }
+
+    // Bind Diagnostic Checkpoint Drill events
+    const optButtons = bodyContainer.querySelectorAll('.drill-option-card');
+    const drillOpts = checkpointSection.drillOptions || checkpointSection.options || [];
+
+    optButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.optIdx, 10);
+        const selectedOpt = drillOpts[idx];
+        if (!selectedOpt) return;
+
+        optButtons.forEach(b => {
+          b.classList.remove('is-correct', 'is-incorrect');
+          b.style.pointerEvents = 'none';
+        });
+
+        const feedbackBox = bodyContainer.querySelector('#drill-feedback-box');
+        const feedbackText = bodyContainer.querySelector('#drill-feedback-text');
+
+        if (selectedOpt.isCorrect) {
+          btn.classList.add('is-correct');
+          if (feedbackBox) {
+            feedbackBox.style.display = 'block';
+            feedbackBox.style.backgroundColor = 'rgba(16, 185, 129, 0.12)';
+            feedbackBox.style.borderColor = 'var(--color-success)';
+          }
+          if (feedbackText) {
+            feedbackText.innerHTML = `<strong>🌟 Checkpoint Clear:</strong> ${Utils.escapeHtml(selectedOpt.feedback || 'Great job! You grasped this concept.')}`;
+          }
+
+          if (typeof AudioEngine !== 'undefined' && AudioEngine.playCorrect) {
+            AudioEngine.playCorrect();
+          }
+
+          const result = Profile.recordLessonCompleted(lesson.id);
+          if (result.recorded) {
+            UI.showToast(`🎓 +${result.xpEarned} Scholar XP! Lesson recorded.`, 'success');
+            this.updateDiplomaButton();
+            const markBtn = bodyContainer.querySelector('#btn-book-mark-complete');
+            if (markBtn) {
+              markBtn.className = 'btn-arcade btn-neutral btn-md';
+              markBtn.innerHTML = '<span>✓ Chapter Mastered (+50 XP)</span>';
+            }
+          }
+        } else {
+          btn.classList.add('is-incorrect');
+          if (feedbackBox) {
+            feedbackBox.style.display = 'block';
+            feedbackBox.style.backgroundColor = 'rgba(239, 68, 68, 0.12)';
+            feedbackBox.style.borderColor = 'var(--color-danger)';
+          }
+          if (feedbackText) {
+            feedbackText.innerHTML = `<strong>💡 Try Reviewing:</strong> ${Utils.escapeHtml(selectedOpt.feedback || 'Not quite. Check the conceptual model above.')}`;
+          }
+
+          setTimeout(() => {
+            optButtons.forEach(b => b.style.pointerEvents = 'auto');
+          }, 1200);
+
+          if (typeof AudioEngine !== 'undefined' && AudioEngine.playIncorrect) {
+            AudioEngine.playIncorrect();
+          }
+        }
+      });
+    });
+
+    // Bind Chapter Completion Button
+    const markCompleteBtn = bodyContainer.querySelector('#btn-book-mark-complete');
+    if (markCompleteBtn) {
+      markCompleteBtn.addEventListener('click', () => {
+        const result = Profile.recordLessonCompleted(lesson.id);
+        if (result.recorded) {
+          UI.showToast(`🎓 +${result.xpEarned} Scholar XP! Chapter marked complete.`, 'success');
+          markCompleteBtn.className = 'btn-arcade btn-neutral btn-md';
+          markCompleteBtn.innerHTML = '<span>✓ Chapter Mastered (+50 XP)</span>';
+          this.updateDiplomaButton();
+          if (typeof AudioEngine !== 'undefined' && AudioEngine.playBadge) {
+            AudioEngine.playBadge();
+          }
+        } else {
+          UI.showToast('Chapter is already mastered!', 'info');
+        }
+      });
+    }
+
+    // Bind Previous / Next Chapter buttons
+    const prevBtn = bodyContainer.querySelector('#btn-book-prev-chapter');
+    if (prevBtn && prevLesson) {
+      prevBtn.addEventListener('click', () => {
+        this.selectLessonById(prevLesson.id);
+      });
+    }
+
+    const nextBtn = bodyContainer.querySelector('#btn-book-next-chapter');
+    if (nextBtn && nextLesson) {
+      nextBtn.addEventListener('click', () => {
+        this.selectLessonById(nextLesson.id);
+      });
+    }
+  },
+
+  /**
+   * Helper to select a lesson by ID and render it
+   */
+  selectLessonById(lessonId) {
+    const allForLang = AcademyLessons.getByLanguage(this.activeLang);
+    const target = allForLang.find(l => l.id === lessonId);
+    if (target) {
+      this.currentLesson = target;
+      this.currentSlideIndex = 0;
+      Utils.qsa('.lesson-nav-btn').forEach(b => {
+        b.classList.toggle('is-active', b.dataset.lessonId === lessonId);
+      });
+      this.renderCurrentLesson();
+      window.scrollTo({ top: 150, behavior: 'smooth' });
+    }
   },
 
   /**
@@ -340,6 +901,10 @@ export const LearnController = {
     } else if (slide.type === 'pitfall') {
       this.renderPitfallSlide(slide, bodyContainer);
     }
+
+    // Restore card footer for slide deck mode
+    const footer = Utils.qs('#academy-workspace-card .card-footer');
+    if (footer) footer.style.display = 'flex';
 
     // Update navigation button states
     const btnPrev = Utils.qs('#btn-slide-prev');

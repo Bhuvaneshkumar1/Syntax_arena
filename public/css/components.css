@@ -2419,3 +2419,302 @@
 
 
 
+
+
+/* ==========================================================================
+   Academy Handbook & Book Reader Components (Linear Studio Slate)
+   ========================================================================== */
+
+.view-mode-segmented-control {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 2px;
+  gap: 2px;
+}
+
+.view-mode-pill {
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.view-mode-pill:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.view-mode-pill.is-active {
+  background: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Book Reader Layout */
+.academy-book-reader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  color: var(--text-secondary);
+}
+
+.book-chapter-header {
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--space-5);
+}
+
+.book-chapter-pretitle {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-1);
+}
+
+.book-chapter-title {
+  font-size: var(--text-2xl);
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2) 0;
+  line-height: 1.25;
+}
+
+.book-chapter-tagline {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.book-meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.book-meta-item {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  color: var(--text-secondary);
+}
+
+.book-objectives-card {
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.book-objectives-heading {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--space-2) 0;
+}
+
+.book-objectives-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.book-objectives-list li {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.obj-check {
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+.book-summary-card {
+  background: var(--bg-surface-raised);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: var(--space-4);
+}
+
+.book-summary-text {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Quick Navigation Pills */
+.book-toc-pill-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface);
+  z-index: 10;
+}
+
+.book-toc-pill {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  text-decoration: none;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 3px 10px;
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.book-toc-pill:hover {
+  color: var(--text-primary);
+  border-color: var(--color-primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* Book Sections */
+.book-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.book-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.book-section-num {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  color: var(--color-primary);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.book-section-title {
+  font-size: var(--text-lg);
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.book-section-desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-3) 0;
+}
+
+/* Deep-dive details accordion */
+.book-deep-dive-card {
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--duration-fast);
+}
+
+.book-deep-dive-card[open] {
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.book-deep-dive-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  background: rgba(139, 92, 246, 0.05);
+  user-select: none;
+}
+
+.book-deep-dive-summary:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.deep-dive-toggle-icon {
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform var(--duration-fast);
+}
+
+.book-deep-dive-card[open] .deep-dive-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.book-deep-dive-content {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Takeaways card */
+.book-takeaways-card {
+  background: rgba(16, 185, 129, 0.04);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.book-takeaways-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.book-takeaways-list li {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.takeaway-bullet {
+  font-size: 12px;
+}
+
+/* Book Chapter Footer */
+.book-chapter-footer {
+  border-top: 2px solid var(--border-subtle);
+  padding-top: var(--space-6);
+  margin-top: var(--space-6);
+}
