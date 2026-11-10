@@ -2797,3 +2797,261 @@
   box-shadow: 0 0 16px rgba(99, 102, 241, 0.2);
   transform: scale(1.01);
 }
+
+/* ==========================================================================
+   MEGA-BOSS BATTLE & DAEMON INCURSION STYLES
+   ========================================================================== */
+
+.boss-battle-hud {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  margin-bottom: var(--space-4);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.boss-phase-2-active .boss-battle-hud {
+  border-color: var(--color-danger, #f43f5e);
+  box-shadow: 0 0 25px rgba(244, 63, 94, 0.3), inset 0 0 15px rgba(244, 63, 94, 0.15);
+}
+
+.boss-header-grid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.boss-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.boss-avatar-frame {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-raised);
+  border: 2px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.boss-phase-2-active .boss-avatar-frame {
+  border-color: var(--color-danger, #f43f5e);
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.5);
+}
+
+.boss-name-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.boss-name {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.boss-title-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.boss-phase-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.boss-hp-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.boss-hp-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.boss-hp-bar {
+  width: 100%;
+  height: 14px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.boss-hp-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #06b6d4 50%, #3b82f6 100%);
+  border-radius: var(--radius-full);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.boss-phase-2-active .boss-hp-fill {
+  background: linear-gradient(90deg, #f59e0b 0%, #f43f5e 100%);
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
+}
+
+.boss-taunt-bar {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-warning, #f59e0b);
+  font-style: italic;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-warning, #f59e0b);
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .boss-header-grid {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+  .boss-attack-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  #boss-attack-type-badge {
+    white-space: normal;
+    text-align: left;
+    max-width: 100%;
+    word-break: break-word;
+    font-size: 10px;
+  }
+  .boss-hp-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
+
+/* Floating Damage Text */
+.floating-damage {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #38bdf8;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.8), 0 2px 4px rgba(0,0,0,0.9);
+  pointer-events: none;
+  z-index: 100;
+  animation: floatUpAndFade 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.floating-damage.is-critical {
+  font-size: 2rem;
+  color: #f43f5e;
+  text-shadow: 0 0 15px rgba(244, 63, 94, 0.9), 0 2px 6px rgba(0,0,0,0.9);
+}
+
+/* Boss Glitch Attack Overlay */
+.boss-glitch-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+
+.boss-glitch-overlay.is-active {
+  opacity: 1;
+  background: rgba(244, 63, 94, 0.08);
+}
+
+/* Glitched option state */
+.option-btn.is-glitched-option {
+  border-color: var(--color-danger, #f43f5e) !important;
+  background: rgba(244, 63, 94, 0.15) !important;
+  color: #f43f5e !important;
+  font-family: var(--font-mono) !important;
+  letter-spacing: 0.05em;
+}
+
+.option-btn.is-mutex-locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  position: relative;
+  border-style: dashed !important;
+}
+
+.option-btn.is-mutex-locked::after {
+  content: " 🔒 [MUTEX_LOCKED]";
+  font-size: 10px;
+  color: var(--color-warning);
+  font-weight: 800;
+}
+
+/* Boss Selection Modal Cards */
+.boss-select-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.boss-select-card {
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  position: relative;
+}
+
+.boss-select-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.boss-select-card.is-defeated {
+  border-color: var(--color-success);
+}
+

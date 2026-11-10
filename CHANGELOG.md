@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.8.0] - 2026-11-10
+
+### Added
+- **Feature 1: 👾 Cyberpunk Mega-Boss Battles ("The Daemon Incursion"):**
+  - **The 4 System Daemons (`data/boss-encounters.js`):**
+    - `null_leviathan`: *NullPointer Leviathan* (1,000 HP, Signature: *Null Dereference Void*, +500 XP, *Void Breaker* badge).
+    - `kernel_hydra`: *Kernel Panic Hydra* (1,200 HP, Signature: *Ring 0 Interrupt Blast*, +600 XP, *Kernel Crusher* badge).
+    - `overflow_dragon`: *Buffer Overflow Dragon* (1,100 HP, Signature: *Stack Frame Smashing Blast*, +550 XP, *Stack Guardian* badge).
+    - `deadlock_kraken`: *Deadlock Kraken* (1,300 HP, Signature: *Mutual Exclusion Lockout*, +650 XP, *Deadlock Dissolver* badge).
+    - 40 curated questions (10 per boss) spanning C, C++, Python, Java, Rust, Go, ASM, Cyber, JS, and TypeScript.
+  - **Authoritative Boss Engine (`js/boss-engine.js`):**
+    - Dynamic combat turn processing calculating difficulty-scaled base damage (120–220 HP), remaining timer speed bonus (up to +60 HP), combo streak multiplier (up to 1.75x), and rapid deduction Critical Strikes (1.35x).
+    - **Phase 2 Overclocking Transition:** Automatically triggers when Boss HP falls $\le 50\%$, activating burning gradient health bars, enraged taunts, and amplified retaliation mechanics.
+    - **Signature Glitch Retaliation Attacks:** Fires CRT screen glitch overlays and option scrambling upon incorrect submissions.
+    - **Victory Rewards:** Permanent career profile tracking in `defeatedBosses`, +500–650 XP bounties, and Boss Slayer trophy unlocks.
+  - **Mega-Boss Arcade HUD & Modals (`game.html`, `css/components.css`, `css/animations.css`):**
+    - Neon segmented Boss Integrity HP bar with real-time percentage interpolation.
+    - Floating combat damage numbers (`.floating-damage` & `.is-critical`).
+    - Interactive Adversary Selection Modal (`#modal-boss-select`) with live defeat badges and instant boss switching.
+    - Victory Fanfare Modal (`#modal-boss-victory`) showcasing reclaimed memory, XP awards, and unlocked badges.
+    - Hub showcase card on `index.html` linking directly to `game.html?mode=boss`.
+  - **Procedural Audio Synthesizer Additions (`js/audio.js`):**
+    - Added `playBossAlert()`, `playBossHit()`, `playBossGlitch()`, `playBossRoar()`, and `playBossDefeat()`.
+  - **Automated Test Suites:**
+    - Master Unit Suite: 794/794 tests passing (`tests/boss-engine-tests.js` adds 273 boss assertions).
+    - Playwright E2E Boss Suite (`tests/test-boss-battles-playwright.js`): 20/20 tests passing across HUD initialization, adversary modal, damage dealing, and 3 responsive viewports.
+    - Admin Route Suite (`tests/test-admin-route-playwright.js`): 38/38 tests passing.
+    - Responsive Viewport Suite (`tests/test-responsive-viewport-pressure-playwright.js`): 86/86 tests passing.
+
+---
+
 ## [2.7.0] - 2026-11-10
 
 ### Added

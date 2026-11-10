@@ -120,3 +120,4 @@ const samplePack = {
 
 fs.writeFileSync('data/sample-lesson-template.json', JSON.stringify(samplePack, null, 2), 'utf8');
 console.log('Sample lesson template successfully written to data/sample-lesson-template.json (Questions:', samplePack.questions.length, ')');
+

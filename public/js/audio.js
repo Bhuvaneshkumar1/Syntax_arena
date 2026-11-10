@@ -615,6 +615,155 @@ class ProceduralAudioEngine {
       this.startMusic();
     }
   }
+  /**
+   * Mega-Boss Battle Sounds (Daemon Incursion)
+   */
+
+  /**
+   * Boss Battle Alert / Intro Siren
+   */
+  playBossAlert() {
+    const vol = this._getVolume();
+    if (vol <= 0) return;
+    const ctx = this._getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(80, now);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.35);
+
+      gain.gain.setValueAtTime(vol * 0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.42);
+    } catch (_) {}
+  }
+
+  /**
+   * Boss Damaged / Critical Strike Hit
+   */
+  playBossHit() {
+    const vol = this._getVolume();
+    if (vol <= 0) return;
+    const ctx = this._getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(75, now + 0.18);
+
+      gain.gain.setValueAtTime(vol * 0.38, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.24);
+    } catch (_) {}
+  }
+
+  /**
+   * Boss Glitch Attack Static Burst
+   */
+  playBossGlitch() {
+    const vol = this._getVolume();
+    if (vol <= 0) return;
+    const ctx = this._getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(1400, now);
+      osc.frequency.linearRampToValueAtTime(200, now + 0.08);
+      osc.frequency.linearRampToValueAtTime(1800, now + 0.18);
+      osc.frequency.linearRampToValueAtTime(300, now + 0.28);
+
+      gain.gain.setValueAtTime(vol * 0.32, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.32);
+    } catch (_) {}
+  }
+
+  /**
+   * Boss Enrage Roar (Phase 2 Overclock)
+   */
+  playBossRoar() {
+    const vol = this._getVolume();
+    if (vol <= 0) return;
+    const ctx = this._getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(65, now);
+      osc.frequency.linearRampToValueAtTime(130, now + 0.2);
+      osc.frequency.exponentialRampToValueAtTime(45, now + 0.6);
+
+      gain.gain.setValueAtTime(vol * 0.42, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.7);
+    } catch (_) {}
+  }
+
+  /**
+   * Boss Defeated Victory Fanfare
+   */
+  playBossDefeat() {
+    const vol = this._getVolume();
+    if (vol <= 0) return;
+    const ctx = this._getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; // C4, E4, G4, C5, E5, G5
+      notes.forEach((freq, idx) => {
+        const startTime = now + (idx * 0.09);
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        gain.gain.setValueAtTime(vol * 0.3, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + 0.45);
+      });
+    } catch (_) {}
+  }
 }
 
 export const AudioEngine = new ProceduralAudioEngine();

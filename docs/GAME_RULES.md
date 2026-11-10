@@ -289,3 +289,46 @@ To safeguard user immersion and prevent accidental confusion for normal players:
   - Supports Cyber Academy handbook chapters with conceptual slides, interactive checkpoints, and danger zone pitfall cards.
 - **Pre-Flight Validation Guarantee:** The package must pass strict `QuestionValidator` schema checks before any questions are committed to storage.
 - **Live Broadcast Synchronization:** Once deployed, custom lessons are saved to `StorageManager` (`syntaxarena_custom_lessons`), triggering a `syntaxarena:lessons-updated` event that immediately injects the questions into active game sessions and Cyber Academy handbook menus without server intervention.
+
+---
+
+## 9. Daemon Incursion: Cyberpunk Mega-Boss Raid Mechanics
+
+### 9.1 Mode Overview & Access
+The **Daemon Incursion** (`game.html?mode=boss`) pits players against four rogue system daemons that occupy unallocated memory space and hardware interrupt lines:
+1. **NullPointer Leviathan (🐙):** 1,000 HP • Heap Void • Signature: *Null Dereference Void*
+2. **Kernel Panic Hydra (🐉):** 1,200 HP • Ring 0 Chaos • Signature: *Ring 0 Interrupt Blast*
+3. **Buffer Overflow Dragon (🔥):** 1,100 HP • Call Stack Smasher • Signature: *Stack Frame Smashing Blast*
+4. **Deadlock Kraken (🦑):** 1,300 HP • Mutex Abyss • Signature: *Mutual Exclusion Lockout*
+
+### 9.2 Combat Damage Formulation
+Boss damage per question deduction is calculated as:
+
+$$\text{Damage} = \left\lfloor (D_{\text{base}} + B_{\text{speed}}) \times M_{\text{streak}} \times C_{\text{crit}} \right\rfloor$$
+
+- **Base Damage ($D_{\text{base}}$):**
+  - Beginner: $120 \text{ HP}$
+  - Intermediate: $160 \text{ HP}$
+  - Expert: $220 \text{ HP}$
+- **Speed Bonus ($B_{\text{speed}}$):** Up to $+60 \text{ HP}$ scaled by remaining timer: $\lfloor (T_{\text{remaining}} / T_{\text{total}}) \times 60 \rfloor$.
+- **Streak Multiplier ($M_{\text{streak}}$):** Caps at $1.75\times$: $\min(1.75, 1.0 + (\text{streak} \times 0.15))$.
+- **Critical Strike ($C_{\text{crit}}$):** $1.35\times$ multiplier applied if answered within top 35% time ($\ge 65\%$ remaining) or with a $3+$ combo streak.
+
+### 9.3 Phase 2 Overclocking & Enrage
+- When a boss's current health falls to $\le 50\%$ of max HP:
+  - The daemon enters **Phase 2 Overclocked State**.
+  - HUD triggers red/coral glow animations (`.boss-phase-2-active`), status badge shifts to `🔥 OVERCLOCKED PHASE 2`, and an enrage taunt displays in the dialogue bar.
+  - Procedural synthesizer sounds fire `AudioEngine.playBossRoar()`.
+
+### 9.4 Signature Hardware Glitch Retaliation
+- When an incorrect answer is submitted, the player deals $0$ damage.
+- The daemon immediately counter-attacks:
+  - Full-screen CRT scanline overlay `#boss-glitch-overlay` activates with red static jitter.
+  - Procedural FM white noise glitch fires (`AudioEngine.playBossGlitch()`).
+  - Option cards scramble with memory address static (Leviathan: `0x00000000 [SIGSEGV NULL_VOID]`) or padlock with mutual exclusion barriers (Kraken: `.is-mutex-locked`).
+
+### 9.5 Victory Bounties & Trophies
+- When Boss HP reaches $0$:
+  - The encounter ends with **DAEMON PURGED** victory fanfare and confetti.
+  - Awards massive XP bounty (+500–650 XP).
+  - Unlocks permanent Boss Slayer badge in `profile.badges` and records adversary in `profile.defeatedBosses`.

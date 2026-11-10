@@ -16,6 +16,8 @@ import { UI } from './ui.js';
 import { Router } from './router.js';
 import { Utils } from './utils.js';
 import { LANGUAGE_METADATA } from './data/index.js';
+import { BossEncounters } from '../data/boss-encounters.js';
+import { BossEngine } from './boss-engine.js';
 
 export const HINT_PENALTIES = {
   beginner: 25,
@@ -128,7 +130,7 @@ export const Gameplay = {
 
     const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html', 'asm'];
     const ALLOWED_DIFFS = ['beginner', 'intermediate', 'expert'];
-    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless'];
+    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless', 'boss'];
 
     let rawLang = (params.lang || (activeProfile && activeProfile.preferences?.language) || 'python').toLowerCase();
     if (rawLang === 'ts') rawLang = 'typescript';
@@ -179,7 +181,7 @@ export const Gameplay = {
     }
     const mode = rawMode;
 
-    // Determine time limit: Hardcore (30s), Standard timed (45s), Relaxed (0), Endless (0 unless timed=true)
+    // Determine time limit: Hardcore (30s), Standard timed (45s), Relaxed (0), Endless (0 unless timed=true), Boss (35s)
     let timeLimit = 45;
     if (params.timed === 'false' || mode === 'practice') {
       timeLimit = 0; // Relaxed mode
@@ -187,6 +189,8 @@ export const Gameplay = {
       timeLimit = 30;
     } else if (mode === 'speedrun') {
       timeLimit = 20;
+    } else if (mode === 'boss') {
+      timeLimit = 35; // Calibrated for high-stakes boss calculations
     } else if (mode === 'endless') {
       timeLimit = (params.timed === 'true') ? 45 : 0; // Relaxed continuous point farm by default
     }
@@ -249,7 +253,13 @@ export const Gameplay = {
           }
 
           this.activeStage = STAGE_CONFIG[savedSession.stage] || STAGE_CONFIG.marathon;
-          this._initGhostDuelUI(difficulty);
+          if (mode === 'boss') {
+            const bossId = params.boss || (savedSession && savedSession.bossId) || 'null_leviathan';
+            const bossData = (typeof BossEncounters !== 'undefined' && BossEncounters.getById(bossId)) || (typeof BossEncounters !== 'undefined' && BossEncounters.getDefaultBoss());
+            this._setupBossEncounter(bossData);
+          } else {
+            this._initGhostDuelUI(difficulty);
+          }
           this._bindEvents();
           const resumedQ = this.engine.getCurrentQuestion();
           this.renderQuestion(resumedQ);
@@ -283,7 +293,14 @@ export const Gameplay = {
     // 3. Load questions from QuestionBank with support for Endless Mode, Retry Missed and Topic Practice
     let questions = [];
 
-    if (mode === 'endless') {
+    if (mode === 'boss') {
+      const bossId = params.boss || 'null_leviathan';
+      const bossData = (typeof BossEncounters !== 'undefined' && BossEncounters.getById(bossId)) || (typeof BossEncounters !== 'undefined' && BossEncounters.getDefaultBoss());
+      if (bossData) {
+        this.activeBoss = bossData;
+        questions = [...bossData.questions];
+      }
+    } else if (mode === 'endless') {
       questions = QuestionBank.getEndlessQuestions(language);
     } else if (mode === 'retry_missed') {
       let missedIds = [];
@@ -351,7 +368,7 @@ export const Gameplay = {
       timeLimit,
       questions,
       stage: activeStage.id,
-      randomizeOrder: true
+      randomizeOrder: mode !== 'boss'
     };
 
     try {
@@ -366,7 +383,14 @@ export const Gameplay = {
     this._saveSessionSnapshot();
 
     // 6. Bind DOM controls, keyboard shortcuts & Ghost Speed Duel
-    this._initGhostDuelUI(difficulty);
+    if (mode === 'boss') {
+      const bossBar = Utils.qs('#hud-boss-battle-bar');
+      if (bossBar) bossBar.style.display = 'block';
+      const ghostRail = Utils.qs('#hud-ghost-duel-rail');
+      if (ghostRail) ghostRail.style.display = 'none';
+    } else {
+      this._initGhostDuelUI(difficulty);
+    }
     this._bindEvents();
 
     // 7. Render first question
@@ -382,6 +406,11 @@ export const Gameplay = {
 
     // 9. Update profile header pill
     UI.updateHeaderProfile();
+
+    // 10. Setup Boss encounter HUD if in boss mode
+    if (mode === 'boss') {
+      this._setupBossEncounter(this.activeBoss || (typeof BossEncounters !== 'undefined' && BossEncounters.getDefaultBoss()));
+    }
 
     console.info(`[Gameplay] Session initialized (${language} • ${difficulty} • ${questions.length} questions)`);
     return true;
@@ -1046,6 +1075,11 @@ export const Gameplay = {
         : `Correct answer! +${result.points} points awarded. Current streak: ${result.streak}.`
       );
 
+      // Boss Battle Turn processing on correct answer
+      if (this.sessionConfig && this.sessionConfig.mode === 'boss') {
+        this._processBossTurn(result, timeRemaining);
+      }
+
       // Auto-advance to next question automatically after 2.0s delay
       if (this._autoAdvanceTimer) {
         clearTimeout(this._autoAdvanceTimer);
@@ -1132,6 +1166,11 @@ export const Gameplay = {
           if (cards[this.selectedOptionIndex]) {
             cards[this.selectedOptionIndex].classList.add('is-incorrect');
           }
+        }
+
+        // Boss Battle Turn counter-attack on incorrect answer
+        if (this.sessionConfig && this.sessionConfig.mode === 'boss' && !result.canRetry) {
+          this._processBossTurn(result, timeRemaining);
         }
       }
     }
@@ -1811,6 +1850,42 @@ export const Gameplay = {
       };
     }
 
+    // Mega-Boss Modal & Controls
+    const switchBossBtn = Utils.qs('#btn-switch-boss');
+    if (switchBossBtn) {
+      switchBossBtn.onclick = () => {
+        this._renderBossSelectionGrid();
+        UI.openModal('modal-boss-select');
+      };
+    }
+
+    const closeBossSelectX = Utils.qs('#btn-close-boss-select-x');
+    if (closeBossSelectX) {
+      closeBossSelectX.onclick = () => UI.closeModal('modal-boss-select');
+    }
+
+    const cancelBossSelect = Utils.qs('#btn-cancel-boss-select');
+    if (cancelBossSelect) {
+      cancelBossSelect.onclick = () => UI.closeModal('modal-boss-select');
+    }
+
+    const bossVictorySelect = Utils.qs('#btn-boss-victory-select');
+    if (bossVictorySelect) {
+      bossVictorySelect.onclick = () => {
+        UI.closeModal('modal-boss-victory');
+        this._renderBossSelectionGrid();
+        UI.openModal('modal-boss-select');
+      };
+    }
+
+    const bossVictoryHub = Utils.qs('#btn-boss-victory-hub');
+    if (bossVictoryHub) {
+      bossVictoryHub.onclick = () => {
+        UI.closeModal('modal-boss-victory');
+        Router.navigateTo('index');
+      };
+    }
+
     // Keyboard Shortcuts (1-4, A-D, Enter, Escape)
     window.addEventListener('keydown', (e) => {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) {
@@ -1997,6 +2072,258 @@ export const Gameplay = {
     }
 
     this.ghostDuel.lastSplitDelta = delta;
+  },
+
+  /**
+   * Setup active Mega-Boss encounter and configure the arcade HUD.
+   * @param {object} bossData
+   */
+  _setupBossEncounter(bossData) {
+    if (!bossData || typeof BossEngine === 'undefined') return;
+    this.activeBoss = bossData;
+    BossEngine.initBattle(bossData.id);
+
+    const bossHud = Utils.qs('#hud-boss-battle-bar');
+    if (bossHud) {
+      bossHud.style.display = 'block';
+      bossHud.classList.remove('boss-phase-2-active');
+    }
+
+    const ghostRail = Utils.qs('#hud-ghost-duel-rail');
+    if (ghostRail) ghostRail.style.display = 'none';
+
+    // Populate HUD fields
+    const avatarEl = Utils.qs('#boss-avatar-emblem');
+    if (avatarEl) avatarEl.textContent = bossData.icon || '👾';
+
+    const nameEl = Utils.qs('#boss-name-text');
+    if (nameEl) nameEl.textContent = bossData.name;
+
+    const subtitleEl = Utils.qs('#boss-title-subtitle');
+    if (subtitleEl) subtitleEl.textContent = `${bossData.title} • ${bossData.maxHp} MAX HP`;
+
+    const phaseBadge = Utils.qs('#boss-phase-badge');
+    if (phaseBadge) {
+      phaseBadge.textContent = 'PHASE 1';
+      phaseBadge.className = 'badge badge-cyan boss-phase-badge';
+    }
+
+    const attackBadge = Utils.qs('#boss-attack-type-badge');
+    if (attackBadge) attackBadge.textContent = `⚠️ Signature: ${bossData.attackName}`;
+
+    const hpFill = Utils.qs('#boss-hp-fill');
+    if (hpFill) hpFill.style.width = '100%';
+
+    const hpText = Utils.qs('#boss-hp-text');
+    if (hpText) hpText.textContent = `${bossData.maxHp} / ${bossData.maxHp} HP (100%)`;
+
+    const tauntEl = Utils.qs('#boss-taunt-text');
+    if (tauntEl) tauntEl.textContent = `"${bossData.taunts?.intro || 'Prepare to be purged.'}"`;
+
+    if (typeof AudioEngine !== 'undefined' && AudioEngine.playBossAlert) {
+      AudioEngine.playBossAlert();
+    }
+  },
+
+  /**
+   * Process a boss turn on question submission.
+   * @param {object} result Answer result from GameEngine
+   * @param {number} timeRemaining Remaining question time
+   */
+  _processBossTurn(result, timeRemaining = 15) {
+    if (!this.sessionConfig || this.sessionConfig.mode !== 'boss' || typeof BossEngine === 'undefined') return;
+
+    const bossTurn = BossEngine.processTurn(
+      result.correct,
+      timeRemaining,
+      this.sessionConfig.timeLimit || 35,
+      result.streak || 0,
+      this.sessionConfig.difficulty || 'intermediate'
+    );
+    this._renderBossTurn(bossTurn);
+  },
+
+  /**
+   * Render Boss combat feedback (HP bar update, floating damage, Phase 2 enrage, taunts, victory).
+   * @param {object} bossTurn Result from BossEngine.processTurn
+   */
+  _renderBossTurn(bossTurn) {
+    if (!bossTurn) return;
+
+    const hpFill = Utils.qs('#boss-hp-fill');
+    if (hpFill) hpFill.style.width = `${bossTurn.status.hpPct}%`;
+
+    const hpText = Utils.qs('#boss-hp-text');
+    if (hpText) {
+      hpText.textContent = `${bossTurn.status.currentHp} / ${bossTurn.status.maxHp} HP (${bossTurn.status.hpPct}%)`;
+    }
+
+    const tauntEl = Utils.qs('#boss-taunt-text');
+    if (tauntEl && bossTurn.taunt) {
+      tauntEl.textContent = `"${bossTurn.taunt}"`;
+    }
+
+    // Floating Combat Damage Text
+    if (bossTurn.damage > 0) {
+      this._spawnFloatingDamage(bossTurn.damage, bossTurn.isCritical);
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.playBossHit) {
+        AudioEngine.playBossHit(bossTurn.isCritical);
+      }
+    }
+
+    // Phase 2 Overclocking transition
+    if (bossTurn.transitionToPhase2) {
+      const bossHud = Utils.qs('#hud-boss-battle-bar');
+      if (bossHud) bossHud.classList.add('boss-phase-2-active');
+
+      const phaseBadge = Utils.qs('#boss-phase-badge');
+      if (phaseBadge) {
+        phaseBadge.textContent = '🔥 OVERCLOCKED PHASE 2';
+        phaseBadge.className = 'badge badge-coral boss-phase-badge animate-pulse';
+      }
+
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.playBossRoar) {
+        AudioEngine.playBossRoar();
+      }
+      UI.showToast('🔥 BOSS OVERCLOCKED! Attack power increased in Phase 2!', 'warning');
+    }
+
+    // Boss Counter Attack on incorrect answer
+    if (!bossTurn.isPlayerHit) {
+      BossEngine.triggerBossAttack();
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.playBossGlitch) {
+        AudioEngine.playBossGlitch();
+      }
+
+      // Visual Glitch Overlay
+      const overlay = Utils.qs('#boss-glitch-overlay');
+      if (overlay) {
+        overlay.classList.add('is-active');
+        setTimeout(() => overlay.classList.remove('is-active'), 1200);
+      }
+
+      // Disrupt option buttons
+      const options = Utils.qsa('.option-card');
+      options.forEach(card => {
+        if (!card.classList.contains('is-correct')) {
+          card.classList.add('is-glitched-option');
+          setTimeout(() => card.classList.remove('is-glitched-option'), 2500);
+        }
+      });
+    }
+
+    // Boss Defeat Victory Flow
+    if (bossTurn.status.isVictory) {
+      if (this._autoAdvanceTimer) {
+        clearTimeout(this._autoAdvanceTimer);
+        this._autoAdvanceTimer = null;
+      }
+
+      const activeProf = Profile.getActiveProfile();
+      const rewards = BossEngine.claimVictoryRewards(activeProf);
+
+      // Populate victory modal
+      const vIcon = Utils.qs('#boss-victory-icon');
+      if (vIcon && bossTurn.boss) vIcon.textContent = bossTurn.boss.icon;
+
+      const vTitle = Utils.qs('#modal-boss-victory-title');
+      if (vTitle && bossTurn.boss) vTitle.textContent = `${bossTurn.boss.name} Purged!`;
+
+      const vSub = Utils.qs('#boss-victory-subtitle');
+      if (vSub && bossTurn.boss) vSub.textContent = `Memory integrity restored. ${bossTurn.boss.subtitle} neutralized.`;
+
+      const vXp = Utils.qs('#boss-victory-xp');
+      if (vXp && rewards) vXp.textContent = `+${rewards.xpAwarded} XP`;
+
+      const vBadge = Utils.qs('#boss-victory-badge');
+      if (vBadge && rewards) vBadge.textContent = `${bossTurn.boss?.icon || '🏆'} ${rewards.badgeName}`;
+
+      const vHackerTitle = Utils.qs('#boss-victory-title-unlocked');
+      if (vHackerTitle && rewards) vHackerTitle.textContent = rewards.titleUnlocked;
+
+      setTimeout(() => {
+        UI.triggerConfetti();
+        UI.openModal('modal-boss-victory');
+      }, 1000);
+    }
+  },
+
+  /**
+   * Spawn floating damage text over the Boss HUD.
+   * @param {number} damage
+   * @param {boolean} isCritical
+   */
+  _spawnFloatingDamage(damage, isCritical = false) {
+    const bossHud = Utils.qs('#hud-boss-battle-bar');
+    if (!bossHud) return;
+
+    const floatEl = document.createElement('div');
+    floatEl.className = `floating-damage${isCritical ? ' is-critical' : ''}`;
+    floatEl.textContent = isCritical ? `⚡ CRIT! -${damage} HP` : `-${damage} HP`;
+
+    const leftOffset = 40 + Math.floor(Math.random() * 25);
+    floatEl.style.left = `${leftOffset}%`;
+    floatEl.style.top = '15px';
+
+    bossHud.appendChild(floatEl);
+    setTimeout(() => {
+      if (floatEl.parentNode) floatEl.parentNode.removeChild(floatEl);
+    }, 1200);
+  },
+
+  /**
+   * Dynamically render the boss selection cards inside the selection modal.
+   */
+  _renderBossSelectionGrid() {
+    const container = Utils.qs('#boss-select-grid-container');
+    if (!container || typeof BossEncounters === 'undefined') return;
+
+    const bosses = BossEncounters.getAll();
+    const activeProf = Profile.getActiveProfile();
+    const defeatedList = (activeProf && activeProf.defeatedBosses) || [];
+
+    container.innerHTML = bosses.map(b => {
+      const isDefeated = defeatedList.includes(b.id);
+      return `
+        <div class="boss-select-card${isDefeated ? ' is-defeated' : ''}" data-boss-id="${b.id}">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <span style="font-size: 2.2rem;">${b.icon}</span>
+            <div style="display: flex; gap: 0.35rem; flex-direction: column; align-items: flex-end;">
+              <span class="badge ${b.badgeClass}">${b.maxHp} HP</span>
+              ${isDefeated ? '<span class="badge badge-emerald">🏆 DEFEATED</span>' : '<span class="badge badge-coral">ACTIVE THREAT</span>'}
+            </div>
+          </div>
+          <div>
+            <h4 style="margin: 0.25rem 0; font-size: var(--text-base); color: var(--text-primary);">${b.name}</h4>
+            <div style="font-size: 11px; color: var(--color-primary); font-family: var(--font-mono);">${b.title}</div>
+            <p style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0.5rem 0 0 0; line-height: 1.4;">
+              ${b.subtitle}
+            </p>
+          </div>
+          <div style="background: rgba(0,0,0,0.25); border-radius: var(--radius-sm); padding: 6px 8px; font-size: 11px; border-left: 2px solid ${b.themeColor};">
+            <span style="color: var(--text-muted);">Signature:</span>
+            <strong style="color: ${b.themeColor};">${b.attackName}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem; margin-top: 0.25rem;">
+            <span style="font-size: 11px; color: var(--color-success); font-weight: 700;">+${b.rewards.xp} XP Bounty</span>
+            <button type="button" class="btn-arcade btn-primary btn-sm btn-select-boss-engage" data-boss-id="${b.id}" style="font-size: 11px; padding: 3px 10px;">
+              Engage ⚔️
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Bind engage buttons
+    const engageBtns = container.querySelectorAll('.btn-select-boss-engage');
+    engageBtns.forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const bossId = btn.getAttribute('data-boss-id');
+        UI.closeModal('modal-boss-select');
+        Router.navigateTo('game', { mode: 'boss', boss: bossId, new: 'true' });
+      };
+    });
   }
 };
 

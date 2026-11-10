@@ -417,6 +417,66 @@ export const ACHIEVEMENTS = Object.freeze([
 const ACHIEVEMENTS_MAP = new Map(ACHIEVEMENTS.map(a => [a.id, a]));
 
 // =============================================================================
+// 4.1 MEGA-BOSS ACHIEVEMENT BADGES (Daemon Incursion)
+// =============================================================================
+export const BOSS_ACHIEVEMENTS = Object.freeze([
+  {
+    id: 'badge_boss_leviathan',
+    name: 'Void Breaker',
+    description: 'Defeat the NullPointer Leviathan in the Daemon Incursion.',
+    icon: '🐙',
+    category: 'boss',
+    difficulty: 'expert',
+    cost: 250,
+    price: 250,
+    evaluate: (profile) => {
+      return Boolean(profile && Array.isArray(profile.defeatedBosses) && profile.defeatedBosses.includes('null_leviathan'));
+    }
+  },
+  {
+    id: 'badge_boss_hydra',
+    name: 'Kernel Crusher',
+    description: 'Defeat the Kernel Panic Hydra in Ring 0 combat.',
+    icon: '🐉',
+    category: 'boss',
+    difficulty: 'master',
+    cost: 350,
+    price: 350,
+    evaluate: (profile) => {
+      return Boolean(profile && Array.isArray(profile.defeatedBosses) && profile.defeatedBosses.includes('kernel_hydra'));
+    }
+  },
+  {
+    id: 'badge_boss_dragon',
+    name: 'Stack Guardian',
+    description: 'Slain the Buffer Overflow Dragon and defended the call stack.',
+    icon: '🔥',
+    category: 'boss',
+    difficulty: 'expert',
+    cost: 250,
+    price: 250,
+    evaluate: (profile) => {
+      return Boolean(profile && Array.isArray(profile.defeatedBosses) && profile.defeatedBosses.includes('overflow_dragon'));
+    }
+  },
+  {
+    id: 'badge_boss_kraken',
+    name: 'Deadlock Dissolver',
+    description: 'Break the circular wait and defeat the Deadlock Kraken.',
+    icon: '🦑',
+    category: 'boss',
+    difficulty: 'master',
+    cost: 350,
+    price: 350,
+    evaluate: (profile) => {
+      return Boolean(profile && Array.isArray(profile.defeatedBosses) && profile.defeatedBosses.includes('deadlock_kraken'));
+    }
+  }
+]);
+
+const BOSS_ACHIEVEMENTS_MAP = new Map(BOSS_ACHIEVEMENTS.map(a => [a.id, a]));
+
+// =============================================================================
 // 5. MASTER GAMIFICATION CONTROLLER
 // =============================================================================
 export const Gamification = {
@@ -923,13 +983,13 @@ export const Gamification = {
    * @returns {object|null}
    */
   getBadge(badgeId) {
-    return ACHIEVEMENTS_MAP.get(badgeId) || null;
+    return ACHIEVEMENTS_MAP.get(badgeId) || BOSS_ACHIEVEMENTS_MAP.get(badgeId) || null;
   },
 
   /**
    * Return all badges in registry.
    */
   getAllBadges() {
-    return [...ACHIEVEMENTS];
+    return [...ACHIEVEMENTS, ...BOSS_ACHIEVEMENTS];
   }
 };

@@ -11,6 +11,7 @@ import { runGamificationTests } from './gamification-tests.js';
 import { runAnalyticsTests } from './analytics-tests.js';
 import { runInteractiveAudioTests } from './interactive-audio-tests.js';
 import { runReliabilityTests } from './reliability-tests.js';
+import { runBossEngineTests } from './boss-engine-tests.js';
 
 async function runAll() {
   console.log('============================================================');
@@ -25,10 +26,11 @@ async function runAll() {
   const an = await runAnalyticsTests();
   const ia = await runInteractiveAudioTests();
   const rel = await runReliabilityTests();
+  const boss = await runBossEngineTests();
 
-  const total = qb.passed + qb.failed + ac.passed + ac.failed + ge.passed + ge.failed + ui.passed + ui.failed + gm.passed + gm.failed + an.passed + an.failed + ia.passed + ia.failed + rel.passed + rel.failed;
-  const passed = qb.passed + ac.passed + ge.passed + ui.passed + gm.passed + an.passed + ia.passed + rel.passed;
-  const failed = qb.failed + ac.failed + ge.failed + ui.failed + gm.failed + an.failed + ia.failed + rel.failed;
+  const total = qb.passed + qb.failed + ac.passed + ac.failed + ge.passed + ge.failed + ui.passed + ui.failed + gm.passed + gm.failed + an.passed + an.failed + ia.passed + ia.failed + rel.passed + rel.failed + boss.passed + boss.failed;
+  const passed = qb.passed + ac.passed + ge.passed + ui.passed + gm.passed + an.passed + ia.passed + rel.passed + boss.passed;
+  const failed = qb.failed + ac.failed + ge.failed + ui.failed + gm.failed + an.failed + ia.failed + rel.failed + boss.failed;
 
   console.log('============================================================');
   console.log('🏁 SUITE EXECUTION SUMMARY');
@@ -41,6 +43,12 @@ async function runAll() {
   console.log(`Analytics Tests:         ${an.passed}/${an.passed + an.failed} passed`);
   console.log(`Interactive Audio Tests: ${ia.passed}/${ia.passed + ia.failed} passed`);
   console.log(`Reliability Tests:       ${rel.passed}/${rel.passed + rel.failed} passed`);
+  console.log(`Mega-Boss Battles Tests: ${boss.passed}/${boss.passed + boss.failed} passed`);
+  console.log('------------------------------------------------------------');
+  console.log(`TOTAL TESTS:             ${total}`);
+  console.log(`PASSED:                  ${passed}`);
+  console.log(`FAILED:                  ${failed}`);
+  console.log('============================================================\n');
   console.log('------------------------------------------------------------');
   console.log(`TOTAL TESTS:             ${total}`);
   console.log(`PASSED:                  ${passed}`);
