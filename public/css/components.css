@@ -1998,6 +1998,7 @@
     color: #b45309 !important;
     text-shadow: none !important;
   }
+}
 
 /* ==========================================================================
    DAILY HACKER GAUNTLET & 7-DAY PUNCH CARD STYLES
@@ -2849,11 +2850,21 @@
   flex-shrink: 0;
   box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
   transition: all var(--transition-fast);
+  animation: bossIdleFloat 3.2s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+.boss-avatar-frame.is-hit-recoil {
+  animation: bossHitRecoil 0.45s ease-out !important;
+}
+
+.boss-avatar-frame.is-attack-lunge {
+  animation: bossAttackLunge 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
 
 .boss-phase-2-active .boss-avatar-frame {
   border-color: var(--color-danger, #f43f5e);
-  box-shadow: 0 0 16px rgba(244, 63, 94, 0.5);
+  animation: bossPhase2Aura 2s ease-in-out infinite, bossIdleFloat 2.2s ease-in-out infinite;
 }
 
 .boss-name-block {
@@ -3053,5 +3064,61 @@
 
 .boss-select-card.is-defeated {
   border-color: var(--color-success);
+}
+
+/* Dynamic Progress Bar Tug-of-War Recoil (Penalty on Wrong Answer/Timeout) */
+.hud-progress-fill.is-tug-recoil,
+#hud-progress-container.is-tug-recoil,
+.ghost-track-container.is-tug-recoil {
+  animation: progressTugOfWarRecoil 0.5s ease-in-out !important;
+}
+
+/* Sandbox Environment Segmented Bar (Clean, Responsive, No Ugly Scrollbar) */
+.sandbox-env-segmented-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  padding: 6px;
+  background: var(--bg-surface-raised, rgba(30, 41, 59, 0.7));
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sandbox-env-segmented-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.sandbox-env-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.sandbox-env-pill:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-subtle);
+}
+
+.sandbox-env-pill.is-active {
+  color: #ffffff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
 }
 

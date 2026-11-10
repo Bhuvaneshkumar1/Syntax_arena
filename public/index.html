@@ -198,33 +198,60 @@
     <div class="page-container">
       
       <!-- ====================================================================
-           SECTION B: HERO SECTION
+           SECTION B: HERO SECTION & ARCADE COMMAND DECK
            ==================================================================== -->
-      <section class="page-header" style="text-align: center; max-width: 860px; margin: 1.5rem auto 3.5rem;">
+      <section class="page-header" style="text-align: center; max-width: 960px; margin: 1.5rem auto 3.5rem;">
         <div style="margin-bottom: 1.25rem;">
           <img src="assets/images/logo.svg" width="76" height="76" alt="SyntaxArena Emblem" style="filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));">
         </div>
-        <span class="badge badge-cyan" style="margin-bottom: 1rem; letter-spacing: 0.08em;">
-          ARCADE-GRADE CODE REASONING STUDIO
-        </span>
+        
         <h1 style="font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.15; margin-bottom: 1.25rem; font-weight: 900;">
-          Master Programming Through <span style="color: var(--color-primary);">High-Feedback</span> Tracing
+          Master Programming Through <span style="color: var(--color-primary);">Gaming</span> Experience
         </h1>
-        <p style="font-size: var(--text-lg); color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; max-width: 720px; margin-left: auto; margin-right: auto;">
-          Deduce variable states, hunt subtle bugs, and predict console outputs across 12 programming tracks—including Python, Rust, C, C++, Java, Go, TypeScript, and Assembly. 
-          Zero backend latency, offline resilient, calibrated for programmers from novice to grandmaster.
-        </p>
+
+        <!-- Live Arcade Telemetry Counter Bar -->
+        <div style="display: flex; gap: 0.6rem; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 2rem;">
+          <span class="badge badge-cyan" style="font-size: 11px; padding: 4px 10px;">⚡ 12 Language Tracks</span>
+          <span class="badge badge-emerald" style="font-size: 11px; padding: 4px 10px;">🎯 720+ Challenges</span>
+          <span class="badge badge-coral" style="font-size: 11px; padding: 4px 10px;">👾 4 Mega-Boss Raids</span>
+          <span class="badge badge-violet" style="font-size: 11px; padding: 4px 10px;">🏎️ Speed Ghost Rivals</span>
+          <span class="badge badge-amber" style="font-size: 11px; padding: 4px 10px;">⚡ 0ms Latency</span>
+        </div>
         
         <!-- Primary & Secondary Hero Actions -->
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.5rem;">
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem;">
           <button id="btn-hero-start" class="btn-arcade btn-primary btn-lg" aria-label="Start Playing Now">
             <svg width="20" height="20" aria-hidden="true"><use href="#icon-zap"></use></svg>
-            <span>Start Playing</span>
+            <span>Start Vibing</span>
           </button>
           <button id="btn-hero-explore" class="btn-arcade btn-neutral btn-lg" data-scroll-to="#challenges" aria-label="Explore Challenge Formats">
             <svg width="20" height="20" aria-hidden="true"><use href="#icon-code"></use></svg>
             <span>Explore Challenges</span>
           </button>
+        </div>
+
+        <!-- Interactive Launchpad Command Bar -->
+        <div class="card card-raised" style="padding: 1rem; border-color: rgba(99, 102, 241, 0.3); background: var(--bg-surface-raised); margin-bottom: 2.5rem;">
+          <div style="font-family: var(--font-display); font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem;">
+            QUICK-LAUNCH COMMAND DECK
+          </div>
+          <div style="display: flex; gap: 0.75rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+            <a href="game.html" class="btn-arcade btn-primary btn-sm" style="text-decoration: none;">
+              ⚔️ Arena Battle
+            </a>
+            <a href="game.html?mode=endless" class="btn-arcade btn-neutral btn-sm" style="text-decoration: none; border-color: #34d399; color: #34d399;">
+              ♾️ Endless Point Farm
+            </a>
+            <a href="game.html?mode=boss" class="btn-arcade btn-danger btn-sm" style="text-decoration: none;">
+              👾 Boss Incursions
+            </a>
+            <a href="learn.html" class="btn-arcade btn-neutral btn-sm" style="text-decoration: none; border-color: #38bdf8; color: #38bdf8;">
+              📘 Cyber Academy
+            </a>
+            <a href="sandbox.html" class="btn-arcade btn-neutral btn-sm" style="text-decoration: none;">
+              💻 Virtual Sandbox REPL
+            </a>
+          </div>
         </div>
 
         <!-- Hero Arena Feature Showcase (Code-Free Arena Mechanics) -->
@@ -301,9 +328,8 @@
       <section id="language-tracks" class="section-anchor" style="margin-bottom: 4.5rem;">
         <div class="page-title-row">
           <div>
-            <span class="badge badge-cyan" style="margin-bottom: 0.5rem;">Curriculum Hub</span>
             <h2>Select Programming Language</h2>
-            <p class="page-subtitle">Choose your active track. Selection is saved and updates the arena instantly.</p>
+            <p class="page-subtitle">Choose your track.</p>
           </div>
           <span class="badge badge-amber">12 Tracks Available</span>
         </div>
@@ -679,9 +705,7 @@
       <section id="difficulty-selection" class="section-anchor" style="margin-bottom: 4.5rem;">
         <div class="page-title-row">
           <div>
-            <span class="badge badge-emerald" style="margin-bottom: 0.5rem;">Difficulty Tiers</span>
             <h2>Select Difficulty Starting Point</h2>
-            <p class="page-subtitle">Configure your challenge tier. Can be changed anytime before or between arena runs.</p>
           </div>
           <span class="badge badge-neutral">3 Tier Progression</span>
         </div>
@@ -730,7 +754,7 @@
           <div class="card-selectable is-locked" data-diff="expert" role="radio" aria-checked="false" aria-disabled="true" tabindex="0" aria-label="Select Expert Difficulty">
             <span class="selection-indicator" aria-hidden="true">🔒</span>
             <div>
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; padding-right: 2rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; padding-right: 1rem;">
                 <span class="badge badge-coral">300 Base Points</span>
                 <span id="diff-badge-expert" style="font-size: var(--text-xs); color: var(--text-muted);">🔒 Gate: Intermediate or 2,500 Pts</span>
               </div>
@@ -754,9 +778,7 @@
       <section id="progression" class="section-anchor" style="margin-bottom: 4.5rem;">
         <div class="page-title-row">
           <div>
-            <span class="badge badge-violet" style="margin-bottom: 0.5rem;">Progression Showcase</span>
             <h2>Studio Progression & Stage Map</h2>
-            <p class="page-subtitle">Advance through structured difficulty tiers, earn cumulative XP, and unlock rank certifications.</p>
           </div>
           <span class="badge badge-cyan">Illustrative Preview</span>
         </div>
@@ -886,22 +908,24 @@
       </section>
 
       <!-- ====================================================================
-           SECTION F: CHALLENGE SHOWCASE
+           SECTION F: CHALLENGE SHOWCASE (01 to 05 Core Formats & Dedicated Modes)
            ==================================================================== -->
       <section id="challenges" class="section-anchor" style="margin-bottom: 4.5rem;">
+        
+        <!-- Part 1: Cognitive Core Formats (01 to 05) -->
         <div class="page-title-row">
           <div>
-            <span class="badge badge-coral" style="margin-bottom: 0.5rem;">Question Archetypes</span>
-            <h2>Challenge Showcase</h2>
-            <p class="page-subtitle">Demonstrating the five cognitive activity formats featured throughout the curriculum.</p>
+            <span class="badge badge-coral" style="margin-bottom: 0.5rem;">Cognitive Archetypes</span>
+            <h2>Core Question Formats (01–05)</h2>
+            <p class="page-subtitle">5 distinct challenge engines designed to test and sharpen mental code execution from every perspective.</p>
           </div>
-          <span class="badge badge-neutral">Preview Only</span>
+          <span class="badge badge-cyan">5 Cognitive Engines</span>
         </div>
 
-        <div class="challenge-showcase-row" style="display: flex; gap: 1.25rem; overflow-x: auto; padding-bottom: 1rem; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; margin-top: 1.5rem;">
+        <div class="challenge-showcase-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin-top: 1.5rem; margin-bottom: 3.5rem;">
           
           <!-- Type 1: Predict Output -->
-          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;">
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
                 <span class="badge badge-violet">01 • Predict Output</span>
@@ -918,7 +942,7 @@
           </article>
 
           <!-- Type 2: Find the Bug -->
-          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;">
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
                 <span class="badge badge-coral">02 • Find the Bug</span>
@@ -935,13 +959,13 @@
           </article>
 
           <!-- Type 3: Complete the Code -->
-          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;">
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
-                <span class="badge badge-cyan">03 • Complete the Code</span>
+                <span class="badge badge-cyan">03 • Complete Code</span>
                 <span class="badge badge-emerald">Beginner+</span>
               </div>
-              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Token Slotting & Fill</h3>
+              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Token Slotting &amp; Fill</h3>
               <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
                 Fill missing operators, keywords, or method calls in incomplete code skeletons to satisfy the target execution contract.
               </p>
@@ -952,10 +976,10 @@
           </article>
 
           <!-- Type 4: Explain the Logic -->
-          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;">
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
-                <span class="badge badge-amber">04 • Explain the Logic</span>
+                <span class="badge badge-amber">04 • Explain Logic</span>
                 <span class="badge badge-amber">Intermediate+</span>
               </div>
               <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Architectural Deep-Dive</h3>
@@ -969,13 +993,13 @@
           </article>
 
           <!-- Type 5: Trace Execution -->
-          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;">
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
                 <span class="badge badge-violet">05 • Trace Execution</span>
                 <span class="badge badge-coral">Expert</span>
               </div>
-              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Call Stack & State Flow</h3>
+              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Call Stack &amp; State Flow</h3>
               <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
                 Follow recursive function call stacks, struct member alignment, and heap pointers step-by-step through execution flow.
               </p>
@@ -985,60 +1009,74 @@
             </div>
           </article>
 
-          <!-- Type 6 / Mode: Endless Mode -->
-          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(16, 185, 129, 0.4);">
+        </div>
+
+        <!-- Part 2: Special Operations & Dedicated Game Modes -->
+        <div class="page-title-row">
+          <div>
+            <span class="badge badge-emerald" style="margin-bottom: 0.5rem;">Special Operations</span>
+            <h2>Featured Game Modes</h2>
+            <p class="page-subtitle">Dedicated operational modes: high-endurance survival farming, comprehensive study handbooks, and multi-phase mega-boss raids.</p>
+          </div>
+          <span class="badge badge-amber">3 Distinct Modes</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+
+          <!-- Mode 1: Endless Mode Gauntlet -->
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(16, 185, 129, 0.05) 100%);">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
-                <span class="badge badge-emerald">06 • Endless Mode</span>
+                <span class="badge badge-emerald">♾️ Endless Mode</span>
                 <span class="badge badge-cyan">200 Questions</span>
               </div>
-              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Continuous Point Farm</h3>
-              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
-                Non-stop question gauntlet with 200 questions per subject. Farm continuous XP, test your endurance, and bank your points anytime!
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem; color: #10b981;">Continuous Point Farm</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+                Non-stop question gauntlet with 200 questions per subject. Farm continuous XP, test your endurance against the clock, and bank your points whenever you choose!
               </p>
             </div>
-            <a id="btn-showcase-endless" href="game.html?mode=endless" class="btn-arcade btn-primary btn-sm" style="margin-top: 0.75rem; text-align: center; text-decoration: none; justify-content: center; font-size: 11px; background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;">
+            <a id="btn-showcase-endless" href="game.html?mode=endless" class="btn-arcade btn-primary btn-sm" style="margin-top: 1.25rem; text-align: center; text-decoration: none; justify-content: center; font-size: 12px; background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;">
               ♾️ Launch Endless Farm →
             </a>
           </article>
 
-          <!-- Type 7 / Mode: Cyber Academy (Learn Mode) -->
-          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.3);">
+          <!-- Mode 2: Cyber Academy -->
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(99, 102, 241, 0.35); background: linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(99, 102, 241, 0.05) 100%);">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
-                <span class="badge badge-cyan">07 • Cyber Academy</span>
-                <span class="badge badge-emerald">Learn Mode</span>
+                <span class="badge badge-cyan">📘 Cyber Academy</span>
+                <span class="badge badge-emerald">Handbook &amp; Slides</span>
               </div>
-              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem;">Step-by-Step Learning</h3>
-              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
-                Master mental models, interactive zero-stress checkpoints, and interview danger zones before taking timed battle tests.
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem; color: var(--color-cyan);">Step-by-Step Mastery</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+                Comprehensive handbook chapters, interactive mental models, zero-stress interactive checkpoints, and interview danger zones before taking timed tests.
               </p>
             </div>
-            <a id="btn-showcase-academy" href="learn.html" class="btn-arcade btn-primary btn-sm" style="margin-top: 0.75rem; text-align: center; text-decoration: none; justify-content: center; font-size: 11px;">
+            <a id="btn-showcase-academy" href="learn.html" class="btn-arcade btn-primary btn-sm" style="margin-top: 1.25rem; text-align: center; text-decoration: none; justify-content: center; font-size: 12px;">
               📘 Open Cyber Academy →
             </a>
           </article>
 
-          <!-- Type 8 / Mode: Mega-Boss Battles (Daemon Incursion) -->
-          <article class="card card-raised" style="flex: 0 0 280px; min-width: 280px; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(244, 63, 94, 0.4); background: linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(244, 63, 94, 0.05) 100%);">
+          <!-- Mode 3: Mega-Boss Battles (Daemon Incursion) -->
+          <article class="card card-raised" style="display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(244, 63, 94, 0.4); background: linear-gradient(180deg, var(--bg-surface-raised) 0%, rgba(244, 63, 94, 0.06) 100%);">
             <div>
               <div class="card-header" style="padding-bottom: 0.5rem;">
-                <span class="badge badge-coral">08 • Boss Incursion</span>
-                <span class="badge badge-amber">Mega-Boss Raid</span>
+                <span class="badge badge-coral">👾 Daemon Incursion</span>
+                <span class="badge badge-amber">Mega-Boss Raids</span>
               </div>
-              <h3 style="font-size: var(--text-base); margin-bottom: 0.5rem; color: #f43f5e;">👾 The Daemon Incursion</h3>
-              <p style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5;">
-                Face legendary system daemons: NullPointer Leviathan, Kernel Panic Hydra, and Buffer Overflow Dragon. Reclaim memory integrity and win Boss Slayer trophies!
+              <h3 style="font-size: var(--text-lg); margin-bottom: 0.5rem; color: #f43f5e;">Sentient Mega-Bosses</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+                Face legendary rogue security daemons: NullPointer Leviathan, Kernel Panic Hydra, Buffer Overflow Dragon, and Deadlock Kraken. Neutralize glitches and earn Boss Slayer trophies!
               </p>
             </div>
-            <a id="btn-showcase-boss-incursion" href="game.html?mode=boss" class="btn-arcade btn-danger btn-sm" style="margin-top: 0.75rem; text-align: center; text-decoration: none; justify-content: center; font-size: 11px; background: linear-gradient(135deg, #f43f5e, #be123c); border-color: #fb7185;">
+            <a id="btn-showcase-boss-incursion" href="game.html?mode=boss" class="btn-arcade btn-danger btn-sm" style="margin-top: 1.25rem; text-align: center; text-decoration: none; justify-content: center; font-size: 12px; background: linear-gradient(135deg, #f43f5e, #be123c); border-color: #fb7185;">
               ⚔️ Engage Mega-Bosses →
             </a>
           </article>
 
         </div>
 
-        <div style="text-align: center; margin-top: 2rem;">
+        <div style="text-align: center; margin-top: 2.5rem;">
           <button id="btn-challenges-start" class="btn-arcade btn-primary btn-md">
             Launch Arena with Selected Track →
           </button>
@@ -1053,9 +1091,7 @@
           <div>
             <span class="badge badge-cyan" style="margin-bottom: 0.5rem;">Gameplay Rules</span>
             <h2>How to Play SyntaxArena</h2>
-            <p class="page-subtitle">A quick four-step overview of scoring, multipliers, hints, and retries.</p>
           </div>
-          <span class="badge badge-emerald">Verified Rules</span>
         </div>
 
         <!-- 4 Steps Explanation -->
@@ -1067,7 +1103,7 @@
               <h4 style="margin-bottom: 0; font-size: var(--text-base);">Choose Language</h4>
             </div>
             <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; margin-bottom: 0;">
-              Pick between Python 3, C, C++, or Java. You can switch tracks anytime without losing progress in other tracks.
+              Pick between the languages. You can switch tracks anytime without losing progress in other tracks.
             </p>
           </div>
 

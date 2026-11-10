@@ -151,7 +151,6 @@
       
       <div class="page-header">
         <h1>Studio Settings</h1>
-        <p class="page-subtitle">Configure studio visuals, audio levels, profiles, and local storage backup.</p>
       </div>
 
       <!-- Section 1: Appearance & Accessibility -->
@@ -177,15 +176,12 @@
               <option value="amber">Amber Flame CRT (Phosphor Glow — Level 6)</option>
               <option value="gold">Grandmaster Gold (Champion Gold — Level 10)</option>
             </select>
-            <span class="form-help">Switches between deep slate, daylight paper, amber phosphor, and grandmaster gold palettes.</span>
           </div>
           <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
             <div>
               <label class="form-label" for="setting-reduced-motion" style="margin-bottom: 0.25rem;">Reduced Motion</label>
-              <span class="form-help" style="margin-bottom: 0;">Minimize transitions and decorative animations across the UI.</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <span id="motion-preview-pill" class="badge badge-neutral">Active Motion</span>
               <input type="checkbox" id="setting-reduced-motion" class="form-checkbox" style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
             </div>
           </div>
@@ -217,7 +213,6 @@
               <span id="sfx-vol-display" style="font-family: var(--font-mono); font-weight: 700;">80%</span>
             </div>
             <input type="range" id="setting-sfx-slider" min="0" max="100" value="80" style="width: 100%;">
-            <span class="form-help">Procedural chimes, button clicks, streak whooshes, and victory fanfares.</span>
           </div>
 
           <!-- Background Music Toggle & Slider -->
@@ -230,7 +225,6 @@
               <span id="music-vol-display" style="font-family: var(--font-mono); font-weight: 700;">50%</span>
             </div>
             <input type="range" id="setting-music-slider" min="0" max="100" value="50" style="width: 100%;">
-            <span class="form-help">Procedural lo-fi cyber ambient pad chords. Enabled by default across the arena.</span>
           </div>
         </div>
       </section>
@@ -280,7 +274,6 @@
       <section class="card" style="border-color: var(--border-strong);">
         <div class="card-header">
           <h2 class="card-title" style="font-size: var(--text-lg);">Local Storage & Backup</h2>
-          <span class="badge badge-amber">Storage Schema v1</span>
         </div>
         <div class="card-body">
           <p style="font-size: var(--text-sm);">

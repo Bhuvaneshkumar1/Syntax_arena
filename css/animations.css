@@ -335,6 +335,109 @@
 }
 
 /* ==========================================================================
+   BOSS BATTLE & ARENA TUG-OF-WAR COMBAT MOTION
+   ========================================================================== */
+
+/* Boss Levitation & Breathing Idle (Continuous Game Animation) */
+@keyframes bossIdleFloat {
+  0% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.4));
+  }
+  50% {
+    transform: translateY(-8px) rotate(-1.5deg) scale(1.05);
+    filter: drop-shadow(0 10px 22px rgba(99, 102, 241, 0.75));
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.4));
+  }
+}
+
+/* Boss Damage Hit Recoil (When Player Lands Correct Answer) */
+@keyframes bossHitRecoil {
+  0% {
+    transform: scale(1) translate(0, 0);
+    filter: brightness(2) contrast(1.8) hue-rotate(90deg);
+  }
+  20% {
+    transform: scale(0.86) translate(10px, -6px) rotate(5deg);
+    filter: brightness(2.5) drop-shadow(0 0 20px var(--color-danger, #f43f5e));
+  }
+  45% {
+    transform: scale(0.92) translate(-8px, 4px) rotate(-4deg);
+  }
+  70% {
+    transform: scale(1.04) translate(4px, -2px);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+    filter: none;
+  }
+}
+
+/* Boss Attack Strike / Lunge (When Player Misses or Timer Out) */
+@keyframes bossAttackLunge {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  20% {
+    transform: scale(0.88) translateY(-8px) rotate(-4deg);
+  }
+  45% {
+    transform: scale(1.25) translateY(16px) rotate(3deg);
+    filter: drop-shadow(0 0 28px var(--color-danger, #f43f5e));
+  }
+  70% {
+    transform: scale(1.08) translateY(4px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Boss Phase 2 Enrage Overclock Pulse */
+@keyframes bossPhase2Aura {
+  0% {
+    transform: translateY(0) scale(1.04);
+    box-shadow: 0 0 15px rgba(244, 63, 94, 0.8), inset 0 0 10px rgba(244, 63, 94, 0.5);
+  }
+  50% {
+    transform: translateY(-7px) scale(1.12);
+    box-shadow: 0 0 32px rgba(244, 63, 94, 1), inset 0 0 18px rgba(244, 63, 94, 0.9);
+  }
+  100% {
+    transform: translateY(0) scale(1.04);
+    box-shadow: 0 0 15px rgba(244, 63, 94, 0.8), inset 0 0 10px rgba(244, 63, 94, 0.5);
+  }
+}
+
+/* Arena Progress Tug-of-War Recoil on Wrong Answer / Timeout */
+@keyframes progressTugOfWarRecoil {
+  0% {
+    filter: drop-shadow(0 0 0 transparent);
+    transform: translateX(0);
+  }
+  20% {
+    filter: drop-shadow(0 0 14px var(--color-danger, #f43f5e));
+    transform: translateX(-12px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+  100% {
+    filter: none;
+    transform: translateX(0);
+  }
+}
+
+/* ==========================================================================
    ACCESSIBILITY: REDUCED MOTION SUPPORT
    Handles both OS preference AND user-toggled settings in Studio Settings
    ========================================================================== */

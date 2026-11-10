@@ -107264,6 +107264,7 @@ var Gameplay = window.Gameplay = {
     lastSplitDelta: 0,
     pacePerQuestion: 8.5
   },
+  consecutiveMistakes: 0,
 
   /**
    * Save an atomic snapshot of current session state to reactive state & localStorage.
@@ -108191,6 +108192,7 @@ var Gameplay = window.Gameplay = {
 
     if (result.correct) {
       // Correct Answer Flow
+      this.consecutiveMistakes = 0;
       AudioEngine.playSuccess();
       AudioEngine.playStreak();
 
@@ -108368,6 +108370,15 @@ var Gameplay = window.Gameplay = {
         // Boss Battle Turn counter-attack on incorrect answer
         if (this.sessionConfig && this.sessionConfig.mode === 'boss' && !result.canRetry) {
           this._processBossTurn(result, timeRemaining);
+        }
+
+        // Speed Ghost Tug-of-War Setback: pull back player progress on error
+        this._applyTugOfWarSetback();
+
+        // 3-Mistakes Tracker: Suggest Cyber Academy lesson if struggling
+        this.consecutiveMistakes = (this.consecutiveMistakes || 0) + 1;
+        if (this.consecutiveMistakes >= 3 && !result.gameOver) {
+          this._promptAcademyRecommendation();
         }
       }
     }
@@ -108833,6 +108844,9 @@ var Gameplay = window.Gameplay = {
     this.timer.intervalId = setInterval(() => {
       this.timer.timeRemaining--;
 
+      // Dynamically advance Speed Ghost in real-time along track
+      this._updateGhostRealTimeTrack();
+
       const isUrgent = this.timer.timeRemaining <= 10;
       this._updateTimerDisplay(this._formatSeconds(this.timer.timeRemaining), isUrgent);
 
@@ -109272,6 +109286,100 @@ var Gameplay = window.Gameplay = {
   },
 
   /**
+   * Smoothly interpolate Speed Ghost position during question countdown.
+   */
+  _updateGhostRealTimeTrack() {
+    if (!this.ghostDuel || !this.ghostDuel.enabled) return;
+
+    const q = this.engine ? this.engine.getCurrentQuestion() : null;
+    const total = (this.engine && this.engine.getSession()) ? this.engine.getSession().questions.length : (q ? (q.totalQuestions || 10) : 10);
+    const currentIdx = (q && typeof q.index === 'number') ? q.index : 0;
+    const stepPct = 100 / Math.max(1, total);
+    const basePct = currentIdx * stepPct;
+
+    const elapsed = Math.max(0, (Date.now() - (this.ghostDuel.questionStartTime || Date.now())) / 1000);
+    const pace = this.ghostDuel.pacePerQuestion || 10;
+    const paceFraction = Math.min(1.2, elapsed / pace);
+    const ghostPct = Math.min(100, Math.max(0, basePct + (paceFraction * stepPct)));
+
+    const ghostPin = Utils.qs('#ghost-opponent-pin');
+    if (ghostPin) {
+      ghostPin.style.left = `${ghostPct.toFixed(1)}%`;
+    }
+  },
+
+  /**
+   * Apply dynamic Tug-of-War setback to player's progress bar on wrong answer or timeout.
+   */
+  _applyTugOfWarSetback() {
+    const progressFill = Utils.qs('#hud-progress-fill');
+    const progressContainer = Utils.qs('#hud-progress-container');
+    const playerPin = Utils.qs('#ghost-player-pin');
+    const ghostRail = Utils.qs('#hud-ghost-duel-rail');
+
+    if (progressFill) {
+      const currentWidth = parseFloat(progressFill.style.width) || 0;
+      const penalizedWidth = Math.max(0, currentWidth - 10);
+      progressFill.style.width = `${penalizedWidth}%`;
+      progressFill.classList.add('is-tug-recoil');
+      setTimeout(() => progressFill.classList.remove('is-tug-recoil'), 600);
+    }
+
+    if (progressContainer) {
+      progressContainer.classList.add('is-tug-recoil');
+      setTimeout(() => progressContainer.classList.remove('is-tug-recoil'), 600);
+    }
+
+    if (playerPin) {
+      const currentLeft = parseFloat(playerPin.style.left) || 0;
+      const penalizedLeft = Math.max(0, currentLeft - 10);
+      playerPin.style.left = `${penalizedLeft}%`;
+      playerPin.classList.add('is-tug-recoil');
+      setTimeout(() => playerPin.classList.remove('is-tug-recoil'), 600);
+    }
+
+    if (ghostRail) {
+      ghostRail.classList.add('is-tug-recoil');
+      setTimeout(() => ghostRail.classList.remove('is-tug-recoil'), 600);
+    }
+  },
+
+  /**
+   * Prompt user with recommendation modal to study in Cyber Academy after 3 mistakes.
+   */
+  _promptAcademyRecommendation() {
+    this._stopTimer();
+    const modal = Utils.qs('#modal-academy-recommendation');
+    if (!modal) return;
+
+    UI.openModal('modal-academy-recommendation');
+
+    const yesBtn = Utils.qs('#btn-modal-academy-yes');
+    const noBtn = Utils.qs('#btn-modal-academy-no');
+
+    if (yesBtn) {
+      yesBtn.onclick = () => {
+        AudioEngine.playClick();
+        const lang = (this.sessionConfig && this.sessionConfig.language) || 'python';
+        const diff = (this.sessionConfig && this.sessionConfig.difficulty) || 'beginner';
+        window.location.href = `learn.html?lang=${encodeURIComponent(lang)}&diff=${encodeURIComponent(diff)}`;
+      };
+    }
+
+    if (noBtn) {
+      noBtn.onclick = () => {
+        AudioEngine.playClick();
+        UI.closeModal('modal-academy-recommendation');
+        this.consecutiveMistakes = 0;
+        // Resume timer if question still pending
+        if (this.engine && this.engine.getState() === ENGINE_STATES.ACTIVE && this.sessionConfig.timeLimit > 0 && this.timer.timeRemaining > 0) {
+          this._startTimer(this.timer.timeRemaining);
+        }
+      };
+    }
+  },
+
+  /**
    * Setup active Mega-Boss encounter and configure the arcade HUD.
    * @param {object} bossData
    */
@@ -109360,9 +109468,16 @@ var Gameplay = window.Gameplay = {
       tauntEl.textContent = `"${bossTurn.taunt}"`;
     }
 
-    // Floating Combat Damage Text
+    // Floating Combat Damage Text & Boss Avatar Hit Recoil
     if (bossTurn.damage > 0) {
       this._spawnFloatingDamage(bossTurn.damage, bossTurn.isCritical);
+      const bossAvatar = Utils.qs('#boss-avatar-emblem');
+      if (bossAvatar) {
+        bossAvatar.classList.remove('is-hit-recoil', 'is-attack-lunge');
+        void bossAvatar.offsetWidth;
+        bossAvatar.classList.add('is-hit-recoil');
+        setTimeout(() => bossAvatar.classList.remove('is-hit-recoil'), 500);
+      }
       if (typeof AudioEngine !== 'undefined' && AudioEngine.playBossHit) {
         AudioEngine.playBossHit(bossTurn.isCritical);
       }
@@ -109388,6 +109503,13 @@ var Gameplay = window.Gameplay = {
     // Boss Counter Attack on incorrect answer
     if (!bossTurn.isPlayerHit) {
       BossEngine.triggerBossAttack();
+      const bossAvatar = Utils.qs('#boss-avatar-emblem');
+      if (bossAvatar) {
+        bossAvatar.classList.remove('is-hit-recoil', 'is-attack-lunge');
+        void bossAvatar.offsetWidth;
+        bossAvatar.classList.add('is-attack-lunge');
+        setTimeout(() => bossAvatar.classList.remove('is-attack-lunge'), 600);
+      }
       if (typeof AudioEngine !== 'undefined' && AudioEngine.playBossGlitch) {
         AudioEngine.playBossGlitch();
       }

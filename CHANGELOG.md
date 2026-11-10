@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.9.0] - 2026-11-10
+
+### Added & Enhanced
+- **Real Arcade Boss Battle Animations (`css/animations.css`, `css/components.css`, `js/gameplay.js`):**
+  - Added continuous breathing idle levitation `@keyframes bossIdleFloat` on `#boss-avatar-emblem`.
+  - Added `@keyframes bossHitRecoil` triggered upon player correct answer deductions.
+  - Added `@keyframes bossAttackLunge` triggered upon boss counter-attacks.
+  - Added `@keyframes bossPhase2Aura` overclocked enrage state for Phase 2 transitions.
+- **Challenge Showcase Restructuring (`index.html`):**
+  - Grouped and cleanly isolated the 5 core cognitive question archetypes: *01 Output Prediction, 02 Bug Hunting, 03 Complete Code, 04 Explain Logic, 05 Trace Execution*.
+  - Segregated and prominently showcased the 3 special game modes into dedicated feature cards: *Endless Mode Gauntlet*, *Cyber Academy Handbook*, and *The Daemon Incursion (Mega-Boss Battles)*.
+- **Index Hub Arcade Command Deck & Telemetry HUD (`index.html`):**
+  - Replaced dense text walls with a high-impact **Quick-Launch Command Deck** offering 1-click jumps to Arena, Endless Farm, Mega-Boss Incursions, Cyber Academy, and Sandbox REPL.
+  - Added live arcade telemetry badges: *12 Language Tracks, 720+ Challenges, 4 Mega-Boss Raids, Speed Ghost Rivals, 0ms Latency*.
+- **Dynamic Speed Ghost Runner & Tug-of-War Progress Setback (`js/gameplay.js`, `css/animations.css`):**
+  - Speed Ghost pin now smoothly glides forward in real-time along the progress track during question countdowns based on pace.
+  - Implemented dynamic **Tug-of-War Setback**: when player submits an incorrect answer or times out, the progress bar and player pin recoil backward by -10% with a red glitch vibration (`.is-tug-recoil`).
+- **In-Play Academy Gating & 3-Mistakes Study Prompt (`game.html`, `js/gameplay.js`):**
+  - Removed Academy buttons from the active arena toolbar to preserve battle focus.
+  - Added consecutive mistake tracking: upon encountering 3 wrong answers, the game pauses and presents `#modal-academy-recommendation`, allowing the player to either jump directly to the relevant Cyber Academy module or continue fighting.
+- **Cyber Academy UI Cleanup (`learn.html`):**
+  - Streamlined the Academy workspace into a distraction-free two-pane environment with a compact track & tier selector, clean chapter directory, and focused slide reader.
+- **Sandbox Memory Tracer Gating (`sandbox.html`, `js/sandbox-manager.js`):**
+  - Gated the Visual Memory Inspector to display exclusively for memory-managed & low-level languages: C, C++, Rust, ASM, Go, Python (`['systems', 'asm', 'go', 'python']`).
+  - Automatically hides the memory inspector on HTML, SQL, JavaScript, etc.
+- **Sandbox Language Selector Segmented Pills (`sandbox.html`, `css/components.css`):**
+  - Replaced raw overflow buttons with `.sandbox-env-segmented-bar` featuring sleek pill indicators, active glowing borders, accessible `aria-selected` attributes, and zero scrollbar clutter.
+- **CSS Architecture Fix:**
+  - Resolved an unclosed `@media print` block in `css/components.css` that previously swallowed screen rules below line 2000.
+- **Automated Test Suites:**
+  - New Playwright Suite `tests/test-enhancements-playwright.js`: 33/33 tests passing.
+  - Master Unit Suite: 794/794 tests passing.
+  - Total automated assertions across codebase: **971/971 passing (100% green)**.
+
+---
+
 ## [2.8.0] - 2026-11-10
 
 ### Added

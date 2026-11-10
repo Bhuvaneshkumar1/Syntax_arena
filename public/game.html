@@ -320,9 +320,6 @@
                 <svg width="18" height="18"><use href="#icon-bulb"></use></svg>
                 <span>Pedagogical Clue:</span>
               </div>
-              <a id="hint-academy-link" href="learn.html" target="_blank" rel="noopener" style="font-size: var(--text-xs); color: var(--color-cyan); text-decoration: underline; font-weight: 600;">
-                📘 Study in Academy ↗
-              </a>
             </div>
             <p id="hint-drawer-text" class="hint-drawer-body"></p>
           </div>
@@ -344,9 +341,6 @@
                 <svg width="16" height="16" style="margin-right: 0.35rem;"><use href="#icon-bulb"></use></svg>
                 Use Hint (-25 pts)
               </button>
-              <a id="btn-arena-review-lesson" href="learn.html" class="btn-arcade btn-neutral btn-sm" target="_blank" rel="noopener" title="Study this track &amp; concept in Cyber Academy">
-                <span>📘 Academy Lesson</span>
-              </a>
               <button id="btn-endless-bank" class="btn-arcade btn-primary btn-sm" type="button" style="display: none; background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399; box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);">
                 💰 Bank Points &amp; Finish
               </button>
@@ -498,6 +492,32 @@
     </div>
   </div>
 
+  <!-- Cyber Academy 3-Mistakes Study Recommendation Modal Dialog -->
+  <div id="modal-academy-recommendation" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-academy-rec-title">
+    <div class="modal-dialog" style="max-width: 480px; text-align: center; border-color: rgba(6, 182, 212, 0.4); box-shadow: 0 0 30px rgba(6, 182, 212, 0.25);">
+      <div class="modal-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
+        <span style="font-size: 3rem;">📘</span>
+      </div>
+      <div class="modal-body" style="padding-top: var(--space-2);">
+        <span class="badge badge-cyan" style="font-size: 11px; letter-spacing: 0.06em;">CYBER ACADEMY COGNITIVE RECOVERY</span>
+        <h2 id="modal-academy-rec-title" style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; margin: 0.5rem 0 0.5rem 0; color: var(--text-primary);">
+          Struggling with this concept?
+        </h2>
+        <p style="color: var(--text-secondary); font-size: var(--text-sm); line-height: 1.5; margin-bottom: var(--space-4);">
+          You've encountered 3 incorrect answers in this session. Would you like to pause and review the interactive mental models in the Cyber Academy before continuing?
+        </p>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: var(--space-3); flex-wrap: wrap;">
+        <button id="btn-modal-academy-yes" class="btn-arcade btn-primary btn-sm" type="button">
+          Yes, Open Academy 📘
+        </button>
+        <button id="btn-modal-academy-no" class="btn-arcade btn-neutral btn-sm" type="button">
+          No, Keep Fighting ⚔️
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Fullscreen Boss Glitch CRT Overlay -->
   <div id="boss-glitch-overlay" class="boss-glitch-overlay" aria-hidden="true"></div>
 
@@ -506,7 +526,7 @@
   <!-- Footer Shell -->
   <footer class="app-footer">
     <div class="footer-container">
-      <div>SyntaxArena • Multi-Language Challenge Arena</div>
+      <div></div>
       <nav class="footer-nav" aria-label="Footer Links">
         <a href="index.html">Hub</a>
         <a href="game.html">Arena</a>

@@ -174,34 +174,34 @@
         </div>
       </div>
 
-      <!-- Environment Selector Tabs -->
-      <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; padding-bottom: 4px;">
-        <button type="button" class="btn-arcade btn-primary btn-sm env-tab-btn is-active" data-env="python">
-          🐍 Python 3
+      <!-- Environment Selector Segmented Bar (Clean, Responsive Pill Tabs) -->
+      <div class="sandbox-env-segmented-bar" role="tablist" aria-label="Programming Environments">
+        <button type="button" role="tab" class="btn-arcade btn-primary btn-sm env-tab-btn sandbox-env-pill is-active" data-env="python" aria-selected="true">
+          <span>🐍 Python 3</span>
         </button>
-        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="cyber">
-          🐧 Cyber &amp; Linux Shell
+        <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="cyber" aria-selected="false">
+          <span>🐧 Cyber &amp; Linux</span>
         </button>
-        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="sql">
-          🗄️ SQL Engine
+        <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="sql" aria-selected="false">
+          <span>🗄️ SQL Engine</span>
         </button>
-        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="javascript">
-          🌐 JavaScript
+        <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="javascript" aria-selected="false">
+          <span>🌐 JavaScript</span>
         </button>
-        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="typescript">
-          📘 TypeScript
+        <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="typescript" aria-selected="false">
+          <span>📘 TypeScript</span>
         </button>
-        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="go">
-          🐹 Go (Golang)
+        <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="go" aria-selected="false">
+          <span>🐹 Go (Golang)</span>
         </button>
-        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="html">
-          🎨 HTML5 &amp; CSS
+        <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="html" aria-selected="false">
+          <span>🎨 HTML5 &amp; CSS</span>
         </button>
-        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="asm">
-          ⚙️ Assembly &amp; RE
+        <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="asm" aria-selected="false">
+          <span>⚙️ Assembly &amp; RE</span>
         </button>
-        <button type="button" class="btn-arcade btn-neutral btn-sm env-tab-btn" data-env="systems">
-          ⚡ C / C++ / Java / Rust
+        <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="systems" aria-selected="false">
+          <span>⚡ C / C++ / Rust</span>
         </button>
       </div>
 
@@ -297,7 +297,6 @@
         <!-- Help Info Footer -->
         <div id="sandbox-footer-tip" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-size: var(--text-xs); color: var(--text-muted);">
           <div>
-            💡 <strong>Sandbox Tip:</strong> 100% Client-Side. No external network request or server is used.
           </div>
           <div style="display: flex; gap: 0.75rem;">
             <span>Shortcuts: <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (Run)</span>
@@ -789,6 +788,7 @@ fn main() {
         b.classList.toggle('is-active', isActive);
         b.classList.toggle('btn-primary', isActive);
         b.classList.toggle('btn-neutral', !isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
 
       // Populate Template Select
@@ -821,8 +821,18 @@ fn main() {
     }
 
     function updateMemoryInspector() {
+      const inspectorCard = Utils.qs('#visual-memory-inspector');
       const container = Utils.qs('#sandbox-memory-container');
       const editor = Utils.qs('#page-code-editor');
+
+      // Memory tracer is only relevant for low-level & memory-managed environments
+      const MEMORY_RELEVANT_ENVS = ['systems', 'asm', 'go', 'python'];
+      if (!MEMORY_RELEVANT_ENVS.includes(currentEnv)) {
+        if (inspectorCard) inspectorCard.style.display = 'none';
+        return;
+      }
+
+      if (inspectorCard) inspectorCard.style.display = 'block';
       if (!container || !editor) return;
       const code = editor.value || '';
       let targetLang = currentEnv;

@@ -18,11 +18,12 @@
 [![Zero Runtime Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20Vanilla)-10b981.svg?style=for-the-badge&logo=javascript&logoColor=white)](index.html)
 [![Offline Ready](https://img.shields.io/badge/Offline-100%25%20Ready-8b5cf6.svg?style=for-the-badge&logo=pwa&logoColor=white)](index.html)
 [![12 Curriculum Tracks](https://img.shields.io/badge/Curriculum-12%20Tracks-f59e0b.svg?style=for-the-badge&logo=codeforces&logoColor=white)](learn.html)
-[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-521%20%2F%20521%20Passed-10b981.svg?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/)
-[![Playwright E2E](https://img.shields.io/badge/Playwright%20E2E-124%20%2F%20124%20Passed-10b981.svg?style=for-the-badge&logo=playwright&logoColor=white)](tests/)
+[![Mega-Boss Incursions](https://img.shields.io/badge/Mega--Boss-Daemon%20Incursions-f43f5e.svg?style=for-the-badge&logo=target&logoColor=white)](game.html?mode=boss)
+[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-794%20%2F%20794%20Passed-10b981.svg?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/)
+[![Playwright E2E](https://img.shields.io/badge/Playwright%20E2E-177%20%2F%20177%20Passed-10b981.svg?style=for-the-badge&logo=playwright&logoColor=white)](tests/)
 [![Stealth Admin Vault](https://img.shields.io/badge/Admin%20Vault-Stealth%20%26%20SHA--256-blueviolet.svg?style=for-the-badge&logo=auth0&logoColor=white)](admin.html)
 
-[🚀 Quick Start](#-quick-start) • [✨ Key Features](#-features-overview) • [🕹️ Arena & Ghost Duel](#-arcade-arena--asynchronous-ghost-racing) • [🔐 Stealth Admin & Curriculum Studio](#-stealth-admin-vault--curriculum-studio) • [📅 Daily Gauntlet](#-daily-hacker-gauntlet--7-day-punch-card) • [🔬 Visual Memory Inspector](#-visual-memory--pointer-inspector) • [💻 Multi-Language Sandbox](#-client-side-sandbox--repl) • [🎓 Cyber Academy](#-cyber-academy--graduation-diplomas) • [🧪 Testing](#-testing--quality-assurance)
+[🚀 Quick Start](#-quick-start) • [✨ Key Features](#-features-overview) • [👾 Mega-Boss Battles](#-daemon-incursion-mega-boss-battles) • [🕹️ Arena & Ghost Duel](#-arcade-arena--asynchronous-ghost-racing) • [🔐 Stealth Admin & Curriculum Studio](#-stealth-admin-vault--curriculum-studio) • [📅 Daily Gauntlet](#-daily-hacker-gauntlet--7-day-punch-card) • [🔬 Visual Memory Inspector](#-visual-memory--pointer-inspector) • [💻 Multi-Language Sandbox](#-client-side-sandbox--repl) • [🎓 Cyber Academy](#-cyber-academy--graduation-diplomas) • [🧪 Testing](#-testing--quality-assurance)
 
 ---
 
@@ -97,6 +98,34 @@ Race against an autonomous rival racer, **CyberPhantom** (👻), in real-time!
 2. **Predict Output:** Mentally trace code execution and predict standard stdout output.
 3. **Find the Bug:** Click directly on syntax-highlighted code terminal lines to isolate the exact line causing a bug.
 4. **Fill Code:** Drag or click code token chips into missing syntax slots.
+
+---
+
+## 👾 Daemon Incursion: Cyberpunk Mega-Boss Battles
+
+The **Daemon Incursion** mode transforms code reasoning into epic multi-phase arcade boss encounters against rogue system daemons threatening memory and kernel integrity:
+
+```
+  [🐙 NullPointer Leviathan]  ──>  [🐉 Kernel Panic Hydra]
+              │                                │
+              ▼                                ▼
+  [🔥 Buffer Overflow Dragon] ──>  [🦑 Deadlock Kraken]
+```
+
+### ⚔️ The 4 System Daemons
+| Boss Adversary | Icon | Realm | Max HP | Signature Attack | Bounty | Legendary Trophy |
+| :--- | :---: | :--- | :---: | :--- | :---: | :--- |
+| **NullPointer Leviathan** | 🐙 | The Heap Void | 1,000 HP | **Null Dereference Void** (Scrambles options with SIGSEGV static) | +500 XP | 🐙 `Void Breaker` |
+| **Kernel Panic Hydra** | 🐉 | Ring 0 Chaos | 1,200 HP | **Ring 0 Interrupt Blast** (Glitch shockwave accelerating timer) | +600 XP | 🐉 `Kernel Crusher` |
+| **Buffer Overflow Dragon** | 🔥 | The Stack Smasher | 1,100 HP | **Stack Smashing Blast** (CRT scanline distortion & inverted frames) | +550 XP | 🔥 `Stack Guardian` |
+| **Deadlock Kraken** | 🦑 | Mutex Abyss | 1,300 HP | **Mutual Exclusion Lockout** (Padlocks option cards with circular wait) | +650 XP | 🦑 `Deadlock Dissolver` |
+
+### ⚡ Boss Mechanics & Combat Features
+* **Combat Damage Scaling:** Correct answers deal scaled base damage (120–220 HP) boosted by remaining timer seconds, active answer streak multipliers (up to 1.75x), and rapid deduction Critical Strikes (1.35x).
+* **🔥 Phase 2 Overclocking:** When a boss drops to $\le 50\%$ HP, they enter an enraged **Overclocked Phase 2** with burning neon HP bars, aggressive taunts, and amplified retaliation attacks.
+* **⚠️ Retaliation Glitch Attacks:** Incorrect answers trigger the boss's signature hardware/kernel glitch onto the DOM—firing CRT screen scanlines, glitch overlays, and option muting.
+* **🏆 Boss Slayer Trophy Vault:** Defeating a daemon permanently records the purge in your career profile, awards massive XP bounties (+500–650 XP), and unlocks exclusive hacker titles (`Heap Architect`, `Ring 0 Overlord`, `Master of Canaries`, `Concurrency Architect`).
+* **Tactile Boss Selection Modal:** Switch adversaries on the fly via the `#btn-switch-boss` selector modal showing defeat status badges, lore stats, and instant engagement.
 
 ---
 
