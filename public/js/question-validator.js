@@ -147,7 +147,7 @@ export const QuestionValidator = {
       }
       seenIds.add(q.id);
 
-      const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go|html|asm)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3}$/;
+      const idPattern = /^(?:cust-)?(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go|html|asm)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3,4}$/;
       if (!idPattern.test(q.id)) {
         errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' does not match standard pattern format.` });
       }

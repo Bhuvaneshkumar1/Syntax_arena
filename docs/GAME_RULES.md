@@ -265,3 +265,27 @@ The daily challenge constructs a curated 10-question set:
 | **Re-attempting Answered Questions** | Answering the same question multiple times in practice mode never awards duplicate XP or adds duplicate streak points. |
 | **Double-Click Spam on Submit** | The submit button is immediately disabled upon the first click event to prevent race conditions and duplicate evaluations. |
 | **Timer Expiration** | Reaching `00:00` automatically triggers an incorrect submission event, applies appropriate streak resets/heart losses, and reveals the explanation. |
+
+---
+
+## 8. Administrative Security & Custom Curriculum Studio
+
+### 8.1 Zero-Trace Stealth Access Policy
+To safeguard user immersion and prevent accidental confusion for normal players:
+- The administrative panel (`admin.html`) has **zero public navigation links** across all 7 user pages (Hub, Arena, Academy, Sandbox, Results, Progression, Settings).
+- Access is strictly gatekept via secret channels:
+  1. **Keyboard shortcut:** `Ctrl + Shift + A` (Windows/Linux) or `Cmd + Shift + A` (macOS).
+  2. **Mobile/Tablet stealth gesture:** 3 rapid taps on the SyntaxArena brand emblem badge (`.brand-badge`) within 1.5 seconds.
+  3. **Terminal shell:** Invoking `sudo admin`, `syntax-admin`, or `admin` in the virtual Linux bash prompt on `sandbox.html`.
+  4. **Direct navigation:** `/admin` or `admin.html`.
+
+### 8.2 PBKDF2/SHA-256 Brute-Force Rate Limiting
+- Credentials required: `username: admin`, `password: Admin@123`.
+- After 5 consecutive invalid authentication attempts, a mandatory 30-second security cooldown lockout is triggered with real-time countdown display.
+
+### 8.3 Custom Curriculum & 60-Question Pack Ingestion Rules
+- Admins can drag and drop custom `.json` packs into Curriculum Studio:
+  - Supports up to 60 questions partitioned across Beginner (20), Intermediate (20), and Expert (20).
+  - Supports Cyber Academy handbook chapters with conceptual slides, interactive checkpoints, and danger zone pitfall cards.
+- **Pre-Flight Validation Guarantee:** The package must pass strict `QuestionValidator` schema checks before any questions are committed to storage.
+- **Live Broadcast Synchronization:** Once deployed, custom lessons are saved to `StorageManager` (`syntaxarena_custom_lessons`), triggering a `syntaxarena:lessons-updated` event that immediately injects the questions into active game sessions and Cyber Academy handbook menus without server intervention.

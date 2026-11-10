@@ -19,9 +19,10 @@
 [![Offline Ready](https://img.shields.io/badge/Offline-100%25%20Ready-8b5cf6.svg?style=for-the-badge&logo=pwa&logoColor=white)](index.html)
 [![12 Curriculum Tracks](https://img.shields.io/badge/Curriculum-12%20Tracks-f59e0b.svg?style=for-the-badge&logo=codeforces&logoColor=white)](learn.html)
 [![Unit Tests](https://img.shields.io/badge/Unit%20Tests-521%20%2F%20521%20Passed-10b981.svg?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/)
-[![Playwright E2E](https://img.shields.io/badge/Playwright%20E2E-95%20%2F%2095%20Passed-10b981.svg?style=for-the-badge&logo=playwright&logoColor=white)](tests/)
+[![Playwright E2E](https://img.shields.io/badge/Playwright%20E2E-124%20%2F%20124%20Passed-10b981.svg?style=for-the-badge&logo=playwright&logoColor=white)](tests/)
+[![Stealth Admin Vault](https://img.shields.io/badge/Admin%20Vault-Stealth%20%26%20SHA--256-blueviolet.svg?style=for-the-badge&logo=auth0&logoColor=white)](admin.html)
 
-[🚀 Quick Start](#-quick-start) • [✨ Key Features](#-features-overview) • [🕹️ Arena & Ghost Duel](#-arcade-arena--asynchronous-ghost-racing) • [📅 Daily Gauntlet](#-daily-hacker-gauntlet--7-day-punch-card) • [🔬 Visual Memory Inspector](#-visual-memory--pointer-inspector) • [💻 Multi-Language Sandbox](#-client-side-sandbox--repl) • [🎓 Cyber Academy](#-cyber-academy--graduation-diplomas) • [🧪 Testing](#-testing--quality-assurance)
+[🚀 Quick Start](#-quick-start) • [✨ Key Features](#-features-overview) • [🕹️ Arena & Ghost Duel](#-arcade-arena--asynchronous-ghost-racing) • [🔐 Stealth Admin & Curriculum Studio](#-stealth-admin-vault--curriculum-studio) • [📅 Daily Gauntlet](#-daily-hacker-gauntlet--7-day-punch-card) • [🔬 Visual Memory Inspector](#-visual-memory--pointer-inspector) • [💻 Multi-Language Sandbox](#-client-side-sandbox--repl) • [🎓 Cyber Academy](#-cyber-academy--graduation-diplomas) • [🧪 Testing](#-testing--quality-assurance)
 
 ---
 
@@ -96,6 +97,32 @@ Race against an autonomous rival racer, **CyberPhantom** (👻), in real-time!
 2. **Predict Output:** Mentally trace code execution and predict standard stdout output.
 3. **Find the Bug:** Click directly on syntax-highlighted code terminal lines to isolate the exact line causing a bug.
 4. **Fill Code:** Drag or click code token chips into missing syntax slots.
+
+---
+
+## 🔐 Stealth Admin Vault & Curriculum Studio
+
+SyntaxArena features an enterprise-grade administrative security suite designed for zero user clutter and absolute stealth.
+
+### 🕵️‍♂️ Stealth Access Architecture (Zero Public UI Links)
+To maintain a clean, distraction-free gaming environment, the administrative panel is **100% invisible** across all public interfaces (no navbar links, drawer entries, or footer links). Access is strictly restricted via stealth entry gates:
+1. **Global Keyboard Hotkey:** `Ctrl + Shift + A` (Windows/Linux) or `Cmd + Shift + A` (macOS) from any screen.
+2. **Mobile / Touch Stealth Gesture:** 3 rapid taps within 1.5 seconds on the SyntaxArena brand emblem badge (`.brand-badge`).
+3. **Cyber Shell Terminal Command:** Execute `sudo admin`, `syntax-admin`, or `admin` in the virtual Linux terminal prompt on `sandbox.html`.
+4. **Direct Route:** Direct navigation via `/admin` or `admin.html`.
+
+### 🛡️ Cryptographic Auth Gate & Brute-Force Defense
+* **SHA-256 PBKDF2 Authentication:** Authenticated with encrypted hash comparison (`admin` / `Admin@123`).
+* **Active Security Cooldown:** Automatic lockout (30-second security cooldown ticker) triggered upon 5 consecutive failed login attempts.
+* **Ephemeral Session Guard:** Session-scoped tokens in `sessionStorage` with automated revocation on sign-out or session expiry.
+
+### 📚 Curriculum Studio (Drag-and-Drop 60-Question Packs & Cyber Academy Ingestion)
+Admins can dynamically publish new curriculums directly from the browser:
+* **Interactive Drag-and-Drop Zone:** Ingest custom `.json` curriculum packs containing up to 60 questions (Beginner 20, Intermediate 20, Expert 20) and/or Cyber Academy interactive handbook chapters.
+* **Pre-Flight System Check (`QuestionValidator`):** Automated pedagogical verification analyzing schema integrity, language track validation, difficulty tier distribution, option counts, correct answer indices, and code block formatting before deployment.
+* **Instant Dynamic Engine Broadcast:** Published packs are instantly broadcast across active sessions via `StorageManager`, seamlessly augmenting the active Question Bank and Cyber Academy without page reloads or server restarts.
+* **Starter JSON Template:** 1-click export of `sample_lesson_pack_60_questions.json` with ready-to-fill schema and Go concurrency examples.
+* **Curriculum Management Roster:** View all active custom lessons, track/tier badges, and delete custom packs with instant live teardown.
 
 ---
 
@@ -295,13 +322,15 @@ Syntax_arena/
 ├── results.html               # Results Ring, Topic Breakdown, Ghost Banner
 ├── progress.html              # Career Progression, Badges, Performance Charts
 ├── settings.html              # Themes, Audio Synthesizer, Profile Controls
+├── admin.html                 # Stealth Administrative Security & Curriculum Studio
 ├── css/
 │   ├── tokens.css             # Cyberpunk palette tokens, typography, shadows
 │   ├── layout.css             # App shell, responsive header, grid systems
-│   ├── components.css         # Tactile buttons, memory inspector, punch card
+│   ├── components.css         # Tactile buttons, dropzones, punch card, memory tracer
 │   └── animations.css         # Pulse keyframes, countdown alarms, reduced-motion
 ├── js/
-│   ├── app.js                 # Global application bootstrapper
+│   ├── admin.js               # Admin telemetry, multi-player roster & dossier controller
+│   ├── app.js                 # Global application bootstrapper & stealth access gate
 │   ├── audio.js               # Web Audio API procedural sound synthesizer
 │   ├── analytics.js           # Topic mastery calculations & trend curves
 │   ├── answer-checker.js      # Multi-format answer validation engine
@@ -310,15 +339,18 @@ Syntax_arena/
 │   ├── gameplay.js            # Active arena UI coordinator & speed rail
 │   ├── gamification.js        # XP math, streak multipliers, 20 badges
 │   ├── learn.js               # Academy lesson controller & live code runner
+│   ├── lesson-uploader.js     # Drag-and-drop curriculum studio & pre-flight validator
 │   ├── memory-inspector.js    # Visual stack frame & heap pointer tracer
 │   ├── sandbox-manager.js     # Multi-language client-side code runner & VFS
-│   ├── storage.js             # LocalStorage Schema v1 with salvage mechanisms
+│   ├── storage.js             # LocalStorage Schema v1 with custom pack persistence
 │   └── utils.js               # HTML sanitization & DOM utilities
-├── data/                      # 480 verified questions across 8 curriculum tracks
+├── data/                      # 720 verified questions + sample 60-question pack
+│   └── sample-lesson-template.json # 60-question starter template pack
 ├── assets/                    # Procedural audio waveforms (.wav) and SVG avatars
 ├── scripts/
-│   └── build-bundle.js        # Production compiler & public/ sync script
-└── tests/                     # 15 Unit, QA, and Playwright E2E test suites
+│   ├── build-bundle.js        # Production compiler & public/ sync script
+│   └── generate-sample-template.js # Sample curriculum JSON pack generator
+└── tests/                     # 16 Unit, QA, Viewport & Playwright E2E test suites
 ```
 
 ---

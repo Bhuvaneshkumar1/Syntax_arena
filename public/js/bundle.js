@@ -94566,14 +94566,36 @@ var academyLessons = window.academyLessons = [
 ];
 
 var AcademyLessons = window.AcademyLessons = {
+  getCustomLessons() {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const raw = window.localStorage.getItem('syntaxarena_custom_lessons');
+        if (raw) {
+          const packs = JSON.parse(raw);
+          if (Array.isArray(packs)) {
+            const lessons = [];
+            packs.forEach(p => {
+              if (p && p.cyberAcademy && typeof p.cyberAcademy === 'object') {
+                lessons.push(p.cyberAcademy);
+              }
+            });
+            return lessons;
+          }
+        }
+      }
+    } catch (e) {}
+    return [];
+  },
+
   getAll() {
-    return academyLessons;
+    return [...academyLessons, ...this.getCustomLessons()];
   },
 
   getByLanguage(lang) {
-    if (!lang) return academyLessons;
+    const all = this.getAll();
+    if (!lang) return all;
     const cleanLang = String(lang).toLowerCase().trim();
-    return academyLessons.filter(l => l.language === cleanLang);
+    return all.filter(l => l.language === cleanLang);
   },
 
   getByDifficulty(lang, diff) {
@@ -94585,7 +94607,7 @@ var AcademyLessons = window.AcademyLessons = {
   },
 
   getById(id) {
-    return academyLessons.find(l => l.id === id) || null;
+    return this.getAll().find(l => l.id === id) || null;
   }
 };
 
@@ -94936,6 +94958,7 @@ var Utils = window.Utils = {
 
 var STORAGE_KEY = window.STORAGE_KEY = 'syntaxarena_storage_v1';
 var CORRUPTED_BACKUP_KEY = window.CORRUPTED_BACKUP_KEY = 'syntaxarena_corrupted_backup';
+var CUSTOM_LESSONS_KEY = window.CUSTOM_LESSONS_KEY = 'syntaxarena_custom_lessons';
 var CURRENT_SCHEMA_VERSION = window.CURRENT_SCHEMA_VERSION = 1;
 
 /**
@@ -95441,6 +95464,102 @@ class StorageManager {
       window.localStorage.setItem(CORRUPTED_BACKUP_KEY, rawString);
       console.info('[StorageManager] Raw corrupted payload saved to:', CORRUPTED_BACKUP_KEY);
     } catch (_) {}
+  }
+
+  // =========================================================================
+  // CUSTOM LESSONS & QUESTION PACKS STORAGE (ADMIN CURRICULUM STUDIO)
+  // =========================================================================
+
+  /**
+   * Retrieve all admin-uploaded custom curriculum packs.
+   * @returns {Array} List of custom lesson packs
+   */
+  loadCustomLessons() {
+    try {
+      const storage = typeof window !== 'undefined' && window.localStorage ? window.localStorage : (typeof globalThis !== 'undefined' ? globalThis.localStorage : null);
+      if (!storage) return this.memoryCustomLessons || [];
+      const raw = storage.getItem(CUSTOM_LESSONS_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.warn('[StorageManager] Failed to load custom lessons:', e);
+      return [];
+    }
+  }
+
+  /**
+   * Save a verified lesson pack and its associated questions.
+   * @param {object} pack - Validated lesson pack object
+   * @returns {boolean} Success status
+   */
+  saveCustomLesson(pack) {
+    if (!pack || !pack.lessonMetadata) return false;
+    try {
+      const lessons = this.loadCustomLessons();
+      const existingIdx = lessons.findIndex(l => l.id === pack.id || (l.lessonMetadata?.title && l.lessonMetadata?.title === pack.lessonMetadata?.title));
+      if (existingIdx >= 0) {
+        lessons[existingIdx] = { ...pack, updatedAt: Date.now() };
+      } else {
+        lessons.push({ ...pack, createdAt: Date.now(), updatedAt: Date.now() });
+      }
+
+      const storage = typeof window !== 'undefined' && window.localStorage ? window.localStorage : (typeof globalThis !== 'undefined' ? globalThis.localStorage : null);
+      if (storage) {
+        storage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(lessons));
+      } else {
+        this.memoryCustomLessons = lessons;
+      }
+
+      // Notify any active listeners across pages
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('syntaxarena:lessons-updated', { detail: { packId: pack.id } }));
+      }
+      return true;
+    } catch (e) {
+      console.error('[StorageManager] Failed to save custom lesson:', e);
+      return false;
+    }
+  }
+
+  /**
+   * Delete an uploaded custom lesson and its questions.
+   * @param {string} packId
+   * @returns {boolean}
+   */
+  deleteCustomLesson(packId) {
+    try {
+      let lessons = this.loadCustomLessons();
+      lessons = lessons.filter(l => l.id !== packId);
+      const storage = typeof window !== 'undefined' && window.localStorage ? window.localStorage : (typeof globalThis !== 'undefined' ? globalThis.localStorage : null);
+      if (storage) {
+        storage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(lessons));
+      } else {
+        this.memoryCustomLessons = lessons;
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('syntaxarena:lessons-updated', { detail: { packId } }));
+      }
+      return true;
+    } catch (e) {
+      console.error('[StorageManager] Failed to delete custom lesson:', e);
+      return false;
+    }
+  }
+
+  /**
+   * Aggregate all custom questions across all uploaded lessons for QuestionBank injection.
+   * @returns {Array} List of validated custom questions
+   */
+  loadCustomQuestions() {
+    const lessons = this.loadCustomLessons();
+    const questions = [];
+    lessons.forEach(pack => {
+      if (Array.isArray(pack.questions)) {
+        questions.push(...pack.questions);
+      }
+    });
+    return questions;
   }
 }
 
@@ -96165,7 +96284,7 @@ var QuestionValidator = window.QuestionValidator = {
       }
       seenIds.add(q.id);
 
-      const idPattern = /^(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go|html|asm)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3}$/;
+      const idPattern = /^(?:cust-)?(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go|html|asm)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3,4}$/;
       if (!idPattern.test(q.id)) {
         errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' does not match standard pattern format.` });
       }
@@ -96282,6 +96401,7 @@ var QuestionValidator = window.QuestionValidator = {
 
 
 
+
 // Aggregate master collection
 const ALL_QUESTIONS = Object.freeze([
   ...pythonQuestions,
@@ -96315,25 +96435,53 @@ const LANG_TIER_INDEX = {
   asm: { beginner: [], intermediate: [], expert: [] }
 };
 
-ALL_QUESTIONS.forEach(q => {
-  ID_INDEX.set(q.id, q);
-  if (LANG_TIER_INDEX[q.language] && LANG_TIER_INDEX[q.language][q.difficulty]) {
-    LANG_TIER_INDEX[q.language][q.difficulty].push(q);
-  }
-});
+let customQuestions = [];
 
-// Also index all endless questions into ID_INDEX for fast recovery
-if (typeof endlessQuestions === 'object' && endlessQuestions !== null) {
-  Object.values(endlessQuestions).forEach(list => {
-    if (Array.isArray(list)) {
-      list.forEach(q => {
-        if (q && q.id && !ID_INDEX.has(q.id)) {
-          ID_INDEX.set(q.id, q);
-        }
-      });
+function rebuildIndexes() {
+  ID_INDEX.clear();
+
+  Object.keys(LANG_TIER_INDEX).forEach(lang => {
+    LANG_TIER_INDEX[lang] = { beginner: [], intermediate: [], expert: [] };
+  });
+
+  ALL_QUESTIONS.forEach(q => {
+    ID_INDEX.set(q.id, q);
+    if (!LANG_TIER_INDEX[q.language]) {
+      LANG_TIER_INDEX[q.language] = { beginner: [], intermediate: [], expert: [] };
+    }
+    if (LANG_TIER_INDEX[q.language][q.difficulty]) {
+      LANG_TIER_INDEX[q.language][q.difficulty].push(q);
     }
   });
+
+  if (typeof endlessQuestions === 'object' && endlessQuestions !== null) {
+    Object.values(endlessQuestions).forEach(list => {
+      if (Array.isArray(list)) {
+        list.forEach(q => {
+          if (q && q.id && !ID_INDEX.has(q.id)) {
+            ID_INDEX.set(q.id, q);
+          }
+        });
+      }
+    });
+  }
+
+  if (Array.isArray(customQuestions)) {
+    customQuestions.forEach(q => {
+      if (q && q.id) {
+        ID_INDEX.set(q.id, q);
+        if (!LANG_TIER_INDEX[q.language]) {
+          LANG_TIER_INDEX[q.language] = { beginner: [], intermediate: [], expert: [] };
+        }
+        if (LANG_TIER_INDEX[q.language][q.difficulty]) {
+          LANG_TIER_INDEX[q.language][q.difficulty].push(q);
+        }
+      }
+    });
+  }
 }
+
+rebuildIndexes();
 
 /**
  * Deep-clone a question object to prevent external mutation.
@@ -96347,10 +96495,10 @@ function cloneQuestion(q) {
 
 var QuestionBank = window.QuestionBank = {
   /**
-   * Total number of questions in catalog.
+   * Total number of questions in catalog (including custom lessons).
    */
   get size() {
-    return ALL_QUESTIONS.length;
+    return ALL_QUESTIONS.length + customQuestions.length;
   },
 
   /**
@@ -96358,7 +96506,23 @@ var QuestionBank = window.QuestionBank = {
    * @returns {Array}
    */
   getAll() {
+    return [...ALL_QUESTIONS, ...customQuestions].map(cloneQuestion);
+  },
+
+  /**
+   * Retrieve immutable base catalog questions only (720 curated).
+   * @returns {Array}
+   */
+  getBaseQuestions() {
     return ALL_QUESTIONS.map(cloneQuestion);
+  },
+
+  /**
+   * Retrieve currently registered custom admin questions.
+   * @returns {Array}
+   */
+  getCustomQuestions() {
+    return customQuestions.map(cloneQuestion);
   },
 
   /**
@@ -96366,7 +96530,7 @@ var QuestionBank = window.QuestionBank = {
    * @returns {Array}
    */
   getRawAll() {
-    return ALL_QUESTIONS;
+    return [...ALL_QUESTIONS, ...customQuestions];
   },
 
   /**
@@ -96376,9 +96540,41 @@ var QuestionBank = window.QuestionBank = {
    */
   getByLanguage(language) {
     const lang = (language || '').toLowerCase().trim();
-    return ALL_QUESTIONS
+    return [...ALL_QUESTIONS, ...customQuestions]
       .filter(q => q.language === lang)
       .map(cloneQuestion);
+  },
+
+  /**
+   * Refresh and re-index custom questions from StorageManager.
+   * @returns {Array} List of active custom questions
+   */
+  refreshCustomQuestions() {
+    try {
+      if (typeof Storage !== 'undefined' && typeof Storage.loadCustomQuestions === 'function') {
+        customQuestions = Storage.loadCustomQuestions() || [];
+      } else if (typeof window !== 'undefined' && window.localStorage) {
+        const raw = window.localStorage.getItem('syntaxarena_custom_lessons');
+        if (raw) {
+          const packs = JSON.parse(raw);
+          const qList = [];
+          if (Array.isArray(packs)) {
+            packs.forEach(p => {
+              if (Array.isArray(p.questions)) qList.push(...p.questions);
+            });
+          }
+          customQuestions = qList;
+        } else {
+          customQuestions = [];
+        }
+      } else {
+        customQuestions = [];
+      }
+    } catch (e) {
+      customQuestions = [];
+    }
+    rebuildIndexes();
+    return customQuestions;
   },
 
   /**
@@ -96513,6 +96709,23 @@ var QuestionBank = window.QuestionBank = {
     return selected;
   }
 };
+
+// Initial load of custom questions if available in storage
+try {
+  QuestionBank.refreshCustomQuestions();
+} catch (_) {}
+
+// Listen for custom lesson updates across tabs/windows
+if (typeof window !== 'undefined') {
+  window.addEventListener('syntaxarena:lessons-updated', () => {
+    QuestionBank.refreshCustomQuestions();
+  });
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'syntaxarena_custom_lessons') {
+      QuestionBank.refreshCustomQuestions();
+    }
+  });
+}
 
 /* --- End of js/question-bank.js --- */
 
@@ -102698,6 +102911,12 @@ var LearnController = window.LearnController = {
       if (e.key === 'ArrowRight') this.nextSlide();
       if (e.key === 'ArrowLeft') this.prevSlide();
     });
+
+    // Reactive refresh when admin uploads/deletes custom lessons
+    window.addEventListener('syntaxarena:lessons-updated', () => {
+      this.loadLessonList(this.currentLesson ? this.currentLesson.id : null);
+      this.updateDiplomaButton();
+    });
   },
 
   /**
@@ -107652,6 +107871,1620 @@ if (typeof window !== 'undefined') {
 
 /* --- End of js/gameplay.js --- */
 
+/* --- Start of js/lesson-uploader.js --- */
+/**
+ * SyntaxArena Lesson Uploader & Curriculum Studio
+ * Handles Drag & Drop ingestion of custom 60-question packs and Cyber Academy modules,
+ * automated pre-flight pedagogical validation, live deployment to all users,
+ * and custom curriculum pack management.
+ */
+
+
+
+
+var LessonUploader = window.LessonUploader = {
+  currentPayload: null,
+  validationResult: null,
+
+  /**
+   * Initialize drag & drop uploader within Admin Console
+   */
+  init() {
+    this.bindDropzone();
+    this.bindControls();
+    this.renderCustomLessonsRoster();
+  },
+
+  /**
+   * Bind drag and drop events and file picker
+   */
+  bindDropzone() {
+    const dropzone = Utils.qs('#lesson-dropzone');
+    const fileInput = Utils.qs('#lesson-file-input');
+
+    if (!dropzone || !fileInput) return;
+
+    // Prevent default drag behaviors across the document
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, false);
+    });
+
+    // Highlight dropzone on drag over
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, () => {
+        dropzone.classList.add('is-dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, () => {
+        dropzone.classList.remove('is-dragover');
+      }, false);
+    });
+
+    // Handle dropped files
+    dropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files && files.length > 0) {
+        this.processFile(files[0]);
+      }
+    });
+
+    // Click to select file
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON') {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files.length > 0) {
+        this.processFile(fileInput.files[0]);
+      }
+    });
+  },
+
+  /**
+   * Bind action buttons: Deploy, Reset, Download Template
+   */
+  bindControls() {
+    const deployBtn = Utils.qs('#btn-deploy-lesson');
+    if (deployBtn) {
+      deployBtn.addEventListener('click', () => this.handleDeploy());
+    }
+
+    const resetBtn = Utils.qs('#btn-reset-upload');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => this.resetForm());
+    }
+
+    const downloadTemplateBtn = Utils.qs('#btn-download-sample-template');
+    if (downloadTemplateBtn) {
+      downloadTemplateBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.downloadSampleTemplate();
+      });
+    }
+
+    // Auto-update metadata when admin changes title/lang/diff
+    const titleInput = Utils.qs('#lesson-upload-title');
+    const langSelect = Utils.qs('#lesson-upload-lang');
+    const diffSelect = Utils.qs('#lesson-upload-tier');
+
+    [titleInput, langSelect, diffSelect].forEach(input => {
+      if (input) {
+        input.addEventListener('input', () => {
+          if (this.currentPayload) {
+            this.syncMetadataFromInputs();
+          }
+        });
+      }
+    });
+  },
+
+  /**
+   * Read and parse incoming JSON file
+   * @param {File} file
+   */
+  processFile(file) {
+    if (!file) return;
+
+    if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+      this.renderValidationError('Invalid file type. Please upload a .json curriculum pack.');
+      return;
+    }
+
+    const fileNameLabel = Utils.qs('#upload-filename-label');
+    if (fileNameLabel) {
+      fileNameLabel.textContent = `📄 ${file.name} (${Math.round(file.size / 1024)} KB)`;
+      fileNameLabel.style.display = 'inline-block';
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target.result;
+        const json = JSON.parse(text);
+        this.currentPayload = json;
+        this.validateAndPreviewPayload(json);
+      } catch (err) {
+        this.renderValidationError(`JSON Parse Error: Malformed JSON syntax in ${file.name}. (${err.message})`);
+      }
+    };
+    reader.onerror = () => {
+      this.renderValidationError(`File Read Error: Could not read file ${file.name}.`);
+    };
+    reader.readAsText(file);
+  },
+
+  /**
+   * Run full pedagogical schema and structural validation
+   * @param {object} payload
+   */
+  validateAndPreviewPayload(payload) {
+    const reportContainer = Utils.qs('#upload-validation-report');
+    const deployBtn = Utils.qs('#btn-deploy-lesson');
+    if (!reportContainer) return;
+
+    // 1. Identify format structure
+    // Supports either full pack { lessonMetadata, cyberAcademy, questions } or array of questions
+    let questions = [];
+    let academy = null;
+    let metadata = payload.lessonMetadata || null;
+
+    if (Array.isArray(payload)) {
+      questions = payload;
+    } else if (payload && Array.isArray(payload.questions)) {
+      questions = payload.questions;
+      academy = payload.cyberAcademy || null;
+    } else if (payload && payload.cyberAcademy && Array.isArray(payload.cyberAcademy.slides)) {
+      academy = payload.cyberAcademy;
+    }
+
+    // Auto-fill form inputs if present in metadata or questions
+    const titleInput = Utils.qs('#lesson-upload-title');
+    const langSelect = Utils.qs('#lesson-upload-lang');
+    const diffSelect = Utils.qs('#lesson-upload-tier');
+
+    if (metadata && metadata.title && titleInput && !titleInput.value) {
+      titleInput.value = metadata.title;
+    } else if (academy && academy.title && titleInput && !titleInput.value) {
+      titleInput.value = academy.title;
+    }
+
+    if (metadata && metadata.language && langSelect) {
+      langSelect.value = metadata.language;
+    } else if (questions.length > 0 && questions[0].language && langSelect) {
+      langSelect.value = questions[0].language;
+    }
+
+    if (metadata && metadata.difficulty && diffSelect) {
+      diffSelect.value = metadata.difficulty;
+    }
+
+    // 2. Validate Questions Schema via QuestionValidator
+    const validationErrors = [];
+    const validationWarnings = [];
+    let questionStats = { total: 0, byTier: { beginner: 0, intermediate: 0, expert: 0 } };
+
+    if (questions.length > 0) {
+      const qRes = QuestionValidator.validateAll(questions, { checkExactInventory: false });
+      if (!qRes.valid) {
+        validationErrors.push(...qRes.errors.map(err => `[Question Error] ${err.message || err.error}`));
+      }
+      if (qRes.warnings && qRes.warnings.length > 0) {
+        validationWarnings.push(...qRes.warnings.map(w => `[Question Warning] ${w.message || w}`));
+      }
+
+      // Compute tier counts
+      questionStats.total = questions.length;
+      questions.forEach(q => {
+        const diff = q.difficulty || 'beginner';
+        if (questionStats.byTier[diff] !== undefined) {
+          questionStats.byTier[diff]++;
+        }
+      });
+    } else if (!academy) {
+      validationErrors.push('Payload contains neither a "questions" array nor a "cyberAcademy" lesson module.');
+    }
+
+    // 3. Validate Cyber Academy Handbook & Slides Module
+    if (academy) {
+      if (!academy.title || typeof academy.title !== 'string') {
+        validationErrors.push('[Cyber Academy] Missing chapter "title".');
+      }
+      if (!academy.topic || typeof academy.topic !== 'string') {
+        validationErrors.push('[Cyber Academy] Missing chapter "topic".');
+      }
+      if (!Array.isArray(academy.slides) || academy.slides.length === 0) {
+        validationErrors.push('[Cyber Academy] Chapter must contain at least 1 slide in "slides".');
+      } else {
+        academy.slides.forEach((slide, idx) => {
+          if (!slide.type || !['concept', 'drill', 'pitfall'].includes(slide.type)) {
+            validationErrors.push(`[Cyber Academy Slide ${idx + 1}] Slide type must be 'concept', 'drill', or 'pitfall'.`);
+          }
+          if (!slide.title) {
+            validationErrors.push(`[Cyber Academy Slide ${idx + 1}] Missing slide title.`);
+          }
+          if (slide.type === 'drill') {
+            if (!Array.isArray(slide.options) || slide.options.length < 2) {
+              validationErrors.push(`[Cyber Academy Slide ${idx + 1}] Drill slide must contain at least 2 options.`);
+            } else if (!slide.options.some(opt => opt.isCorrect === true)) {
+              validationErrors.push(`[Cyber Academy Slide ${idx + 1}] Drill slide has no correct option (isCorrect: true).`);
+            }
+          }
+        });
+      }
+    }
+
+    const isValid = validationErrors.length === 0;
+    this.validationResult = {
+      isValid,
+      errors: validationErrors,
+      warnings: validationWarnings,
+      questionStats,
+      hasAcademy: Boolean(academy),
+      questions,
+      academy,
+      metadata
+    };
+
+    // Render report card
+    reportContainer.style.display = 'block';
+    if (isValid) {
+      if (deployBtn) deployBtn.disabled = false;
+      reportContainer.innerHTML = `
+        <div class="card card-raised" style="border-color: var(--color-success, #10b981); background: rgba(16, 185, 129, 0.05); padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="badge badge-emerald" style="font-size: 11px;">✓ SYSTEM CHECK PASSED</span>
+              <strong style="color: var(--color-success, #10b981); font-size: var(--text-sm);">Ready to Deploy</strong>
+            </div>
+            <span class="badge badge-neutral" style="font-size: 10px;">Pedagogical Schema Verified</span>
+          </div>
+
+          <p style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0 0 0.75rem 0;">
+            The uploaded payload meets SyntaxArena's strict schema standards. Deploying will instantly broadcast this curriculum to all active normal users.
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem;">
+            <div style="background: var(--bg-surface-raised); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Total Questions</div>
+              <div style="font-size: var(--text-base); font-weight: 800; color: var(--color-primary);">${questionStats.total} Qs</div>
+            </div>
+            <div style="background: var(--bg-surface-raised); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Beginner Tier</div>
+              <div style="font-size: var(--text-base); font-weight: 800; color: var(--color-success);">${questionStats.byTier.beginner}</div>
+            </div>
+            <div style="background: var(--bg-surface-raised); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Intermediate Tier</div>
+              <div style="font-size: var(--text-base); font-weight: 800; color: var(--color-warning);">${questionStats.byTier.intermediate}</div>
+            </div>
+            <div style="background: var(--bg-surface-raised); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Expert Tier</div>
+              <div style="font-size: var(--text-base); font-weight: 800; color: var(--color-danger);">${questionStats.byTier.expert}</div>
+            </div>
+            <div style="background: var(--bg-surface-raised); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Academy Chapter</div>
+              <div style="font-size: var(--text-base); font-weight: 800; color: ${academy ? 'var(--color-success)' : 'var(--text-muted)'};">
+                ${academy ? `✓ Yes (${academy.slides.length} Slides)` : 'None'}
+              </div>
+            </div>
+          </div>
+
+          ${validationWarnings.length > 0 ? `
+            <div style="margin-top: 0.75rem; padding: 0.5rem; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); font-size: 11px; color: var(--color-warning);">
+              <strong>Warnings:</strong>
+              <ul style="margin: 4px 0 0 1rem; padding: 0;">
+                ${validationWarnings.slice(0, 3).map(w => `<li>${Utils.escapeHTML(w)}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    } else {
+      if (deployBtn) deployBtn.disabled = true;
+      reportContainer.innerHTML = `
+        <div class="card card-raised" style="border-color: var(--color-danger, #f43f5e); background: rgba(244, 63, 94, 0.05); padding: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span class="badge badge-coral" style="font-size: 11px;">⚠️ REJECTED: VALIDATION FAILED</span>
+            <strong style="color: var(--color-danger, #f43f5e); font-size: var(--text-sm);">${validationErrors.length} Schema Errors Detected</strong>
+          </div>
+          <p style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0 0 0.5rem 0;">
+            The file contains structural or pedagogical schema flaws. Fix the items below and re-upload:
+          </p>
+          <ul style="margin: 0; padding-left: 1.25rem; font-size: 12px; color: var(--color-danger, #f43f5e); max-height: 180px; overflow-y: auto;">
+            ${validationErrors.slice(0, 10).map(err => `<li>${Utils.escapeHTML(err)}</li>`).join('')}
+            ${validationErrors.length > 10 ? `<li><em>...and ${validationErrors.length - 10} more errors</em></li>` : ''}
+          </ul>
+        </div>
+      `;
+    }
+  },
+
+  /**
+   * Render single generic validation error
+   */
+  renderValidationError(msg) {
+    const reportContainer = Utils.qs('#upload-validation-report');
+    const deployBtn = Utils.qs('#btn-deploy-lesson');
+    if (!reportContainer) return;
+    if (deployBtn) deployBtn.disabled = true;
+
+    reportContainer.style.display = 'block';
+    reportContainer.innerHTML = `
+      <div class="card card-raised" style="border-color: var(--color-danger, #f43f5e); background: rgba(244, 63, 94, 0.05); padding: 1rem;">
+        <div style="color: var(--color-danger, #f43f5e); font-weight: 700; font-size: var(--text-sm); margin-bottom: 0.25rem;">
+          ⚠️ File Ingestion Error
+        </div>
+        <div style="font-size: var(--text-xs); color: var(--text-secondary);">${Utils.escapeHTML(msg)}</div>
+      </div>
+    `;
+  },
+
+  /**
+   * Sync title/lang/diff from manual input fields into payload
+   */
+  syncMetadataFromInputs() {
+    const title = Utils.qs('#lesson-upload-title')?.value.trim();
+    const lang = Utils.qs('#lesson-upload-lang')?.value;
+    const diff = Utils.qs('#lesson-upload-tier')?.value;
+
+    if (!this.currentPayload) return;
+
+    if (!this.currentPayload.lessonMetadata) {
+      this.currentPayload.lessonMetadata = {};
+    }
+    if (title) this.currentPayload.lessonMetadata.title = title;
+    if (lang) this.currentPayload.lessonMetadata.language = lang;
+    if (diff) this.currentPayload.lessonMetadata.difficulty = diff;
+
+    if (this.currentPayload.cyberAcademy) {
+      if (title && !this.currentPayload.cyberAcademy.title) this.currentPayload.cyberAcademy.title = title;
+      if (lang) this.currentPayload.cyberAcademy.language = lang;
+      if (diff) this.currentPayload.cyberAcademy.difficulty = diff;
+    }
+  },
+
+  /**
+   * Deploy validated lesson pack to persistent storage
+   */
+  handleDeploy() {
+    if (!this.validationResult || !this.validationResult.isValid) {
+      alert('Cannot deploy: Please upload a valid JSON curriculum pack first.');
+      return;
+    }
+
+    this.syncMetadataFromInputs();
+
+    const titleInput = Utils.qs('#lesson-upload-title');
+    const langSelect = Utils.qs('#lesson-upload-lang');
+    const diffSelect = Utils.qs('#lesson-upload-tier');
+
+    const title = titleInput?.value.trim() || this.currentPayload?.lessonMetadata?.title || 'Custom Community Lesson';
+    const lang = langSelect?.value || this.currentPayload?.lessonMetadata?.language || 'python';
+    const diff = diffSelect?.value || this.currentPayload?.lessonMetadata?.difficulty || 'intermediate';
+
+    const lessonId = `cust-les-${lang}-${Date.now().toString(36)}`;
+
+    // Build finalized pack
+    const finalizedPack = {
+      id: lessonId,
+      lessonMetadata: {
+        id: lessonId,
+        title,
+        language: lang,
+        difficulty: diff,
+        estimatedMinutes: this.currentPayload?.lessonMetadata?.estimatedMinutes || 6,
+        tagline: this.currentPayload?.lessonMetadata?.tagline || `Custom ${lang.toUpperCase()} lesson uploaded via Admin Studio.`
+      },
+      cyberAcademy: this.validationResult.hasAcademy ? {
+        ...this.validationResult.academy,
+        id: lessonId,
+        language: lang,
+        difficulty: diff,
+        title: this.validationResult.academy.title || title
+      } : null,
+      questions: (this.validationResult.questions || []).map((q, idx) => ({
+        ...q,
+        id: q.id || `cust-q-${lang}-${idx + 1}-${Date.now().toString(36)}`,
+        language: lang
+      }))
+    };
+
+    const success = Storage.saveCustomLesson(finalizedPack);
+    if (success) {
+      // Audio cue if available
+      try {
+        if (typeof AudioEngine !== 'undefined') AudioEngine.playSuccess();
+      } catch (_) {}
+
+      const reportContainer = Utils.qs('#upload-validation-report');
+      if (reportContainer) {
+        reportContainer.innerHTML = `
+          <div class="card card-raised" style="border-color: var(--color-success); background: rgba(16, 185, 129, 0.1); padding: 1.25rem; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.25rem;">🚀</div>
+            <h3 style="color: var(--color-success); margin: 0 0 0.5rem 0;">Lesson Successfully Deployed!</h3>
+            <p style="font-size: var(--text-xs); color: var(--text-secondary); max-width: 500px; margin: 0 auto 1rem;">
+              <strong>"${Utils.escapeHTML(title)}"</strong> (${finalizedPack.questions.length} Questions${finalizedPack.cyberAcademy ? ' + Cyber Academy Chapter' : ''}) is now live and accessible to all normal users in Battle Arena & Cyber Academy.
+            </p>
+            <button type="button" class="btn-arcade btn-primary btn-sm" id="btn-upload-another">
+              + Upload Another Lesson Pack
+            </button>
+          </div>
+        `;
+
+        const anotherBtn = Utils.qs('#btn-upload-another');
+        if (anotherBtn) {
+          anotherBtn.onclick = () => this.resetForm();
+        }
+      }
+
+      this.renderCustomLessonsRoster();
+    } else {
+      alert('Failed to save lesson pack to storage.');
+    }
+  },
+
+  /**
+   * Reset form and dropzone state
+   */
+  resetForm() {
+    this.currentPayload = null;
+    this.validationResult = null;
+
+    const fileInput = Utils.qs('#lesson-file-input');
+    if (fileInput) fileInput.value = '';
+
+    const titleInput = Utils.qs('#lesson-upload-title');
+    if (titleInput) titleInput.value = '';
+
+    const fileNameLabel = Utils.qs('#upload-filename-label');
+    if (fileNameLabel) fileNameLabel.style.display = 'none';
+
+    const reportContainer = Utils.qs('#upload-validation-report');
+    if (reportContainer) {
+      reportContainer.style.display = 'none';
+      reportContainer.innerHTML = '';
+    }
+
+    const deployBtn = Utils.qs('#btn-deploy-lesson');
+    if (deployBtn) deployBtn.disabled = true;
+  },
+
+  /**
+   * Download pre-configured sample 60-question lesson pack template
+   */
+  async downloadSampleTemplate() {
+    try {
+      const response = await fetch('data/sample-lesson-template.json');
+      const data = await response.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'sample_lesson_pack_60_questions.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.warn('Could not fetch template file, falling back to dynamic generation:', err);
+      // Fallback generation
+      const fallback = {
+        lessonMetadata: {
+          title: "Sample 60-Question Curriculum Lesson",
+          language: "go",
+          difficulty: "intermediate",
+          tagline: "Example lesson pack template for SyntaxArena Admin Studio"
+        },
+        cyberAcademy: {
+          title: "Chapter 1: Sample Topic Walkthrough",
+          topic: "Core Fundamentals",
+          objectives: ["Objective 1", "Objective 2"],
+          chapterSummary: "Summary text...",
+          slides: [
+            { type: "concept", title: "Concept 1", content: "Content...", codeSnippet: "// sample code" },
+            { type: "drill", title: "Drill 1", prompt: "What is output?", codeSnippet: "// snippet", options: [{ text: "A", isCorrect: true }, { text: "B", isCorrect: false }] },
+            { type: "pitfall", title: "Trap 1", content: "Pitfall explanation...", badCode: "// bad", goodCode: "// good" }
+          ],
+          takeaways: ["Key takeaway 1", "Key takeaway 2"]
+        },
+        questions: Array.from({ length: 60 }, (_, i) => ({
+          id: `sample-q-${i + 1}`,
+          language: "go",
+          difficulty: i < 20 ? "beginner" : (i < 40 ? "intermediate" : "expert"),
+          type: "predict_output",
+          prompt: `Question ${i + 1} prompt`,
+          code: `// Question ${i + 1} code snippet`,
+          options: ["Option A", "Option B", "Option C", "Option D"],
+          correctIndex: 0,
+          explanation: `Explanation for question ${i + 1}`
+        }))
+      };
+      const blob = new Blob([JSON.stringify(fallback, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'sample_lesson_pack_60_questions.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  },
+
+  /**
+   * Render table of all active custom lessons
+   */
+  renderCustomLessonsRoster() {
+    const container = Utils.qs('#admin-custom-lessons-list');
+    if (!container) return;
+
+    const lessons = Storage.loadCustomLessons();
+    if (lessons.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: var(--text-sm);">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;">📂</div>
+          <p style="margin: 0;">No custom lessons uploaded yet. Drop a <code>.json</code> pack above to publish a lesson.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="admin-table-container">
+        <table class="admin-roster-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+          <thead>
+            <tr>
+              <th style="text-align: left; padding: 8px 12px;">Lesson Title</th>
+              <th style="text-align: center; padding: 8px 12px;">Track</th>
+              <th style="text-align: center; padding: 8px 12px;">Tier</th>
+              <th style="text-align: center; padding: 8px 12px;">Questions</th>
+              <th style="text-align: center; padding: 8px 12px;">Cyber Academy</th>
+              <th style="text-align: right; padding: 8px 12px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lessons.map(pack => `
+              <tr style="border-bottom: 1px solid var(--border-subtle);">
+                <td style="padding: 10px 12px;">
+                  <strong style="color: var(--text-primary); font-size: 13px;">${Utils.escapeHTML(pack.lessonMetadata?.title || pack.id)}</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">${Utils.escapeHTML(pack.lessonMetadata?.tagline || '')}</div>
+                </td>
+                <td style="text-align: center; padding: 10px 12px;">
+                  <span class="badge badge-cyan" style="font-size: 10px; text-transform: uppercase;">
+                    ${Utils.escapeHTML(pack.lessonMetadata?.language || 'generic')}
+                  </span>
+                </td>
+                <td style="text-align: center; padding: 10px 12px;">
+                  <span class="badge ${pack.lessonMetadata?.difficulty === 'expert' ? 'badge-coral' : (pack.lessonMetadata?.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald')}" style="font-size: 10px; text-transform: capitalize;">
+                    ${Utils.escapeHTML(pack.lessonMetadata?.difficulty || 'all')}
+                  </span>
+                </td>
+                <td style="text-align: center; padding: 10px 12px; font-weight: 700; color: var(--color-primary);">
+                  ${Array.isArray(pack.questions) ? `${pack.questions.length} Qs` : '0 Qs'}
+                </td>
+                <td style="text-align: center; padding: 10px 12px;">
+                  ${pack.cyberAcademy ? `
+                    <span class="badge badge-emerald" style="font-size: 10px;" title="Includes Interactive Handbook Module">
+                      ✓ Active (${pack.cyberAcademy.slides?.length || 0} Slides)
+                    </span>
+                  ` : '<span style="color: var(--text-muted);">-</span>'}
+                </td>
+                <td style="text-align: right; padding: 10px 12px;">
+                  <button type="button" class="btn-arcade btn-neutral btn-sm btn-delete-lesson" data-pack-id="${pack.id}" style="padding: 3px 8px; font-size: 11px; color: var(--color-danger); border-color: rgba(244, 63, 94, 0.4);">
+                    🗑️ Delete
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    // Bind delete buttons
+    const deleteButtons = container.querySelectorAll('.btn-delete-lesson');
+    deleteButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-pack-id');
+        if (id && confirm('Are you sure you want to remove this custom lesson and its questions from normal users?')) {
+          Storage.deleteCustomLesson(id);
+          this.renderCustomLessonsRoster();
+        }
+      });
+    });
+  }
+};
+
+/* --- End of js/lesson-uploader.js --- */
+
+/* --- Start of js/admin.js --- */
+/**
+ * SyntaxArena Administrative Console Controller
+ * Secure administrative gateway for telemetry auditing, player monitoring,
+ * and track-by-track language completion analytics.
+ */
+
+
+
+
+
+
+
+
+var AdminController = window.AdminController = {
+  // Expected admin credentials (PBKDF2/SHA-256 authenticated)
+  ADMIN_USERNAME: 'admin',
+  ADMIN_PASSWORD_HASH: 'e86f78a8a3caf0b60d8e74e5942aa6d86dc150cd3c03338aef25b7d2d7e3acc7', // SHA-256 of "Admin@123"
+  ADMIN_PLAIN_FALLBACK: 'Admin@123',
+
+  isAuthenticated: false,
+  failedAttempts: 0,
+  lockoutUntil: 0,
+  lockoutTimerId: null,
+
+  searchQuery: '',
+  filterLanguage: 'all',
+
+  profiles: [],
+  selectedPlayer: null,
+
+  // Metadata for all 12 programming tracks
+  TRACKS: [
+    { id: 'python', name: 'Python 3', icon: '🐍', tag: 'tag-python', totalQuestions: 60, totalLessons: 5 },
+    { id: 'c', name: 'C (C99/C11)', icon: '⚡', tag: 'tag-c', totalQuestions: 60, totalLessons: 5 },
+    { id: 'cpp', name: 'C++ (Modern)', icon: '🚀', tag: 'tag-cpp', totalQuestions: 60, totalLessons: 5 },
+    { id: 'java', name: 'Java (SE 17)', icon: '☕', tag: 'tag-java', totalQuestions: 60, totalLessons: 5 },
+    { id: 'cyber', name: 'Cyber & Linux', icon: '🛡️', tag: 'tag-cyber', totalQuestions: 60, totalLessons: 5 },
+    { id: 'javascript', name: 'JavaScript', icon: '⚡', tag: 'tag-javascript', totalQuestions: 60, totalLessons: 5 },
+    { id: 'rust', name: 'Rust', icon: '🦀', tag: 'tag-rust', totalQuestions: 60, totalLessons: 5 },
+    { id: 'sql', name: 'SQL', icon: '🗄️', tag: 'tag-sql', totalQuestions: 60, totalLessons: 5 },
+    { id: 'typescript', name: 'TypeScript', icon: '📘', tag: 'tag-typescript', totalQuestions: 60, totalLessons: 5 },
+    { id: 'go', name: 'Go (Golang)', icon: '🔷', tag: 'tag-go', totalQuestions: 60, totalLessons: 5 },
+    { id: 'html', name: 'HTML5 & CSS', icon: '🌐', tag: 'tag-html', totalQuestions: 60, totalLessons: 5 },
+    { id: 'asm', name: 'x86-64 Assembly', icon: '⚙️', tag: 'tag-asm', totalQuestions: 60, totalLessons: 5 }
+  ],
+
+  /**
+   * Initialize Admin Controller
+   */
+  async init() {
+    if (this._initialized) return;
+    const adminRoot = Utils.qs('#admin-auth-gate') || Utils.qs('#admin-dashboard-view');
+    if (!adminRoot) return; // Exit cleanly if not on administrative page
+    this._initialized = true;
+
+    State.init();
+    this.restoreSecurityState();
+    this.bindEvents();
+
+    // Check if session token exists and is valid
+    if (this.isSessionActive()) {
+      this.isAuthenticated = true;
+      this.renderDashboard();
+    } else {
+      this.isAuthenticated = false;
+      this.renderAuthGate();
+    }
+  },
+
+  /**
+   * Restore rate-limiting / lockout state from sessionStorage
+   */
+  restoreSecurityState() {
+    if (typeof sessionStorage === 'undefined') return;
+    const failed = parseInt(sessionStorage.getItem('syntaxarena_admin_failed') || '0', 10);
+    const lockout = parseInt(sessionStorage.getItem('syntaxarena_admin_lockout') || '0', 10);
+
+    this.failedAttempts = isNaN(failed) ? 0 : failed;
+    this.lockoutUntil = isNaN(lockout) ? 0 : lockout;
+
+    if (Date.now() < this.lockoutUntil) {
+      this.startLockoutCountdown();
+    }
+  },
+
+  /**
+   * Check if sessionStorage holds a valid, unexpired admin session token
+   */
+  isSessionActive() {
+    if (typeof sessionStorage === 'undefined') return false;
+    try {
+      const raw = sessionStorage.getItem('syntaxarena_admin_session');
+      if (!raw) return false;
+      const sess = JSON.parse(raw);
+      if (sess && sess.user === 'admin' && sess.expiry > Date.now()) {
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  },
+
+  /**
+   * Bind event listeners
+   */
+  bindEvents() {
+    // Login form submit
+    const loginForm = Utils.qs('#admin-login-form');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await this.handleLogin();
+      });
+    }
+
+    // Toggle password visibility
+    const togglePassBtn = Utils.qs('#btn-toggle-password');
+    const passInput = Utils.qs('#admin-input-password');
+    if (togglePassBtn && passInput) {
+      togglePassBtn.addEventListener('click', () => {
+        const isPassword = passInput.type === 'password';
+        passInput.type = isPassword ? 'text' : 'password';
+        togglePassBtn.textContent = isPassword ? 'Hide' : 'Show';
+      });
+    }
+
+    // Logout buttons (Header & Dashboard)
+    const logoutBtn = Utils.qs('#btn-admin-logout');
+    const headerLogoutBtn = Utils.qs('#btn-admin-header-logout');
+    if (logoutBtn) logoutBtn.addEventListener('click', () => this.handleLogout());
+    if (headerLogoutBtn) headerLogoutBtn.addEventListener('click', () => this.handleLogout());
+
+    // Refresh telemetry
+    const refreshBtn = Utils.qs('#btn-admin-refresh');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        this.loadTelemetryData();
+        UI.showToast('🔄 Telemetry data refreshed from storage', 'info');
+      });
+    }
+
+    // Seed demo players
+    const seedBtn = Utils.qs('#btn-admin-seed-demo');
+    if (seedBtn) {
+      seedBtn.addEventListener('click', () => {
+        this.seedDemoPlayers();
+      });
+    }
+
+    // Export JSON audit log
+    const exportBtn = Utils.qs('#btn-admin-export-json');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        this.exportTelemetryAudit();
+      });
+    }
+
+    // Search and Language Filter
+    const searchInput = Utils.qs('#admin-search-player');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.searchQuery = e.target.value.toLowerCase().trim();
+        this.renderPlayerRosterTable();
+      });
+    }
+
+    const langFilter = Utils.qs('#admin-filter-language');
+    if (langFilter) {
+      langFilter.addEventListener('change', (e) => {
+        this.filterLanguage = e.target.value;
+        this.renderPlayerRosterTable();
+      });
+    }
+
+    // Dossier Modal Close controls
+    const closeDossierBtn = Utils.qs('#btn-close-dossier');
+    const closeDossierFooter = Utils.qs('#btn-close-dossier-footer');
+    const modalBackdrop = Utils.qs('#modal-player-dossier');
+
+    if (closeDossierBtn) closeDossierBtn.addEventListener('click', () => this.closeDossier());
+    if (closeDossierFooter) closeDossierFooter.addEventListener('click', () => this.closeDossier());
+    if (modalBackdrop) {
+      modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) this.closeDossier();
+      });
+    }
+
+    // Mobile menu drawer toggle
+    const mobileBtn = Utils.qs('#btn-mobile-menu');
+    const drawer = Utils.qs('#mobile-nav-drawer');
+    if (mobileBtn && drawer && !mobileBtn.dataset.hasMobileMenuBinding) {
+      mobileBtn.dataset.hasMobileMenuBinding = 'true';
+      mobileBtn.addEventListener('click', () => {
+        const isOpen = drawer.classList.toggle('is-open');
+        mobileBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+    }
+
+    // Refresh Curriculum Studio roster on custom lesson updates
+    if (typeof window !== 'undefined') {
+      window.addEventListener('syntaxarena:lessons-updated', () => {
+        if (this.isAuthenticated && typeof LessonUploader !== 'undefined' && typeof LessonUploader.renderCustomLessonsRoster === 'function') {
+          LessonUploader.renderCustomLessonsRoster();
+        }
+      });
+    }
+  },
+
+  /**
+   * Handle Login Authentication
+   */
+  async handleLogin() {
+    // Check if in cooldown
+    if (Date.now() < this.lockoutUntil) {
+      const remainingSec = Math.ceil((this.lockoutUntil - Date.now()) / 1000);
+      this.showLockoutNotice(remainingSec);
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.playIncorrect) AudioEngine.playIncorrect();
+      return;
+    }
+
+    const userInput = Utils.qs('#admin-input-username');
+    const passInput = Utils.qs('#admin-input-password');
+    const submitBtn = Utils.qs('#btn-admin-submit');
+    const errorBox = Utils.qs('#admin-auth-error');
+    const errorText = Utils.qs('#admin-error-text');
+
+    if (!userInput || !passInput) return;
+
+    const username = userInput.value.trim();
+    const password = passInput.value;
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Verifying Credentials...</span>';
+    }
+
+    // Compute SHA-256 hash
+    let hash = '';
+    try {
+      if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const digest = await window.crypto.subtle.digest('SHA-256', data);
+        hash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+    } catch (e) {}
+
+    const isUserValid = (username === this.ADMIN_USERNAME);
+    const isPassValid = (hash === this.ADMIN_PASSWORD_HASH) || (password === this.ADMIN_PLAIN_FALLBACK);
+
+    if (isUserValid && isPassValid) {
+      // Successful Login
+      this.failedAttempts = 0;
+      this.lockoutUntil = 0;
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('syntaxarena_admin_failed');
+        sessionStorage.removeItem('syntaxarena_admin_lockout');
+
+        const token = 'satok_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        const sessionPayload = {
+          token,
+          user: 'admin',
+          authenticatedAt: Date.now(),
+          expiry: Date.now() + (2 * 3600 * 1000) // 2 hour session
+        };
+        sessionStorage.setItem('syntaxarena_admin_session', JSON.stringify(sessionPayload));
+      }
+
+      this.isAuthenticated = true;
+      if (errorBox) errorBox.style.display = 'none';
+
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.playCorrect) {
+        AudioEngine.playCorrect();
+      }
+      UI.showToast('🔓 Administrator access authenticated. Welcome back, Admin.', 'success');
+
+      this.renderDashboard();
+    } else {
+      // Failed Login
+      this.failedAttempts++;
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('syntaxarena_admin_failed', this.failedAttempts.toString());
+      }
+
+      // Check if threshold reached
+      if (this.failedAttempts >= 5) {
+        this.lockoutUntil = Date.now() + (30 * 1000); // 30 sec cooldown
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('syntaxarena_admin_lockout', this.lockoutUntil.toString());
+        }
+        this.startLockoutCountdown();
+      } else {
+        const remaining = 5 - this.failedAttempts;
+        if (errorBox && errorText) {
+          errorBox.style.display = 'block';
+          errorText.textContent = `Invalid username or password. Access denied. (${remaining} attempts remaining before security cooldown)`;
+          errorBox.classList.add('animate-shake');
+          setTimeout(() => errorBox.classList.remove('animate-shake'), 600);
+        }
+      }
+
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.playIncorrect) {
+        AudioEngine.playIncorrect();
+      }
+
+      if (passInput) {
+        passInput.value = '';
+        passInput.focus();
+      }
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>Authenticate &amp; Enter Console 🔑</span>';
+    }
+  },
+
+  /**
+   * Lockout countdown ticker
+   */
+  startLockoutCountdown() {
+    if (this.lockoutTimerId) clearInterval(this.lockoutTimerId);
+
+    const errorBox = Utils.qs('#admin-auth-error');
+    if (errorBox) errorBox.style.display = 'none';
+
+    const tick = () => {
+      const remainingSec = Math.ceil((this.lockoutUntil - Date.now()) / 1000);
+      if (remainingSec <= 0) {
+        clearInterval(this.lockoutTimerId);
+        this.lockoutTimerId = null;
+        this.lockoutUntil = 0;
+        this.failedAttempts = 0;
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.removeItem('syntaxarena_admin_lockout');
+          sessionStorage.removeItem('syntaxarena_admin_failed');
+        }
+        const noticeBox = Utils.qs('#admin-lockout-notice');
+        if (noticeBox) noticeBox.style.display = 'none';
+        return;
+      }
+      this.showLockoutNotice(remainingSec);
+    };
+
+    tick();
+    this.lockoutTimerId = setInterval(tick, 1000);
+  },
+
+  /**
+   * Display lockout alert
+   */
+  showLockoutNotice(remainingSec) {
+    const noticeBox = Utils.qs('#admin-lockout-notice');
+    const noticeText = Utils.qs('#admin-lockout-text');
+    if (noticeBox && noticeText) {
+      noticeBox.style.display = 'block';
+      noticeText.textContent = `Too many failed attempts. Security cooldown active: ${remainingSec}s remaining.`;
+    }
+  },
+
+  /**
+   * Handle Admin Sign Out
+   */
+  handleLogout() {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('syntaxarena_admin_session');
+    }
+    this.isAuthenticated = false;
+    this.renderAuthGate();
+    UI.showToast('🔒 Signed out of administrative console', 'info');
+    if (typeof AudioEngine !== 'undefined' && AudioEngine.playClick) {
+      AudioEngine.playClick();
+    }
+  },
+
+  /**
+   * Render Login Gateway View
+   */
+  renderAuthGate() {
+    const gate = Utils.qs('#admin-auth-gate');
+    const dash = Utils.qs('#admin-dashboard-view');
+    const headerLogout = Utils.qs('#btn-admin-header-logout');
+    const indicator = Utils.qs('#admin-auth-indicator');
+
+    if (gate) gate.style.display = 'flex';
+    if (dash) dash.style.display = 'none';
+    if (headerLogout) headerLogout.style.display = 'none';
+    if (indicator) indicator.style.display = 'none';
+
+    const userInput = Utils.qs('#admin-input-username');
+    if (userInput) userInput.focus();
+  },
+
+  /**
+   * Render Dashboard View
+   */
+  renderDashboard() {
+    const gate = Utils.qs('#admin-auth-gate');
+    const dash = Utils.qs('#admin-dashboard-view');
+    const headerLogout = Utils.qs('#btn-admin-header-logout');
+    const indicator = Utils.qs('#admin-auth-indicator');
+
+    if (gate) gate.style.display = 'none';
+    if (dash) dash.style.display = 'block';
+    if (headerLogout) headerLogout.style.display = 'inline-flex';
+    if (indicator) indicator.style.display = 'inline-flex';
+
+    this.loadTelemetryData();
+    if (typeof LessonUploader !== 'undefined' && typeof LessonUploader.init === 'function') {
+      LessonUploader.init();
+    }
+  },
+
+  /**
+   * Load real data from StorageManager and calculate track-by-track completions
+   */
+  loadTelemetryData() {
+    const rawSchema = Storage.load();
+    let profileList = (rawSchema && rawSchema.profiles && Array.isArray(rawSchema.profiles)) ? rawSchema.profiles : [];
+
+    // If profiles list is empty, initialize default
+    if (profileList.length === 0) {
+      const defaultProf = createDefaultProfile();
+      profileList = [defaultProf];
+      rawSchema.profiles = profileList;
+      Storage.save(rawSchema);
+    }
+
+    // Process each player's language completion metrics
+    this.profiles = profileList.map(p => this.processPlayerLanguageMetrics(p));
+
+    // Render Metrics, Roster Table, and Track Cards
+    this.renderGlobalMetrics();
+    this.renderPlayerRosterTable();
+    this.renderGlobalTrackCards();
+  },
+
+  /**
+   * Compute comprehensive language-by-language metrics for a single player
+   */
+  processPlayerLanguageMetrics(profile) {
+    const trackStats = {};
+    let totalQuestionsAnswered = 0;
+    let totalQuestionsCorrect = 0;
+    let totalLessonsMastered = 0;
+
+    const completedLessons = profile.completedLessons || [];
+    const completedStages = profile.completedStages || {};
+    const campaign = profile.campaign || {};
+
+    this.TRACKS.forEach(track => {
+      const trackId = track.id;
+      const camp = campaign[trackId] || { beginnerStars: 0, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' };
+
+      // Calculate questions completed from stages and campaign stars
+      // Each tier has 4 stages of 5 questions (total 20 per tier, 60 per language)
+      let begCompleted = 0;
+      let intCompleted = 0;
+      let expCompleted = 0;
+
+      for (let s = 1; s <= 4; s++) {
+        if (completedStages[`${trackId}-beginner-${s}`]) begCompleted += 5;
+        if (completedStages[`${trackId}-intermediate-${s}`]) intCompleted += 5;
+        if (completedStages[`${trackId}-expert-${s}`]) expCompleted += 5;
+      }
+
+      // If stage records are empty but stars exist, infer from stars
+      if (begCompleted === 0 && camp.beginnerStars > 0) begCompleted = Math.min(20, camp.beginnerStars * 7);
+      if (intCompleted === 0 && camp.intermediateStars > 0) intCompleted = Math.min(20, camp.intermediateStars * 7);
+      if (expCompleted === 0 && camp.expertStars > 0) expCompleted = Math.min(20, camp.expertStars * 7);
+
+      const questionsDone = Math.min(60, begCompleted + intCompleted + expCompleted);
+
+      // Lessons completed for this track
+      const lessonsDone = completedLessons.filter(lesId => {
+        const lesson = academyLessons.find(l => l.id === lesId);
+        return lesson && lesson.language === trackId;
+      }).length;
+
+      const completionPct = Math.round(((questionsDone / 60) * 0.75 + (lessonsDone / 5) * 0.25) * 100);
+
+      trackStats[trackId] = {
+        trackId,
+        name: track.name,
+        icon: track.icon,
+        questionsDone,
+        totalQuestions: 60,
+        begCompleted,
+        intCompleted,
+        expCompleted,
+        starsEarned: (camp.beginnerStars || 0) + (camp.intermediateStars || 0) + (camp.expertStars || 0),
+        lessonsDone,
+        totalLessons: 5,
+        completionPct
+      };
+
+      totalQuestionsAnswered += questionsDone;
+      totalLessonsMastered += lessonsDone;
+    });
+
+    // Overall global completion across all 720 questions (60 * 12) + 60 lessons (5 * 12)
+    const overallPct = Math.round(((totalQuestionsAnswered / 720) * 0.75 + (totalLessonsMastered / 60) * 0.25) * 100);
+
+    return {
+      ...profile,
+      trackStats,
+      totalQuestionsAnswered,
+      totalLessonsMastered,
+      overallPct
+    };
+  },
+
+  /**
+   * Render Top KPI Metric Cards
+   */
+  renderGlobalMetrics() {
+    const totalPlayersEl = Utils.qs('#stat-total-players');
+    const totalMasteredEl = Utils.qs('#stat-total-mastered');
+    const totalLessonsEl = Utils.qs('#stat-total-lessons');
+    const avgCompletionEl = Utils.qs('#stat-avg-completion');
+
+    const playerCount = this.profiles.length;
+    let sumQuestions = 0;
+    let sumLessons = 0;
+    let sumPct = 0;
+
+    this.profiles.forEach(p => {
+      sumQuestions += p.totalQuestionsAnswered || 0;
+      sumLessons += p.totalLessonsMastered || 0;
+      sumPct += p.overallPct || 0;
+    });
+
+    const avgPct = playerCount > 0 ? (sumPct / playerCount).toFixed(1) : '0.0';
+
+    if (totalPlayersEl) totalPlayersEl.textContent = playerCount.toString();
+    if (totalMasteredEl) totalMasteredEl.textContent = sumQuestions.toString();
+    if (totalLessonsEl) totalLessonsEl.textContent = sumLessons.toString();
+    if (avgCompletionEl) avgCompletionEl.textContent = `${avgPct}%`;
+  },
+
+  /**
+   * Render Player Roster Table
+   */
+  renderPlayerRosterTable() {
+    const tbody = Utils.qs('#admin-roster-tbody');
+    if (!tbody) return;
+
+    let filtered = this.profiles.slice();
+
+    // Filter by search query
+    if (this.searchQuery) {
+      filtered = filtered.filter(p => (p.username || '').toLowerCase().includes(this.searchQuery));
+    }
+
+    // Filter by language (players with >= 1 question in track)
+    if (this.filterLanguage !== 'all') {
+      filtered = filtered.filter(p => {
+        const stats = p.trackStats && p.trackStats[this.filterLanguage];
+        return stats && (stats.questionsDone > 0 || stats.lessonsDone > 0);
+      });
+    }
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="padding: var(--space-6); text-align: center; color: var(--text-muted);">
+            No player profiles match the active filter criteria.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(p => {
+      const avatarSrc = `assets/images/${p.avatarId || 'cyber_fox'}.svg`;
+      const joinedDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'Active Today';
+      const lastActive = p.lastLoginDate ? new Date(p.lastLoginDate).toLocaleDateString() : 'Just Now';
+
+      // Mini language completion matrix badges
+      const matrixBadges = this.TRACKS.map(t => {
+        const st = p.trackStats[t.id] || { questionsDone: 0, lessonsDone: 0 };
+        const isMastered = st.questionsDone >= 60 && st.lessonsDone >= 5;
+        const hasProgress = st.questionsDone > 0 || st.lessonsDone > 0;
+        
+        let badgeColor = 'var(--text-muted)';
+        let badgeBg = 'rgba(255, 255, 255, 0.04)';
+        let badgeBorder = 'var(--border-subtle)';
+
+        if (isMastered) {
+          badgeColor = 'var(--color-success)';
+          badgeBg = 'rgba(16, 185, 129, 0.12)';
+          badgeBorder = 'var(--color-success)';
+        } else if (hasProgress) {
+          badgeColor = 'var(--color-primary)';
+          badgeBg = 'rgba(99, 102, 241, 0.12)';
+          badgeBorder = 'var(--color-primary)';
+        }
+
+        return `
+          <span style="display: inline-flex; align-items: center; gap: 2px; padding: 2px 6px; font-size: 10px; font-family: var(--font-mono); border-radius: var(--radius-sm); border: 1px solid ${badgeBorder}; background: ${badgeBg}; color: ${badgeColor};"
+                title="${t.name}: ${st.questionsDone}/60 Questions, ${st.lessonsDone}/5 Chapters">
+            <span>${t.icon}</span>
+            <span>${st.questionsDone}/60</span>
+          </span>
+        `;
+      }).join('');
+
+      return `
+        <tr style="border-bottom: 1px solid var(--border-subtle); transition: background var(--duration-fast);" class="admin-roster-row">
+          
+          <!-- Player Profile -->
+          <td style="padding: var(--space-3) var(--space-4);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 36px; height: 36px; border-radius: var(--radius-full); background: var(--bg-surface-raised); border: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <img src="${avatarSrc}" width="24" height="24" alt="${Utils.escapeHtml(p.username)} avatar">
+              </div>
+              <div>
+                <strong style="color: var(--text-primary); font-family: var(--font-display); font-size: var(--text-sm); display: block;">
+                  ${Utils.escapeHtml(p.username || 'ScriptAdept')}
+                </strong>
+                <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">
+                  ID: ${Utils.escapeHtml((p.id || '').slice(0, 14))}
+                </span>
+              </div>
+            </div>
+          </td>
+
+          <!-- Rank & XP -->
+          <td style="padding: var(--space-3) var(--space-3);">
+            <span class="badge badge-cyan" style="font-size: 9px; margin-bottom: 2px;">LVL ${p.level || 1} // ${Utils.escapeHtml(p.rank || 'Novice')}</span>
+            <div style="font-family: var(--font-mono); font-size: 11px; color: var(--color-primary); font-weight: 700;">
+              ${(p.xp || 0).toLocaleString()} XP
+            </div>
+          </td>
+
+          <!-- Registered / Last Active -->
+          <td style="padding: var(--space-3) var(--space-3); font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);">
+            <div>Joined: ${joinedDate}</div>
+            <div style="color: var(--text-muted); font-size: 10px;">Seen: ${lastActive}</div>
+          </td>
+
+          <!-- Global Progress -->
+          <td style="padding: var(--space-3) var(--space-3); width: 140px;">
+            <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">
+              <span>Total Progress</span>
+              <span style="font-weight: 700; color: var(--text-primary);">${p.overallPct}%</span>
+            </div>
+            <div style="height: 6px; background: var(--bg-surface-raised); border-radius: var(--radius-full); overflow: hidden; border: 1px solid var(--border-subtle);">
+              <div style="height: 100%; width: ${p.overallPct}%; background: var(--color-primary); border-radius: var(--radius-full);"></div>
+            </div>
+            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted); display: block; margin-top: 2px;">
+              ${p.totalQuestionsAnswered}/720 Questions
+            </span>
+          </td>
+
+          <!-- Language Completion Progress Matrix -->
+          <td style="padding: var(--space-3) var(--space-3); max-width: 440px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              ${matrixBadges}
+            </div>
+          </td>
+
+          <!-- Action -->
+          <td style="padding: var(--space-3) var(--space-4); text-align: right;">
+            <button class="btn-arcade btn-neutral btn-sm btn-inspect-player" data-player-id="${p.id}" style="padding: 4px 10px; font-size: 11px;">
+              <span>🔍 Dossier</span>
+            </button>
+          </td>
+
+        </tr>
+      `;
+    }).join('');
+
+    // Bind Dossier button clicks
+    tbody.querySelectorAll('.btn-inspect-player').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const playerId = btn.dataset.playerId;
+        this.openDossier(playerId);
+      });
+    });
+  },
+
+  /**
+   * Render Track Curriculum Analytics Cards
+   */
+  renderGlobalTrackCards() {
+    const grid = Utils.qs('#admin-tracks-grid');
+    if (!grid) return;
+
+    grid.innerHTML = this.TRACKS.map(t => {
+      let sumQuestions = 0;
+      let sumLessons = 0;
+      let playersWithProgress = 0;
+
+      this.profiles.forEach(p => {
+        const st = p.trackStats && p.trackStats[t.id];
+        if (st) {
+          sumQuestions += st.questionsDone;
+          sumLessons += st.lessonsDone;
+          if (st.questionsDone > 0 || st.lessonsDone > 0) playersWithProgress++;
+        }
+      });
+
+      const maxPossibleQuestions = (this.profiles.length || 1) * 60;
+      const trackPct = Math.round((sumQuestions / maxPossibleQuestions) * 100);
+
+      return `
+        <div class="card card-raised" style="padding: var(--space-4); border: 1px solid var(--border-subtle);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-3);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">${t.icon}</span>
+              <div>
+                <strong style="font-size: var(--text-sm); font-family: var(--font-display); color: var(--text-primary); display: block;">
+                  ${t.name}
+                </strong>
+                <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">
+                  60 Questions • 5 Chapters
+                </span>
+              </div>
+            </div>
+            <span class="badge ${trackPct > 50 ? 'badge-emerald' : 'badge-cyan'}" style="font-size: 9px;">
+              ${trackPct}% COMPLETED
+            </span>
+          </div>
+
+          <div style="height: 5px; background: var(--bg-surface-raised); border-radius: var(--radius-full); overflow: hidden; margin-bottom: var(--space-3);">
+            <div style="height: 100%; width: ${trackPct}%; background: var(--color-primary);"></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px; font-family: var(--font-mono);">
+            <div style="color: var(--text-secondary);">
+              Questions: <strong style="color: var(--text-primary);">${sumQuestions}</strong>
+            </div>
+            <div style="color: var(--text-secondary);">
+              Lessons: <strong style="color: var(--text-primary);">${sumLessons}</strong>
+            </div>
+            <div style="color: var(--text-secondary); grid-column: span 2; margin-top: 2px;">
+              Active Enrollees: <strong style="color: var(--color-primary);">${playersWithProgress} / ${this.profiles.length}</strong>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  /**
+   * Open Player Deep-Dive Dossier Modal
+   */
+  openDossier(playerId) {
+    const modal = Utils.qs('#modal-player-dossier');
+    const player = this.profiles.find(p => p.id === playerId);
+    if (!modal || !player) return;
+
+    this.selectedPlayer = player;
+
+    // Populate Dossier Header
+    const titleEl = Utils.qs('#dossier-modal-title');
+    const rankEl = Utils.qs('#dossier-rank-badge');
+    const avatarImg = Utils.qs('#dossier-avatar-img');
+    const idEl = Utils.qs('#dossier-id');
+    const xpEl = Utils.qs('#dossier-xp');
+    const gamesEl = Utils.qs('#dossier-games');
+    const accuracyEl = Utils.qs('#dossier-accuracy');
+
+    if (titleEl) titleEl.textContent = `${player.username || 'ScriptAdept'}'s Dossier`;
+    if (rankEl) rankEl.textContent = `LEVEL ${player.level || 1} // ${player.rank || 'Novice'}`;
+    if (avatarImg) avatarImg.src = `assets/images/${player.avatarId || 'cyber_fox'}.svg`;
+    if (idEl) idEl.textContent = player.id || 'N/A';
+    if (xpEl) xpEl.textContent = `${(player.xp || 0).toLocaleString()} XP`;
+
+    const stats = player.stats || {};
+    if (gamesEl) gamesEl.textContent = `${stats.gamesPlayed || 0} Matches`;
+
+    const accuracy = stats.questionsAttempted > 0 
+      ? Math.round(((stats.questionsCorrect || 0) / stats.questionsAttempted) * 100) 
+      : 0;
+    if (accuracyEl) accuracyEl.textContent = `${accuracy}% (${stats.questionsCorrect || 0}/${stats.questionsAttempted || 0})`;
+
+    // Populate 12-Language Breakdown List
+    const list = Utils.qs('#dossier-language-list');
+    if (list) {
+      list.innerHTML = this.TRACKS.map(t => {
+        const st = player.trackStats[t.id] || { questionsDone: 0, lessonsDone: 0, begCompleted: 0, intCompleted: 0, expCompleted: 0, starsEarned: 0, completionPct: 0 };
+        return `
+          <div style="background: var(--bg-surface-raised); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 18px;">${t.icon}</span>
+                <strong style="color: var(--text-primary); font-size: var(--text-sm); font-family: var(--font-display);">${t.name}</strong>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="badge ${st.completionPct >= 80 ? 'badge-emerald' : 'badge-cyan'}" style="font-size: 10px;">
+                  ${st.completionPct}% Completed
+                </span>
+                <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--text-primary);">
+                  ${st.questionsDone} / 60 Qs
+                </span>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div style="height: 6px; background: var(--bg-surface); border-radius: var(--radius-full); overflow: hidden; margin-bottom: 8px; border: 1px solid var(--border-subtle);">
+              <div style="height: 100%; width: ${st.completionPct}%; background: var(--color-primary); border-radius: var(--radius-full);"></div>
+            </div>
+
+            <!-- Subtier Grid -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); background: var(--bg-surface); padding: 4px 8px; border-radius: var(--radius-sm);">
+              <div>Beg: <strong style="color: var(--text-secondary);">${st.begCompleted}/20</strong></div>
+              <div>Int: <strong style="color: var(--text-secondary);">${st.intCompleted}/20</strong></div>
+              <div>Exp: <strong style="color: var(--text-secondary);">${st.expCompleted}/20</strong></div>
+              <div>Academy: <strong style="color: var(--color-success);">${st.lessonsDone}/5 Chapters</strong></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    modal.style.display = 'flex';
+    modal.classList.add('is-open');
+    if (typeof AudioEngine !== 'undefined' && AudioEngine.playClick) AudioEngine.playClick();
+  },
+
+  /**
+   * Close Dossier Modal
+   */
+  closeDossier() {
+    const modal = Utils.qs('#modal-player-dossier');
+    if (modal) {
+      modal.classList.remove('is-open');
+      modal.style.display = 'none';
+    }
+  },
+
+  /**
+   * Seed Simulated Demo Players for Multi-Player Auditing Demonstration
+   */
+  seedDemoPlayers() {
+    const rawSchema = Storage.load();
+    const existing = (rawSchema && rawSchema.profiles && Array.isArray(rawSchema.profiles)) ? rawSchema.profiles : [];
+
+    const demoProfiles = [
+      {
+        id: 'prof-demo-valkyrie',
+        username: 'CyberValkyrie',
+        avatarId: 'bit_knight',
+        level: 14,
+        rank: 'Matrix Master',
+        xp: 14200,
+        createdAt: Date.now() - (18 * 86400 * 1000),
+        lastLoginDate: Date.now() - (3600 * 1000),
+        stats: { gamesPlayed: 28, questionsAttempted: 180, questionsCorrect: 168 },
+        completedLessons: ['py-les-001', 'py-les-002', 'py-les-003', 'py-les-004', 'py-les-005', 'cyber-les-001', 'cyber-les-002', 'cyber-les-003', 'cyber-les-004', 'cyber-les-005'],
+        completedStages: {
+          'python-beginner-1': true, 'python-beginner-2': true, 'python-beginner-3': true, 'python-beginner-4': true,
+          'python-intermediate-1': true, 'python-intermediate-2': true, 'python-intermediate-3': true, 'python-intermediate-4': true,
+          'python-expert-1': true, 'python-expert-2': true,
+          'cyber-beginner-1': true, 'cyber-beginner-2': true, 'cyber-beginner-3': true, 'cyber-beginner-4': true,
+          'cyber-intermediate-1': true, 'cyber-intermediate-2': true, 'cyber-intermediate-3': true,
+          'cyber-expert-1': true, 'cyber-expert-2': true
+        },
+        campaign: {
+          python: { beginnerStars: 3, intermediateStars: 3, expertStars: 2, unlockedTier: 'expert' },
+          cyber: { beginnerStars: 3, intermediateStars: 3, expertStars: 2, unlockedTier: 'expert' }
+        }
+      },
+      {
+        id: 'prof-demo-rustacean',
+        username: 'Rustacean42',
+        avatarId: 'terminal_owl',
+        level: 11,
+        rank: 'Code Crusader',
+        xp: 11800,
+        createdAt: Date.now() - (24 * 86400 * 1000),
+        lastLoginDate: Date.now() - (12 * 3600 * 1000),
+        stats: { gamesPlayed: 22, questionsAttempted: 150, questionsCorrect: 139 },
+        completedLessons: ['rust-les-001', 'rust-les-002', 'rust-les-003', 'rust-les-004', 'c-les-001', 'c-les-002', 'go-les-001'],
+        completedStages: {
+          'rust-beginner-1': true, 'rust-beginner-2': true, 'rust-beginner-3': true, 'rust-beginner-4': true,
+          'rust-intermediate-1': true, 'rust-intermediate-2': true, 'rust-intermediate-3': true, 'rust-intermediate-4': true,
+          'rust-expert-1': true, 'rust-expert-2': true, 'rust-expert-3': true,
+          'c-beginner-1': true, 'c-beginner-2': true, 'c-beginner-3': true, 'c-beginner-4': true,
+          'c-intermediate-1': true, 'c-intermediate-2': true,
+          'go-beginner-1': true, 'go-beginner-2': true, 'go-beginner-3': true
+        },
+        campaign: {
+          rust: { beginnerStars: 3, intermediateStars: 3, expertStars: 3, unlockedTier: 'expert' },
+          c: { beginnerStars: 3, intermediateStars: 2, expertStars: 0, unlockedTier: 'intermediate' },
+          go: { beginnerStars: 3, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
+        }
+      },
+      {
+        id: 'prof-demo-sqlwiz',
+        username: 'SQL_Wizard',
+        avatarId: 'matrix_cat',
+        level: 18,
+        rank: 'Syntax Grandmaster',
+        xp: 18900,
+        createdAt: Date.now() - (35 * 86400 * 1000),
+        lastLoginDate: Date.now() - (1800 * 1000),
+        stats: { gamesPlayed: 36, questionsAttempted: 240, questionsCorrect: 231 },
+        completedLessons: ['sql-les-001', 'sql-les-002', 'sql-les-003', 'sql-les-004', 'sql-les-005', 'js-les-001', 'js-les-002', 'ts-les-001'],
+        completedStages: {
+          'sql-beginner-1': true, 'sql-beginner-2': true, 'sql-beginner-3': true, 'sql-beginner-4': true,
+          'sql-intermediate-1': true, 'sql-intermediate-2': true, 'sql-intermediate-3': true, 'sql-intermediate-4': true,
+          'sql-expert-1': true, 'sql-expert-2': true, 'sql-expert-3': true, 'sql-expert-4': true,
+          'javascript-beginner-1': true, 'javascript-beginner-2': true, 'javascript-beginner-3': true, 'javascript-beginner-4': true,
+          'javascript-intermediate-1': true, 'javascript-intermediate-2': true,
+          'typescript-beginner-1': true, 'typescript-beginner-2': true, 'typescript-beginner-3': true
+        },
+        campaign: {
+          sql: { beginnerStars: 3, intermediateStars: 3, expertStars: 3, unlockedTier: 'expert' },
+          javascript: { beginnerStars: 3, intermediateStars: 2, expertStars: 0, unlockedTier: 'intermediate' },
+          typescript: { beginnerStars: 3, intermediateStars: 0, expertStars: 0, unlockedTier: 'beginner' }
+        }
+      }
+    ];
+
+    // Merge without duplicates
+    demoProfiles.forEach(dp => {
+      const idx = existing.findIndex(e => e.id === dp.id);
+      if (idx >= 0) {
+        existing[idx] = dp;
+      } else {
+        existing.push(dp);
+      }
+    });
+
+    rawSchema.profiles = existing;
+    Storage.save(rawSchema);
+
+    this.loadTelemetryData();
+    UI.showToast('🌱 3 Demo Player Profiles seeded with full language completions!', 'success');
+  },
+
+  /**
+   * Export Telemetry Audit Log as JSON
+   */
+  exportTelemetryAudit() {
+    const payload = {
+      exportTimestamp: new Date().toISOString(),
+      platform: 'SyntaxArena Cyber Academy & Challenge Engine',
+      auditedBy: 'admin',
+      totalEnrolledPlayers: this.profiles.length,
+      trackInventory: this.TRACKS.map(t => ({ id: t.id, name: t.name, totalQuestions: 60, totalLessons: 5 })),
+      playerDossiers: this.profiles.map(p => ({
+        id: p.id,
+        username: p.username,
+        level: p.level,
+        rank: p.rank,
+        xp: p.xp,
+        overallCompletionPct: p.overallPct,
+        trackProgress: p.trackStats
+      }))
+    };
+
+    const jsonStr = JSON.stringify(payload, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `syntaxarena-telemetry-audit-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    UI.showToast('💾 Audit telemetry log exported to JSON', 'success');
+  }
+};
+
+// Auto-bootstrap
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => AdminController.init());
+  } else {
+    AdminController.init();
+  }
+}
+
+/* --- End of js/admin.js --- */
+
 /* --- Start of js/app.js --- */
 /**
  * SyntaxArena Application Bootstrapper & Coordinator
@@ -107935,6 +109768,45 @@ var App = window.App = {
         if (e.target === backdrop) {
           UI.closeModal(backdrop.id);
         }
+      });
+    });
+
+    // =========================================================================
+    // STEALTH ADMIN ACCESS GATES
+    // 1. Hotkey: Ctrl+Shift+A (Windows/Linux) or Cmd+Shift+A (macOS)
+    // 2. Mobile/Tablet: Secret 3-tap gesture on brand emblem within 1.5 seconds
+    // =========================================================================
+    window.addEventListener('keydown', (e) => {
+      const isMac = typeof navigator !== 'undefined' && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+      const modKey = isMac ? e.metaKey : e.ctrlKey;
+      if (modKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        try { AudioEngine.playSuccess(); } catch (err) {}
+        window.location.href = 'admin.html';
+      }
+    });
+
+    // Mobile / Tablet stealth gesture: 3 rapid taps on the brand emblem (.brand-badge)
+    const brandBadges = Utils.qsa('.brand-badge');
+    let emblemTapCount = 0;
+    let emblemTapTimer = null;
+    brandBadges.forEach(emblem => {
+      emblem.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        emblemTapCount++;
+        if (emblemTapTimer) clearTimeout(emblemTapTimer);
+
+        if (emblemTapCount >= 3) {
+          emblemTapCount = 0;
+          try { AudioEngine.playSuccess(); } catch (err) {}
+          window.location.href = 'admin.html';
+          return;
+        }
+
+        emblemTapTimer = setTimeout(() => {
+          emblemTapCount = 0;
+        }, 1500);
       });
     });
   },

@@ -1,0 +1,1106 @@
+{
+  "lessonMetadata": {
+    "id": "cust-les-go-01",
+    "title": "Go CSP Concurrency & Channel Primitives",
+    "language": "go",
+    "difficulty": "intermediate",
+    "estimatedMinutes": 8,
+    "tagline": "Master goroutines, buffered channels, select multiplexing, and deadlock prevention."
+  },
+  "cyberAcademy": {
+    "id": "cust-les-go-01",
+    "language": "go",
+    "difficulty": "intermediate",
+    "topic": "Goroutines & CSP Concurrency",
+    "title": "Chapter 1: Communicating Sequential Processes (CSP) in Go",
+    "tagline": "Do not communicate by sharing memory; instead, share memory by communicating.",
+    "estimatedMinutes": 8,
+    "objectives": [
+      "Differentiate between OS threads and M:N multiplexed goroutines",
+      "Understand unbuffered vs buffered channel synchronization semantics",
+      "Multiplex I/O channels cleanly using non-blocking select statements",
+      "Prevent goroutine leaks and synchronization deadlocks"
+    ],
+    "chapterSummary": "Go implements Tony Hoares Communicating Sequential Processes (CSP) paradigm. Instead of guarding shared mutable state with complex mutex locks, Go encourages passing ownership of data through typed channels.",
+    "deepDive": {
+      "title": "Go Runtime M:N Scheduler & Work Stealing",
+      "content": "The Go runtime schedules thousands of lightweight goroutines (G) across logical processors (P) and OS threads (M). When a goroutine blocks on a network call or channel operation, the scheduler parks G and steals work from other queues to keep CPU cores 100% saturated.",
+      "codeSnippet": "package main\nimport (\n    \"fmt\"\n    \"sync\"\n)\nfunc main() {\n    var wg sync.WaitGroup\n    wg.Add(1)\n    go func() {\n        defer wg.Done()\n        fmt.Println(\"Async worker finished\")\n    }()\n    wg.Wait()\n}"
+    },
+    "takeaways": [
+      "Goroutines begin with a tiny 2KB stack that grows dynamically as needed.",
+      "Sending to an unbuffered channel blocks until a receiver is ready.",
+      "Closing a closed channel panics; always close from the sender side.",
+      "Use select with a default case to execute non-blocking channel polling."
+    ],
+    "slides": [
+      {
+        "type": "concept",
+        "badge": "01 // MENTAL MODEL",
+        "title": "Goroutines & Channels: The Pipe Model",
+        "content": "Channels are synchronization conduits. When goroutines send and receive on an unbuffered channel, they perform an atomic handshake where data is handed off directly between memory stacks.",
+        "codeSnippet": "ch := make(chan int)\ngo func() {\n    ch <- 42 // Blocks until main receives\n}()\nval := <-ch // Handshake completes\nfmt.Println(val)",
+        "sandboxCode": "package main\nimport \"fmt\"\nfunc main() {\n    ch := make(chan string, 1)\n    ch <- \"Hello from channel\"\n    fmt.Println(<-ch)\n}"
+      },
+      {
+        "type": "drill",
+        "badge": "02 // INTERACTIVE CHECKPOINT",
+        "title": "FIFO Channel Ordering",
+        "prompt": "A buffered channel of capacity 2 receives 10 and then 20. What does <-ch return first?",
+        "codeSnippet": "ch := make(chan int, 2)\nch <- 10\nch <- 20\nfmt.Println(<-ch)",
+        "options": [
+          {
+            "text": "10",
+            "isCorrect": true,
+            "feedback": "🎯 Correct! Go channels strictly maintain First-In, First-Out (FIFO) queue order."
+          },
+          {
+            "text": "20",
+            "isCorrect": false,
+            "feedback": "Incorrect. Channels are queues (FIFO), not stacks (LIFO)."
+          },
+          {
+            "text": "30",
+            "isCorrect": false,
+            "feedback": "Incorrect. Channel reads return individual elements."
+          },
+          {
+            "text": "deadlock",
+            "isCorrect": false,
+            "feedback": "Incorrect. The buffer has capacity 2, so writes do not block."
+          }
+        ]
+      },
+      {
+        "type": "pitfall",
+        "badge": "03 // DANGER ZONE",
+        "title": "Unbuffered Channel Self-Deadlock",
+        "content": "Sending to an unbuffered channel in the main goroutine without an active concurrent receiver causes an immediate fatal deadlock panic.",
+        "badCode": "func main() {\n    ch := make(chan int)\n    ch <- 1 // Fatal error: all goroutines are asleep - deadlock!\n    fmt.Println(<-ch)\n}",
+        "goodCode": "func main() {\n    ch := make(chan int, 1) // Buffered capacity of 1 avoids block\n    ch <- 1\n    fmt.Println(<-ch)\n}"
+      }
+    ]
+  },
+  "questions": [
+    {
+      "id": "cust-go-beg-001",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 1] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 5\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "15",
+        "5",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 5, then y evaluates to 15.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-002",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 2] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 10\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "20",
+        "10",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 10, then y evaluates to 20.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-003",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 3] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 15\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "25",
+        "15",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 15, then y evaluates to 25.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-004",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 4] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 20\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "30",
+        "20",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 20, then y evaluates to 30.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-005",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 5] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 25\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "35",
+        "25",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 25, then y evaluates to 35.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-006",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 6] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 30\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "40",
+        "30",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 30, then y evaluates to 40.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-007",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 7] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 35\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "45",
+        "35",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 35, then y evaluates to 45.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-008",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 8] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 40\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "50",
+        "40",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 40, then y evaluates to 50.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-009",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 9] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 45\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "55",
+        "45",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 45, then y evaluates to 55.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-010",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 10] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 50\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "60",
+        "50",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 50, then y evaluates to 60.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-011",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 11] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 55\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "65",
+        "55",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 55, then y evaluates to 65.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-012",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 12] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 60\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "70",
+        "60",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 60, then y evaluates to 70.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-013",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 13] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 65\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "75",
+        "65",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 65, then y evaluates to 75.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-014",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 14] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 70\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "80",
+        "70",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 70, then y evaluates to 80.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-015",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 15] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 75\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "85",
+        "75",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 75, then y evaluates to 85.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-016",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 16] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 80\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "90",
+        "80",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 80, then y evaluates to 90.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-017",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 17] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 85\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "95",
+        "85",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 85, then y evaluates to 95.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-018",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 18] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 90\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "100",
+        "90",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 90, then y evaluates to 100.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-019",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 19] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 95\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "105",
+        "95",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 95, then y evaluates to 105.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-beg-020",
+      "language": "go",
+      "difficulty": "beginner",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 20] What is the output of this Go initialization snippet?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    x := 100\n    y := x + 10\n    fmt.Println(y)\n}",
+      "options": [
+        "110",
+        "100",
+        "0",
+        "compile error"
+      ],
+      "correctIndex": 0,
+      "explanation": "Short variable declaration initializes x to 100, then y evaluates to 110.",
+      "hint": "Check the := declaration and arithmetic addition."
+    },
+    {
+      "id": "cust-go-int-001",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 1] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 2\n    ch <- 3\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "2",
+        "3",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-002",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 2] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 4\n    ch <- 5\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "4",
+        "5",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-003",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 3] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 6\n    ch <- 7\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "6",
+        "7",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-004",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 4] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 8\n    ch <- 9\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "8",
+        "9",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-005",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 5] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 10\n    ch <- 11\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "10",
+        "11",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-006",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 6] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 12\n    ch <- 13\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "12",
+        "13",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-007",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 7] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 14\n    ch <- 15\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "14",
+        "15",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-008",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 8] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 16\n    ch <- 17\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "16",
+        "17",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-009",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 9] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 18\n    ch <- 19\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "18",
+        "19",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-010",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 10] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 20\n    ch <- 21\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "20",
+        "21",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-011",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 11] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 22\n    ch <- 23\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "22",
+        "23",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-012",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 12] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 24\n    ch <- 25\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "24",
+        "25",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-013",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 13] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 26\n    ch <- 27\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "26",
+        "27",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-014",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 14] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 28\n    ch <- 29\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "28",
+        "29",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-015",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 15] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 30\n    ch <- 31\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "30",
+        "31",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-016",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 16] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 32\n    ch <- 33\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "32",
+        "33",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-017",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 17] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 34\n    ch <- 35\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "34",
+        "35",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-018",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 18] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 36\n    ch <- 37\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "36",
+        "37",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-019",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 19] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 38\n    ch <- 39\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "38",
+        "39",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-int-020",
+      "language": "go",
+      "difficulty": "intermediate",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 20] What does this buffered channel operation output?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan int, 2)\n    ch <- 40\n    ch <- 41\n    fmt.Println(<-ch)\n}",
+      "options": [
+        "40",
+        "41",
+        "deadlock",
+        "nil"
+      ],
+      "correctIndex": 0,
+      "explanation": "Channels are FIFO queues. The first value sent is the first value received.",
+      "hint": "Remember channels operate in First-In, First-Out (FIFO) sequence."
+    },
+    {
+      "id": "cust-go-exp-001",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 1] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-1\")\n    }\n}",
+      "options": [
+        "non-blocking-1",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-002",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 2] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-2\")\n    }\n}",
+      "options": [
+        "non-blocking-2",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-003",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 3] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-3\")\n    }\n}",
+      "options": [
+        "non-blocking-3",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-004",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 4] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-4\")\n    }\n}",
+      "options": [
+        "non-blocking-4",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-005",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 5] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-5\")\n    }\n}",
+      "options": [
+        "non-blocking-5",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-006",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 6] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-6\")\n    }\n}",
+      "options": [
+        "non-blocking-6",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-007",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 7] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-7\")\n    }\n}",
+      "options": [
+        "non-blocking-7",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-008",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 8] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-8\")\n    }\n}",
+      "options": [
+        "non-blocking-8",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-009",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 9] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-9\")\n    }\n}",
+      "options": [
+        "non-blocking-9",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-010",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 10] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-10\")\n    }\n}",
+      "options": [
+        "non-blocking-10",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-011",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 11] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-11\")\n    }\n}",
+      "options": [
+        "non-blocking-11",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-012",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 12] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-12\")\n    }\n}",
+      "options": [
+        "non-blocking-12",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-013",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 13] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-13\")\n    }\n}",
+      "options": [
+        "non-blocking-13",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-014",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 14] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-14\")\n    }\n}",
+      "options": [
+        "non-blocking-14",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-015",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 15] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-15\")\n    }\n}",
+      "options": [
+        "non-blocking-15",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-016",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 16] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-16\")\n    }\n}",
+      "options": [
+        "non-blocking-16",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-017",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 17] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-17\")\n    }\n}",
+      "options": [
+        "non-blocking-17",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-018",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 18] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-18\")\n    }\n}",
+      "options": [
+        "non-blocking-18",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-019",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 19] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-19\")\n    }\n}",
+      "options": [
+        "non-blocking-19",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    },
+    {
+      "id": "cust-go-exp-020",
+      "language": "go",
+      "difficulty": "expert",
+      "type": "predict_output",
+      "prompt": "[Lesson Drill 20] What is printed by this select multiplexer with default case?",
+      "code": "package main\nimport \"fmt\"\n\nfunc main() {\n    ch := make(chan string, 1)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    default:\n        fmt.Println(\"non-blocking-20\")\n    }\n}",
+      "options": [
+        "non-blocking-20",
+        "deadlock",
+        "nil",
+        "\"\""
+      ],
+      "correctIndex": 0,
+      "explanation": "Since the channel buffer is empty and no sender is ready, the select default case executes immediately without blocking.",
+      "hint": "A select statement with a default case never blocks."
+    }
+  ]
+}

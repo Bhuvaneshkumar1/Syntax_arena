@@ -99,10 +99,6 @@
           <svg class="nav-icon"><use href="#icon-settings"></use></svg>
           <span>Settings</span>
         </a>
-        <a href="admin.html" class="nav-link">
-          <svg class="nav-icon"><use href="#icon-shield"></use></svg>
-          <span>Admin</span>
-        </a>
       </nav>
 
       <div class="header-actions">
@@ -147,10 +143,6 @@
       <a href="settings.html" class="nav-link">
         <svg class="nav-icon"><use href="#icon-settings"></use></svg>
         <span>Settings</span>
-      </a>
-      <a href="admin.html" class="nav-link">
-        <svg class="nav-icon"><use href="#icon-shield"></use></svg>
-        <span>Admin Console</span>
       </a>
     </div>
   </header>
@@ -924,6 +916,25 @@ fn main() {
           const cmd = linuxInput.value.trim();
           if (!cmd) return;
           linuxInput.value = '';
+
+          // Secret stealth administrative console hook
+          const normalizedCmd = cmd.toLowerCase();
+          if (normalizedCmd === 'sudo admin' || normalizedCmd === 'syntax-admin' || normalizedCmd === 'admin') {
+            if (consoleOutput) {
+              const entry = document.createElement('div');
+              entry.style.marginBottom = '0.5rem';
+              entry.innerHTML = `
+                <div style="color: var(--color-success); font-weight: 700;">hacker@syntaxarena:~$ ${Utils.escapeHTML(cmd)}</div>
+                <div style="color: #10b981; font-weight: 700;">[STEALTH GATE] Administrative credentials requested. Transferring to Vault...</div>
+              `;
+              consoleOutput.appendChild(entry);
+              consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+            setTimeout(() => {
+              window.location.href = 'admin.html';
+            }, 600);
+            return;
+          }
 
           const res = SandboxManager.executeBashPipeline(cmd);
           if (consoleOutput) {

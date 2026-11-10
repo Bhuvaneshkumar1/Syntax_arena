@@ -4508,14 +4508,36 @@ export const academyLessons = [
 ];
 
 export const AcademyLessons = {
+  getCustomLessons() {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const raw = window.localStorage.getItem('syntaxarena_custom_lessons');
+        if (raw) {
+          const packs = JSON.parse(raw);
+          if (Array.isArray(packs)) {
+            const lessons = [];
+            packs.forEach(p => {
+              if (p && p.cyberAcademy && typeof p.cyberAcademy === 'object') {
+                lessons.push(p.cyberAcademy);
+              }
+            });
+            return lessons;
+          }
+        }
+      }
+    } catch (e) {}
+    return [];
+  },
+
   getAll() {
-    return academyLessons;
+    return [...academyLessons, ...this.getCustomLessons()];
   },
 
   getByLanguage(lang) {
-    if (!lang) return academyLessons;
+    const all = this.getAll();
+    if (!lang) return all;
     const cleanLang = String(lang).toLowerCase().trim();
-    return academyLessons.filter(l => l.language === cleanLang);
+    return all.filter(l => l.language === cleanLang);
   },
 
   getByDifficulty(lang, diff) {
@@ -4527,6 +4549,6 @@ export const AcademyLessons = {
   },
 
   getById(id) {
-    return academyLessons.find(l => l.id === id) || null;
+    return this.getAll().find(l => l.id === id) || null;
   }
 };

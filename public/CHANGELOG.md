@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.7.0] - 2026-11-10
+
+### Added
+- **Stealth Administrative Security Vault (`admin.html`, `js/admin.js`):**
+  - Stripped all visible admin links across all 7 public user pages (`index.html`, `game.html`, `learn.html`, `sandbox.html`, `results.html`, `progress.html`, `settings.html`).
+  - Implemented multi-factor stealth access mechanisms:
+    - Global keyboard hotkey: `Ctrl + Shift + A` (Windows/Linux) or `Cmd + Shift + A` (macOS).
+    - Rapid 3-tap touch gesture on brand emblem badge (`.brand-badge`) within 1.5 seconds.
+    - Cyber Shell virtual Linux terminal command: `sudo admin`, `syntax-admin`, or `admin` in `sandbox.html`.
+    - Direct URL routing via `/admin` and `admin.html`.
+  - SHA-256 PBKDF2 authentication gate (`admin` / `Admin@123`) with automatic 5-attempt rate-limiting security cooldown.
+  - Full telemetry auditing with 12-track language completion metrics, multi-player roster, player dossier inspector, and 1-click JSON telemetry audit export.
+- **Curriculum Studio & Drag-and-Drop Ingestion Engine (`js/lesson-uploader.js`):**
+  - Drag-and-drop file dropzone with active dragover styling and file picker ingestion.
+  - Automated pre-flight pedagogical validation using `QuestionValidator` enforcing schema contracts, option counts, and slide formats.
+  - Live broadcast synchronization via `StorageManager` dynamically injecting custom questions and Cyber Academy chapters into active sessions without page reloads or server restarts.
+  - Downloadable starter JSON template (`sample_lesson_pack_60_questions.json`) with Go CSP concurrency questions and chapter slides.
+  - Active curriculum roster with track/tier badges and live deletion.
+- **Automated Playwright Suites:**
+  - `tests/test-admin-route-playwright.js`: 38/38 tests passing across stealth gates, login cooldown, curriculum ingestion, dynamic engine broadcast, dossiers, and session revocation.
+  - `tests/test-responsive-viewport-pressure-playwright.js`: 86/86 tests passing across 5 responsive viewports.
+  - Master unit test suite: 521/521 tests passing.
+
+---
+
 ## [2.5.0] - 2026-10-22
 
 ### Added

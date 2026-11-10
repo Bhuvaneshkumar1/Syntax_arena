@@ -31,7 +31,7 @@ All contributors and maintainers are expected to adhere to our [CODE_OF_CONDUCT.
 1. **Fork the Repository:** Click the "Fork" button on [GitHub](https://github.com/Bhuvaneshkumar1/Syntax_arena).
 2. **Clone your fork locally:**
    ```bash
-   git clone https://github.com/<your-username>/Syntax_arena.git
+   git clone https://github.com/Bhuvaneshkumar1/Syntax_arena.git
    cd Syntax_arena
    ```
 3. **Install dev dependencies (Playwright for testing):**

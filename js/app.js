@@ -283,6 +283,45 @@ export const App = {
         }
       });
     });
+
+    // =========================================================================
+    // STEALTH ADMIN ACCESS GATES
+    // 1. Hotkey: Ctrl+Shift+A (Windows/Linux) or Cmd+Shift+A (macOS)
+    // 2. Mobile/Tablet: Secret 3-tap gesture on brand emblem within 1.5 seconds
+    // =========================================================================
+    window.addEventListener('keydown', (e) => {
+      const isMac = typeof navigator !== 'undefined' && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+      const modKey = isMac ? e.metaKey : e.ctrlKey;
+      if (modKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        try { AudioEngine.playSuccess(); } catch (err) {}
+        window.location.href = 'admin.html';
+      }
+    });
+
+    // Mobile / Tablet stealth gesture: 3 rapid taps on the brand emblem (.brand-badge)
+    const brandBadges = Utils.qsa('.brand-badge');
+    let emblemTapCount = 0;
+    let emblemTapTimer = null;
+    brandBadges.forEach(emblem => {
+      emblem.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        emblemTapCount++;
+        if (emblemTapTimer) clearTimeout(emblemTapTimer);
+
+        if (emblemTapCount >= 3) {
+          emblemTapCount = 0;
+          try { AudioEngine.playSuccess(); } catch (err) {}
+          window.location.href = 'admin.html';
+          return;
+        }
+
+        emblemTapTimer = setTimeout(() => {
+          emblemTapCount = 0;
+        }, 1500);
+      });
+    });
   },
 
   /**

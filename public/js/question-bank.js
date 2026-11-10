@@ -19,6 +19,7 @@ import { htmlQuestions } from '../data/html-questions.js';
 import { asmQuestions } from '../data/asm-questions.js';
 import { endlessQuestions } from '../data/endless-questions.js';
 import { QuestionValidator } from './question-validator.js';
+import { Storage } from './storage.js';
 
 // Aggregate master collection
 const ALL_QUESTIONS = Object.freeze([
@@ -53,25 +54,53 @@ const LANG_TIER_INDEX = {
   asm: { beginner: [], intermediate: [], expert: [] }
 };
 
-ALL_QUESTIONS.forEach(q => {
-  ID_INDEX.set(q.id, q);
-  if (LANG_TIER_INDEX[q.language] && LANG_TIER_INDEX[q.language][q.difficulty]) {
-    LANG_TIER_INDEX[q.language][q.difficulty].push(q);
-  }
-});
+let customQuestions = [];
 
-// Also index all endless questions into ID_INDEX for fast recovery
-if (typeof endlessQuestions === 'object' && endlessQuestions !== null) {
-  Object.values(endlessQuestions).forEach(list => {
-    if (Array.isArray(list)) {
-      list.forEach(q => {
-        if (q && q.id && !ID_INDEX.has(q.id)) {
-          ID_INDEX.set(q.id, q);
-        }
-      });
+function rebuildIndexes() {
+  ID_INDEX.clear();
+
+  Object.keys(LANG_TIER_INDEX).forEach(lang => {
+    LANG_TIER_INDEX[lang] = { beginner: [], intermediate: [], expert: [] };
+  });
+
+  ALL_QUESTIONS.forEach(q => {
+    ID_INDEX.set(q.id, q);
+    if (!LANG_TIER_INDEX[q.language]) {
+      LANG_TIER_INDEX[q.language] = { beginner: [], intermediate: [], expert: [] };
+    }
+    if (LANG_TIER_INDEX[q.language][q.difficulty]) {
+      LANG_TIER_INDEX[q.language][q.difficulty].push(q);
     }
   });
+
+  if (typeof endlessQuestions === 'object' && endlessQuestions !== null) {
+    Object.values(endlessQuestions).forEach(list => {
+      if (Array.isArray(list)) {
+        list.forEach(q => {
+          if (q && q.id && !ID_INDEX.has(q.id)) {
+            ID_INDEX.set(q.id, q);
+          }
+        });
+      }
+    });
+  }
+
+  if (Array.isArray(customQuestions)) {
+    customQuestions.forEach(q => {
+      if (q && q.id) {
+        ID_INDEX.set(q.id, q);
+        if (!LANG_TIER_INDEX[q.language]) {
+          LANG_TIER_INDEX[q.language] = { beginner: [], intermediate: [], expert: [] };
+        }
+        if (LANG_TIER_INDEX[q.language][q.difficulty]) {
+          LANG_TIER_INDEX[q.language][q.difficulty].push(q);
+        }
+      }
+    });
+  }
 }
+
+rebuildIndexes();
 
 /**
  * Deep-clone a question object to prevent external mutation.
@@ -85,10 +114,10 @@ function cloneQuestion(q) {
 
 export const QuestionBank = {
   /**
-   * Total number of questions in catalog.
+   * Total number of questions in catalog (including custom lessons).
    */
   get size() {
-    return ALL_QUESTIONS.length;
+    return ALL_QUESTIONS.length + customQuestions.length;
   },
 
   /**
@@ -96,7 +125,23 @@ export const QuestionBank = {
    * @returns {Array}
    */
   getAll() {
+    return [...ALL_QUESTIONS, ...customQuestions].map(cloneQuestion);
+  },
+
+  /**
+   * Retrieve immutable base catalog questions only (720 curated).
+   * @returns {Array}
+   */
+  getBaseQuestions() {
     return ALL_QUESTIONS.map(cloneQuestion);
+  },
+
+  /**
+   * Retrieve currently registered custom admin questions.
+   * @returns {Array}
+   */
+  getCustomQuestions() {
+    return customQuestions.map(cloneQuestion);
   },
 
   /**
@@ -104,7 +149,7 @@ export const QuestionBank = {
    * @returns {Array}
    */
   getRawAll() {
-    return ALL_QUESTIONS;
+    return [...ALL_QUESTIONS, ...customQuestions];
   },
 
   /**
@@ -114,9 +159,41 @@ export const QuestionBank = {
    */
   getByLanguage(language) {
     const lang = (language || '').toLowerCase().trim();
-    return ALL_QUESTIONS
+    return [...ALL_QUESTIONS, ...customQuestions]
       .filter(q => q.language === lang)
       .map(cloneQuestion);
+  },
+
+  /**
+   * Refresh and re-index custom questions from StorageManager.
+   * @returns {Array} List of active custom questions
+   */
+  refreshCustomQuestions() {
+    try {
+      if (typeof Storage !== 'undefined' && typeof Storage.loadCustomQuestions === 'function') {
+        customQuestions = Storage.loadCustomQuestions() || [];
+      } else if (typeof window !== 'undefined' && window.localStorage) {
+        const raw = window.localStorage.getItem('syntaxarena_custom_lessons');
+        if (raw) {
+          const packs = JSON.parse(raw);
+          const qList = [];
+          if (Array.isArray(packs)) {
+            packs.forEach(p => {
+              if (Array.isArray(p.questions)) qList.push(...p.questions);
+            });
+          }
+          customQuestions = qList;
+        } else {
+          customQuestions = [];
+        }
+      } else {
+        customQuestions = [];
+      }
+    } catch (e) {
+      customQuestions = [];
+    }
+    rebuildIndexes();
+    return customQuestions;
   },
 
   /**
@@ -251,3 +328,20 @@ export const QuestionBank = {
     return selected;
   }
 };
+
+// Initial load of custom questions if available in storage
+try {
+  QuestionBank.refreshCustomQuestions();
+} catch (_) {}
+
+// Listen for custom lesson updates across tabs/windows
+if (typeof window !== 'undefined') {
+  window.addEventListener('syntaxarena:lessons-updated', () => {
+    QuestionBank.refreshCustomQuestions();
+  });
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'syntaxarena_custom_lessons') {
+      QuestionBank.refreshCustomQuestions();
+    }
+  });
+}

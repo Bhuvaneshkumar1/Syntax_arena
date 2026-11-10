@@ -9,6 +9,7 @@ import { Utils } from './utils.js';
 
 export const STORAGE_KEY = 'syntaxarena_storage_v1';
 export const CORRUPTED_BACKUP_KEY = 'syntaxarena_corrupted_backup';
+export const CUSTOM_LESSONS_KEY = 'syntaxarena_custom_lessons';
 export const CURRENT_SCHEMA_VERSION = 1;
 
 /**
@@ -514,6 +515,102 @@ class StorageManager {
       window.localStorage.setItem(CORRUPTED_BACKUP_KEY, rawString);
       console.info('[StorageManager] Raw corrupted payload saved to:', CORRUPTED_BACKUP_KEY);
     } catch (_) {}
+  }
+
+  // =========================================================================
+  // CUSTOM LESSONS & QUESTION PACKS STORAGE (ADMIN CURRICULUM STUDIO)
+  // =========================================================================
+
+  /**
+   * Retrieve all admin-uploaded custom curriculum packs.
+   * @returns {Array} List of custom lesson packs
+   */
+  loadCustomLessons() {
+    try {
+      const storage = typeof window !== 'undefined' && window.localStorage ? window.localStorage : (typeof globalThis !== 'undefined' ? globalThis.localStorage : null);
+      if (!storage) return this.memoryCustomLessons || [];
+      const raw = storage.getItem(CUSTOM_LESSONS_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.warn('[StorageManager] Failed to load custom lessons:', e);
+      return [];
+    }
+  }
+
+  /**
+   * Save a verified lesson pack and its associated questions.
+   * @param {object} pack - Validated lesson pack object
+   * @returns {boolean} Success status
+   */
+  saveCustomLesson(pack) {
+    if (!pack || !pack.lessonMetadata) return false;
+    try {
+      const lessons = this.loadCustomLessons();
+      const existingIdx = lessons.findIndex(l => l.id === pack.id || (l.lessonMetadata?.title && l.lessonMetadata?.title === pack.lessonMetadata?.title));
+      if (existingIdx >= 0) {
+        lessons[existingIdx] = { ...pack, updatedAt: Date.now() };
+      } else {
+        lessons.push({ ...pack, createdAt: Date.now(), updatedAt: Date.now() });
+      }
+
+      const storage = typeof window !== 'undefined' && window.localStorage ? window.localStorage : (typeof globalThis !== 'undefined' ? globalThis.localStorage : null);
+      if (storage) {
+        storage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(lessons));
+      } else {
+        this.memoryCustomLessons = lessons;
+      }
+
+      // Notify any active listeners across pages
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('syntaxarena:lessons-updated', { detail: { packId: pack.id } }));
+      }
+      return true;
+    } catch (e) {
+      console.error('[StorageManager] Failed to save custom lesson:', e);
+      return false;
+    }
+  }
+
+  /**
+   * Delete an uploaded custom lesson and its questions.
+   * @param {string} packId
+   * @returns {boolean}
+   */
+  deleteCustomLesson(packId) {
+    try {
+      let lessons = this.loadCustomLessons();
+      lessons = lessons.filter(l => l.id !== packId);
+      const storage = typeof window !== 'undefined' && window.localStorage ? window.localStorage : (typeof globalThis !== 'undefined' ? globalThis.localStorage : null);
+      if (storage) {
+        storage.setItem(CUSTOM_LESSONS_KEY, JSON.stringify(lessons));
+      } else {
+        this.memoryCustomLessons = lessons;
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('syntaxarena:lessons-updated', { detail: { packId } }));
+      }
+      return true;
+    } catch (e) {
+      console.error('[StorageManager] Failed to delete custom lesson:', e);
+      return false;
+    }
+  }
+
+  /**
+   * Aggregate all custom questions across all uploaded lessons for QuestionBank injection.
+   * @returns {Array} List of validated custom questions
+   */
+  loadCustomQuestions() {
+    const lessons = this.loadCustomLessons();
+    const questions = [];
+    lessons.forEach(pack => {
+      if (Array.isArray(pack.questions)) {
+        questions.push(...pack.questions);
+      }
+    });
+    return questions;
   }
 }
 

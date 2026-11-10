@@ -44,6 +44,8 @@ const files = [
   'js/onboarding.js',
   'js/landing.js',
   'js/gameplay.js',
+  'js/lesson-uploader.js',
+  'js/admin.js',
   'js/app.js'
 ];
 

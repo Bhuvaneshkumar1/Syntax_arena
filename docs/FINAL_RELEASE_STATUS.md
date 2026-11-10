@@ -66,6 +66,16 @@ The following core workflows and lifecycle stages have been comprehensively veri
    - Web Audio synthesizer controls with independent master, sound effect, and ambient volume sliders.
    - Multiple profile switching with isolated career metrics.
    - Complete Account Reset with full storage clearing and redirection to fresh onboarding.
+6. **Stealth Administrative Vault & Telemetry Auditing:**
+   - Zero public navigation traces (no navbar, mobile drawer, or footer links across all 7 user pages).
+   - Stealth gates: `Ctrl+Shift+A` hotkey, 3-tap rapid logo emblem gesture, Sandbox `sudo admin` bash command, direct `/admin` URL.
+   - PBKDF2/SHA-256 encrypted authentication with 5-attempt security lockout.
+   - Multi-player roster, track-by-track completion metrics, player dossier inspector, and one-click JSON audit export.
+7. **Admin Curriculum Studio & Dynamic Drag-and-Drop Ingestion:**
+   - Drag-and-drop ingestion of custom `.json` 60-question curriculum packs and Cyber Academy handbook chapters.
+   - Automated pre-flight `QuestionValidator` checking schema, option counts, answer indices, and slide structure.
+   - Live broadcast to all active sessions via `StorageManager`, instantly merging custom questions and chapters into Battle Arena and Cyber Academy.
+   - 1-click starter JSON template export (`sample_lesson_pack_60_questions.json`) and pack management roster with live teardown.
 
 ---
 

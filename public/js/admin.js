@@ -10,6 +10,7 @@ import { State } from './state.js';
 import { UI } from './ui.js';
 import { AudioEngine } from './audio.js';
 import { academyLessons } from '../data/academy-lessons.js';
+import { LessonUploader } from './lesson-uploader.js';
 
 export const AdminController = {
   // Expected admin credentials (PBKDF2/SHA-256 authenticated)
@@ -49,6 +50,8 @@ export const AdminController = {
    */
   async init() {
     if (this._initialized) return;
+    const adminRoot = Utils.qs('#admin-auth-gate') || Utils.qs('#admin-dashboard-view');
+    if (!adminRoot) return; // Exit cleanly if not on administrative page
     this._initialized = true;
 
     State.init();
@@ -190,6 +193,15 @@ export const AdminController = {
       mobileBtn.addEventListener('click', () => {
         const isOpen = drawer.classList.toggle('is-open');
         mobileBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+    }
+
+    // Refresh Curriculum Studio roster on custom lesson updates
+    if (typeof window !== 'undefined') {
+      window.addEventListener('syntaxarena:lessons-updated', () => {
+        if (this.isAuthenticated && typeof LessonUploader !== 'undefined' && typeof LessonUploader.renderCustomLessonsRoster === 'function') {
+          LessonUploader.renderCustomLessonsRoster();
+        }
       });
     }
   },
@@ -394,6 +406,9 @@ export const AdminController = {
     if (indicator) indicator.style.display = 'inline-flex';
 
     this.loadTelemetryData();
+    if (typeof LessonUploader !== 'undefined' && typeof LessonUploader.init === 'function') {
+      LessonUploader.init();
+    }
   },
 
   /**

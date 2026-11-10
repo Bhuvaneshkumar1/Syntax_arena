@@ -173,6 +173,12 @@ export const LearnController = {
       if (e.key === 'ArrowRight') this.nextSlide();
       if (e.key === 'ArrowLeft') this.prevSlide();
     });
+
+    // Reactive refresh when admin uploads/deletes custom lessons
+    window.addEventListener('syntaxarena:lessons-updated', () => {
+      this.loadLessonList(this.currentLesson ? this.currentLesson.id : null);
+      this.updateDiplomaButton();
+    });
   },
 
   /**
