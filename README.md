@@ -155,6 +155,38 @@ Step into the shoes of an on-call Site Reliability Engineer (SRE) facing catastr
 
 ---
 
+## 🖥️ Terminal Tycoon: Hacker Battlestation Rig & Vanity Engine
+
+Customize your retro cyberpunk developer cockpit! Tailor your mechanical keyboard acoustic switch profile, retro CRT phosphor monitors, ambient RGB chassis underglows, and hardware milestone upgrades:
+
+* **Procedural Mechanical Keyboard Audio Synthesizer (`BattlestationEngine`):**
+  * 100% native Web Audio API procedural synthesis—zero audio sample files needed:
+    * ⌨️ **Cherry MX Blue:** High-frequency crisp tactile snapshot with sharp plastic bottom-out clack.
+    * 🟤 **Cherry MX Brown:** Dampened tactile bump with muted bottom-out acoustic thud.
+    * 🏛️ **IBM Buckling Spring (1984):** Authentic Model M acoustic profile with hollow chassis resonance and high-tensile spring ping ring.
+    * ⚡ **Cyber Haptic Pulse:** Futuristic sci-fi sub-bass sine drop with neon audio blip.
+  * System-wide integration: all UI option buttons and clicks inherit your equipped mechanical switch acoustics!
+* **Retro CRT Phosphor Monitor Shaders:**
+  * 🖥️ **Modern Slate OLED:** Pristine, pixel-perfect dark mode styling with zero raster distortion.
+  * 🟢 **DEC VT100 Green Phosphor:** Nostalgic 1978 P1 phosphor luminescence with raster scanlines, green text bloom, and subtle vignette.
+  * 🟠 **IBM 5151 Amber Phosphor:** Classic 1981 P3 warm amber phosphor monochrome with retro CRT vignette and raster persistence.
+  * 🔮 **Cyberpunk Chromatic Aberration:** High-voltage cathode ray tube with dynamic RGB channel splitting and neon edge glow.
+* **RGB Chassis Underglow & Auras:**
+  * ⬛ **Stealth Matte:** Clean minimalist styling.
+  * 💎 **Electric Cyan Halo:** Neon cyan ambient halo cast across the terminal chassis and header.
+  * 💜 **Ultraviolet Neon Pulse:** Pulsing synthwave purple underglow with breathing animation.
+  * 🌈 **Chroma RGB Spectrum Flow:** Continuously cycling 360° animated chromatic perimeter aura.
+* **Battlestation Hardware Upgrades & Matrix Canvas:**
+  * 🧪 **Liquid Neon Coolant Loop (1,000 XP):** Cryogenic fluid circulation telemetry badge.
+  * ⚡ **Overclocked Neural Coprocessor (2,200 XP):** 128-core ASIC matrix accelerator (+10% speed bonus points visual perk).
+  * 🎛️ **Panoramic Triple-Deck Array (3,800 XP):** Multi-monitor cockpit border perspective.
+  * 🌧️ **Digital Matrix Rain Backdrop (5,000 XP):** High-performance procedural HTML5 canvas falling green code glyph matrix rain.
+* **Live Interactive Switch Tester Deck (`settings.html`):**
+  * Sleek mechanical keycap deck with 4 realistic tactile 3D keycaps (`[ ESC ]`, `[ TAB ]`, `[ SPACEBAR ]`, `[ ENTER ↵ ]`).
+  * Responds to mouse clicks and physical keyboard presses with realistic key travel and acoustic feedback.
+
+---
+
 ## 👾 Daemon Incursion: Cyberpunk Mega-Boss Battles
 
 The **Daemon Incursion** mode transforms code reasoning into epic multi-phase arcade boss encounters against rogue system daemons threatening memory and kernel integrity:

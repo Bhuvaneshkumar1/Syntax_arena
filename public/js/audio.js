@@ -101,11 +101,17 @@ class ProceduralAudioEngine {
      ========================================================================== */
 
   /**
-   * Tactile mechanical switch click (dual-harmonic microswitch click synthesis).
+   * Tactile mechanical switch click (delegates to Battlestation switch engine or synthesizes fallback).
    */
   playClick() {
     const vol = this._getVolume();
     if (vol <= 0) return;
+
+    if (typeof window !== 'undefined' && window.BattlestationEngine && typeof window.BattlestationEngine.playSwitchSound === 'function') {
+      window.BattlestationEngine.playSwitchSound(null, vol);
+      return;
+    }
+
     const ctx = this._getContext();
     if (!ctx) return;
 

@@ -95933,7 +95933,268 @@ if (typeof window !== 'undefined') {
   window.IncidentScenarios = IncidentScenarios;
 }
 
+
 /* --- End of data/incident-scenarios.js --- */
+
+/* --- Start of data/battlestation-catalog.js --- */
+/**
+ * SyntaxArena Battlestation Catalog: Customization & Vanity Rig Upgrades
+ * Defines mechanical keyboard sound packs, CRT monitor phosphor shaders,
+ * chassis RGB underglow auras, and battlestation hardware tier upgrades.
+ * Schema & Spec: docs/ARCHITECTURE.md, docs/GAME_RULES.md
+ */
+
+var BATTLESTATION_CATALOG = window.BATTLESTATION_CATALOG = {
+  // Mechanical Keyboard Switch Sound Packs
+  keyboardSwitches: [
+    {
+      id: 'switch_cherry_blue',
+      name: 'Cherry MX Blue',
+      category: 'keyboard',
+      tag: 'Crisp Tactile Click',
+      icon: '⌨️',
+      description: 'Iconic loud, crisp tactile click with an unmistakable auditory click-leaf snapshot on actuation.',
+      requiredXP: 0, // Default unlocked
+      synthProfile: {
+        clickFreq: 2800,
+        clickDuration: 0.025,
+        resonanceFreq: 750,
+        resonanceDuration: 0.045,
+        type: 'blue'
+      }
+    },
+    {
+      id: 'switch_cherry_brown',
+      name: 'Cherry MX Brown',
+      category: 'keyboard',
+      tag: 'Dampened Tactile Thud',
+      icon: '🟤',
+      description: 'Smooth, subtle tactile bump with dampened bottom-out acoustic thud. Minimal resonance.',
+      requiredXP: 500,
+      synthProfile: {
+        clickFreq: 950,
+        clickDuration: 0.035,
+        resonanceFreq: 420,
+        resonanceDuration: 0.06,
+        type: 'brown'
+      }
+    },
+    {
+      id: 'switch_buckling_spring',
+      name: 'IBM Buckling Spring (1984)',
+      category: 'keyboard',
+      tag: 'Vintage Metallic Clack',
+      icon: '🏛️',
+      description: 'Authentic Model M acoustic profile: hollow chassis resonance with high-tensile spring ping.',
+      requiredXP: 1500,
+      synthProfile: {
+        clickFreq: 2100,
+        clickDuration: 0.04,
+        resonanceFreq: 520,
+        metallicRingFreq: 3900,
+        resonanceDuration: 0.08,
+        type: 'buckling'
+      }
+    },
+    {
+      id: 'switch_cyber_haptic',
+      name: 'Cyber Haptic Pulse',
+      category: 'keyboard',
+      tag: 'Sci-Fi Sub-Bass Blip',
+      icon: '⚡',
+      description: 'Deep futuristic neural haptic feedback with low-frequency sine drop and neon synth snap.',
+      requiredXP: 3000,
+      synthProfile: {
+        startFreq: 240,
+        endFreq: 45,
+        clickDuration: 0.05,
+        subBass: true,
+        type: 'haptic'
+      }
+    }
+  ],
+
+  // CRT Phosphor Monitor Filters
+  crtShaders: [
+    {
+      id: 'crt_none',
+      name: 'Modern Slate OLED',
+      category: 'crt',
+      tag: 'Ultra-Clean Dark Mode',
+      icon: '🖥️',
+      description: 'Pristine, pixel-perfect modern slate styling with zero artificial scanlines or distortion.',
+      requiredXP: 0, // Default unlocked
+      cssClass: ''
+    },
+    {
+      id: 'crt_green_vt100',
+      name: 'DEC VT100 Green Phosphor',
+      category: 'crt',
+      tag: 'Retro 1978 Monochrome',
+      icon: '🟢',
+      description: 'Nostalgic P1 phosphor green luminescence with subtle horizontal raster scanlines and soft glow.',
+      requiredXP: 750,
+      cssClass: 'shader-crt-green'
+    },
+    {
+      id: 'crt_amber_ibm',
+      name: 'IBM 5151 Amber Phosphor',
+      category: 'crt',
+      tag: '1981 Hacker Amber',
+      icon: '🟠',
+      description: 'Classic warm amber phosphor monochrome with retro CRT vignette shadow and raster persistence.',
+      requiredXP: 1800,
+      cssClass: 'shader-crt-amber'
+    },
+    {
+      id: 'crt_cyber_matrix',
+      name: 'Cyberpunk Chromatic Aberration',
+      category: 'crt',
+      tag: 'High-Voltage Glitch',
+      icon: '🔮',
+      description: 'High-voltage cathode beam with RGB channel splitting, glass curvature, and neon edge glow.',
+      requiredXP: 3500,
+      cssClass: 'shader-crt-cyber'
+    }
+  ],
+
+  // RGB Chassis Aura & Underglow
+  rgbUnderglow: [
+    {
+      id: 'rgb_none',
+      name: 'Stealth Matte',
+      category: 'rgb',
+      tag: 'Minimalist Stealth',
+      icon: '⬛',
+      description: 'Clean border styling without perimeter ambient chassis lighting.',
+      requiredXP: 0,
+      cssClass: ''
+    },
+    {
+      id: 'rgb_neon_cyan',
+      name: 'Electric Cyan Halo',
+      category: 'rgb',
+      tag: 'Pulse Cyan Glow',
+      icon: '💎',
+      description: 'Subtle neon cyan ambient halo cast across the terminal chassis and arena deck.',
+      requiredXP: 600,
+      cssClass: 'aura-cyan-halo'
+    },
+    {
+      id: 'rgb_violet_wave',
+      name: 'Ultraviolet Neon Pulse',
+      category: 'rgb',
+      tag: 'Deep Violet Aura',
+      icon: '💜',
+      description: 'Pulsing synthwave purple underglow casting high-contrast highlights across interface edges.',
+      requiredXP: 1200,
+      cssClass: 'aura-violet-pulse'
+    },
+    {
+      id: 'rgb_chroma_spectrum',
+      name: 'Chroma RGB Spectrum Flow',
+      category: 'rgb',
+      tag: '360° Rainbow Dynamic',
+      icon: '🌈',
+      description: 'Continuously cycling animated chromatic gradient underglow for maximum battlestation prestige.',
+      requiredXP: 2500,
+      cssClass: 'aura-chroma-spectrum'
+    }
+  ],
+
+  // Rig Hardware Upgrade Milestones
+  rigUpgrades: [
+    {
+      id: 'rig_liquid_cooling',
+      name: 'Liquid Neon Coolant Loop',
+      category: 'hardware',
+      tag: 'Thermal Sub-Zero',
+      icon: '🧪',
+      description: 'Braided cryogenic cooling tubes with glowing fluid circulation animation in your rig header.',
+      requiredXP: 1000,
+      perk: 'Unlocks animated thermal telemetry badge in arena'
+    },
+    {
+      id: 'rig_neural_accelerator',
+      name: 'Overclocked Neural Coprocessor',
+      category: 'hardware',
+      tag: '128-Core ASIC',
+      icon: '⚡',
+      description: 'Dedicated matrix math accelerator card with dual spinning LED cooling fans.',
+      requiredXP: 2200,
+      perk: 'Unlocks +10% Speed Bonus point visual badge display'
+    },
+    {
+      id: 'rig_triple_display',
+      name: 'Panoramic Triple-Deck Array',
+      category: 'hardware',
+      tag: 'Surround HUD',
+      icon: '🎛️',
+      description: 'Expands the virtual workspace with multi-monitor cockpit borders and panoramic perspective.',
+      requiredXP: 3800,
+      perk: 'Unlocks widescreen cockpit border theme'
+    },
+    {
+      id: 'rig_matrix_rain',
+      name: 'Digital Matrix Rain Backdrop',
+      category: 'hardware',
+      tag: 'Animated Cyber Canvas',
+      icon: '🌧️',
+      description: 'Falling green code glyph rain dynamically rendered via browser HTML5 canvas in background.',
+      requiredXP: 5000,
+      perk: 'Unlocks toggleable animated Matrix Canvas background'
+    }
+  ]
+};
+
+var BattlestationCatalog = window.BattlestationCatalog = {
+  getAll() {
+    return BATTLESTATION_CATALOG;
+  },
+
+  getSwitches() {
+    return [...BATTLESTATION_CATALOG.keyboardSwitches];
+  },
+
+  getShaders() {
+    return [...BATTLESTATION_CATALOG.crtShaders];
+  },
+
+  getUnderglows() {
+    return [...BATTLESTATION_CATALOG.rgbUnderglow];
+  },
+
+  getUpgrades() {
+    return [...BATTLESTATION_CATALOG.rigUpgrades];
+  },
+
+  getItemById(id) {
+    if (!id) return null;
+    const all = [
+      ...BATTLESTATION_CATALOG.keyboardSwitches,
+      ...BATTLESTATION_CATALOG.crtShaders,
+      ...BATTLESTATION_CATALOG.rgbUnderglow,
+      ...BATTLESTATION_CATALOG.rigUpgrades
+    ];
+    return all.find(item => item.id === id) || null;
+  },
+
+  getDefaultLoadout() {
+    return {
+      keyboardSwitch: 'switch_cherry_blue',
+      crtShader: 'crt_none',
+      rgbUnderglow: 'rgb_none',
+      unlockedUpgrades: []
+    };
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.BATTLESTATION_CATALOG = BATTLESTATION_CATALOG;
+  window.BattlestationCatalog = BattlestationCatalog;
+}
+
+/* --- End of data/battlestation-catalog.js --- */
 
 /* --- Start of js/data/index.js --- */
 /**
@@ -100750,6 +101011,388 @@ if (typeof window !== 'undefined') {
 
 /* --- End of js/incident-engine.js --- */
 
+/* --- Start of js/battlestation-engine.js --- */
+/**
+ * SyntaxArena Battlestation Engine
+ * Client-side customization coordinator for mechanical keyboard audio synthesis,
+ * CRT phosphor monitor shaders, and RGB chassis illumination.
+ * Spec: docs/ARCHITECTURE.md, docs/GAME_RULES.md
+ */
+
+
+const BATTLESTATION_STORAGE_KEY = 'syntaxarena_battlestation_loadout';
+
+var BattlestationEngine = window.BattlestationEngine = {
+  loadout: {
+    keyboardSwitch: 'switch_cherry_blue',
+    crtShader: 'crt_none',
+    rgbUnderglow: 'rgb_none',
+    unlockedUpgrades: []
+  },
+  audioCtx: null,
+  matrixCanvas: null,
+  matrixAnimId: null,
+
+  /**
+   * Initialize battlestation engine, restore saved loadout, and apply cosmetics to DOM.
+   */
+  init() {
+    this.loadSavedLoadout();
+    if (typeof document !== 'undefined') {
+      this.applyCosmetics();
+    }
+    return this.getSnapshot();
+  },
+
+  /**
+   * Restore saved loadout from localStorage.
+   */
+  loadSavedLoadout() {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const raw = localStorage.getItem(BATTLESTATION_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          this.loadout = {
+            keyboardSwitch: parsed.keyboardSwitch || 'switch_cherry_blue',
+            crtShader: parsed.crtShader || 'crt_none',
+            rgbUnderglow: parsed.rgbUnderglow || 'rgb_none',
+            unlockedUpgrades: Array.isArray(parsed.unlockedUpgrades) ? parsed.unlockedUpgrades : []
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('[BattlestationEngine] Storage access restricted. Using default loadout.');
+    }
+    return this.loadout;
+  },
+
+  /**
+   * Save active loadout to localStorage.
+   */
+  saveLoadout() {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(BATTLESTATION_STORAGE_KEY, JSON.stringify(this.loadout));
+      }
+    } catch (e) {
+      // In-memory fallback
+    }
+  },
+
+  /**
+   * Get current loadout snapshot.
+   */
+  getSnapshot() {
+    return {
+      loadout: { ...this.loadout },
+      equippedSwitch: BattlestationCatalog.getItemById(this.loadout.keyboardSwitch),
+      equippedShader: BattlestationCatalog.getItemById(this.loadout.crtShader),
+      equippedUnderglow: BattlestationCatalog.getItemById(this.loadout.rgbUnderglow),
+      unlockedUpgrades: [...this.loadout.unlockedUpgrades]
+    };
+  },
+
+  /**
+   * Check if a customization item is unlocked for a given player XP.
+   * @param {string} itemId
+   * @param {number} userXP
+   */
+  isUnlocked(itemId, userXP = 0) {
+    const item = BattlestationCatalog.getItemById(itemId);
+    if (!item) return false;
+    if (item.requiredXP === 0) return true;
+    if (this.loadout.unlockedUpgrades.includes(itemId)) return true;
+    return (userXP || 0) >= item.requiredXP;
+  },
+
+  /**
+   * Equip an item in a specific category.
+   * @param {'keyboardSwitch'|'crtShader'|'rgbUnderglow'|'hardware'} category
+   * @param {string} itemId
+   * @param {number} userXP
+   */
+  equip(category, itemId, userXP = 0) {
+    const item = BattlestationCatalog.getItemById(itemId);
+    if (!item) {
+      return { success: false, message: `Item "${itemId}" not found in catalog.` };
+    }
+
+    if (!this.isUnlocked(itemId, userXP)) {
+      return {
+        success: false,
+        message: `Locked! Requires ${item.requiredXP.toLocaleString()} XP to unlock.`
+      };
+    }
+
+    if (category === 'hardware') {
+      if (!this.loadout.unlockedUpgrades.includes(itemId)) {
+        this.loadout.unlockedUpgrades.push(itemId);
+      }
+    } else if (category === 'keyboard' || category === 'keyboardSwitch') {
+      this.loadout.keyboardSwitch = itemId;
+    } else if (category === 'crt' || category === 'crtShader') {
+      this.loadout.crtShader = itemId;
+    } else if (category === 'rgb' || category === 'rgbUnderglow') {
+      this.loadout.rgbUnderglow = itemId;
+    }
+
+    this.saveLoadout();
+    this.applyCosmetics();
+
+    return {
+      success: true,
+      loadout: { ...this.loadout },
+      message: `Equipped ${item.name}!`
+    };
+  },
+
+  /**
+   * Apply CRT shaders, RGB underglow, and hardware perks to the DOM.
+   */
+  applyCosmetics() {
+    if (typeof document === 'undefined') return;
+
+    const root = document.body;
+    if (!root) return;
+
+    // 1. Remove all previous CRT shader classes
+    const allShaders = BattlestationCatalog.getShaders();
+    allShaders.forEach(s => {
+      if (s.cssClass) root.classList.remove(s.cssClass);
+    });
+
+    // Apply active CRT shader class
+    const activeShader = BattlestationCatalog.getItemById(this.loadout.crtShader);
+    if (activeShader && activeShader.cssClass) {
+      root.classList.add(activeShader.cssClass);
+    }
+
+    // 2. Remove all previous RGB underglow classes
+    const allUnderglows = BattlestationCatalog.getUnderglows();
+    allUnderglows.forEach(u => {
+      if (u.cssClass) root.classList.remove(u.cssClass);
+    });
+
+    // Apply active RGB underglow class
+    const activeUnderglow = BattlestationCatalog.getItemById(this.loadout.rgbUnderglow);
+    if (activeUnderglow && activeUnderglow.cssClass) {
+      root.classList.add(activeUnderglow.cssClass);
+    }
+
+    // 3. Matrix Rain Background Hardware Perk
+    const hasMatrixPerk = this.loadout.unlockedUpgrades.includes('rig_matrix_rain');
+    this._toggleMatrixRain(hasMatrixPerk);
+  },
+
+  /**
+   * Lazy-initialize AudioContext for procedural mechanical switch synthesis.
+   */
+  _ensureAudioContext() {
+    if (typeof window === 'undefined') return null;
+    if (!this.audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        try {
+          this.audioCtx = new AudioContextClass();
+        } catch (_) {
+          this.audioCtx = null;
+        }
+      }
+    }
+    if (this.audioCtx && this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume().catch(() => {});
+    }
+    return this.audioCtx;
+  },
+
+  /**
+   * Synthesize tactile audio for mechanical keypress or click.
+   * @param {string} [switchId] Specific switch or active equipped switch
+   * @param {number} [volumeScale=1.0] Master volume scale multiplier (0.0 to 1.0)
+   */
+  playSwitchSound(switchId = null, volumeScale = 1.0) {
+    if (volumeScale <= 0) return;
+    const id = switchId || this.loadout.keyboardSwitch;
+    const item = BattlestationCatalog.getItemById(id);
+    if (!item || !item.synthProfile) return;
+
+    const ctx = this._ensureAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const p = item.synthProfile;
+    const v = Math.max(0, Math.min(1, volumeScale));
+
+    try {
+      if (p.type === 'blue') {
+        // High crisp snap + snappy bottom-out
+        const snapOsc = ctx.createOscillator();
+        const snapGain = ctx.createGain();
+        snapOsc.type = 'triangle';
+        snapOsc.frequency.setValueAtTime(p.clickFreq, now);
+        snapOsc.frequency.exponentialRampToValueAtTime(800, now + p.clickDuration);
+        snapGain.gain.setValueAtTime(0.35 * v, now);
+        snapGain.gain.exponentialRampToValueAtTime(0.001, now + p.clickDuration);
+        snapOsc.connect(snapGain);
+        snapGain.connect(ctx.destination);
+        snapOsc.start(now);
+        snapOsc.stop(now + p.clickDuration);
+
+        // Plastic bottom-out resonance
+        const thudOsc = ctx.createOscillator();
+        const thudGain = ctx.createGain();
+        thudOsc.type = 'sine';
+        thudOsc.frequency.setValueAtTime(p.resonanceFreq, now + 0.008);
+        thudOsc.frequency.exponentialRampToValueAtTime(150, now + p.resonanceDuration);
+        thudGain.gain.setValueAtTime(0.2 * v, now + 0.008);
+        thudGain.gain.exponentialRampToValueAtTime(0.001, now + p.resonanceDuration);
+        thudOsc.connect(thudGain);
+        thudGain.connect(ctx.destination);
+        thudOsc.start(now + 0.008);
+        thudOsc.stop(now + p.resonanceDuration);
+
+      } else if (p.type === 'brown') {
+        // Dampened tactile bump & muted thud
+        const thudOsc = ctx.createOscillator();
+        const thudGain = ctx.createGain();
+        thudOsc.type = 'sine';
+        thudOsc.frequency.setValueAtTime(p.clickFreq, now);
+        thudOsc.frequency.exponentialRampToValueAtTime(180, now + p.resonanceDuration);
+        thudGain.gain.setValueAtTime(0.25 * v, now);
+        thudGain.gain.exponentialRampToValueAtTime(0.001, now + p.resonanceDuration);
+        thudOsc.connect(thudGain);
+        thudGain.connect(ctx.destination);
+        thudOsc.start(now);
+        thudOsc.stop(now + p.resonanceDuration);
+
+      } else if (p.type === 'buckling') {
+        // Hollow chassis clack + metallic spring ping
+        const clackOsc = ctx.createOscillator();
+        const clackGain = ctx.createGain();
+        clackOsc.type = 'square';
+        clackOsc.frequency.setValueAtTime(p.resonanceFreq, now);
+        clackOsc.frequency.exponentialRampToValueAtTime(120, now + p.resonanceDuration);
+        clackGain.gain.setValueAtTime(0.2 * v, now);
+        clackGain.gain.exponentialRampToValueAtTime(0.001, now + p.resonanceDuration);
+        clackOsc.connect(clackGain);
+        clackGain.connect(ctx.destination);
+        clackOsc.start(now);
+        clackOsc.stop(now + p.resonanceDuration);
+
+        // Metallic spring ring
+        const ringOsc = ctx.createOscillator();
+        const ringGain = ctx.createGain();
+        ringOsc.type = 'sine';
+        ringOsc.frequency.setValueAtTime(p.metallicRingFreq || 3900, now + 0.004);
+        ringOsc.frequency.linearRampToValueAtTime(3200, now + 0.06);
+        ringGain.gain.setValueAtTime(0.12 * v, now + 0.004);
+        ringGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+        ringOsc.connect(ringGain);
+        ringGain.connect(ctx.destination);
+        ringOsc.start(now + 0.004);
+        ringOsc.stop(now + 0.07);
+
+      } else if (p.type === 'haptic') {
+        // Sci-Fi sub-bass drop with neon blip
+        const hapticOsc = ctx.createOscillator();
+        const hapticGain = ctx.createGain();
+        hapticOsc.type = 'sine';
+        hapticOsc.frequency.setValueAtTime(p.startFreq || 240, now);
+        hapticOsc.frequency.exponentialRampToValueAtTime(p.endFreq || 45, now + p.clickDuration);
+        hapticGain.gain.setValueAtTime(0.4 * v, now);
+        hapticGain.gain.exponentialRampToValueAtTime(0.001, now + p.clickDuration);
+        hapticOsc.connect(hapticGain);
+        hapticGain.connect(ctx.destination);
+        hapticOsc.start(now);
+        hapticOsc.stop(now + p.clickDuration);
+      }
+    } catch (err) {
+      // Audio playback suppressed safely
+    }
+  },
+
+  /**
+   * Preview a switch sound by ID.
+   * @param {string} switchId
+   */
+  previewSwitch(switchId) {
+    this.playSwitchSound(switchId);
+  },
+
+  /**
+   * Procedural Digital Matrix Rain Canvas Backdrop (Rig Perk)
+   * @param {boolean} enable
+   */
+  _toggleMatrixRain(enable) {
+    if (typeof document === 'undefined') return;
+
+    let canvas = document.getElementById('battlestation-matrix-canvas');
+
+    if (!enable) {
+      if (this.matrixAnimId) {
+        cancelAnimationFrame(this.matrixAnimId);
+        this.matrixAnimId = null;
+      }
+      if (canvas && canvas.parentNode) {
+        canvas.parentNode.removeChild(canvas);
+      }
+      return;
+    }
+
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.id = 'battlestation-matrix-canvas';
+      canvas.className = 'battlestation-matrix-canvas';
+      canvas.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0; opacity: 0.12;';
+      document.body.prepend(canvas);
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+
+    const chars = '0123456789ABCDEF<>/{};*+=_!&^%#@~';
+    const fontSize = 14;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = new Array(columns).fill(1);
+
+    const draw = () => {
+      ctx.fillStyle = 'rgba(10, 15, 29, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#10b981';
+      ctx.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars.charAt(Math.floor(Math.random() * chars.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+
+      this.matrixAnimId = requestAnimationFrame(draw);
+    };
+
+    if (this.matrixAnimId) cancelAnimationFrame(this.matrixAnimId);
+    this.matrixAnimId = requestAnimationFrame(draw);
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.BattlestationEngine = BattlestationEngine;
+}
+
+/* --- End of js/battlestation-engine.js --- */
+
 /* --- Start of js/analytics.js --- */
 /**
  * SyntaxArena Learning Analytics & Performance Engine (Batch 7)
@@ -101460,11 +102103,17 @@ class ProceduralAudioEngine {
      ========================================================================== */
 
   /**
-   * Tactile mechanical switch click (dual-harmonic microswitch click synthesis).
+   * Tactile mechanical switch click (delegates to Battlestation switch engine or synthesizes fallback).
    */
   playClick() {
     const vol = this._getVolume();
     if (vol <= 0) return;
+
+    if (typeof window !== 'undefined' && window.BattlestationEngine && typeof window.BattlestationEngine.playSwitchSound === 'function') {
+      window.BattlestationEngine.playSwitchSound(null, vol);
+      return;
+    }
+
     const ctx = this._getContext();
     if (!ctx) return;
 
@@ -114119,6 +114768,7 @@ if (typeof document !== 'undefined') {
 
 
 
+
 var App = window.App = {
   /**
    * Main bootstrap sequence.
@@ -114137,6 +114787,16 @@ var App = window.App = {
       const settings = State.get('settings') || {};
       UI.applyTheme(settings.theme || 'dark');
       UI.applyReducedMotion(settings.reducedMotion);
+
+      // Initialize Battlestation Engine (CRT Shaders, RGB Underglows, Switch Audio)
+      try {
+        const bEngine = (typeof window !== 'undefined' && window.BattlestationEngine)
+          ? window.BattlestationEngine
+          : BattlestationEngine;
+        if (bEngine && typeof bEngine.init === 'function') {
+          bEngine.init();
+        }
+      } catch (_) {}
 
       // 4. Update UI Shell (Header navigation & profile pill)
       UI.updateActiveNav(currentPage);

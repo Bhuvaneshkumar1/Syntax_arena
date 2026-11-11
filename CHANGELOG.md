@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.13.0] - 2026-11-11
+
+### Added (Feature 7: Terminal Tycoon Hacker Battlestation Rig & Vanity Engine)
+- **Hacker Battlestation Customization Catalog (`data/battlestation-catalog.js`):**
+  - 4 Procedural Mechanical Keyboard Switch Sound Profiles with acoustic synth parameters:
+    1. `switch_cherry_blue`: Cherry MX Blue (2800Hz snap + 750Hz plastic bottom-out resonance).
+    2. `switch_cherry_brown`: Cherry MX Brown (950Hz dampened tactile bump + 420Hz bottom-out thud).
+    3. `switch_buckling_spring`: IBM Buckling Spring 1984 (2100Hz clack + 3900Hz metallic spring ping).
+    4. `switch_cyber_haptic`: Cyber Haptic Pulse (240Hz -> 45Hz sub-bass sine drop + neon blip).
+  - 4 CRT Phosphor Monitor Filters:
+    1. `crt_none`: Modern Slate OLED (zero scanlines, ultra-clean dark mode).
+    2. `crt_green_vt100`: DEC VT100 Green Phosphor (1978 P1 phosphor luminescence + horizontal scanlines).
+    3. `crt_amber_ibm`: IBM 5151 Amber Phosphor (1981 P3 phosphor warmth + CRT vignette shadow).
+    4. `crt_cyber_matrix`: Cyberpunk Chromatic Aberration (RGB channel splitting + cathode ray drift).
+  - 4 Chassis RGB Underglow Auras:
+    1. `rgb_none`: Stealth Matte (minimalist border styling).
+    2. `rgb_neon_cyan`: Electric Cyan Halo (ambient cyan glow across terminal cards and header).
+    3. `rgb_violet_wave`: Ultraviolet Neon Pulse (pulsing synthwave purple ambient glow).
+    4. `rgb_chroma_spectrum`: Chroma RGB Spectrum Flow (continuously cycling 360° animated chromatic perimeter aura).
+  - 4 Hardware Tier Upgrades:
+    1. `rig_liquid_cooling`: Liquid Neon Coolant Loop (thermal telemetry badge).
+    2. `rig_neural_accelerator`: Overclocked Neural Coprocessor (+10% speed bonus points visual perk).
+    3. `rig_triple_display`: Panoramic Triple-Deck Array (widescreen cockpit border theme).
+    4. `rig_matrix_rain`: Digital Matrix Rain Backdrop (toggleable animated green glyph canvas).
+- **Battlestation Engine (`js/battlestation-engine.js`):**
+  - Implemented `BattlestationEngine` managing loadout state and persistent storage (`syntaxarena_battlestation_loadout`).
+  - Zero-dependency procedural mechanical switch acoustic synthesis using native Web Audio API (`AudioContext`).
+  - Dynamic DOM cosmetic applicator applying CRT shaders and RGB auras to `document.body`.
+  - Lightweight animated HTML5 canvas Matrix Rain engine.
+  - XP-gating validation preventing unauthorized equipping of higher-tier items.
+- **Battlestation Showroom & Switch Tester UI (`settings.html`, `css/battlestation.css`):**
+  - Added `#section-battlestation` card with live rig telemetry overview (Active Switch, CRT Phosphor, Chassis Aura, Upgrades Installed, Available XP).
+  - Live Mechanical Switch Acoustic Tester deck with 4 interactive 3D keycaps (`[ ESC ]`, `[ TAB ]`, `[ SPACEBAR ]`, `[ ENTER ↵ ]`) responding to mouse clicks and physical keyboard presses.
+  - Tabbed category browser for Switches, CRT Shaders, RGB Auras, and Hardware Milestones.
+  - Item cards with XP progress meters, preview sound buttons, and dynamic equip states.
+- **Global App & Audio Integration (`js/app.js`, `js/audio.js`, `index.html`):**
+  - Seamlessly initializes battlestation cosmetics across all pages during app bootstrap.
+  - Linked `AudioEngine.playClick()` to inherit the player's equipped tactile mechanical switch sound pack.
+  - Added `#btn-showcase-battlestation-deck` to Hero Quick-Launch Command Deck in `index.html`.
+- **Testing & Verification:**
+  - Added 38 unit tests in `tests/battlestation-tests.js`, expanding master test suite to 907 passing tests.
+  - Added 29 Playwright E2E assertions in `tests/test-battlestation-playwright.js` verifying UI rendering, keycap testing, cosmetic DOM attachment, and reload persistence.
+
+---
+
 ## [2.12.0] - 2026-11-11
 
 ### Added (Feature 5: CyberDrill Incident Response & Live Outage Simulator)

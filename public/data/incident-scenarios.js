@@ -515,3 +515,4 @@ if (typeof window !== 'undefined') {
   window.INCIDENT_SCENARIOS = INCIDENT_SCENARIOS;
   window.IncidentScenarios = IncidentScenarios;
 }
+

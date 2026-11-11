@@ -1,0 +1,443 @@
+/**
+ * SyntaxArena Battlestation Rig & Vanity Customization Styles
+ * CRT Phosphor Monitor Shaders, RGB Chassis Underglows, Mechanical Keycap Tester, and Showroom Grid
+ * Spec: docs/ARCHITECTURE.md, docs/DESIGN_SYSTEM.md
+ */
+
+/* ==========================================================================
+   1. CRT PHOSPHOR MONITOR SHADERS (Monochrome & Glitch Cathode Rays)
+   ========================================================================== */
+
+/* DEC VT100 Green Phosphor */
+body.shader-crt-green {
+  --color-primary: #10B981;
+  --color-primary-edge: #059669;
+  --color-primary-hover: #34D399;
+  --color-primary-glow: rgba(16, 185, 129, 0.25);
+  --border-focus: #34D399;
+}
+
+body.shader-crt-green::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99999;
+  background: 
+    linear-gradient(rgba(16, 185, 129, 0) 50%, rgba(0, 0, 0, 0.22) 50%),
+    linear-gradient(90deg, rgba(0, 255, 100, 0.02), rgba(0, 0, 0, 0.01), rgba(0, 255, 100, 0.02));
+  background-size: 100% 3px, 6px 100%;
+  box-shadow: inset 0 0 100px rgba(16, 185, 129, 0.12), inset 0 0 180px rgba(0, 0, 0, 0.65);
+}
+
+body.shader-crt-green h1,
+body.shader-crt-green h2,
+body.shader-crt-green h3,
+body.shader-crt-green .code-block,
+body.shader-crt-green code {
+  text-shadow: 0 0 3px rgba(16, 185, 129, 0.35);
+}
+
+/* IBM 5151 Amber Phosphor */
+body.shader-crt-amber {
+  --color-primary: #F59E0B;
+  --color-primary-edge: #D97706;
+  --color-primary-hover: #FBBF24;
+  --color-primary-glow: rgba(245, 158, 11, 0.25);
+  --border-focus: #FBBF24;
+}
+
+body.shader-crt-amber::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99999;
+  background: 
+    linear-gradient(rgba(245, 158, 11, 0) 50%, rgba(20, 10, 0, 0.25) 50%),
+    radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.7) 100%);
+  background-size: 100% 3px, 100% 100%;
+  box-shadow: inset 0 0 100px rgba(245, 158, 11, 0.15), inset 0 0 180px rgba(0, 0, 0, 0.65);
+}
+
+body.shader-crt-amber h1,
+body.shader-crt-amber h2,
+body.shader-crt-amber h3,
+body.shader-crt-amber .code-block,
+body.shader-crt-amber code {
+  text-shadow: 0 0 3px rgba(245, 158, 11, 0.4);
+}
+
+/* Cyberpunk Chromatic Aberration */
+body.shader-crt-cyber {
+  --color-primary: #06B6D4;
+  --color-primary-edge: #0891B2;
+  --color-primary-hover: #22D3EE;
+  --color-primary-glow: rgba(6, 182, 212, 0.28);
+  --border-focus: #22D3EE;
+}
+
+body.shader-crt-cyber::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99999;
+  background: 
+    linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.2) 50%),
+    linear-gradient(90deg, rgba(236, 72, 153, 0.03), rgba(6, 182, 212, 0.03));
+  background-size: 100% 2px, 4px 100%;
+  box-shadow: 
+    inset 0 0 70px rgba(6, 182, 212, 0.15), 
+    inset 0 0 110px rgba(236, 72, 153, 0.12),
+    inset 0 0 180px rgba(0, 0, 0, 0.5);
+  animation: crtScanDrift 12s linear infinite;
+}
+
+body.shader-crt-cyber h1,
+body.shader-crt-cyber h2,
+body.shader-crt-cyber h3 {
+  text-shadow: 1px 0 rgba(236, 72, 153, 0.45), -1px 0 rgba(6, 182, 212, 0.45);
+}
+
+@keyframes crtScanDrift {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 0 100px, 0 0; }
+}
+
+/* ==========================================================================
+   2. RGB CHASSIS AURA & UNDERGLOW
+   ========================================================================== */
+
+/* Electric Cyan Halo */
+body.aura-cyan-halo {
+  box-shadow: inset 0 0 45px rgba(6, 182, 212, 0.22) !important;
+}
+
+body.aura-cyan-halo .card,
+body.aura-cyan-halo .app-header {
+  border-color: rgba(6, 182, 212, 0.3) !important;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.12) !important;
+}
+
+/* Ultraviolet Neon Pulse */
+body.aura-violet-pulse {
+  animation: auraVioletPulseAnim 4s ease-in-out infinite alternate;
+}
+
+@keyframes auraVioletPulseAnim {
+  0% {
+    box-shadow: inset 0 0 35px rgba(139, 92, 246, 0.18);
+  }
+  100% {
+    box-shadow: inset 0 0 65px rgba(139, 92, 246, 0.36);
+  }
+}
+
+body.aura-violet-pulse .card,
+body.aura-violet-pulse .app-header {
+  border-color: rgba(139, 92, 246, 0.32) !important;
+  box-shadow: 0 0 22px rgba(139, 92, 246, 0.16) !important;
+}
+
+/* Chroma RGB Spectrum Flow */
+body.aura-chroma-spectrum {
+  animation: chromaSpectrumAnim 10s linear infinite;
+}
+
+@keyframes chromaSpectrumAnim {
+  0% {
+    box-shadow: inset 0 0 50px rgba(236, 72, 153, 0.28);
+  }
+  25% {
+    box-shadow: inset 0 0 50px rgba(139, 92, 246, 0.28);
+  }
+  50% {
+    box-shadow: inset 0 0 50px rgba(6, 182, 212, 0.28);
+  }
+  75% {
+    box-shadow: inset 0 0 50px rgba(16, 185, 129, 0.28);
+  }
+  100% {
+    box-shadow: inset 0 0 50px rgba(236, 72, 153, 0.28);
+  }
+}
+
+body.aura-chroma-spectrum .card,
+body.aura-chroma-spectrum .app-header {
+  animation: chromaCardBorderAnim 10s linear infinite;
+}
+
+@keyframes chromaCardBorderAnim {
+  0% {
+    border-color: rgba(236, 72, 153, 0.4) !important;
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.15) !important;
+  }
+  25% {
+    border-color: rgba(139, 92, 246, 0.4) !important;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.15) !important;
+  }
+  50% {
+    border-color: rgba(6, 182, 212, 0.4) !important;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.15) !important;
+  }
+  75% {
+    border-color: rgba(16, 185, 129, 0.4) !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15) !important;
+  }
+  100% {
+    border-color: rgba(236, 72, 153, 0.4) !important;
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.15) !important;
+  }
+}
+
+/* ==========================================================================
+   3. BATTLESTATION SHOWROOM & SWITCH TESTER UI
+   ========================================================================== */
+
+/* Active Rig Telemetry Overview Banner */
+.rig-telemetry-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  background: var(--bg-surface-raised, #171B26);
+  border: 1px solid var(--border-subtle, #1F2432);
+  border-radius: var(--radius-md, 8px);
+  padding: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.rig-telemetry-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.rig-telemetry-label {
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  color: var(--text-muted, #64748B);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rig-telemetry-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary, #F1F5F9);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Interactive Switch Tester Deck */
+.switch-tester-board {
+  background: linear-gradient(180deg, #161A24 0%, #0E1118 100%);
+  border: 1px solid var(--border-strong, #2E364B);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.switch-tester-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.switch-tester-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary, #94A3B8);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.switch-key-array {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Mechanical Keycap Button */
+.switch-key-btn {
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary, #F1F5F9);
+  background: linear-gradient(180deg, #242A38 0%, #1A1F2B 100%);
+  border: 1px solid #374151;
+  border-bottom: 4px solid #111827;
+  border-radius: 6px;
+  padding: 0.65rem 1rem;
+  min-width: 68px;
+  min-height: 48px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: transform 0.04s ease, border-bottom-width 0.04s ease, box-shadow 0.04s ease;
+  user-select: none;
+}
+
+.switch-key-btn:hover {
+  background: linear-gradient(180deg, #2B3344 0%, #1E2533 100%);
+  border-color: var(--color-primary, #6366F1);
+}
+
+.switch-key-btn:active,
+.switch-key-btn.is-pressed {
+  transform: translateY(3px);
+  border-bottom-width: 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: #1C222E;
+  color: var(--color-primary-hover, #818CF8);
+}
+
+.switch-key-btn.key-space {
+  min-width: 150px;
+}
+
+/* Battlestation Category Navigation Tabs */
+.battlestation-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle, #1F2432);
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+
+.battlestation-tab-btn {
+  font-family: var(--font-display, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md, 8px);
+  background: transparent;
+  color: var(--text-secondary, #94A3B8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.battlestation-tab-btn:hover {
+  color: var(--text-primary, #F1F5F9);
+  background: var(--bg-surface-raised, #171B26);
+}
+
+.battlestation-tab-btn.active {
+  color: var(--text-primary, #F1F5F9);
+  background: var(--bg-surface-raised, #171B26);
+  border-color: var(--border-strong, #2E364B);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Item Card Grid */
+.battlestation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+/* Item Card */
+.rig-item-card {
+  background: var(--bg-surface-base, #11141D);
+  border: 1px solid var(--border-subtle, #1F2432);
+  border-radius: var(--radius-md, 8px);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  position: relative;
+  min-height: 200px;
+}
+
+.rig-item-card:hover {
+  border-color: var(--border-strong, #2E364B);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.rig-item-card.is-equipped {
+  border-color: var(--color-primary, #6366F1);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.05) 0%, var(--bg-surface-base, #11141D) 100%);
+  box-shadow: 0 0 12px var(--color-primary-glow, rgba(99, 102, 241, 0.18));
+}
+
+.rig-item-card.is-locked {
+  opacity: 0.75;
+}
+
+.rig-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.rig-item-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.rig-item-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary, #F1F5F9);
+  margin-bottom: 0.2rem;
+}
+
+.rig-item-tag {
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  color: var(--text-muted, #64748B);
+  margin-bottom: 0.5rem;
+}
+
+.rig-item-desc {
+  font-size: 12px;
+  color: var(--text-secondary, #94A3B8);
+  line-height: 1.4;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.rig-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Matrix Rain Canvas */
+.battlestation-matrix-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.12;
+}

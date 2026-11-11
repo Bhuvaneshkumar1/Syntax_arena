@@ -10,6 +10,7 @@ import { UI } from './ui.js';
 import { Router } from './router.js';
 import { Profile } from './profile.js';
 import { AudioEngine } from './audio.js';
+import { BattlestationEngine } from './battlestation-engine.js';
 
 export const App = {
   /**
@@ -29,6 +30,16 @@ export const App = {
       const settings = State.get('settings') || {};
       UI.applyTheme(settings.theme || 'dark');
       UI.applyReducedMotion(settings.reducedMotion);
+
+      // Initialize Battlestation Engine (CRT Shaders, RGB Underglows, Switch Audio)
+      try {
+        const bEngine = (typeof window !== 'undefined' && window.BattlestationEngine)
+          ? window.BattlestationEngine
+          : BattlestationEngine;
+        if (bEngine && typeof bEngine.init === 'function') {
+          bEngine.init();
+        }
+      } catch (_) {}
 
       // 4. Update UI Shell (Header navigation & profile pill)
       UI.updateActiveNav(currentPage);

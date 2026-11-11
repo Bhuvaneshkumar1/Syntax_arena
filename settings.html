@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/battlestation.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body data-page="settings">
@@ -229,6 +230,89 @@
         </div>
       </section>
 
+      <!-- Section: Hacker Battlestation Rig & Vanity Showroom -->
+      <section id="section-battlestation" class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <h2 class="card-title" style="font-size: var(--text-lg); display: flex; align-items: center; gap: 0.5rem;">
+              <span>🖥️</span> Hacker Battlestation Rig
+            </h2>
+            <p style="font-size: 12px; color: var(--text-secondary); margin: 0.25rem 0 0 0;">
+              Customize mechanical keyboard switches, CRT phosphor monitor shaders, and RGB chassis underglow.
+            </p>
+          </div>
+          <span id="battlestation-xp-pill" class="badge badge-emerald">0 XP Available</span>
+        </div>
+        <div class="card-body">
+          <!-- Active Rig Telemetry Overview Banner -->
+          <div class="rig-telemetry-banner">
+            <div class="rig-telemetry-item">
+              <span class="rig-telemetry-label">Active Switch</span>
+              <span id="rig-stat-switch" class="rig-telemetry-val">⌨️ Cherry MX Blue</span>
+            </div>
+            <div class="rig-telemetry-item">
+              <span class="rig-telemetry-label">CRT Phosphor</span>
+              <span id="rig-stat-crt" class="rig-telemetry-val">🖥️ Modern Slate OLED</span>
+            </div>
+            <div class="rig-telemetry-item">
+              <span class="rig-telemetry-label">Chassis Aura</span>
+              <span id="rig-stat-aura" class="rig-telemetry-val">⬛ Stealth Matte</span>
+            </div>
+            <div class="rig-telemetry-item">
+              <span class="rig-telemetry-label">Rig Upgrades</span>
+              <span id="rig-stat-upgrades" class="rig-telemetry-val">0 / 4 Installed</span>
+            </div>
+          </div>
+
+          <!-- Interactive Mechanical Keycap Switch Tester -->
+          <div class="switch-tester-board">
+            <div class="switch-tester-header">
+              <div class="switch-tester-title">
+                <span>🔊</span> Live Mechanical Switch Acoustic Tester
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+                Click keys or press physical keys to test acoustic profile
+              </div>
+            </div>
+            <div class="switch-key-array" id="switch-tester-array">
+              <button type="button" class="switch-key-btn" data-key="Escape" id="key-test-esc">
+                <span>ESC</span>
+              </button>
+              <button type="button" class="switch-key-btn" data-key="Tab" id="key-test-tab">
+                <span>TAB</span>
+              </button>
+              <button type="button" class="switch-key-btn key-space" data-key=" " id="key-test-space">
+                <span>SPACEBAR</span>
+              </button>
+              <button type="button" class="switch-key-btn" data-key="Enter" id="key-test-enter">
+                <span>ENTER ↵</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Category Navigation Tabs -->
+          <div class="battlestation-tabs" role="tablist">
+            <button type="button" class="battlestation-tab-btn active" data-tab="keyboard" role="tab" aria-selected="true" id="tab-btn-keyboard">
+              <span>⌨️</span> Mechanical Switches (4)
+            </button>
+            <button type="button" class="battlestation-tab-btn" data-tab="crt" role="tab" aria-selected="false" id="tab-btn-crt">
+              <span>🖥️</span> CRT Shaders (4)
+            </button>
+            <button type="button" class="battlestation-tab-btn" data-tab="rgb" role="tab" aria-selected="false" id="tab-btn-rgb">
+              <span>💡</span> Chassis RGB Auras (4)
+            </button>
+            <button type="button" class="battlestation-tab-btn" data-tab="hardware" role="tab" aria-selected="false" id="tab-btn-hardware">
+              <span>⚙️</span> Hardware Milestones (4)
+            </button>
+          </div>
+
+          <!-- Battlestation Item Card Grid -->
+          <div id="battlestation-item-grid" class="battlestation-grid">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
       <!-- Section 3: Profile Management -->
       <section class="card" style="margin-bottom: 1.5rem;">
         <div class="card-header">
@@ -342,7 +426,7 @@
   <!-- Settings Page Script -->
   <script>
     (function() {
-      const { Utils, State, Storage, Profile, AVATAR_CATALOG, Gamification, AudioEngine, UI } = window;
+      const { Utils, State, Storage, Profile, AVATAR_CATALOG, Gamification, AudioEngine, UI, BattlestationEngine, BattlestationCatalog } = window;
 
       document.addEventListener('DOMContentLoaded', () => {
       // 1. Initialize Form Fields with State
@@ -857,6 +941,183 @@
           }
         };
       }
+
+      // 12. Hacker Battlestation Showroom & Switch Tester
+      function initBattlestationShowroom() {
+        const bEngine = window.BattlestationEngine || BattlestationEngine;
+        const bCatalog = window.BattlestationCatalog || BattlestationCatalog;
+        if (!bEngine || !bCatalog) return;
+
+        bEngine.init();
+
+        const xpPill = Utils.qs('#battlestation-xp-pill');
+        const statSwitch = Utils.qs('#rig-stat-switch');
+        const statCrt = Utils.qs('#rig-stat-crt');
+        const statAura = Utils.qs('#rig-stat-aura');
+        const statUpgrades = Utils.qs('#rig-stat-upgrades');
+        const itemGrid = Utils.qs('#battlestation-item-grid');
+        const tabBtns = document.querySelectorAll('.battlestation-tab-btn');
+
+        let activeTab = 'keyboard';
+
+        function updateTelemetry() {
+          const prof = State.get('activeProfile') || (Profile && Profile.getActiveProfile ? Profile.getActiveProfile() : {});
+          const userXP = typeof prof.totalScore === 'number' ? prof.totalScore : (prof.xp || 0);
+          const snap = bEngine.getSnapshot();
+
+          if (xpPill) xpPill.textContent = `${userXP.toLocaleString()} XP Available`;
+          if (statSwitch && snap.equippedSwitch) statSwitch.textContent = `${snap.equippedSwitch.icon} ${snap.equippedSwitch.name}`;
+          if (statCrt && snap.equippedShader) statCrt.textContent = `${snap.equippedShader.icon} ${snap.equippedShader.name}`;
+          if (statAura && snap.equippedUnderglow) statAura.textContent = `${snap.equippedUnderglow.icon} ${snap.equippedUnderglow.name}`;
+          if (statUpgrades) statUpgrades.textContent = `${snap.unlockedUpgrades.length} / 4 Installed`;
+        }
+
+        function renderGrid() {
+          if (!itemGrid) return;
+          itemGrid.innerHTML = '';
+          const prof = State.get('activeProfile') || (Profile && Profile.getActiveProfile ? Profile.getActiveProfile() : {});
+          const userXP = typeof prof.totalScore === 'number' ? prof.totalScore : (prof.xp || 0);
+          const snap = bEngine.getSnapshot();
+
+          let items = [];
+          if (activeTab === 'keyboard') items = bCatalog.getSwitches();
+          else if (activeTab === 'crt') items = bCatalog.getShaders();
+          else if (activeTab === 'rgb') items = bCatalog.getUnderglows();
+          else if (activeTab === 'hardware') items = bCatalog.getUpgrades();
+
+          items.forEach(item => {
+            const isUnlocked = bEngine.isUnlocked(item.id, userXP);
+            let isEquipped = false;
+            if (activeTab === 'keyboard') isEquipped = snap.loadout.keyboardSwitch === item.id;
+            else if (activeTab === 'crt') isEquipped = snap.loadout.crtShader === item.id;
+            else if (activeTab === 'rgb') isEquipped = snap.loadout.rgbUnderglow === item.id;
+            else if (activeTab === 'hardware') isEquipped = snap.unlockedUpgrades.includes(item.id);
+
+            const card = document.createElement('div');
+            card.className = `rig-item-card ${isEquipped ? 'is-equipped' : ''} ${!isUnlocked ? 'is-locked' : ''}`;
+
+            const pct = item.requiredXP > 0 ? Math.min(100, Math.round((userXP / item.requiredXP) * 100)) : 100;
+
+            card.innerHTML = `
+              <div>
+                <div class="rig-item-top">
+                  <span class="rig-item-icon">${item.icon}</span>
+                  ${isEquipped 
+                    ? '<span class="badge badge-emerald">✓ Equipped</span>' 
+                    : isUnlocked 
+                      ? '<span class="badge badge-cyan">Unlocked</span>' 
+                      : `<span class="badge badge-amber">🔒 ${item.requiredXP.toLocaleString()} XP</span>`
+                  }
+                </div>
+                <div class="rig-item-title">${item.name}</div>
+                <div class="rig-item-tag">${item.tag || ''}</div>
+                <div class="rig-item-desc">${item.description}</div>
+                ${!isUnlocked ? `
+                  <div style="margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 3px;">
+                      <span>XP Progress</span>
+                      <span>${userXP.toLocaleString()} / ${item.requiredXP.toLocaleString()} (${pct}%)</span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.06); height: 4px; border-radius: 2px; overflow: hidden;">
+                      <div style="background: var(--color-warning); width: ${pct}%; height: 100%;"></div>
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+              <div class="rig-item-actions">
+                ${activeTab === 'keyboard' ? `
+                  <button type="button" class="btn-arcade btn-neutral btn-sm btn-test-switch" style="padding: 0.35rem 0.65rem;" title="Listen to switch sound" data-switch-id="${item.id}">
+                    <span>🔊 Test</span>
+                  </button>
+                ` : ''}
+                ${isEquipped ? `
+                  <button type="button" class="btn-arcade btn-primary btn-sm" disabled style="flex: 1; opacity: 0.9;">
+                    Active Loadout
+                  </button>
+                ` : isUnlocked ? `
+                  <button type="button" class="btn-arcade ${activeTab === 'hardware' ? 'btn-emerald' : 'btn-primary'} btn-sm btn-equip-item" style="flex: 1;" data-id="${item.id}" data-category="${activeTab}">
+                    ${activeTab === 'hardware' ? 'Install Upgrade' : 'Equip'}
+                  </button>
+                ` : `
+                  <button type="button" class="btn-arcade btn-neutral btn-sm" disabled style="flex: 1; opacity: 0.5;">
+                    🔒 Locked
+                  </button>
+                `}
+              </div>
+            `;
+
+            // Bind Test button
+            const testBtn = card.querySelector('.btn-test-switch');
+            if (testBtn) {
+              testBtn.onclick = (e) => {
+                e.stopPropagation();
+                bEngine.previewSwitch(item.id);
+              };
+            }
+
+            // Bind Equip button
+            const equipBtn = card.querySelector('.btn-equip-item');
+            if (equipBtn) {
+              equipBtn.onclick = () => {
+                const res = bEngine.equip(activeTab, item.id, userXP);
+                if (res.success) {
+                  bEngine.playSwitchSound();
+                  UI.showToast(res.message, 'success');
+                  updateTelemetry();
+                  renderGrid();
+                } else {
+                  AudioEngine.playError();
+                  UI.showToast(res.message, 'error');
+                }
+              };
+            }
+
+            itemGrid.appendChild(card);
+          });
+        }
+
+        // Tab click handling
+        tabBtns.forEach(btn => {
+          btn.onclick = () => {
+            AudioEngine.playClick();
+            tabBtns.forEach(b => {
+              b.classList.remove('active');
+              b.setAttribute('aria-selected', 'false');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+            activeTab = btn.getAttribute('data-tab');
+            renderGrid();
+          };
+        });
+
+        // Keycap tester buttons
+        const keyBtns = document.querySelectorAll('.switch-key-btn');
+        keyBtns.forEach(keyBtn => {
+          const triggerKey = () => {
+            keyBtn.classList.add('is-pressed');
+            bEngine.playSwitchSound();
+            setTimeout(() => keyBtn.classList.remove('is-pressed'), 120);
+          };
+          keyBtn.onclick = triggerKey;
+        });
+
+        // Physical keyboard tester listener
+        document.addEventListener('keydown', (e) => {
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+          const matchKey = Array.from(keyBtns).find(btn => btn.getAttribute('data-key') === e.key);
+          if (matchKey) {
+            matchKey.classList.add('is-pressed');
+            bEngine.playSwitchSound();
+            setTimeout(() => matchKey.classList.remove('is-pressed'), 120);
+          }
+        });
+
+        updateTelemetry();
+        renderGrid();
+      }
+
+      initBattlestationShowroom();
     });
   })();
   </script>

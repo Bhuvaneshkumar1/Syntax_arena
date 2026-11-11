@@ -125,3 +125,4 @@ export function runIncidentEngineTests() {
 if (typeof process !== 'undefined' && process.argv && process.argv[1] && process.argv[1].endsWith('incident-engine-tests.js')) {
   runIncidentEngineTests();
 }
+
