@@ -1,0 +1,686 @@
+/**
+ * SyntaxArena Feature 9: 3D Isometric Trophy Vault & Dynamic GitHub Profile Badges
+ * Pure CSS3 3D transforms, holographic sheen shaders, retro-arcade cartridge chassis,
+ * and 360-degree interactive orbital inspector modal.
+ */
+
+/* ==========================================================================
+   1. 3D TROPHY VAULT SHOWROOM & PERSPECTIVE GRID
+   ========================================================================== */
+
+.trophy-vault-container {
+  margin-top: 1.5rem;
+  perspective: 1200px;
+}
+
+.trophy-vault-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.trophy-vault-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.75rem 1.5rem;
+  padding: 1rem 0.5rem;
+  transform-style: preserve-3d;
+}
+
+/* ==========================================================================
+   2. RETRO-ARCADE CARTRIDGE CHASSIS
+   ========================================================================== */
+
+.cartridge-wrapper {
+  position: relative;
+  perspective: 1000px;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  border-radius: 12px;
+}
+
+.cartridge-wrapper:focus-visible {
+  box-shadow: 0 0 0 3px #38bdf8, 0 0 20px rgba(56, 189, 248, 0.5);
+}
+
+.cartridge-chassis {
+  position: relative;
+  width: 100%;
+  min-height: 310px;
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 12px 12px 6px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.7),
+    0 4px 6px -2px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out, box-shadow 0.25s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cartridge Top Ribbed Grip */
+.cartridge-top-grip {
+  height: 18px;
+  background: repeating-linear-gradient(
+    90deg,
+    #0f172a,
+    #0f172a 6px,
+    #334155 6px,
+    #334155 9px
+  );
+  border-bottom: 2px solid rgba(0, 0, 0, 0.6);
+  opacity: 0.85;
+}
+
+/* Cartridge Side Grips */
+.cartridge-chassis::before,
+.cartridge-chassis::after {
+  content: '';
+  position: absolute;
+  top: 24px;
+  bottom: 30px;
+  width: 5px;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.8),
+    rgba(15, 23, 42, 0.8) 4px,
+    rgba(51, 65, 85, 0.8) 4px,
+    rgba(51, 65, 85, 0.8) 7px
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+.cartridge-chassis::before { left: 4px; }
+.cartridge-chassis::after { right: 4px; }
+
+/* Holographic Specular Sheen Layer */
+.cartridge-holo-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(56, 189, 248, 0.25) 55%,
+    rgba(168, 85, 247, 0.25) 60%,
+    transparent 70%,
+    transparent 100%
+  );
+  background-size: 250% 250%;
+  background-position: 100% 100%;
+  pointer-events: none;
+  z-index: 5;
+  transition: background-position 0.5s ease;
+  opacity: 0.6;
+}
+
+.cartridge-wrapper:hover .cartridge-holo-sheen {
+  background-position: 0% 0%;
+  opacity: 1;
+}
+
+/* Cartridge Label Art Area */
+.cartridge-label {
+  margin: 10px 14px 8px;
+  flex: 1;
+  background: #090d16;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.1rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 3;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.cartridge-badge-icon {
+  font-size: 2.75rem;
+  margin-bottom: 0.65rem;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cartridge-wrapper:hover .cartridge-badge-icon {
+  transform: scale(1.15) translateY(-2px);
+}
+
+.cartridge-title {
+  font-family: var(--font-display, 'Orbitron', 'Inter', sans-serif);
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0 0 0.35rem;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+}
+
+.cartridge-desc {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+  flex: 1;
+}
+
+.cartridge-rarity-pill {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  margin-bottom: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.cartridge-jewel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.cartridge-meta-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.68rem;
+  color: #64748b;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-top: 0.4rem;
+}
+
+/* Bottom Gold PCB Edge Pins */
+.cartridge-pcb-connector {
+  height: 16px;
+  background: repeating-linear-gradient(
+    90deg,
+    #111827,
+    #111827 4px,
+    #d97706 4px,
+    #f59e0b 8px,
+    #111827 8px,
+    #111827 10px
+  );
+  border-top: 1px solid rgba(0, 0, 0, 0.7);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.8);
+  opacity: 0.95;
+}
+
+/* ==========================================================================
+   3. RARITY TIERS & LIGHTNING COLORWAYS
+   ========================================================================== */
+
+/* Common (Iron / Silver) */
+.cartridge-card.rarity-common .cartridge-rarity-pill {
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+.cartridge-card.rarity-common .cartridge-jewel-dot { background: #94a3b8; }
+.cartridge-card.rarity-common:hover .cartridge-chassis {
+  box-shadow: 0 16px 30px -8px rgba(148, 163, 184, 0.3);
+}
+
+/* Rare (Sapphire Cyan) */
+.cartridge-card.rarity-rare .cartridge-rarity-pill {
+  background: rgba(6, 182, 212, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+.cartridge-card.rarity-rare .cartridge-jewel-dot { background: #06b6d4; }
+.cartridge-card.rarity-rare:hover .cartridge-chassis {
+  box-shadow: 0 16px 32px -8px rgba(56, 189, 248, 0.4), 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+/* Epic (Amethyst Violet) */
+.cartridge-card.rarity-epic .cartridge-rarity-pill {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+.cartridge-card.rarity-epic .cartridge-jewel-dot { background: #a855f7; }
+.cartridge-card.rarity-epic:hover .cartridge-chassis {
+  box-shadow: 0 16px 35px -8px rgba(168, 85, 247, 0.45), 0 0 15px rgba(168, 85, 247, 0.25);
+}
+
+/* Legendary (Solar Amber Gold) */
+.cartridge-card.rarity-legendary .cartridge-rarity-pill {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+.cartridge-card.rarity-legendary .cartridge-jewel-dot { background: #f59e0b; }
+.cartridge-card.rarity-legendary:hover .cartridge-chassis {
+  box-shadow: 0 16px 38px -8px rgba(245, 158, 11, 0.5), 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+/* Mythic (Prismatic Holographic Neon) */
+.cartridge-card.rarity-mythic .cartridge-rarity-pill {
+  background: linear-gradient(90deg, rgba(236, 72, 153, 0.2), rgba(6, 182, 212, 0.2));
+  color: #f472b6;
+  border: 1px solid rgba(244, 114, 182, 0.4);
+}
+.cartridge-card.rarity-mythic .cartridge-jewel-dot {
+  background: #ec4899;
+  animation: pulse-gem 1.5s infinite alternate;
+}
+.cartridge-card.rarity-mythic:hover .cartridge-chassis {
+  box-shadow: 0 18px 40px -6px rgba(236, 72, 153, 0.5), 0 0 25px rgba(6, 182, 212, 0.35);
+}
+
+@keyframes pulse-gem {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.3); opacity: 1; }
+}
+
+/* Locked Cartridge State */
+.cartridge-card.is-locked {
+  filter: grayscale(0.85) contrast(0.8);
+  opacity: 0.65;
+}
+.cartridge-card.is-locked .cartridge-holo-sheen { display: none; }
+.cartridge-card.is-locked .cartridge-badge-icon {
+  filter: grayscale(1) opacity(0.4);
+}
+.cartridge-card.is-locked:hover {
+  filter: grayscale(0.5) contrast(0.9);
+  opacity: 0.85;
+}
+.cartridge-card.is-locked:hover .cartridge-chassis {
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   4. 360-DEGREE 3D ORBITAL INSPECTOR MODAL
+   ========================================================================== */
+
+.vault-inspector-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: rgba(10, 15, 29, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.vault-inspector-modal.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.vault-inspector-content {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 30px rgba(56, 189, 248, 0.2);
+  width: 100%;
+  max-width: 860px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.vault-inspector-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vault-inspector-title {
+  font-family: var(--font-display, 'Orbitron', 'Inter', sans-serif);
+  font-size: 1.25rem;
+  color: #f8fafc;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.vault-inspector-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 2rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .vault-inspector-body {
+    grid-template-columns: 1fr;
+    padding: 1.25rem;
+  }
+}
+
+/* 3D Stage & Rotating Cartridge */
+.vault-3d-stage {
+  height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  cursor: grab;
+  position: relative;
+  touch-action: none;
+}
+
+.vault-3d-stage:active {
+  cursor: grabbing;
+}
+
+.vault-3d-box {
+  width: 200px;
+  height: 280px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.05s linear;
+}
+
+/* Box Faces */
+.cartridge-face {
+  position: absolute;
+  inset: 0;
+  background: #1e293b;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backface-visibility: hidden;
+  overflow: hidden;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
+}
+
+.cartridge-face-front {
+  transform: translateZ(14px);
+  display: flex;
+  flex-direction: column;
+}
+
+.cartridge-face-back {
+  transform: rotateY(180deg) translateZ(14px);
+  background: #111827;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cartridge-face-left {
+  width: 28px;
+  height: 280px;
+  left: -14px;
+  transform: rotateY(-90deg);
+  background: #0f172a;
+  border-radius: 4px;
+}
+
+.cartridge-face-right {
+  width: 28px;
+  height: 280px;
+  right: -14px;
+  transform: rotateY(90deg);
+  background: #0f172a;
+  border-radius: 4px;
+}
+
+.cartridge-face-bottom {
+  width: 200px;
+  height: 28px;
+  bottom: -14px;
+  transform: rotateX(-90deg);
+  background: repeating-linear-gradient(
+    90deg,
+    #0f172a,
+    #0f172a 4px,
+    #f59e0b 4px,
+    #f59e0b 8px
+  );
+}
+
+/* Back Face Tech Specs Aesthetic */
+.back-tech-specs {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.back-barcode {
+  height: 28px;
+  background: repeating-linear-gradient(
+    90deg,
+    #fff,
+    #fff 2px,
+    #000 2px,
+    #000 4px,
+    #fff 4px,
+    #fff 7px,
+    #000 7px,
+    #000 9px
+  );
+  margin-top: 0.5rem;
+  border-radius: 2px;
+}
+
+/* Drag to Rotate Hint Pill */
+.vault-rotate-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  padding: 0.3rem 0.75rem;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Inspector Details Panel */
+.vault-details-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vault-detail-desc {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.vault-detail-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.9rem;
+}
+
+.vault-meta-item-label {
+  font-size: 0.68rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+  display: block;
+}
+
+.vault-meta-item-val {
+  font-size: 0.88rem;
+  color: #f1f5f9;
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   5. DYNAMIC GITHUB PROFILE BADGES STUDIO
+   ========================================================================== */
+
+.badge-studio-card {
+  margin-top: 3rem;
+  background: linear-gradient(145deg, #131b2e 0%, #0b1120 100%);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 14px;
+  padding: 1.75rem;
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
+}
+
+.badge-studio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.badge-studio-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .badge-studio-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.badge-preview-zone {
+  background: #070b14;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 2.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  position: relative;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.badge-preview-svg-container {
+  max-width: 100%;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.badge-controls-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.badge-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.badge-control-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.badge-style-chips,
+.badge-color-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge-chip-btn {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.badge-chip-btn:hover {
+  background: #334155;
+  color: #f8fafc;
+}
+
+.badge-chip-btn.is-active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.badge-color-dot-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.badge-color-dot-btn:hover {
+  transform: scale(1.15);
+}
+
+.badge-color-dot-btn.is-active {
+  border-color: #fff;
+  transform: scale(1.15);
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Copy Snippet Actions */
+.badge-export-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.badge-export-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
