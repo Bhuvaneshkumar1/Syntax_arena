@@ -335,6 +335,77 @@
         </div>
       </section>
 
+      <!-- CyberDrill Incident Response Live Outage Telemetry HUD -->
+      <section class="incident-telemetry-hud" id="hud-incident-monitor" style="display: none;" aria-label="CyberDrill Incident Response Monitor">
+        <div class="incident-header-row">
+          <div class="incident-title-block">
+            <span class="incident-badge badge-sev1" id="incident-sev-badge">SEV-1 OUTAGE</span>
+            <span class="incident-badge badge-phase" id="incident-phase-badge">TRIAGE PHASE 1: DIAGNOSIS</span>
+            <h2 id="incident-title-text" class="incident-service-name">PROD-SERVICE-OUTAGE</h2>
+          </div>
+          <div class="incident-sla-block">
+            <div class="incident-sla-label">SLA DEADLINE</div>
+            <div id="incident-sla-timer" class="incident-sla-time">02:30</div>
+            <button id="btn-switch-incident" class="btn btn-sm btn-ghost" type="button" title="Select different incident" style="font-size: 11px; padding: 2px 8px; margin-top: 4px;">Change Scenario</button>
+          </div>
+        </div>
+
+        <div class="incident-metrics-grid">
+          <div class="metric-card is-critical" id="metric-card-cpu">
+            <div class="metric-label">CPU LOAD</div>
+            <div class="metric-val" id="metric-cpu-val">98%</div>
+            <div class="metric-bar-track">
+              <div class="metric-bar-fill" id="metric-cpu-fill" style="width: 98%;"></div>
+            </div>
+            <div class="metric-sub" id="metric-cpu-detail">Saturated Cores</div>
+          </div>
+
+          <div class="metric-card is-critical" id="metric-card-ram">
+            <div class="metric-label">MEMORY USAGE</div>
+            <div class="metric-val" id="metric-ram-val">15.4 GB</div>
+            <div class="metric-bar-track">
+              <div class="metric-bar-fill" id="metric-ram-fill" style="width: 96%;"></div>
+            </div>
+            <div class="metric-sub" id="metric-ram-detail">Heap Limit: 16 GB</div>
+          </div>
+
+          <div class="metric-card is-critical" id="metric-card-errors">
+            <div class="metric-label">5XX ERROR RATE</div>
+            <div class="metric-val" id="metric-error-val">48.5%</div>
+            <div class="metric-bar-track">
+              <div class="metric-bar-fill" id="metric-error-fill" style="width: 48.5%;"></div>
+            </div>
+            <div class="metric-sub" id="metric-error-detail">SLO Breach</div>
+          </div>
+
+          <div class="metric-card is-critical" id="metric-card-latency">
+            <div class="metric-label">P99 LATENCY</div>
+            <div class="metric-val" id="metric-latency-val">4200 ms</div>
+            <div class="metric-bar-track">
+              <div class="metric-bar-fill" id="metric-latency-fill" style="width: 85%;"></div>
+            </div>
+            <div class="metric-sub" id="metric-conns-detail">10k Conns</div>
+          </div>
+        </div>
+
+        <!-- Live Server Log Stream Terminal -->
+        <div class="incident-log-wrapper">
+          <div class="incident-log-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="incident-log-indicator"></span>
+              <span>LIVE CLOUD LOG TAIL (/var/log/cluster/service.log)</span>
+            </div>
+            <div class="incident-filter-bar">
+              <input type="text" id="incident-log-search" class="incident-search-input" placeholder="Filter logs (e.g. ERROR, leak, thread)..." aria-label="Filter live logs">
+              <button id="btn-clear-log-filter" class="btn btn-ghost btn-sm" type="button" style="padding: 2px 6px; font-size: 11px;">Clear</button>
+            </div>
+          </div>
+          <div id="incident-log-stream" class="incident-log-stream" tabindex="0" aria-label="Streaming server logs">
+            <!-- Populated dynamically by IncidentEngine -->
+          </div>
+        </div>
+      </section>
+
       <!-- Active Question Arena Workspace -->
       <section class="card" id="arena-card" style="margin-bottom: var(--space-6);" aria-labelledby="q-topic-title">
         <div class="card-header">
@@ -779,6 +850,92 @@
           📋 Copy Match Report
         </button>
         <button id="btn-duel-hub" class="btn-arcade btn-neutral btn-sm" type="button">
+          🏠 Return to Hub
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CyberDrill Incident Scenario Selector Modal -->
+  <div class="modal-backdrop" id="modal-incident-select" role="dialog" aria-modal="true" aria-labelledby="modal-incident-select-title">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.5rem;">🚨</span>
+          <h2 class="modal-title" id="modal-incident-select-title">CyberDrill Incident Catalog</h2>
+        </div>
+        <button class="modal-close" id="btn-close-incident-select" type="button" aria-label="Close dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: 1rem;">
+          Select an active Sev-1/Sev-2 production outage scenario. Diagnose the root cause from telemetry and logs, then deploy a hotfix patch to restore SLOs.
+        </p>
+        <div class="incident-select-grid" id="incident-scenario-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; max-height: 450px; overflow-y: auto;">
+          <!-- Populated dynamically from IncidentScenarios -->
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: flex-end;">
+        <button class="btn btn-neutral btn-sm" id="btn-cancel-incident-select" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CyberDrill SRE Post-Mortem Incident Report Modal -->
+  <div class="modal-backdrop" id="modal-incident-postmortem" role="dialog" aria-modal="true" aria-labelledby="modal-incident-pm-title">
+    <div class="modal modal-lg">
+      <div class="modal-body" style="padding-top: var(--space-2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <span class="badge badge-emerald" id="incident-pm-status-badge">INCIDENT RESOLVED</span>
+          <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);" id="incident-pm-id-badge">INC-001</span>
+        </div>
+        <h2 id="modal-incident-pm-title" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; margin: 0.5rem 0 0.25rem 0; color: var(--color-primary);">
+          Production Outage Post-Mortem
+        </h2>
+        <p id="incident-pm-subtitle" style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">
+          All telemetry metrics returned to nominal thresholds. SLA maintained.
+        </p>
+
+        <!-- SRE KPI Metric Summary -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem;">
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px; text-align: center;">
+            <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">MTTR</div>
+            <div id="incident-pm-mttr" style="font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: var(--color-cyan);">45s</div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px; text-align: center;">
+            <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">SLA MARGIN</div>
+            <div id="incident-pm-sla-margin" style="font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: var(--color-emerald);">+105s</div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px; text-align: center;">
+            <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">COST PREVENTED</div>
+            <div id="incident-pm-cost" style="font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: #fbbf24;">$145,000</div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px; text-align: center;">
+            <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">XP EARNED</div>
+            <div id="incident-pm-xp" style="font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: #a78bfa;">+350 XP</div>
+          </div>
+        </div>
+
+        <!-- Post-Mortem Narrative -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; margin-bottom: 1rem; font-size: 13px;">
+          <div style="font-weight: 700; color: var(--color-coral); margin-bottom: 4px;">ROOT CAUSE ANALYSIS</div>
+          <div id="incident-pm-root-cause" style="color: var(--text-secondary); margin-bottom: 10px; line-height: 1.4;"></div>
+          <div style="font-weight: 700; color: var(--color-emerald); margin-bottom: 4px;">HOTFIX APPLIED</div>
+          <div id="incident-pm-hotfix" style="color: var(--text-secondary); line-height: 1.4;"></div>
+        </div>
+
+        <!-- Event Timeline -->
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 700;">RESOLUTION TIMELINE</div>
+        <div id="incident-pm-timeline" class="incident-timeline" style="max-height: 140px; overflow-y: auto; padding: 4px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-subtle);">
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: var(--space-3); flex-wrap: wrap;">
+        <button id="btn-copy-incident-pm" class="btn-arcade btn-secondary btn-sm" type="button">
+          📋 Copy Post-Mortem MD
+        </button>
+        <button id="btn-next-incident" class="btn-arcade btn-primary btn-sm" type="button">
+          Next Incident Scenario ➔
+        </button>
+        <button id="btn-incident-hub" class="btn-arcade btn-neutral btn-sm" type="button">
           🏠 Return to Hub
         </button>
       </div>

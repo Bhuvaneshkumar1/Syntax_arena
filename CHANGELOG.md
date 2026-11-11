@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.12.0] - 2026-11-11
+
+### Added (Feature 5: CyberDrill Incident Response & Live Outage Simulator)
+- **Zero-Dependency Incident Response Engine (`js/incident-engine.js`):**
+  - Implemented the client-side `IncidentEngine` state machine managing live outage mission lifecycles: `IDLE`, `ACTIVE`, `DIAGNOSING`, `PATCHING`, `STABILIZED`, and `SLA_BREACHED`.
+  - Calculates real-time fluctuating server telemetry (CPU load, memory consumption, 5xx error rate, P99 latency, active TCP connections) with organic micro-jitter.
+  - Features smooth exponential decay from critical failure thresholds down to nominal steady-state targets upon deploying the correct hotfix patch.
+  - Implements Mean Time to Resolution (MTTR) tracking with second precision, SLA margin bonus scoring, downtime cost calculation (\$USD prevented), and automated timeline milestone recording.
+- **Production Outage Scenarios Catalog (`data/incident-scenarios.js`):**
+  - 8 real-world production incident scenarios across programming languages:
+    1. `inc_memory_leak`: The Memory Sink Outage (Python worker heap leak via unbounded global cache).
+    2. `inc_mutex_deadlock`: The Deadlock Cascade (Go goroutine lock inversion in high-concurrency order router).
+    3. `inc_buffer_overflow`: The Stack Corrupter (C packet parser buffer overflow via unchecked string copy).
+    4. `inc_connection_exhaustion`: The Leaky Pool Outage (Java connection leak failing to release database handles in try/finally).
+    5. `inc_redos_backtracking`: The Regex CPU Meltdown (JavaScript authentication worker ReDoS catastrophic backtracking).
+    6. `inc_dangling_pointer`: The Use-After-Free Spectre (C++ cache manager heap corruption from dangling pointers).
+    7. `inc_event_loop_lockup`: The Blocked Event Loop (TypeScript API gateway synchronous crypto locking the V8 event loop).
+    8. `inc_null_deref_cascade`: The Null Cascade (Rust inventory microservice unsafe unwrap panic chain).
+  - Each scenario includes realistic server logs, 2-phase triage questions (Root Cause Diagnosis and Hotfix Remediation), SLA deadlines, and custom explanations.
+- **Live Outage Telemetry HUD & Log Tail Terminal (`game.html`, `css/components.css`, `css/animations.css`, `js/gameplay.js`):**
+  - Added `#hud-incident-monitor` replacing standard game headers when launching incident mode (`game.html?mode=incident`).
+  - Outage status header with SEV-1/SEV-2 badges, current triage phase pill, SLA countdown clock (`#incident-sla-timer`), and scenario selector launcher.
+  - Live 4-metric telemetry grid with critical/nominal status indicator cards and animated gauges (CPU %, RAM GB, 5xx error rate %, P99 latency ms).
+  - Live cloud server log stream terminal (`#incident-log-stream`) with case-insensitive search filter input (`#incident-log-search`) and clear shortcut.
+- **Scenario Catalog Selector Modal (`game.html`, `js/gameplay.js`):**
+  - Added `#modal-incident-select` dialog displaying all 8 outage scenarios with severity badges, SLA deadlines, technology tags, and lore overviews.
+- **SRE Post-Mortem Incident Report Card (`game.html`, `js/gameplay.js`):**
+  - Added `#modal-incident-postmortem` dialog summarizing resolution performance: MTTR, SLA margin (+seconds), downtime cost prevented (\$USD), and XP earned.
+  - Displays root cause analysis summary, hotfix description, and resolution timeline milestones.
+  - 1-click Markdown clipboard export button (`#btn-copy-incident-pm`) generates formatted post-mortem reports for engineering handoffs and retrospectives.
+- **Hub Quick-Launch & Showcase Integration (`index.html`):**
+  - Added `🚨 CyberDrill Incident` button in the Hero Quick-Launch Command Deck.
+  - Added dedicated `🚨 CyberDrill (Incident Response)` showcase card in the Featured Game Modes section.
+- **Automated Testing & Build Automation:**
+  - 35/35 unit tests in `tests/incident-engine-tests.js` (total 869/869 unit tests passing with zero failures).
+  - 23/23 Playwright E2E tests in `tests/test-incident-playwright.js`.
+  - Rebuilt offline bundle (`js/bundle.js`) and synchronized to `public/`.
+
+---
+
 ## [2.11.0] - 2026-11-11
 
 ### Added (Feature 2: Real-Time 1v1 SyntaxDuel Mode)

@@ -95414,6 +95414,527 @@ var BossEncounters = window.BossEncounters = {
 
 /* --- End of data/boss-encounters.js --- */
 
+/* --- Start of data/incident-scenarios.js --- */
+/**
+ * SyntaxArena CyberDrill: Production Outage Incident Scenarios Catalog
+ * 8 High-Stakes SRE & Incident Response Scenarios covering memory leaks, deadlocks,
+ * buffer overflows, connection exhaustion, ReDoS, and event-loop lockups.
+ * Schema: docs/ARCHITECTURE.md, docs/QUESTION_SCHEMA.md
+ */
+
+var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
+  {
+    id: 'inc_memory_leak',
+    title: 'The Memory Sink Outage',
+    severity: 'SEV-1',
+    system: 'User Analytics & Ingestion Pipeline',
+    service: 'analytics-worker-v3',
+    language: 'python',
+    badgeClass: 'badge-coral',
+    slaSeconds: 45,
+    lore: 'At 03:14 UTC, the analytics ingestion workers began failing health checks. Pods are getting OOM-killed (Exit Code 137) every 90 seconds. Ingestion backlog has accumulated 4.2 million events.',
+    initialMetrics: {
+      cpu: 96.5,
+      ram: 98.2,
+      ramDisplay: '7.85 / 8.0 GB',
+      errorRate: 88.4,
+      latencyMs: 3120,
+      activeConnections: 14200
+    },
+    stabilizedMetrics: {
+      cpu: 14.2,
+      ram: 22.8,
+      ramDisplay: '1.82 / 8.0 GB',
+      errorRate: 0.01,
+      latencyMs: 38,
+      activeConnections: 1200
+    },
+    logs: [
+      '[03:12:01.402] [INFO] [analytics-worker-04] Batch ingestion started for partition #14',
+      '[03:12:44.119] [WARN] [analytics-worker-04] Garbage collector cycle took 840ms (> 200ms threshold)',
+      '[03:13:10.822] [WARN] [memory_watchdog] Heap usage at 87.4% (6.99 GB / 8.00 GB)',
+      '[03:13:58.204] [ERROR] [analytics-worker-04] Traceback (most recent call last):',
+      '[03:13:58.205] [ERROR] [analytics-worker-04]   File "pipeline/ingest.py", line 42, in process_event_batch',
+      '[03:13:58.206] [ERROR] [analytics-worker-04]     _GLOBAL_CACHE[session_id].append(raw_event_payload)',
+      '[03:13:58.207] [ERROR] [analytics-worker-04] MemoryError: Out of memory allocation failed (cannot allocate 64MB block)',
+      '[03:14:02.001] [FATAL] [kubelet] Pod analytics-worker-04 terminated with signal SIGKILL (OOMKilled)'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_mem_diag',
+      type: 'multiple_choice',
+      prompt: 'Based on the stack trace and memory growth velocity, what is the architectural root cause of the crash loop?',
+      options: [
+        '_GLOBAL_CACHE is appending raw payloads indefinitely without eviction, creating an unbounded heap leak.',
+        'Python 3.10 garbage collection is disabled in production settings.',
+        'The partition reader is attempting to load a file larger than physical RAM in a single byte stream.',
+        'The database cursor connection pool is closing prematurely.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Lines 41-42 append raw event payloads into a module-level global dict `_GLOBAL_CACHE[session_id]` with no TTL, LRU eviction, or size bounds. In Python, module-level globals persist for the life of the worker process, creating an unbounded memory leak until the kernel triggers an OOM kill.'
+    },
+    patchQuestion: {
+      id: 'inc_q_mem_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the optimal production hotfix patch to stabilize the worker heap immediately without data loss:',
+      options: [
+        'Replace unbounded global list with an LRUCache(maxsize=10_000) or weakref-backed buffer with streaming flush to disk.',
+        'Double pod memory request in Kubernetes deployment spec from 8GB to 16GB.',
+        'Run gc.collect() manually inside the for loop after processing every individual event.',
+        'Wrap the append call in a try/except MemoryError and pass.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Replacing the unbounded list accumulator with a bounded LRU cache / sliding window buffer (`functools.lru_cache` or a Redis/disk-backed queue) ensures memory cannot grow beyond configured bounds. Doubling RAM only delays OOM by minutes, while manual `gc.collect()` degrades CPU throughput by 80% without freeing reachable global references.'
+    }
+  },
+  {
+    id: 'inc_mutex_deadlock',
+    title: 'The Mutex Deadlock Cascade',
+    severity: 'SEV-1',
+    system: 'Global Payment & Ledger Service',
+    service: 'ledger-router-worker',
+    language: 'go',
+    badgeClass: 'badge-coral',
+    slaSeconds: 45,
+    lore: 'At 14:02 UTC, 100% of payment authorization webhooks stalled simultaneously. HTTP goroutines exploded from 120 to over 48,000. All worker threads are blocked indefinitely.',
+    initialMetrics: {
+      cpu: 18.0,
+      ram: 84.5,
+      ramDisplay: '6.76 / 8.0 GB',
+      errorRate: 99.4,
+      latencyMs: 30000,
+      activeConnections: 48200
+    },
+    stabilizedMetrics: {
+      cpu: 28.5,
+      ram: 18.2,
+      ramDisplay: '1.45 / 8.0 GB',
+      errorRate: 0.0,
+      latencyMs: 62,
+      activeConnections: 850
+    },
+    logs: [
+      '[14:01:52.012] [INFO] [ledger] Processing Transfer txn_9812: Account A -> Account B',
+      '[14:01:52.013] [INFO] [ledger] Processing Transfer txn_9813: Account B -> Account A',
+      '[14:01:52.014] [DEBUG] [ledger] txn_9812: acquired lock for Account A, awaiting Account B lock...',
+      '[14:01:52.015] [DEBUG] [ledger] txn_9813: acquired lock for Account B, awaiting Account A lock...',
+      '[14:02:15.901] [WARN] [http_pool] Inflight HTTP request queue full (10,000 requests pending)',
+      '[14:02:30.002] [ERROR] [goroutine_monitor] 48,211 goroutines in state `chan receive` or `sync.Mutex.Lock` wait > 30s',
+      '[14:02:45.109] [FATAL] [healthcheck] Liveness probe timeout (GET /livez timed out after 10.0s)'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_deadlock_diag',
+      type: 'multiple_choice',
+      prompt: 'Analyze the lock acquisition sequence between txn_9812 and txn_9813. What concurrency bug triggered this outage?',
+      options: [
+        'A circular wait deadlock caused by acquiring multiple resource locks in inconsistent, arbitrary order.',
+        'A goroutine stack overflow from infinite mutual recursion.',
+        'Channel starvation due to an unbuffered channel without a listener.',
+        'Atomic memory tearing across 64-bit integer pointers.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Classic circular wait deadlock (Coffman condition): Transaction 1 locks Account A and waits for Account B, while Transaction 2 locks Account B and waits for Account A. Because neither releases their held lock, both goroutines freeze forever, causing cascading queue exhaustion.'
+    },
+    patchQuestion: {
+      id: 'inc_q_deadlock_patch',
+      type: 'multiple_choice',
+      prompt: 'Which algorithmic pattern permanently prevents circular lock acquisition deadlocks in account transfers?',
+      options: [
+        'Enforce a strict canonical lock acquisition ordering by sorting account IDs (e.g. lock min(idA, idB) first, then max(idA, idB)).',
+        'Add a time.Sleep(10 * time.Millisecond) between the two lock acquisition statements.',
+        'Replace sync.Mutex with sync.RWMutex and acquire RLock on both accounts.',
+        'Launch each lock operation inside a new go func() goroutine without joining.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Enforcing a global canonical order for acquiring locks (e.g., sorting account IDs alphabetically or by numerical key: `if fromID > toID { swap() }`) completely breaks the circular wait condition. Every transaction acquires locks in the exact same sequence, making deadlocks mathematically impossible.'
+    }
+  },
+  {
+    id: 'inc_buffer_overflow',
+    title: 'The Stack Smashing Gateway Panic',
+    severity: 'SEV-1',
+    system: 'Edge Reverse Proxy & Auth Gateway',
+    service: 'auth-proxy-daemon',
+    language: 'c',
+    badgeClass: 'badge-coral',
+    slaSeconds: 45,
+    lore: 'At 21:40 UTC, the edge reverse proxy crashed violently with a SIGABRT signal. Core dumps report stack canary corruption immediately after parsing authorization headers.',
+    initialMetrics: {
+      cpu: 99.0,
+      ram: 45.0,
+      ramDisplay: '3.60 / 8.0 GB',
+      errorRate: 100.0,
+      latencyMs: 0,
+      activeConnections: 0
+    },
+    stabilizedMetrics: {
+      cpu: 18.0,
+      ram: 14.5,
+      ramDisplay: '1.16 / 8.0 GB',
+      errorRate: 0.05,
+      latencyMs: 12,
+      activeConnections: 1800
+    },
+    logs: [
+      '[21:39:58.201] [INFO] [auth] Received HTTP POST /api/v1/auth/exchange (Content-Length: 1048)',
+      '[21:39:58.202] [DEBUG] [auth] Extracting Bearer token header...',
+      '[21:39:58.203] [CRITICAL] [glibc] *** stack smashing detected ***: terminated',
+      '[21:39:58.204] [FATAL] [kernel] Traps: auth-proxy-daemon[4201] general protection fault ip:0x7f8842 sp:0x7ffcb4',
+      '[21:40:02.100] [ERROR] [systemd] auth-proxy-daemon.service: Main process exited, code=dumped, status=6/ABRT',
+      '[21:40:02.101] [ALERT] [watchdog] Zero healthy upstream authentication nodes available.'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_bof_diag',
+      type: 'multiple_choice',
+      prompt: 'Examining the glibc message "*** stack smashing detected ***", which unsafe C standard library function is responsible?',
+      options: [
+        'strcpy() or sprintf() copying an unbounded header string into a fixed stack array without bounds checking.',
+        'malloc() returning NULL because physical virtual memory addresses were exhausted.',
+        'free() called twice on the same heap pointer (double free error).',
+        'qsort() called with an invalid comparator function causing stack depth explosion.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Stack smashing detection (GCC `-fstack-protector`) aborts execution when a canary word placed on the stack before the function return address is overwritten. This happens when an unbounded string copy like `strcpy(token_buf, header_str)` copies more bytes than the stack array allocated, overflowing into the canary.'
+    },
+    patchQuestion: {
+      id: 'inc_q_bof_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the standard secure C mitigation to replace the vulnerable stack string copy:',
+      options: [
+        'Use strncpy(dest, src, sizeof(dest) - 1) and guarantee null-termination: dest[sizeof(dest) - 1] = \'\\0\'.',
+        'Compile the binary with -fno-stack-protector to disable canary checking.',
+        'Increase the stack buffer size from char token[256] to char token[65536].',
+        'Add a printf("%s", header_str) to inspect buffer bounds before copying.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Safe bounded copying functions (`strncpy`, `strlcpy`, or `snprintf(dest, sizeof(dest), "%s", src)`) prevent buffer overruns by strictly capping write operations to the size of destination buffer minus 1, followed by explicit null-byte termination.'
+    }
+  },
+  {
+    id: 'inc_connection_exhaustion',
+    title: 'Connection Pool Starvation',
+    severity: 'SEV-2',
+    system: 'E-Commerce Checkout Core',
+    service: 'checkout-api-backend',
+    language: 'sql',
+    badgeClass: 'badge-amber',
+    slaSeconds: 45,
+    lore: 'Shoppers report that the checkout payment button spins indefinitely. Database CPU is only at 6%, but all backend application instances have exhausted their 100-connection database pools.',
+    initialMetrics: {
+      cpu: 8.5,
+      ram: 54.0,
+      ramDisplay: '4.32 / 8.0 GB',
+      errorRate: 74.2,
+      latencyMs: 15400,
+      activeConnections: 800
+    },
+    stabilizedMetrics: {
+      cpu: 22.0,
+      ram: 31.0,
+      ramDisplay: '2.48 / 8.0 GB',
+      errorRate: 0.0,
+      latencyMs: 45,
+      activeConnections: 45
+    },
+    logs: [
+      '[11:02:10.119] [INFO] [checkout] Processing order ord_4910: starting transaction',
+      '[11:02:10.420] [WARN] [payment_gateway] External card network returned HTTP 504 Gateway Timeout',
+      '[11:02:10.421] [ERROR] [checkout] Exception raised during card charge; returning 500 to user',
+      '[11:02:30.901] [WARN] [db_pool] Pool checkout wait time exceeded 10,000ms (Active: 100/100, Idle: 0)',
+      '[11:02:35.002] [ERROR] [checkout] TimeoutException: Connection not available in pool within specified timeout (10000ms)',
+      '[11:02:40.110] [FATAL] [ingress] 503 Service Unavailable: upstream connection pool exhausted'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_pool_diag',
+      type: 'multiple_choice',
+      prompt: 'The database server is idling, but all client connections remain leased. What code bug causes this starvation?',
+      options: [
+        'The database connection is not closed/released inside a finally block or deferred cleanup when an exception occurs.',
+        'The SQL query is missing an index on the primary key column.',
+        'The connection pool size of 100 is too small for standard HTTP traffic.',
+        'The database WAL transaction log disk partition is 100% full.'
+      ],
+      correctAnswer: 0,
+      explanation: 'When an external exception (such as a 504 timeout from a card network) aborts function execution before an explicit `conn.close()` line is reached, the connection remains leased forever unless wrapped in a `try...finally` block, context manager (`with`), or Go `defer` statement.'
+    },
+    patchQuestion: {
+      id: 'inc_q_pool_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the correct architectural fix to guarantee database connection release under all execution branches:',
+      options: [
+        'Enclose the connection lease in a try-with-resources / with context manager to guarantee release even on unhandled exceptions.',
+        'Increase connection pool max_connections from 100 to 50,000 on PostgreSQL server.',
+        'Catch all exceptions and silently suppress them so execution reaches conn.close().',
+        'Disable timeouts on the external card processing gateway.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Using RAII / auto-closable idioms (`with pool.acquire() as conn:`, `try (Connection c = pool.getConnection())`, or `defer conn.Close()`) guarantees the leased connection is returned to the pool regardless of whether the function returns normally or throws an exception.'
+    }
+  },
+  {
+    id: 'inc_redos_backtracking',
+    title: 'ReDoS Catastrophic Backtracking',
+    severity: 'SEV-1',
+    system: 'User Signup & Email Validation Service',
+    service: 'auth-validator-node',
+    language: 'javascript',
+    badgeClass: 'badge-coral',
+    slaSeconds: 45,
+    lore: 'CPU on all Node.js cluster nodes pinned at 100%. Node event loop lag surged to 42,000ms. All health checks are timing out because the single JavaScript event loop thread is frozen.',
+    initialMetrics: {
+      cpu: 100.0,
+      ram: 68.0,
+      ramDisplay: '5.44 / 8.0 GB',
+      errorRate: 94.6,
+      latencyMs: 42000,
+      activeConnections: 12400
+    },
+    stabilizedMetrics: {
+      cpu: 16.0,
+      ram: 24.0,
+      ramDisplay: '1.92 / 8.0 GB',
+      errorRate: 0.02,
+      latencyMs: 18,
+      activeConnections: 640
+    },
+    logs: [
+      '[18:14:02.104] [INFO] [server] POST /api/v1/validate-email received payload size: 84 bytes',
+      '[18:14:02.105] [DEBUG] [validator] Executing regex test on input: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa!"',
+      '[18:14:15.002] [WARN] [event_loop] Event loop lag: 12,898ms (Threshold: 100ms)',
+      '[18:14:30.401] [ERROR] [event_loop] Event loop completely blocked. 3,892 timer callbacks delayed.',
+      '[18:14:45.001] [FATAL] [k8s] Liveness probe failed 3 times consecutive. Pod killed.'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_redos_diag',
+      type: 'multiple_choice',
+      prompt: 'What regular expression pattern characteristic causes Catastrophic Backtracking (ReDoS) on unmatched inputs?',
+      options: [
+        'Nested overlapping quantifiers like (a+)+ evaluated against a string that fails near the end.',
+        'Using the global flag /g without resetting lastIndex.',
+        'Compiling regular expressions inside a loop instead of reusing a module constant.',
+        'Using negative lookahead assertions (?!) without capturing groups.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Regular expression engines using Nondeterministic Finite Automata (NFA) exhibit catastrophic $O(2^n)$ exponential backtracking when matching nested quantifiers (e.g. `^([a-zA-Z0-9]+)*$`). When an input string fails at the final character, the engine explores billions of recursive permutation branches, pegging CPU at 100%.'
+    },
+    patchQuestion: {
+      id: 'inc_q_redos_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the production remediation to neutralize the ReDoS vulnerability on the validation endpoint:',
+      options: [
+        'Replace nested quantifier regex with a linear-time DFA parser, or atomic groups / non-overlapping simple token split.',
+        'Run the regex inside a while(true) loop with a 50ms setTimeout.',
+        'Increase Node.js --max-old-space-size to 8192 MB.',
+        'Disable the Kubernetes liveness probe so the pod is never restarted.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Neutralizing ReDoS requires eliminating overlapping nested quantifiers in favor of strictly linear-time validation ($O(n)$) or delegating to an email parser library that operates without exponential backtracking NFAs.'
+    }
+  },
+  {
+    id: 'inc_dangling_pointer',
+    title: 'Dangling Pointer Heap Corruption',
+    severity: 'SEV-1',
+    system: 'High-Frequency Market Data Engine',
+    service: 'orderbook-feed-engine',
+    language: 'cpp',
+    badgeClass: 'badge-coral',
+    slaSeconds: 45,
+    lore: 'Market data feed handlers are crashing sporadically during heavy volatility. Valgrind and ASan report Use-After-Free heap corruption in orderbook depth buffers.',
+    initialMetrics: {
+      cpu: 75.0,
+      ram: 82.0,
+      ramDisplay: '6.56 / 8.0 GB',
+      errorRate: 91.2,
+      latencyMs: 18000,
+      activeConnections: 9200
+    },
+    stabilizedMetrics: {
+      cpu: 24.0,
+      ram: 19.5,
+      ramDisplay: '1.56 / 8.0 GB',
+      errorRate: 0.0,
+      latencyMs: 8,
+      activeConnections: 540
+    },
+    logs: [
+      '[08:30:01.002] [INFO] [feed] Connected to Nasdaq ITCH 5.0 Multicast feed',
+      '[08:30:14.204] [DEBUG] [orderbook] Cancel order #884912: executing delete order_ptr',
+      '[08:30:14.205] [DEBUG] [orderbook] Order ptr 0x55a8f0 freed back to heap arena',
+      '[08:30:14.208] [CRITICAL] [asan] AddressSanitizer: heap-use-after-free on address 0x55a8f0',
+      '[08:30:14.209] [CRITICAL] [asan] READ of size 8 at 0x55a8f0 thread T0 (orderbook_worker)',
+      '[08:30:14.210] [FATAL] [kernel] Process terminated with SIGSEGV (Segmentation Fault)'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_cpp_diag',
+      type: 'multiple_choice',
+      prompt: 'Why did dereferencing 0x55a8f0 crash the application after the order was canceled?',
+      options: [
+        'A raw pointer was retained and accessed after delete freed the underlying heap memory (Dangling Pointer / Use-After-Free).',
+        'The struct memory was not aligned to a 64-byte cache line boundary.',
+        'The compiler failed to inline the virtual destructor.',
+        'The thread attempted to lock a recursive mutex twice.'
+      ],
+      correctAnswer: 0,
+      explanation: 'When raw memory is released via `delete order_ptr;`, the pointer variable still contains the numerical memory address (`0x55a8f0`), but the operating system heap allocator has marked that chunk as freed. Dereferencing it later is undefined behavior and triggers AddressSanitizer / SIGSEGV.'
+    },
+    patchQuestion: {
+      id: 'inc_q_cpp_patch',
+      type: 'multiple_choice',
+      prompt: 'What modern C++ (C++17/20) idiom guarantees that memory is never accessed after deallocation?',
+      options: [
+        'Adopt smart pointers (std::unique_ptr or std::shared_ptr) and RAII instead of raw manual new/delete.',
+        'Set order_ptr = (Order*)0x12345678 immediately after calling delete.',
+        'Allocate all orders with malloc() and avoid the C++ delete operator.',
+        'Cast the pointer to void* before accessing struct members.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Modern C++ RAII with `std::unique_ptr` and `std::shared_ptr` / `std::weak_ptr` automatically manages ownership semantics and nullifies handles upon move/reset, mathematically eliminating dangling pointers and manual memory leak pitfalls.'
+    }
+  },
+  {
+    id: 'inc_event_loop_lockup',
+    title: 'Async Event Loop Lockup',
+    severity: 'SEV-2',
+    system: 'Document Conversion & Export Gateway',
+    service: 'doc-export-worker',
+    language: 'typescript',
+    badgeClass: 'badge-amber',
+    slaSeconds: 45,
+    lore: 'Users requesting 1,000-page PDF exports cause the entire cloud API to freeze. All lightweight health checks and auth routes stall until the PDF export finishes.',
+    initialMetrics: {
+      cpu: 100.0,
+      ram: 72.0,
+      ramDisplay: '5.76 / 8.0 GB',
+      errorRate: 65.4,
+      latencyMs: 25000,
+      activeConnections: 4500
+    },
+    stabilizedMetrics: {
+      cpu: 21.0,
+      ram: 26.0,
+      ramDisplay: '2.08 / 8.0 GB',
+      errorRate: 0.01,
+      latencyMs: 32,
+      activeConnections: 420
+    },
+    logs: [
+      '[16:20:00.101] [INFO] [export] Starting PDF generation for document doc_84102 (1,450 pages)',
+      '[16:20:00.102] [DEBUG] [crypto] Generating cryptographic watermark signatures synchronously in loop',
+      '[16:20:08.502] [WARN] [gateway] Upstream response time for GET /healthz exceeded 5,000ms',
+      '[16:20:18.901] [ERROR] [proxy] 504 Gateway Timeout: no bytes received from doc-export-worker in 15s',
+      '[16:20:25.001] [WARN] [cluster] Node worker 3 unresponsive, event loop delay = 24,912ms'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_ts_diag',
+      type: 'multiple_choice',
+      prompt: 'Why does a long-running synchronous computation freeze completely unrelated incoming HTTP routes in Node.js?',
+      options: [
+        'Node.js executes JavaScript on a single thread; synchronous loops starve the event loop from processing I/O events.',
+        'TypeScript compilation removes multi-threading support at transpilation time.',
+        'The V8 garbage collector enters a stop-the-world pause when processing strings longer than 1MB.',
+        'HTTP keep-alive sockets cannot coexist with cryptographic hashing.'
+      ],
+      correctAnswer: 0,
+      explanation: 'JavaScript in Node.js is single-threaded. When CPU-intensive operations (like synchronous hashing or layout calculation) execute synchronously on the main thread, the event loop cannot pick up incoming TCP packets, timers, or I/O callbacks, causing every endpoint to freeze.'
+    },
+    patchQuestion: {
+      id: 'inc_q_ts_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the optimal architectural pattern to offload heavy CPU computation without blocking the main event loop:',
+      options: [
+        'Offload the heavy PDF generation to a Node.js Worker Thread (worker_threads) or dedicated background queue job.',
+        'Wrap the synchronous loop in a Promise.resolve().then() block.',
+        'Prepend async to the synchronous function without changing internal logic.',
+        'Increase the libuv threadpool size to 512 using UV_THREADPOOL_SIZE.'
+      ],
+      correctAnswer: 0,
+      explanation: '`worker_threads` (or an external task queue like BullMQ/Celery) offloads CPU-bound computation to separate operating system threads, keeping the main Node.js event loop completely unblocked and responsive to incoming HTTP requests.'
+    }
+  },
+  {
+    id: 'inc_null_deref_cascade',
+    title: 'Null Dereference Crash Loop',
+    severity: 'SEV-1',
+    system: 'Microservice Cart & Discount Engine',
+    service: 'discount-evaluator',
+    language: 'java',
+    badgeClass: 'badge-coral',
+    slaSeconds: 45,
+    lore: 'During Black Friday flash deals, a promotion with a null coupon code caused 100% of shopping cart evaluations to crash with NullPointerException, triggering a cascading container restart loop.',
+    initialMetrics: {
+      cpu: 89.0,
+      ram: 78.0,
+      ramDisplay: '6.24 / 8.0 GB',
+      errorRate: 98.9,
+      latencyMs: 14200,
+      activeConnections: 18500
+    },
+    stabilizedMetrics: {
+      cpu: 17.5,
+      ram: 28.0,
+      ramDisplay: '2.24 / 8.0 GB',
+      errorRate: 0.0,
+      latencyMs: 24,
+      activeConnections: 720
+    },
+    logs: [
+      '[00:01:05.112] [INFO] [cart] Evaluating discount rules for cart_99182',
+      '[00:01:05.114] [ERROR] [cart] java.lang.NullPointerException: Cannot invoke "String.toUpperCase()" because "couponCode" is null',
+      '[00:01:05.115] [ERROR] [cart]   at com.syntaxarena.discount.RuleEngine.apply(RuleEngine.java:54)',
+      '[00:01:05.116] [ERROR] [cart]   at com.syntaxarena.cart.CartService.calculateTotal(CartService.java:112)',
+      '[00:01:10.820] [WARN] [resilience] CircuitBreaker "discount-service" tripped OPEN (failure rate: 100%)',
+      '[00:01:15.001] [FATAL] [cart] Unhandled runtime exception in reactive pipeline: 500 Internal Server Error'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_java_diag',
+      type: 'multiple_choice',
+      prompt: 'What caused the NullPointerException at RuleEngine.java:54?',
+      options: [
+        'Calling an instance method (toUpperCase) on a null object reference without null-checking or using Optional.',
+        'The Java Virtual Machine ran out of PermGen / Metaspace memory.',
+        'The Coupon class did not implement the Serializable interface.',
+        'A generic type cast from Object to String failed at runtime.'
+      ],
+      correctAnswer: 0,
+      explanation: 'In Java, invoking any method on a reference variable that evaluates to `null` throws `java.lang.NullPointerException`. When guest shoppers or promotions without coupon codes were evaluated, `couponCode` was null, crashing the cart calculation.'
+    },
+    patchQuestion: {
+      id: 'inc_q_java_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the idiomatic Java defensive pattern to handle optional coupon codes safely:',
+      options: [
+        'Use Optional.ofNullable(couponCode).map(String::toUpperCase).orElse("") or Objects.requireNonNullElse().',
+        'Catch java.lang.Error at the top-level main class.',
+        'Add a static boolean flag isCouponPresent initialized to true.',
+        'Declare the method as synchronized.'
+      ],
+      correctAnswer: 0,
+      explanation: '`Optional.ofNullable(couponCode).map(String::toUpperCase).orElse("")` or standard null-safe checks (e.g., `Objects.requireNonNullElse(couponCode, "").toUpperCase()`) gracefully handle null values without throwing NullPointerException.'
+    }
+  }
+];
+
+var IncidentScenarios = window.IncidentScenarios = {
+  getAll() {
+    return [...INCIDENT_SCENARIOS];
+  },
+
+  getById(id) {
+    return INCIDENT_SCENARIOS.find(s => s.id === id) || null;
+  },
+
+  getDefaultIncident() {
+    return INCIDENT_SCENARIOS[0];
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.INCIDENT_SCENARIOS = INCIDENT_SCENARIOS;
+  window.IncidentScenarios = IncidentScenarios;
+}
+
+/* --- End of data/incident-scenarios.js --- */
+
 /* --- Start of js/data/index.js --- */
 /**
  * SyntaxArena Question Catalog Aggregator
@@ -97656,7 +98177,13 @@ var AnswerChecker = window.AnswerChecker = {
     }
 
     // Compare with correctAnswer and acceptedAnswers
-    const isDirectMatch = this._matchesAny(selectedText, [correct, ...accepted]);
+    let expectedText = correct;
+    if (typeof correct === 'number' && Number.isInteger(correct) && correct >= 0 && correct < options.length) {
+      const opt = options[correct];
+      expectedText = typeof opt === 'object' && opt !== null ? (opt.text || opt.id) : String(opt);
+    }
+    const targetList = [correct, expectedText, ...accepted].filter(t => t !== null && t !== undefined);
+    const isDirectMatch = this._matchesAny(selectedText, targetList);
     return {
       correct: isDirectMatch,
       normalizedAnswer: selectedText,
@@ -99290,6 +99817,7 @@ var GameEngine = window.GameEngine = class GameEngine {
       code: raw.code,
       options: raw.options ? [...raw.options] : [],
       blankCount: raw.blankCount,
+      phase: raw.phase,
       targetLine: isRevealed ? raw.targetLine : undefined,
       correctAnswer: isRevealed ? raw.correctAnswer : undefined,
       explanation: isRevealed ? raw.explanation : undefined,
@@ -99888,6 +100416,339 @@ var BossEngine = window.BossEngine = {
 };
 
 /* --- End of js/boss-engine.js --- */
+
+/* --- Start of js/incident-engine.js --- */
+/**
+ * SyntaxArena CyberDrill: Incident Response & Outage Simulation Engine
+ * Manages real-time telemetry streaming, diagnostic triage, patch application,
+ * MTTR tracking, and automated SRE post-mortem generation.
+ * Spec: docs/GAME_RULES.md, docs/ARCHITECTURE.md
+ */
+
+
+var INCIDENT_STATES = window.INCIDENT_STATES = {
+  IDLE: 'idle',
+  ACTIVE: 'active',
+  DIAGNOSING: 'diagnosing',
+  PATCHING: 'patching',
+  STABILIZED: 'stabilized',
+  SLA_BREACHED: 'sla_breached'
+};
+
+var IncidentEngine = window.IncidentEngine = {
+  activeIncident: null,
+  state: INCIDENT_STATES.IDLE,
+  phase: 1, // 1 = Diagnosis, 2 = Patch Application, 3 = Post-Mortem
+  startTime: 0,
+  endTime: 0,
+  slaLimitSeconds: 45,
+  telemetry: {
+    cpu: 0,
+    ram: 0,
+    errorRate: 0,
+    latencyMs: 0
+  },
+  triage: {
+    diagnosisAnswered: false,
+    diagnosisCorrect: false,
+    patchAnswered: false,
+    patchCorrect: false,
+    attempts: 0
+  },
+  callbacks: {
+    onTelemetryTick: null,
+    onStateChange: null,
+    onStabilized: null,
+    onSlaBreach: null
+  },
+
+  /**
+   * Start a production outage incident drill
+   * @param {string} incidentId
+   * @param {object} [options]
+   */
+  startIncident(incidentId = 'inc_memory_leak', options = {}) {
+    this.reset();
+    const scenario = IncidentScenarios.getById(incidentId) || IncidentScenarios.getDefaultIncident();
+    if (!scenario) {
+      throw new Error(`[IncidentEngine] Scenario "${incidentId}" not found.`);
+    }
+
+    this.activeIncident = JSON.parse(JSON.stringify(scenario));
+    this.state = INCIDENT_STATES.ACTIVE;
+    this.phase = 1;
+    this.startTime = Date.now();
+    this.slaLimitSeconds = scenario.slaSeconds || 45;
+
+    // Set initial baseline telemetry
+    this.telemetry = {
+      cpu: scenario.initialMetrics.cpu,
+      ram: scenario.initialMetrics.ram,
+      errorRate: scenario.initialMetrics.errorRate,
+      latencyMs: scenario.initialMetrics.latencyMs
+    };
+
+    if (this.callbacks.onStateChange) {
+      this.callbacks.onStateChange(this.state, this.activeIncident);
+    }
+
+    return this.getSnapshot();
+  },
+
+  /**
+   * Calculate live fluctuating telemetry with realistic jitter
+   * @param {number} [elapsedMs]
+   */
+  computeTelemetry(elapsedMs = 0) {
+    if (!this.activeIncident) return this.telemetry;
+
+    const elapsedSeconds = this.startTime ? Math.floor((Date.now() - this.startTime) / 1000) : 0;
+    const slaRemaining = Math.max(0, this.slaLimitSeconds - elapsedSeconds);
+
+    if (this.state === INCIDENT_STATES.STABILIZED) {
+      // Smooth descent to nominal target levels
+      const target = this.activeIncident.stabilizedMetrics;
+      const decay = 0.85;
+      this.telemetry.cpu = Math.round((this.telemetry.cpu * decay + target.cpu * (1 - decay)) * 10) / 10;
+      this.telemetry.ram = Math.round((this.telemetry.ram * decay + target.ram * (1 - decay)) * 10) / 10;
+      this.telemetry.errorRate = Math.round((this.telemetry.errorRate * decay + target.errorRate * (1 - decay)) * 100) / 100;
+      this.telemetry.latencyMs = Math.round(this.telemetry.latencyMs * decay + target.latencyMs * (1 - decay));
+      return {
+        ...this.telemetry,
+        slaRemainingSeconds: slaRemaining,
+        activeConnections: target.activeConnections || 1000,
+        ramDisplay: target.ramDisplay || ''
+      };
+    }
+
+    // Active outage telemetry jitter
+    const init = this.activeIncident.initialMetrics;
+    const jitter = (Math.random() - 0.5) * 3;
+    const latencyJitter = Math.floor((Math.random() - 0.5) * 350);
+
+    this.telemetry.cpu = Math.min(100, Math.max(10, Math.round((init.cpu + jitter) * 10) / 10));
+    this.telemetry.ram = Math.min(100, Math.max(10, Math.round((init.ram + jitter * 0.5) * 10) / 10));
+    this.telemetry.errorRate = Math.min(100, Math.max(0, Math.round((init.errorRate + jitter * 0.7) * 10) / 10));
+    this.telemetry.latencyMs = Math.max(20, init.latencyMs + latencyJitter);
+
+    return {
+      ...this.telemetry,
+      slaRemainingSeconds: slaRemaining,
+      activeConnections: init.activeConnections || 10000,
+      ramDisplay: init.ramDisplay || ''
+    };
+  },
+
+  /**
+   * Get streaming server logs for active incident
+   */
+  getStreamingLogs() {
+    return this.filterLogs();
+  },
+
+  /**
+   * Filter incident server logs with optional case-insensitive substring
+   * @param {string} query
+   */
+  filterLogs(query = '') {
+    if (!this.activeIncident || !Array.isArray(this.activeIncident.logs)) {
+      return [];
+    }
+    const cleanQ = (query || '').toLowerCase().trim();
+    if (!cleanQ) {
+      return [...this.activeIncident.logs];
+    }
+    return this.activeIncident.logs.filter(line => line.toLowerCase().includes(cleanQ));
+  },
+
+  /**
+   * Submit Root Cause Diagnosis answer (Phase 1)
+   * @param {number} optionIndex
+   */
+  submitDiagnosis(optionIndex) {
+    if (!this.activeIncident || this.state !== INCIDENT_STATES.ACTIVE) {
+      return { success: false, error: 'No active incident drill.' };
+    }
+
+    const q = this.activeIncident.diagnosisQuestion;
+    const isCorrect = (optionIndex === q.correctAnswer);
+    this.triage.diagnosisAnswered = true;
+    this.triage.diagnosisCorrect = isCorrect;
+    this.triage.attempts++;
+
+    if (isCorrect) {
+      // Advance to Phase 2 (Hotfix Patch Application)
+      this.phase = 2;
+    }
+
+    return {
+      isCorrect,
+      explanation: q.explanation,
+      correctIndex: q.correctAnswer,
+      nextPhase: this.phase
+    };
+  },
+
+  /**
+   * Submit Code Patch Hotfix selection (Phase 2)
+   * @param {number} optionIndex
+   */
+  submitPatch(optionIndex) {
+    if (!this.activeIncident || this.phase < 2) {
+      return { success: false, error: 'Diagnosis must be verified before patch deployment.' };
+    }
+
+    const q = this.activeIncident.patchQuestion;
+    const isCorrect = (optionIndex === q.correctAnswer);
+    this.triage.patchAnswered = true;
+    this.triage.patchCorrect = isCorrect;
+    this.triage.attempts++;
+
+    if (isCorrect) {
+      // Incident successfully stabilized!
+      this.state = INCIDENT_STATES.STABILIZED;
+      this.phase = 3;
+      this.endTime = Date.now();
+
+      if (this.callbacks.onStabilized) {
+        this.callbacks.onStabilized(this.getPostMortem());
+      }
+    }
+
+    return {
+      isCorrect,
+      explanation: q.explanation,
+      correctIndex: q.correctAnswer,
+      isResolved: this.state === INCIDENT_STATES.STABILIZED,
+      postMortem: this.state === INCIDENT_STATES.STABILIZED ? this.getPostMortem() : null
+    };
+  },
+
+  /**
+   * Get MTTR and performance analytics
+   */
+  getMTTR() {
+    const end = this.endTime || Date.now();
+    const elapsedMs = Math.max(0, end - this.startTime);
+    const elapsedSec = Math.round(elapsedMs / 100) / 10;
+    const isSlaMet = elapsedSec <= this.slaLimitSeconds;
+    return {
+      elapsedMs,
+      elapsedSec,
+      slaLimitSeconds: this.slaLimitSeconds,
+      isSlaMet,
+      slaMarginSec: Math.round((this.slaLimitSeconds - elapsedSec) * 10) / 10
+    };
+  },
+
+  /**
+   * Generate comprehensive SRE Post-Mortem Incident Report
+   */
+  getPostMortem() {
+    if (!this.activeIncident) return null;
+    const mttr = this.getMTTR();
+    const isSuccess = this.state === INCIDENT_STATES.STABILIZED;
+
+    // Calculate incident commander score
+    let score = 0;
+    if (isSuccess) {
+      score += 300; // Base resolution bounty
+      if (mttr.isSlaMet) {
+        score += Math.max(50, Math.round(mttr.slaMarginSec * 15)); // Speed bonus
+      }
+      if (this.triage.diagnosisCorrect && this.triage.patchCorrect && this.triage.attempts === 2) {
+        score += 100; // Flawless zero-mistake triage
+      }
+    }
+
+    const preventedCostUSD = isSuccess ? Math.round(15000 + Math.random() * 8500) : 0;
+
+    return {
+      incidentId: this.activeIncident.id,
+      title: this.activeIncident.title,
+      severity: this.activeIncident.severity,
+      system: this.activeIncident.system,
+      service: this.activeIncident.service,
+      language: this.activeIncident.language,
+      isResolved: isSuccess,
+      elapsedSec: mttr.elapsedSec,
+      slaLimitSeconds: mttr.slaLimitSeconds,
+      isSlaMet: mttr.isSlaMet,
+      slaComplianceRate: mttr.isSlaMet ? '100% (SLA HONORED)' : 'SLA BREACHED',
+      score,
+      xpAwarded: score,
+      preventedCostUSD,
+      rootCause: this.activeIncident.diagnosisQuestion.explanation,
+      hotfixApplied: this.activeIncident.patchQuestion.explanation,
+      timeline: [
+        { time: 'T-00:00', event: `🚨 ${this.activeIncident.severity} incident triggered on ${this.activeIncident.system}` },
+        { time: `T+00:${String(Math.min(15, Math.round(mttr.elapsedSec * 0.4))).padStart(2, '0')}`, event: '🔍 Diagnostic triage completed; root cause identified' },
+        { time: `T+00:${String(Math.round(mttr.elapsedSec)).padStart(2, '0')}`, event: '✅ Emergency hotfix deployed; telemetry stabilized' }
+      ]
+    };
+  },
+
+  /**
+   * Generate clean Markdown formatted post-mortem for 1-click clipboard sharing
+   */
+  generateMarkdownReport() {
+    const p = this.getPostMortem();
+    if (!p) return '';
+
+    return `### 🚨 SRE Incident Post-Mortem: ${p.title}
+**Incident ID:** \`${p.incidentId}\` • **Severity:** **${p.severity}** • **Service:** \`${p.service}\`
+**Status:** ${p.isResolved ? '✅ RESOLVED & STABILIZED' : '❌ UNRESOLVED'}
+**MTTR:** ${p.elapsedSec}s (Target SLA: ${p.slaLimitSeconds}s) • **SLA Compliance:** ${p.slaComplianceRate}
+**Score Earned:** +${p.score} XP • **Downtime Cost Prevented:** \$${p.preventedCostUSD.toLocaleString()} USD
+
+#### 🔍 Root Cause Analysis:
+${p.rootCause}
+
+#### ⚡ Hotfix Remediation:
+${p.hotfixApplied}
+
+*Generated via SyntaxArena CyberDrill Incident Response Engine*`;
+  },
+
+  /**
+   * Retrieve atomic state snapshot
+   */
+  getSnapshot() {
+    return {
+      activeIncident: this.activeIncident,
+      state: this.state,
+      phase: this.phase,
+      telemetry: { ...this.telemetry },
+      mttr: this.getMTTR()
+    };
+  },
+
+  /**
+   * Reset engine state
+   */
+  reset() {
+    this.activeIncident = null;
+    this.state = INCIDENT_STATES.IDLE;
+    this.phase = 1;
+    this.startTime = 0;
+    this.endTime = 0;
+    this.telemetry = { cpu: 0, ram: 0, errorRate: 0, latencyMs: 0 };
+    this.triage = {
+      diagnosisAnswered: false,
+      diagnosisCorrect: false,
+      patchAnswered: false,
+      patchCorrect: false,
+      attempts: 0
+    };
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.IncidentEngine = IncidentEngine;
+  window.INCIDENT_STATES = INCIDENT_STATES;
+}
+
+/* --- End of js/incident-engine.js --- */
 
 /* --- Start of js/analytics.js --- */
 /**
@@ -108082,6 +108943,8 @@ if (typeof window !== 'undefined') {
 
 
 
+
+
 var HINT_PENALTIES = window.HINT_PENALTIES = {
   beginner: 25,
   intermediate: 60,
@@ -108134,6 +108997,9 @@ var Gameplay = window.Gameplay = {
   isDuelMode: false,
   duelSession: null,
   _activeDuelHostConfig: null,
+  isIncidentMode: false,
+  activeIncident: null,
+  incidentTelemetryInterval: null,
 
   /**
    * Save an atomic snapshot of current session state to reactive state & localStorage.
@@ -108197,7 +109063,7 @@ var Gameplay = window.Gameplay = {
 
     const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html', 'asm'];
     const ALLOWED_DIFFS = ['beginner', 'intermediate', 'expert'];
-    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless', 'boss', 'duel'];
+    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless', 'boss', 'duel', 'incident'];
 
     let rawLang = (params.lang || (activeProfile && activeProfile.preferences?.language) || 'python').toLowerCase();
     if (rawLang === 'ts') rawLang = 'typescript';
@@ -108258,6 +109124,10 @@ var Gameplay = window.Gameplay = {
       timeLimit = 20;
     } else if (mode === 'boss') {
       timeLimit = 35; // Calibrated for high-stakes boss calculations
+    } else if (mode === 'incident') {
+      const incidentId = params.incident || 'inc_memory_leak';
+      const inc = (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getById(incidentId)) || (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getDefaultIncident());
+      timeLimit = inc ? inc.slaSeconds : 45;
     } else if (mode === 'endless') {
       timeLimit = (params.timed === 'true') ? 45 : 0; // Relaxed continuous point farm by default
     }
@@ -108267,6 +109137,7 @@ var Gameplay = window.Gameplay = {
     const isExplicitNew = params.new === 'true' || params.reset === 'true';
     const canResume = !isExplicitNew &&
       mode !== 'retry_missed' &&
+      mode !== 'incident' &&
       savedSession &&
       savedSession.inProgress &&
       !savedSession.isGameOver &&
@@ -108370,6 +109241,41 @@ var Gameplay = window.Gameplay = {
         count: duelCount
       });
       this.isDuelMode = true;
+    } else if (mode === 'incident') {
+      const incidentId = params.incident || 'inc_memory_leak';
+      const incData = (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getById(incidentId)) || (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getDefaultIncident());
+      if (incData) {
+        this.activeIncident = incData;
+        const diagQ = incData.diagnosisQuestion;
+        const patchQ = incData.patchQuestion;
+        const diagCorrect = typeof diagQ.correctAnswer === 'number' ? diagQ.options[diagQ.correctAnswer] : diagQ.correctAnswer;
+        const patchCorrect = typeof patchQ.correctAnswer === 'number' ? patchQ.options[patchQ.correctAnswer] : patchQ.correctAnswer;
+
+        questions = [
+          {
+            ...diagQ,
+            correctAnswer: diagCorrect,
+            language: incData.language || 'python',
+            difficulty: 'expert',
+            topic: 'incident_response',
+            subtopic: 'root_cause_analysis',
+            phase: 1,
+            incidentId: incData.id,
+            code: incData.logs ? incData.logs.slice(-4).join('\n') : ''
+          },
+          {
+            ...patchQ,
+            correctAnswer: patchCorrect,
+            language: incData.language || 'python',
+            difficulty: 'expert',
+            topic: 'incident_response',
+            subtopic: 'hotfix_stabilization',
+            phase: 2,
+            incidentId: incData.id,
+            code: incData.patchSnippet || ''
+          }
+        ];
+      }
     } else if (mode === 'boss') {
       const bossId = params.boss || 'null_leviathan';
       const bossData = (typeof BossEncounters !== 'undefined' && BossEncounters.getById(bossId)) || (typeof BossEncounters !== 'undefined' && BossEncounters.getDefaultBoss());
@@ -108445,7 +109351,7 @@ var Gameplay = window.Gameplay = {
       timeLimit,
       questions,
       stage: activeStage.id,
-      randomizeOrder: mode !== 'boss' && mode !== 'duel'
+      randomizeOrder: mode !== 'boss' && mode !== 'duel' && mode !== 'incident'
     };
 
     try {
@@ -108459,8 +109365,10 @@ var Gameplay = window.Gameplay = {
     // 5. Update reactive state with active session snapshot
     this._saveSessionSnapshot();
 
-    // 6. Bind DOM controls, keyboard shortcuts, Ghost Duel & 1v1 SyntaxDuel
+    // 6. Bind DOM controls, keyboard shortcuts, Ghost Duel, 1v1 SyntaxDuel & CyberDrill Incident HUD
     if (mode === 'duel') {
+      const incHud = Utils.qs('#hud-incident-monitor');
+      if (incHud) incHud.style.display = 'none';
       this._initDuelUI(params);
     } else if (mode === 'boss') {
       const bossBar = Utils.qs('#hud-boss-battle-bar');
@@ -108469,9 +109377,21 @@ var Gameplay = window.Gameplay = {
       if (ghostRail) ghostRail.style.display = 'none';
       const duelBar = Utils.qs('#hud-duel-versus-bar');
       if (duelBar) duelBar.style.display = 'none';
+      const incHud = Utils.qs('#hud-incident-monitor');
+      if (incHud) incHud.style.display = 'none';
+    } else if (mode === 'incident') {
+      const ghostRail = Utils.qs('#hud-ghost-duel-rail');
+      if (ghostRail) ghostRail.style.display = 'none';
+      const bossBar = Utils.qs('#hud-boss-battle-bar');
+      if (bossBar) bossBar.style.display = 'none';
+      const duelBar = Utils.qs('#hud-duel-versus-bar');
+      if (duelBar) duelBar.style.display = 'none';
+      this._initIncidentUI(params);
     } else {
       const duelBar = Utils.qs('#hud-duel-versus-bar');
       if (duelBar) duelBar.style.display = 'none';
+      const incHud = Utils.qs('#hud-incident-monitor');
+      if (incHud) incHud.style.display = 'none';
       this._initGhostDuelUI(difficulty);
     }
     this._bindEvents();
@@ -108724,9 +109644,11 @@ var Gameplay = window.Gameplay = {
     // Render Answer Interface for Question Type
     this._renderAnswerInterface(q);
 
-    // Update Ghost Speed Duel position rail or 1v1 SyntaxDuel HUD
+    // Update Ghost Speed Duel position rail, 1v1 SyntaxDuel HUD, or CyberDrill Incident HUD
     if (this.isDuelMode) {
       this._updateDuelVersusHUD();
+    } else if (this.isIncidentMode) {
+      this._updateIncidentTelemetryHUD();
     } else {
       this._updateGhostDuelTrack(q);
     }
@@ -109183,6 +110105,38 @@ var Gameplay = window.Gameplay = {
         }
       }
 
+      // CyberDrill Incident Response processing on correct triage
+      if (this.isIncidentMode && typeof IncidentEngine !== 'undefined') {
+        const currentQ = this.engine ? this.engine.getCurrentQuestion() : null;
+        const isPhase1 = (currentQ && (currentQ.phase === 1 || currentQ.index === 0)) || (IncidentEngine.phase === 1);
+        if (isPhase1) {
+          IncidentEngine.submitDiagnosis(this.selectedOptionIndex);
+          const phaseBadge = Utils.qs('#incident-phase-badge');
+          if (phaseBadge) {
+            phaseBadge.textContent = 'TRIAGE PHASE 2: HOTFIX PATCH DEPLOYMENT';
+            phaseBadge.className = 'incident-badge badge-sev2';
+          }
+          UI.showToast('🎯 Root cause diagnosed correctly! Deploying hotfix patch...', 'success');
+        } else {
+          IncidentEngine.submitPatch(this.selectedOptionIndex);
+          const hud = Utils.qs('#hud-incident-monitor');
+          if (hud) {
+            hud.classList.add('incident-stabilized-pulse');
+          }
+          const phaseBadge = Utils.qs('#incident-phase-badge');
+          if (phaseBadge) {
+            phaseBadge.textContent = 'INCIDENT MITIGATED: TELEMETRY NOMINAL';
+            phaseBadge.className = 'incident-badge badge-nominal';
+          }
+          const sevBadge = Utils.qs('#incident-sev-badge');
+          if (sevBadge) {
+            sevBadge.textContent = 'STATUS: RESOLVED';
+            sevBadge.className = 'incident-badge badge-nominal';
+          }
+          UI.showToast('🚀 Hotfix patch deployed! Telemetry returning to healthy thresholds!', 'success');
+        }
+      }
+
       // Auto-advance to next question automatically after 2.0s delay
       if (this._autoAdvanceTimer) {
         clearTimeout(this._autoAdvanceTimer);
@@ -109288,6 +110242,18 @@ var Gameplay = window.Gameplay = {
               pointsEarned: 0
             });
             this._updateDuelVersusHUD();
+          }
+        }
+
+        // CyberDrill Incident Response processing on incorrect triage
+        if (this.isIncidentMode && typeof IncidentEngine !== 'undefined') {
+          const currentQ = this.engine ? this.engine.getCurrentQuestion() : null;
+          if (currentQ && currentQ.phase === 1) {
+            IncidentEngine.submitDiagnosis(this.selectedOptionIndex);
+            UI.showToast('❌ Incorrect root cause diagnosis! Review streaming logs and stack trace.', 'error');
+          } else if (currentQ && currentQ.phase === 2) {
+            IncidentEngine.submitPatch(this.selectedOptionIndex);
+            UI.showToast('❌ Ineffective patch! Systems still destabilizing.', 'error');
           }
         }
 
@@ -109707,6 +110673,18 @@ var Gameplay = window.Gameplay = {
       return;
     }
 
+    // CyberDrill Incident Response post-mortem flow (render post-mortem modal without navigating away)
+    if (this.isIncidentMode) {
+      this.isCompleted = true;
+      this._stopTimer();
+      if (this.incidentTelemetryInterval) {
+        clearInterval(this.incidentTelemetryInterval);
+        this.incidentTelemetryInterval = null;
+      }
+      this._renderIncidentPostMortem();
+      return;
+    }
+
     // Navigate to results page
     const params = {
       lang: summary.language,
@@ -109820,6 +110798,10 @@ var Gameplay = window.Gameplay = {
     if (this.timer.intervalId) {
       clearInterval(this.timer.intervalId);
       this.timer.intervalId = null;
+    }
+    if (this.incidentTelemetryInterval) {
+      clearInterval(this.incidentTelemetryInterval);
+      this.incidentTelemetryInterval = null;
     }
     this.timer.isRunning = false;
     const timerEl = Utils.qs('#hud-timer-display');
@@ -110124,6 +111106,9 @@ var Gameplay = window.Gameplay = {
 
     // Bind 1v1 SyntaxDuel Lobby, Controls and Modals
     this._bindDuelEvents();
+
+    // Bind CyberDrill Incident Response Monitor, Filters, and Modals
+    this._bindIncidentEvents();
 
     // Cleanup timer on page beforeunload
     window.addEventListener('beforeunload', () => {
@@ -111092,6 +112077,350 @@ var Gameplay = window.Gameplay = {
         UI.closeModal('modal-duel-results');
         Router.navigateTo('index');
       };
+    }
+  },
+
+  /* ==========================================================================
+     FEATURE 5: CYBERDRILL INCIDENT RESPONSE & LIVE OUTAGE SIMULATOR
+     ========================================================================== */
+
+  /**
+   * Initialize CyberDrill incident response mode.
+   * @param {object} params
+   */
+  _initIncidentUI(params = {}) {
+    this.isIncidentMode = true;
+
+    // Toggle HUDs
+    const incHud = Utils.qs('#hud-incident-monitor');
+    if (incHud) incHud.style.display = 'block';
+
+    const ghostRail = Utils.qs('#hud-ghost-duel-rail');
+    if (ghostRail) ghostRail.style.display = 'none';
+
+    const bossBar = Utils.qs('#hud-boss-battle-bar');
+    if (bossBar) bossBar.style.display = 'none';
+
+    const duelBar = Utils.qs('#hud-duel-versus-bar');
+    if (duelBar) duelBar.style.display = 'none';
+
+    const incidentId = params.incident || 'inc_memory_leak';
+    if (typeof IncidentEngine !== 'undefined') {
+      const snap = IncidentEngine.startIncident(incidentId);
+      this.activeIncident = snap?.activeIncident || (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getById(incidentId));
+    }
+
+    const currentInc = this.activeIncident || (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getById(incidentId));
+    if (currentInc) {
+      const titleEl = Utils.qs('#incident-title-text');
+      const sevBadge = Utils.qs('#incident-sev-badge');
+      const phaseBadge = Utils.qs('#incident-phase-badge');
+
+      if (titleEl) titleEl.textContent = `${currentInc.title} (${currentInc.service})`;
+      if (sevBadge) {
+        sevBadge.textContent = `${currentInc.severity} OUTAGE`;
+        sevBadge.className = `incident-badge ${currentInc.severity === 'SEV-1' ? 'badge-sev1' : 'badge-sev2'}`;
+      }
+      if (phaseBadge) {
+        phaseBadge.textContent = 'TRIAGE PHASE 1: ROOT CAUSE DIAGNOSIS';
+        phaseBadge.className = 'incident-badge badge-sev1';
+      }
+    }
+
+    // Populate streaming logs and start telemetry updates
+    if (typeof IncidentEngine !== 'undefined') {
+      this._renderIncidentLogs(IncidentEngine.getStreamingLogs());
+    }
+    this._startIncidentTelemetryUpdates();
+    UI.showToast(`🚨 On-Call Alert: ${currentInc?.title || 'Production Outage'}! Diagnose and hotfix before SLA deadline!`, 'warning');
+  },
+
+  /**
+   * Start live fluctuating telemetry HUD timer.
+   */
+  _startIncidentTelemetryUpdates() {
+    if (this.incidentTelemetryInterval) {
+      clearInterval(this.incidentTelemetryInterval);
+    }
+    this._updateIncidentTelemetryHUD();
+
+    this.incidentTelemetryInterval = setInterval(() => {
+      if (this.isCompleted) {
+        clearInterval(this.incidentTelemetryInterval);
+        this.incidentTelemetryInterval = null;
+        return;
+      }
+      this._updateIncidentTelemetryHUD();
+    }, 600);
+  },
+
+  /**
+   * Update telemetry gauges and SLA timer in HUD.
+   */
+  _updateIncidentTelemetryHUD() {
+    if (!this.isIncidentMode || typeof IncidentEngine === 'undefined') return;
+
+    const telem = IncidentEngine.computeTelemetry();
+    if (!telem) return;
+
+    // SLA Timer display
+    const slaEl = Utils.qs('#incident-sla-timer');
+    if (slaEl) {
+      const rem = telem.slaRemainingSeconds;
+      const mins = Math.floor(Math.max(0, rem) / 60);
+      const secs = Math.max(0, rem) % 60;
+      slaEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      if (rem <= 15 && rem > 0) {
+        slaEl.style.color = 'var(--color-coral)';
+      } else if (rem <= 0) {
+        slaEl.textContent = 'BREACHED (00:00)';
+        slaEl.style.color = '#ef4444';
+      } else {
+        slaEl.style.color = 'var(--color-cyan)';
+      }
+    }
+
+    // CPU
+    const cpuVal = Utils.qs('#metric-cpu-val');
+    const cpuFill = Utils.qs('#metric-cpu-fill');
+    const cpuCard = Utils.qs('#metric-card-cpu');
+    if (cpuVal) cpuVal.textContent = `${telem.cpu}%`;
+    if (cpuFill) cpuFill.style.width = `${Math.min(100, telem.cpu)}%`;
+    if (cpuCard) {
+      cpuCard.className = `metric-card ${telem.cpu > 75 ? 'is-critical' : 'is-nominal'}`;
+    }
+
+    // RAM
+    const ramVal = Utils.qs('#metric-ram-val');
+    const ramFill = Utils.qs('#metric-ram-fill');
+    const ramDetail = Utils.qs('#metric-ram-detail');
+    const ramCard = Utils.qs('#metric-card-ram');
+    if (ramVal) ramVal.textContent = `${telem.ram}%`;
+    if (ramFill) ramFill.style.width = `${Math.min(100, telem.ram)}%`;
+    if (ramDetail && telem.ramDisplay) ramDetail.textContent = telem.ramDisplay;
+    if (ramCard) {
+      ramCard.className = `metric-card ${telem.ram > 80 ? 'is-critical' : 'is-nominal'}`;
+    }
+
+    // Error Rate
+    const errVal = Utils.qs('#metric-error-val');
+    const errFill = Utils.qs('#metric-error-fill');
+    const errCard = Utils.qs('#metric-card-errors');
+    if (errVal) errVal.textContent = `${telem.errorRate}%`;
+    if (errFill) errFill.style.width = `${Math.min(100, telem.errorRate)}%`;
+    if (errCard) {
+      errCard.className = `metric-card ${telem.errorRate > 5.0 ? 'is-critical' : 'is-nominal'}`;
+    }
+
+    // Latency & Conns
+    const latVal = Utils.qs('#metric-latency-val');
+    const latFill = Utils.qs('#metric-latency-fill');
+    const connsDetail = Utils.qs('#metric-conns-detail');
+    const latCard = Utils.qs('#metric-card-latency');
+    if (latVal) latVal.textContent = `${telem.latencyMs} ms`;
+    if (latFill) latFill.style.width = `${Math.min(100, (telem.latencyMs / 4000) * 100)}%`;
+    if (connsDetail) connsDetail.textContent = `${(telem.activeConnections || 0).toLocaleString()} Conns`;
+    if (latCard) {
+      latCard.className = `metric-card ${telem.latencyMs > 500 ? 'is-critical' : 'is-nominal'}`;
+    }
+  },
+
+  /**
+   * Render streaming log rows in live tail terminal.
+   * @param {Array<string>} logs
+   */
+  _renderIncidentLogs(logs = []) {
+    const stream = Utils.qs('#incident-log-stream');
+    if (!stream) return;
+    stream.innerHTML = '';
+    logs.forEach(log => {
+      const row = document.createElement('div');
+      row.className = 'log-row';
+      const isError = log.includes('[ERROR]') || log.includes('[FATAL]');
+      const isWarn = log.includes('[WARN]');
+      const level = isError ? 'error' : isWarn ? 'warn' : 'info';
+      row.innerHTML = `<span class="log-level ${level}">[${level.toUpperCase()}]</span> <span class="log-msg">${Utils.escapeHtml(log)}</span>`;
+      stream.appendChild(row);
+    });
+    stream.scrollTop = stream.scrollHeight;
+  },
+
+  /**
+   * Populate scenario list cards in Scenario Selector modal.
+   */
+  _renderIncidentCatalogList() {
+    const listEl = Utils.qs('#incident-scenario-list');
+    if (!listEl || typeof IncidentScenarios === 'undefined') return;
+    listEl.innerHTML = '';
+    IncidentScenarios.getAll().forEach(inc => {
+      const card = document.createElement('div');
+      card.className = 'scenario-card';
+      card.style.cssText = 'background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s ease;';
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span class="badge ${inc.badgeClass || 'badge-coral'}" style="font-size: 10px;">${inc.severity}</span>
+          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">${inc.slaSeconds}s SLA</span>
+        </div>
+        <div style="font-weight: 700; color: var(--text-primary); font-size: 14px; margin-bottom: 4px;">${inc.title}</div>
+        <div style="font-size: 11px; color: var(--color-cyan); margin-bottom: 6px; font-family: var(--font-mono);">${inc.service} (${inc.language})</div>
+        <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.3;">${inc.lore.slice(0, 95)}...</p>
+      `;
+      card.addEventListener('mouseenter', () => {
+        card.style.borderColor = 'var(--color-primary)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.borderColor = 'var(--border-subtle)';
+      });
+      card.addEventListener('click', () => {
+        window.location.href = `game.html?mode=incident&incident=${inc.id}&new=true`;
+      });
+      listEl.appendChild(card);
+    });
+  },
+
+  /**
+   * Render post-mortem incident report dialog upon stabilization.
+   */
+  _renderIncidentPostMortem() {
+    if (typeof IncidentEngine === 'undefined') return;
+    const pm = IncidentEngine.getPostMortem();
+    if (!pm) return;
+
+    const modal = Utils.qs('#modal-incident-postmortem');
+    if (!modal) return;
+
+    const titleEl = Utils.qs('#modal-incident-pm-title');
+    const subtitleEl = Utils.qs('#incident-pm-subtitle');
+    const badgeEl = Utils.qs('#incident-pm-status-badge');
+    const idEl = Utils.qs('#incident-pm-id-badge');
+
+    const mttrEl = Utils.qs('#incident-pm-mttr');
+    const slaEl = Utils.qs('#incident-pm-sla-margin');
+    const costEl = Utils.qs('#incident-pm-cost');
+    const xpEl = Utils.qs('#incident-pm-xp');
+
+    const rootCauseEl = Utils.qs('#incident-pm-root-cause');
+    const hotfixEl = Utils.qs('#incident-pm-hotfix');
+    const timelineEl = Utils.qs('#incident-pm-timeline');
+
+    const incTitle = pm.title || pm.incidentTitle || 'Outage Incident';
+    const isSlaMet = pm.isSlaMet ?? pm.slaMet ?? true;
+    const elapsedSec = pm.elapsedSec ?? pm.mttrSeconds ?? 0;
+    const slaMargin = pm.slaMarginSec ?? pm.slaMarginSeconds ?? 0;
+    const costPrevented = pm.preventedCostUSD ?? pm.downtimeCostPreventedUsd ?? 0;
+    const scoreVal = pm.score ?? pm.xpAwarded ?? pm.finalScore ?? 0;
+
+    if (titleEl) titleEl.textContent = `${incTitle} Post-Mortem`;
+    if (subtitleEl) subtitleEl.textContent = `Service: ${pm.service} (${pm.system}) • Resolved by On-Call SRE`;
+    if (badgeEl) {
+      badgeEl.textContent = isSlaMet ? 'SLA MAINTAINED' : 'SLA BREACHED (RESOLVED)';
+      badgeEl.className = isSlaMet ? 'badge badge-emerald' : 'badge badge-coral';
+    }
+    if (idEl) idEl.textContent = (pm.incidentId || 'INC').toUpperCase();
+
+    if (mttrEl) mttrEl.textContent = `${elapsedSec}s`;
+    if (slaEl) {
+      slaEl.textContent = (slaMargin >= 0 ? `+${slaMargin}s` : `${slaMargin}s`);
+      slaEl.style.color = isSlaMet ? 'var(--color-emerald)' : 'var(--color-coral)';
+    }
+    if (costEl) costEl.textContent = `$${costPrevented.toLocaleString()}`;
+    if (xpEl) xpEl.textContent = `+${scoreVal} XP`;
+
+    if (rootCauseEl) rootCauseEl.textContent = pm.rootCause;
+    if (hotfixEl) hotfixEl.textContent = pm.hotfixApplied;
+
+    if (timelineEl) {
+      timelineEl.innerHTML = '';
+      (pm.timeline || []).forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'timeline-item';
+        row.innerHTML = `<span class="timeline-time">${item.time}</span> <span class="timeline-text">${item.event}</span>`;
+        timelineEl.appendChild(row);
+      });
+    }
+
+    UI.openModal('modal-incident-postmortem');
+    UI.triggerConfetti();
+  },
+
+  /**
+   * Bind event handlers for CyberDrill logs, scenarios modal, and post-mortem actions.
+   */
+  _bindIncidentEvents() {
+    const logSearchInput = Utils.qs('#incident-log-search');
+    const clearLogBtn = Utils.qs('#btn-clear-log-filter');
+    if (logSearchInput) {
+      logSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value;
+        if (typeof IncidentEngine !== 'undefined') {
+          const filtered = IncidentEngine.filterLogs(query);
+          this._renderIncidentLogs(filtered);
+        }
+      });
+    }
+    if (clearLogBtn && logSearchInput) {
+      clearLogBtn.addEventListener('click', () => {
+        logSearchInput.value = '';
+        if (typeof IncidentEngine !== 'undefined') {
+          this._renderIncidentLogs(IncidentEngine.getStreamingLogs());
+        }
+      });
+    }
+
+    // Scenario switch dialog
+    const switchBtn = Utils.qs('#btn-switch-incident');
+    const selectModal = Utils.qs('#modal-incident-select');
+    const closeSelectBtn = Utils.qs('#btn-close-incident-select');
+    const cancelSelectBtn = Utils.qs('#btn-cancel-incident-select');
+    if (switchBtn && selectModal) {
+      switchBtn.addEventListener('click', () => {
+        this._renderIncidentCatalogList();
+        UI.openModal('modal-incident-select');
+      });
+    }
+    if (closeSelectBtn && selectModal) {
+      closeSelectBtn.addEventListener('click', () => UI.closeModal('modal-incident-select'));
+    }
+    if (cancelSelectBtn && selectModal) {
+      cancelSelectBtn.addEventListener('click', () => UI.closeModal('modal-incident-select'));
+    }
+
+    // Post-mortem dialog buttons
+    const copyPmBtn = Utils.qs('#btn-copy-incident-pm');
+    const nextIncBtn = Utils.qs('#btn-next-incident');
+    const incHubBtn = Utils.qs('#btn-incident-hub');
+    if (copyPmBtn) {
+      copyPmBtn.addEventListener('click', () => {
+        if (typeof IncidentEngine !== 'undefined') {
+          const md = IncidentEngine.generateMarkdownReport();
+          if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(md).then(() => {
+              UI.showToast('📋 Post-Mortem Markdown copied to clipboard!', 'success');
+            }).catch(() => {
+              UI.showToast('Post-Mortem generated.', 'info');
+            });
+          } else {
+            UI.showToast('📋 Post-Mortem copied to clipboard!', 'info');
+          }
+        }
+      });
+    }
+    if (nextIncBtn) {
+      nextIncBtn.addEventListener('click', () => {
+        if (typeof IncidentScenarios !== 'undefined' && typeof IncidentEngine !== 'undefined') {
+          const all = IncidentScenarios.getAll();
+          const currId = IncidentEngine.currentIncident?.id;
+          const idx = all.findIndex(i => i.id === currId);
+          const next = all[(idx + 1) % all.length];
+          window.location.href = `game.html?mode=incident&incident=${next.id}&new=true`;
+        }
+      });
+    }
+    if (incHubBtn) {
+      incHubBtn.addEventListener('click', () => {
+        UI.closeModal('modal-incident-postmortem');
+        Router.navigateTo('index');
+      });
     }
   }
 };

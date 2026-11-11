@@ -126,6 +126,35 @@ Challenge friends or rivals to live, head-to-head syntax coding battles! Built 1
 
 ---
 
+## 🚨 CyberDrill: Incident Response & Live Outage Simulator
+
+Step into the shoes of an on-call Site Reliability Engineer (SRE) facing catastrophic Sev-1 and Sev-2 production incidents under strict Service Level Agreements (SLAs). 100% vanilla browser-native with zero external dependencies:
+
+* **8 High-Stakes Production Scenarios (`data/incident-scenarios.js`):**
+  * **Memory Leaks:** Unbounded global list accumulation leading to Kubernetes OOM-kills.
+  * **Mutex Deadlocks:** Inverted lock acquisition causing goroutine thread starvation.
+  * **Buffer Overflows:** Unchecked network byte copies corrupting stack frames.
+  * **Connection Leaks:** Premature database pool exhaustion under high traffic loads.
+  * **Catastrophic ReDoS:** Nested backtracking regular expressions locking authentication workers.
+  * **Use-After-Free:** Dangling pointer invocations triggering heap memory corruption.
+  * **Event Loop Lockups:** Heavy synchronous crypto calls blocking Node.js/V8 I/O polling.
+  * **Null Dereference Cascades:** Unsafe unwrap panic loops across distributed microservices.
+* **Live Fluctuating Telemetry HUD (`#hud-incident-monitor`):**
+  * Real-time fluctuating metrics with organic jitter: **CPU Load %**, **Heap RAM Usage**, **5xx Error Rate %**, and **P99 Latency / Active TCP Connections**.
+  * Dynamic visual status classes (`.is-critical` glowing coral vs `.is-nominal` soothing cyan/emerald).
+  * Smooth exponential decay down to healthy baseline metrics upon successful hotfix deployment.
+* **Live Streaming Cloud Server Logs:**
+  * Real-time server log tail with interactive substring filter input to isolate stack traces, `OOMKilled` signals, and error signatures.
+* **2-Phase Triage Workflow:**
+  * **Phase 1 (Diagnosis):** Analyze metrics, stack traces, and logs to identify the architectural root cause.
+  * **Phase 2 (Hotfix):** Select and deploy the optimal zero-downtime hotfix patch to stabilize the cluster before the SLA deadline expires.
+* **SRE Post-Mortem Incident Report Card (`#modal-incident-postmortem`):**
+  * Real-time MTTR (Mean Time to Resolution) tracking, SLA margin bonus scoring, and downtime financial cost calculation (\$USD prevented).
+  * Complete timeline breakdown with incident detection, diagnosis, and mitigation checkpoints.
+  * 1-click **Copy Post-Mortem MD** clipboard export for incident reviews and retrospectives.
+
+---
+
 ## 👾 Daemon Incursion: Cyberpunk Mega-Boss Battles
 
 The **Daemon Incursion** mode transforms code reasoning into epic multi-phase arcade boss encounters against rogue system daemons threatening memory and kernel integrity:

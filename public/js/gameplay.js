@@ -19,6 +19,8 @@ import { LANGUAGE_METADATA } from './data/index.js';
 import { BossEncounters } from '../data/boss-encounters.js';
 import { BossEngine } from './boss-engine.js';
 import { DuelEngine } from './p2p-duel.js';
+import { IncidentScenarios } from '../data/incident-scenarios.js';
+import { IncidentEngine } from './incident-engine.js';
 
 export const HINT_PENALTIES = {
   beginner: 25,
@@ -72,6 +74,9 @@ export const Gameplay = {
   isDuelMode: false,
   duelSession: null,
   _activeDuelHostConfig: null,
+  isIncidentMode: false,
+  activeIncident: null,
+  incidentTelemetryInterval: null,
 
   /**
    * Save an atomic snapshot of current session state to reactive state & localStorage.
@@ -135,7 +140,7 @@ export const Gameplay = {
 
     const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html', 'asm'];
     const ALLOWED_DIFFS = ['beginner', 'intermediate', 'expert'];
-    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless', 'boss', 'duel'];
+    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless', 'boss', 'duel', 'incident'];
 
     let rawLang = (params.lang || (activeProfile && activeProfile.preferences?.language) || 'python').toLowerCase();
     if (rawLang === 'ts') rawLang = 'typescript';
@@ -196,6 +201,10 @@ export const Gameplay = {
       timeLimit = 20;
     } else if (mode === 'boss') {
       timeLimit = 35; // Calibrated for high-stakes boss calculations
+    } else if (mode === 'incident') {
+      const incidentId = params.incident || 'inc_memory_leak';
+      const inc = (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getById(incidentId)) || (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getDefaultIncident());
+      timeLimit = inc ? inc.slaSeconds : 45;
     } else if (mode === 'endless') {
       timeLimit = (params.timed === 'true') ? 45 : 0; // Relaxed continuous point farm by default
     }
@@ -205,6 +214,7 @@ export const Gameplay = {
     const isExplicitNew = params.new === 'true' || params.reset === 'true';
     const canResume = !isExplicitNew &&
       mode !== 'retry_missed' &&
+      mode !== 'incident' &&
       savedSession &&
       savedSession.inProgress &&
       !savedSession.isGameOver &&
@@ -308,6 +318,41 @@ export const Gameplay = {
         count: duelCount
       });
       this.isDuelMode = true;
+    } else if (mode === 'incident') {
+      const incidentId = params.incident || 'inc_memory_leak';
+      const incData = (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getById(incidentId)) || (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getDefaultIncident());
+      if (incData) {
+        this.activeIncident = incData;
+        const diagQ = incData.diagnosisQuestion;
+        const patchQ = incData.patchQuestion;
+        const diagCorrect = typeof diagQ.correctAnswer === 'number' ? diagQ.options[diagQ.correctAnswer] : diagQ.correctAnswer;
+        const patchCorrect = typeof patchQ.correctAnswer === 'number' ? patchQ.options[patchQ.correctAnswer] : patchQ.correctAnswer;
+
+        questions = [
+          {
+            ...diagQ,
+            correctAnswer: diagCorrect,
+            language: incData.language || 'python',
+            difficulty: 'expert',
+            topic: 'incident_response',
+            subtopic: 'root_cause_analysis',
+            phase: 1,
+            incidentId: incData.id,
+            code: incData.logs ? incData.logs.slice(-4).join('\n') : ''
+          },
+          {
+            ...patchQ,
+            correctAnswer: patchCorrect,
+            language: incData.language || 'python',
+            difficulty: 'expert',
+            topic: 'incident_response',
+            subtopic: 'hotfix_stabilization',
+            phase: 2,
+            incidentId: incData.id,
+            code: incData.patchSnippet || ''
+          }
+        ];
+      }
     } else if (mode === 'boss') {
       const bossId = params.boss || 'null_leviathan';
       const bossData = (typeof BossEncounters !== 'undefined' && BossEncounters.getById(bossId)) || (typeof BossEncounters !== 'undefined' && BossEncounters.getDefaultBoss());
@@ -383,7 +428,7 @@ export const Gameplay = {
       timeLimit,
       questions,
       stage: activeStage.id,
-      randomizeOrder: mode !== 'boss' && mode !== 'duel'
+      randomizeOrder: mode !== 'boss' && mode !== 'duel' && mode !== 'incident'
     };
 
     try {
@@ -397,8 +442,10 @@ export const Gameplay = {
     // 5. Update reactive state with active session snapshot
     this._saveSessionSnapshot();
 
-    // 6. Bind DOM controls, keyboard shortcuts, Ghost Duel & 1v1 SyntaxDuel
+    // 6. Bind DOM controls, keyboard shortcuts, Ghost Duel, 1v1 SyntaxDuel & CyberDrill Incident HUD
     if (mode === 'duel') {
+      const incHud = Utils.qs('#hud-incident-monitor');
+      if (incHud) incHud.style.display = 'none';
       this._initDuelUI(params);
     } else if (mode === 'boss') {
       const bossBar = Utils.qs('#hud-boss-battle-bar');
@@ -407,9 +454,21 @@ export const Gameplay = {
       if (ghostRail) ghostRail.style.display = 'none';
       const duelBar = Utils.qs('#hud-duel-versus-bar');
       if (duelBar) duelBar.style.display = 'none';
+      const incHud = Utils.qs('#hud-incident-monitor');
+      if (incHud) incHud.style.display = 'none';
+    } else if (mode === 'incident') {
+      const ghostRail = Utils.qs('#hud-ghost-duel-rail');
+      if (ghostRail) ghostRail.style.display = 'none';
+      const bossBar = Utils.qs('#hud-boss-battle-bar');
+      if (bossBar) bossBar.style.display = 'none';
+      const duelBar = Utils.qs('#hud-duel-versus-bar');
+      if (duelBar) duelBar.style.display = 'none';
+      this._initIncidentUI(params);
     } else {
       const duelBar = Utils.qs('#hud-duel-versus-bar');
       if (duelBar) duelBar.style.display = 'none';
+      const incHud = Utils.qs('#hud-incident-monitor');
+      if (incHud) incHud.style.display = 'none';
       this._initGhostDuelUI(difficulty);
     }
     this._bindEvents();
@@ -662,9 +721,11 @@ export const Gameplay = {
     // Render Answer Interface for Question Type
     this._renderAnswerInterface(q);
 
-    // Update Ghost Speed Duel position rail or 1v1 SyntaxDuel HUD
+    // Update Ghost Speed Duel position rail, 1v1 SyntaxDuel HUD, or CyberDrill Incident HUD
     if (this.isDuelMode) {
       this._updateDuelVersusHUD();
+    } else if (this.isIncidentMode) {
+      this._updateIncidentTelemetryHUD();
     } else {
       this._updateGhostDuelTrack(q);
     }
@@ -1121,6 +1182,38 @@ export const Gameplay = {
         }
       }
 
+      // CyberDrill Incident Response processing on correct triage
+      if (this.isIncidentMode && typeof IncidentEngine !== 'undefined') {
+        const currentQ = this.engine ? this.engine.getCurrentQuestion() : null;
+        const isPhase1 = (currentQ && (currentQ.phase === 1 || currentQ.index === 0)) || (IncidentEngine.phase === 1);
+        if (isPhase1) {
+          IncidentEngine.submitDiagnosis(this.selectedOptionIndex);
+          const phaseBadge = Utils.qs('#incident-phase-badge');
+          if (phaseBadge) {
+            phaseBadge.textContent = 'TRIAGE PHASE 2: HOTFIX PATCH DEPLOYMENT';
+            phaseBadge.className = 'incident-badge badge-sev2';
+          }
+          UI.showToast('🎯 Root cause diagnosed correctly! Deploying hotfix patch...', 'success');
+        } else {
+          IncidentEngine.submitPatch(this.selectedOptionIndex);
+          const hud = Utils.qs('#hud-incident-monitor');
+          if (hud) {
+            hud.classList.add('incident-stabilized-pulse');
+          }
+          const phaseBadge = Utils.qs('#incident-phase-badge');
+          if (phaseBadge) {
+            phaseBadge.textContent = 'INCIDENT MITIGATED: TELEMETRY NOMINAL';
+            phaseBadge.className = 'incident-badge badge-nominal';
+          }
+          const sevBadge = Utils.qs('#incident-sev-badge');
+          if (sevBadge) {
+            sevBadge.textContent = 'STATUS: RESOLVED';
+            sevBadge.className = 'incident-badge badge-nominal';
+          }
+          UI.showToast('🚀 Hotfix patch deployed! Telemetry returning to healthy thresholds!', 'success');
+        }
+      }
+
       // Auto-advance to next question automatically after 2.0s delay
       if (this._autoAdvanceTimer) {
         clearTimeout(this._autoAdvanceTimer);
@@ -1226,6 +1319,18 @@ export const Gameplay = {
               pointsEarned: 0
             });
             this._updateDuelVersusHUD();
+          }
+        }
+
+        // CyberDrill Incident Response processing on incorrect triage
+        if (this.isIncidentMode && typeof IncidentEngine !== 'undefined') {
+          const currentQ = this.engine ? this.engine.getCurrentQuestion() : null;
+          if (currentQ && currentQ.phase === 1) {
+            IncidentEngine.submitDiagnosis(this.selectedOptionIndex);
+            UI.showToast('❌ Incorrect root cause diagnosis! Review streaming logs and stack trace.', 'error');
+          } else if (currentQ && currentQ.phase === 2) {
+            IncidentEngine.submitPatch(this.selectedOptionIndex);
+            UI.showToast('❌ Ineffective patch! Systems still destabilizing.', 'error');
           }
         }
 
@@ -1645,6 +1750,18 @@ export const Gameplay = {
       return;
     }
 
+    // CyberDrill Incident Response post-mortem flow (render post-mortem modal without navigating away)
+    if (this.isIncidentMode) {
+      this.isCompleted = true;
+      this._stopTimer();
+      if (this.incidentTelemetryInterval) {
+        clearInterval(this.incidentTelemetryInterval);
+        this.incidentTelemetryInterval = null;
+      }
+      this._renderIncidentPostMortem();
+      return;
+    }
+
     // Navigate to results page
     const params = {
       lang: summary.language,
@@ -1758,6 +1875,10 @@ export const Gameplay = {
     if (this.timer.intervalId) {
       clearInterval(this.timer.intervalId);
       this.timer.intervalId = null;
+    }
+    if (this.incidentTelemetryInterval) {
+      clearInterval(this.incidentTelemetryInterval);
+      this.incidentTelemetryInterval = null;
     }
     this.timer.isRunning = false;
     const timerEl = Utils.qs('#hud-timer-display');
@@ -2062,6 +2183,9 @@ export const Gameplay = {
 
     // Bind 1v1 SyntaxDuel Lobby, Controls and Modals
     this._bindDuelEvents();
+
+    // Bind CyberDrill Incident Response Monitor, Filters, and Modals
+    this._bindIncidentEvents();
 
     // Cleanup timer on page beforeunload
     window.addEventListener('beforeunload', () => {
@@ -3030,6 +3154,350 @@ export const Gameplay = {
         UI.closeModal('modal-duel-results');
         Router.navigateTo('index');
       };
+    }
+  },
+
+  /* ==========================================================================
+     FEATURE 5: CYBERDRILL INCIDENT RESPONSE & LIVE OUTAGE SIMULATOR
+     ========================================================================== */
+
+  /**
+   * Initialize CyberDrill incident response mode.
+   * @param {object} params
+   */
+  _initIncidentUI(params = {}) {
+    this.isIncidentMode = true;
+
+    // Toggle HUDs
+    const incHud = Utils.qs('#hud-incident-monitor');
+    if (incHud) incHud.style.display = 'block';
+
+    const ghostRail = Utils.qs('#hud-ghost-duel-rail');
+    if (ghostRail) ghostRail.style.display = 'none';
+
+    const bossBar = Utils.qs('#hud-boss-battle-bar');
+    if (bossBar) bossBar.style.display = 'none';
+
+    const duelBar = Utils.qs('#hud-duel-versus-bar');
+    if (duelBar) duelBar.style.display = 'none';
+
+    const incidentId = params.incident || 'inc_memory_leak';
+    if (typeof IncidentEngine !== 'undefined') {
+      const snap = IncidentEngine.startIncident(incidentId);
+      this.activeIncident = snap?.activeIncident || (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getById(incidentId));
+    }
+
+    const currentInc = this.activeIncident || (typeof IncidentScenarios !== 'undefined' && IncidentScenarios.getById(incidentId));
+    if (currentInc) {
+      const titleEl = Utils.qs('#incident-title-text');
+      const sevBadge = Utils.qs('#incident-sev-badge');
+      const phaseBadge = Utils.qs('#incident-phase-badge');
+
+      if (titleEl) titleEl.textContent = `${currentInc.title} (${currentInc.service})`;
+      if (sevBadge) {
+        sevBadge.textContent = `${currentInc.severity} OUTAGE`;
+        sevBadge.className = `incident-badge ${currentInc.severity === 'SEV-1' ? 'badge-sev1' : 'badge-sev2'}`;
+      }
+      if (phaseBadge) {
+        phaseBadge.textContent = 'TRIAGE PHASE 1: ROOT CAUSE DIAGNOSIS';
+        phaseBadge.className = 'incident-badge badge-sev1';
+      }
+    }
+
+    // Populate streaming logs and start telemetry updates
+    if (typeof IncidentEngine !== 'undefined') {
+      this._renderIncidentLogs(IncidentEngine.getStreamingLogs());
+    }
+    this._startIncidentTelemetryUpdates();
+    UI.showToast(`🚨 On-Call Alert: ${currentInc?.title || 'Production Outage'}! Diagnose and hotfix before SLA deadline!`, 'warning');
+  },
+
+  /**
+   * Start live fluctuating telemetry HUD timer.
+   */
+  _startIncidentTelemetryUpdates() {
+    if (this.incidentTelemetryInterval) {
+      clearInterval(this.incidentTelemetryInterval);
+    }
+    this._updateIncidentTelemetryHUD();
+
+    this.incidentTelemetryInterval = setInterval(() => {
+      if (this.isCompleted) {
+        clearInterval(this.incidentTelemetryInterval);
+        this.incidentTelemetryInterval = null;
+        return;
+      }
+      this._updateIncidentTelemetryHUD();
+    }, 600);
+  },
+
+  /**
+   * Update telemetry gauges and SLA timer in HUD.
+   */
+  _updateIncidentTelemetryHUD() {
+    if (!this.isIncidentMode || typeof IncidentEngine === 'undefined') return;
+
+    const telem = IncidentEngine.computeTelemetry();
+    if (!telem) return;
+
+    // SLA Timer display
+    const slaEl = Utils.qs('#incident-sla-timer');
+    if (slaEl) {
+      const rem = telem.slaRemainingSeconds;
+      const mins = Math.floor(Math.max(0, rem) / 60);
+      const secs = Math.max(0, rem) % 60;
+      slaEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      if (rem <= 15 && rem > 0) {
+        slaEl.style.color = 'var(--color-coral)';
+      } else if (rem <= 0) {
+        slaEl.textContent = 'BREACHED (00:00)';
+        slaEl.style.color = '#ef4444';
+      } else {
+        slaEl.style.color = 'var(--color-cyan)';
+      }
+    }
+
+    // CPU
+    const cpuVal = Utils.qs('#metric-cpu-val');
+    const cpuFill = Utils.qs('#metric-cpu-fill');
+    const cpuCard = Utils.qs('#metric-card-cpu');
+    if (cpuVal) cpuVal.textContent = `${telem.cpu}%`;
+    if (cpuFill) cpuFill.style.width = `${Math.min(100, telem.cpu)}%`;
+    if (cpuCard) {
+      cpuCard.className = `metric-card ${telem.cpu > 75 ? 'is-critical' : 'is-nominal'}`;
+    }
+
+    // RAM
+    const ramVal = Utils.qs('#metric-ram-val');
+    const ramFill = Utils.qs('#metric-ram-fill');
+    const ramDetail = Utils.qs('#metric-ram-detail');
+    const ramCard = Utils.qs('#metric-card-ram');
+    if (ramVal) ramVal.textContent = `${telem.ram}%`;
+    if (ramFill) ramFill.style.width = `${Math.min(100, telem.ram)}%`;
+    if (ramDetail && telem.ramDisplay) ramDetail.textContent = telem.ramDisplay;
+    if (ramCard) {
+      ramCard.className = `metric-card ${telem.ram > 80 ? 'is-critical' : 'is-nominal'}`;
+    }
+
+    // Error Rate
+    const errVal = Utils.qs('#metric-error-val');
+    const errFill = Utils.qs('#metric-error-fill');
+    const errCard = Utils.qs('#metric-card-errors');
+    if (errVal) errVal.textContent = `${telem.errorRate}%`;
+    if (errFill) errFill.style.width = `${Math.min(100, telem.errorRate)}%`;
+    if (errCard) {
+      errCard.className = `metric-card ${telem.errorRate > 5.0 ? 'is-critical' : 'is-nominal'}`;
+    }
+
+    // Latency & Conns
+    const latVal = Utils.qs('#metric-latency-val');
+    const latFill = Utils.qs('#metric-latency-fill');
+    const connsDetail = Utils.qs('#metric-conns-detail');
+    const latCard = Utils.qs('#metric-card-latency');
+    if (latVal) latVal.textContent = `${telem.latencyMs} ms`;
+    if (latFill) latFill.style.width = `${Math.min(100, (telem.latencyMs / 4000) * 100)}%`;
+    if (connsDetail) connsDetail.textContent = `${(telem.activeConnections || 0).toLocaleString()} Conns`;
+    if (latCard) {
+      latCard.className = `metric-card ${telem.latencyMs > 500 ? 'is-critical' : 'is-nominal'}`;
+    }
+  },
+
+  /**
+   * Render streaming log rows in live tail terminal.
+   * @param {Array<string>} logs
+   */
+  _renderIncidentLogs(logs = []) {
+    const stream = Utils.qs('#incident-log-stream');
+    if (!stream) return;
+    stream.innerHTML = '';
+    logs.forEach(log => {
+      const row = document.createElement('div');
+      row.className = 'log-row';
+      const isError = log.includes('[ERROR]') || log.includes('[FATAL]');
+      const isWarn = log.includes('[WARN]');
+      const level = isError ? 'error' : isWarn ? 'warn' : 'info';
+      row.innerHTML = `<span class="log-level ${level}">[${level.toUpperCase()}]</span> <span class="log-msg">${Utils.escapeHtml(log)}</span>`;
+      stream.appendChild(row);
+    });
+    stream.scrollTop = stream.scrollHeight;
+  },
+
+  /**
+   * Populate scenario list cards in Scenario Selector modal.
+   */
+  _renderIncidentCatalogList() {
+    const listEl = Utils.qs('#incident-scenario-list');
+    if (!listEl || typeof IncidentScenarios === 'undefined') return;
+    listEl.innerHTML = '';
+    IncidentScenarios.getAll().forEach(inc => {
+      const card = document.createElement('div');
+      card.className = 'scenario-card';
+      card.style.cssText = 'background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s ease;';
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span class="badge ${inc.badgeClass || 'badge-coral'}" style="font-size: 10px;">${inc.severity}</span>
+          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">${inc.slaSeconds}s SLA</span>
+        </div>
+        <div style="font-weight: 700; color: var(--text-primary); font-size: 14px; margin-bottom: 4px;">${inc.title}</div>
+        <div style="font-size: 11px; color: var(--color-cyan); margin-bottom: 6px; font-family: var(--font-mono);">${inc.service} (${inc.language})</div>
+        <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.3;">${inc.lore.slice(0, 95)}...</p>
+      `;
+      card.addEventListener('mouseenter', () => {
+        card.style.borderColor = 'var(--color-primary)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.borderColor = 'var(--border-subtle)';
+      });
+      card.addEventListener('click', () => {
+        window.location.href = `game.html?mode=incident&incident=${inc.id}&new=true`;
+      });
+      listEl.appendChild(card);
+    });
+  },
+
+  /**
+   * Render post-mortem incident report dialog upon stabilization.
+   */
+  _renderIncidentPostMortem() {
+    if (typeof IncidentEngine === 'undefined') return;
+    const pm = IncidentEngine.getPostMortem();
+    if (!pm) return;
+
+    const modal = Utils.qs('#modal-incident-postmortem');
+    if (!modal) return;
+
+    const titleEl = Utils.qs('#modal-incident-pm-title');
+    const subtitleEl = Utils.qs('#incident-pm-subtitle');
+    const badgeEl = Utils.qs('#incident-pm-status-badge');
+    const idEl = Utils.qs('#incident-pm-id-badge');
+
+    const mttrEl = Utils.qs('#incident-pm-mttr');
+    const slaEl = Utils.qs('#incident-pm-sla-margin');
+    const costEl = Utils.qs('#incident-pm-cost');
+    const xpEl = Utils.qs('#incident-pm-xp');
+
+    const rootCauseEl = Utils.qs('#incident-pm-root-cause');
+    const hotfixEl = Utils.qs('#incident-pm-hotfix');
+    const timelineEl = Utils.qs('#incident-pm-timeline');
+
+    const incTitle = pm.title || pm.incidentTitle || 'Outage Incident';
+    const isSlaMet = pm.isSlaMet ?? pm.slaMet ?? true;
+    const elapsedSec = pm.elapsedSec ?? pm.mttrSeconds ?? 0;
+    const slaMargin = pm.slaMarginSec ?? pm.slaMarginSeconds ?? 0;
+    const costPrevented = pm.preventedCostUSD ?? pm.downtimeCostPreventedUsd ?? 0;
+    const scoreVal = pm.score ?? pm.xpAwarded ?? pm.finalScore ?? 0;
+
+    if (titleEl) titleEl.textContent = `${incTitle} Post-Mortem`;
+    if (subtitleEl) subtitleEl.textContent = `Service: ${pm.service} (${pm.system}) • Resolved by On-Call SRE`;
+    if (badgeEl) {
+      badgeEl.textContent = isSlaMet ? 'SLA MAINTAINED' : 'SLA BREACHED (RESOLVED)';
+      badgeEl.className = isSlaMet ? 'badge badge-emerald' : 'badge badge-coral';
+    }
+    if (idEl) idEl.textContent = (pm.incidentId || 'INC').toUpperCase();
+
+    if (mttrEl) mttrEl.textContent = `${elapsedSec}s`;
+    if (slaEl) {
+      slaEl.textContent = (slaMargin >= 0 ? `+${slaMargin}s` : `${slaMargin}s`);
+      slaEl.style.color = isSlaMet ? 'var(--color-emerald)' : 'var(--color-coral)';
+    }
+    if (costEl) costEl.textContent = `$${costPrevented.toLocaleString()}`;
+    if (xpEl) xpEl.textContent = `+${scoreVal} XP`;
+
+    if (rootCauseEl) rootCauseEl.textContent = pm.rootCause;
+    if (hotfixEl) hotfixEl.textContent = pm.hotfixApplied;
+
+    if (timelineEl) {
+      timelineEl.innerHTML = '';
+      (pm.timeline || []).forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'timeline-item';
+        row.innerHTML = `<span class="timeline-time">${item.time}</span> <span class="timeline-text">${item.event}</span>`;
+        timelineEl.appendChild(row);
+      });
+    }
+
+    UI.openModal('modal-incident-postmortem');
+    UI.triggerConfetti();
+  },
+
+  /**
+   * Bind event handlers for CyberDrill logs, scenarios modal, and post-mortem actions.
+   */
+  _bindIncidentEvents() {
+    const logSearchInput = Utils.qs('#incident-log-search');
+    const clearLogBtn = Utils.qs('#btn-clear-log-filter');
+    if (logSearchInput) {
+      logSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value;
+        if (typeof IncidentEngine !== 'undefined') {
+          const filtered = IncidentEngine.filterLogs(query);
+          this._renderIncidentLogs(filtered);
+        }
+      });
+    }
+    if (clearLogBtn && logSearchInput) {
+      clearLogBtn.addEventListener('click', () => {
+        logSearchInput.value = '';
+        if (typeof IncidentEngine !== 'undefined') {
+          this._renderIncidentLogs(IncidentEngine.getStreamingLogs());
+        }
+      });
+    }
+
+    // Scenario switch dialog
+    const switchBtn = Utils.qs('#btn-switch-incident');
+    const selectModal = Utils.qs('#modal-incident-select');
+    const closeSelectBtn = Utils.qs('#btn-close-incident-select');
+    const cancelSelectBtn = Utils.qs('#btn-cancel-incident-select');
+    if (switchBtn && selectModal) {
+      switchBtn.addEventListener('click', () => {
+        this._renderIncidentCatalogList();
+        UI.openModal('modal-incident-select');
+      });
+    }
+    if (closeSelectBtn && selectModal) {
+      closeSelectBtn.addEventListener('click', () => UI.closeModal('modal-incident-select'));
+    }
+    if (cancelSelectBtn && selectModal) {
+      cancelSelectBtn.addEventListener('click', () => UI.closeModal('modal-incident-select'));
+    }
+
+    // Post-mortem dialog buttons
+    const copyPmBtn = Utils.qs('#btn-copy-incident-pm');
+    const nextIncBtn = Utils.qs('#btn-next-incident');
+    const incHubBtn = Utils.qs('#btn-incident-hub');
+    if (copyPmBtn) {
+      copyPmBtn.addEventListener('click', () => {
+        if (typeof IncidentEngine !== 'undefined') {
+          const md = IncidentEngine.generateMarkdownReport();
+          if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(md).then(() => {
+              UI.showToast('📋 Post-Mortem Markdown copied to clipboard!', 'success');
+            }).catch(() => {
+              UI.showToast('Post-Mortem generated.', 'info');
+            });
+          } else {
+            UI.showToast('📋 Post-Mortem copied to clipboard!', 'info');
+          }
+        }
+      });
+    }
+    if (nextIncBtn) {
+      nextIncBtn.addEventListener('click', () => {
+        if (typeof IncidentScenarios !== 'undefined' && typeof IncidentEngine !== 'undefined') {
+          const all = IncidentScenarios.getAll();
+          const currId = IncidentEngine.currentIncident?.id;
+          const idx = all.findIndex(i => i.id === currId);
+          const next = all[(idx + 1) % all.length];
+          window.location.href = `game.html?mode=incident&incident=${next.id}&new=true`;
+        }
+      });
+    }
+    if (incHubBtn) {
+      incHubBtn.addEventListener('click', () => {
+        UI.closeModal('modal-incident-postmortem');
+        Router.navigateTo('index');
+      });
     }
   }
 };

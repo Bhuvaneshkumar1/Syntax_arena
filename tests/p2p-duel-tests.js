@@ -158,3 +158,4 @@ export function runDuelEngineTests() {
 if (typeof process !== 'undefined' && process.argv && process.argv[1] && process.argv[1].endsWith('p2p-duel-tests.js')) {
   runDuelEngineTests();
 }
+

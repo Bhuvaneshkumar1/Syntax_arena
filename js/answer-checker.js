@@ -104,7 +104,13 @@ export const AnswerChecker = {
     }
 
     // Compare with correctAnswer and acceptedAnswers
-    const isDirectMatch = this._matchesAny(selectedText, [correct, ...accepted]);
+    let expectedText = correct;
+    if (typeof correct === 'number' && Number.isInteger(correct) && correct >= 0 && correct < options.length) {
+      const opt = options[correct];
+      expectedText = typeof opt === 'object' && opt !== null ? (opt.text || opt.id) : String(opt);
+    }
+    const targetList = [correct, expectedText, ...accepted].filter(t => t !== null && t !== undefined);
+    const isDirectMatch = this._matchesAny(selectedText, targetList);
     return {
       correct: isDirectMatch,
       normalizedAnswer: selectedText,

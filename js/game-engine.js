@@ -88,6 +88,7 @@ export class GameEngine {
       code: raw.code,
       options: raw.options ? [...raw.options] : [],
       blankCount: raw.blankCount,
+      phase: raw.phase,
       targetLine: isRevealed ? raw.targetLine : undefined,
       correctAnswer: isRevealed ? raw.correctAnswer : undefined,
       explanation: isRevealed ? raw.explanation : undefined,
