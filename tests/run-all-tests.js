@@ -15,6 +15,7 @@ import { runBossEngineTests } from './boss-engine-tests.js';
 import { runDuelEngineTests } from './p2p-duel-tests.js';
 import { runIncidentEngineTests } from './incident-engine-tests.js';
 import { runBattlestationTests } from './battlestation-tests.js';
+import { runMemoryMinigameTests } from './memory-minigame-tests.js';
 
 async function runAll() {
   console.log('============================================================');
@@ -33,10 +34,11 @@ async function runAll() {
   const duel = await runDuelEngineTests();
   const inc = await runIncidentEngineTests();
   const bs = await runBattlestationTests();
+  const mem = await runMemoryMinigameTests();
 
-  const total = qb.passed + qb.failed + ac.passed + ac.failed + ge.passed + ge.failed + ui.passed + ui.failed + gm.passed + gm.failed + an.passed + an.failed + ia.passed + ia.failed + rel.passed + rel.failed + boss.passed + boss.failed + duel.passed + duel.failed + inc.passed + inc.failed + bs.passed + bs.failed;
-  const passed = qb.passed + ac.passed + ge.passed + ui.passed + gm.passed + an.passed + ia.passed + rel.passed + boss.passed + duel.passed + inc.passed + bs.passed;
-  const failed = qb.failed + ac.failed + ge.failed + ui.failed + gm.failed + an.failed + ia.failed + rel.failed + boss.failed + duel.failed + inc.failed + bs.failed;
+  const total = qb.passed + qb.failed + ac.passed + ac.failed + ge.passed + ge.failed + ui.passed + ui.failed + gm.passed + gm.failed + an.passed + an.failed + ia.passed + ia.failed + rel.passed + rel.failed + boss.passed + boss.failed + duel.passed + duel.failed + inc.passed + inc.failed + bs.passed + bs.failed + mem.passed + mem.failed;
+  const passed = qb.passed + ac.passed + ge.passed + ui.passed + gm.passed + an.passed + ia.passed + rel.passed + boss.passed + duel.passed + inc.passed + bs.passed + mem.passed;
+  const failed = qb.failed + ac.failed + ge.failed + ui.failed + gm.failed + an.failed + ia.failed + rel.failed + boss.failed + duel.failed + inc.failed + bs.failed + mem.failed;
 
   console.log('============================================================');
   console.log('🏁 SUITE EXECUTION SUMMARY');
@@ -53,6 +55,7 @@ async function runAll() {
   console.log(`1v1 Duel Engine Tests:   ${duel.passed}/${duel.passed + duel.failed} passed`);
   console.log(`CyberDrill Engine Tests: ${inc.passed}/${inc.passed + inc.failed} passed`);
   console.log(`Battlestation Tests:     ${bs.passed}/${bs.passed + bs.failed} passed`);
+  console.log(`Memory Minigames Tests:  ${mem.passed}/${mem.passed + mem.failed} passed`);
   console.log('------------------------------------------------------------');
   console.log(`TOTAL TESTS:             ${total}`);
   console.log(`PASSED:                  ${passed}`);

@@ -1,0 +1,624 @@
+/**
+ * SyntaxArena Feature 8: Tactile Memory Pointer Minigames Stylesheet
+ * High-voltage cyberpunk memory lab with tactile SVG bezier cables, glowing PCB traces,
+ * interactive stack sockets, and responsive heap allocation grids.
+ */
+
+:root {
+  --mem-bg-base: #090d16;
+  --mem-card-bg: rgba(15, 23, 42, 0.82);
+  --mem-card-border: rgba(56, 189, 248, 0.22);
+  --mem-neon-cyan: #38bdf8;
+  --mem-neon-emerald: #10b981;
+  --mem-neon-coral: #f43f5e;
+  --mem-neon-amber: #f59e0b;
+  --mem-neon-purple: #c084fc;
+  --mem-port-glow: rgba(56, 189, 248, 0.6);
+}
+
+.memory-lab-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+/* --- Hero Banner & Header --- */
+.mem-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.mem-title {
+  font-family: var(--font-display, 'Orbitron', monospace);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+  margin-bottom: 0.5rem;
+}
+
+.mem-subtitle {
+  color: var(--text-muted, #94a3b8);
+  font-size: 1rem;
+  max-width: 720px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.6;
+}
+
+/* --- Mode Switcher Tabs --- */
+.mem-mode-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.mem-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  color: #cbd5e1;
+  font-family: var(--font-display, monospace);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mem-mode-btn:hover {
+  border-color: var(--mem-neon-cyan);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.25);
+}
+
+.mem-mode-btn.is-active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(99, 102, 241, 0.25) 100%);
+  border-color: var(--mem-neon-cyan);
+  color: #38bdf8;
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
+}
+
+/* --- Telemetry HUD Bar --- */
+.mem-hud-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: var(--mem-card-bg);
+  border: 1px solid var(--mem-card-border);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.mem-hud-level {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mem-level-title {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #f8fafc;
+}
+
+.mem-hud-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.mem-stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.mem-stat-val {
+  color: var(--mem-neon-cyan);
+}
+
+.mem-stat-val.streak {
+  color: var(--mem-neon-amber);
+}
+
+/* --- Code Snippet Briefing Card --- */
+.mem-code-card {
+  background: #020617;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.mem-code-card::before {
+  content: 'MEMORY SPECIFICATION & RUNTIME CODE';
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba(56, 189, 248, 0.5);
+  font-family: var(--font-display, monospace);
+}
+
+.mem-code-pre {
+  margin: 0;
+  font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #7dd3fc;
+  overflow-x: auto;
+}
+
+.mem-explanation-text {
+  margin-top: 0.75rem;
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+/* --- Interactive Memory Stage Canvas Layout --- */
+.mem-interactive-stage {
+  position: relative;
+  min-height: 480px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.85) 0%, rgba(2, 6, 23, 0.95) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  overflow: hidden;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.7);
+}
+
+/* SVG Wires Layer Overlay */
+#memory-cables-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.cable-wire {
+  fill: none;
+  stroke: var(--mem-neon-cyan);
+  stroke-width: 4px;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.7));
+  cursor: pointer;
+  pointer-events: stroke;
+  transition: stroke 0.2s, stroke-width 0.2s;
+}
+
+.cable-wire:hover {
+  stroke: #7dd3fc;
+  stroke-width: 6px;
+  filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.9));
+}
+
+.cable-wire.is-dragging {
+  stroke: var(--mem-neon-amber);
+  stroke-dasharray: 6 6;
+  animation: cablePulse 0.8s linear infinite;
+}
+
+.cable-wire.is-error {
+  stroke: var(--mem-neon-coral);
+  animation: cableShake 0.4s ease-in-out;
+}
+
+@keyframes cablePulse {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+/* Column Wrappers */
+.mem-column {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mem-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.mem-col-title {
+  font-family: var(--font-display, monospace);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mem-col-title.stack {
+  color: var(--mem-neon-cyan);
+}
+
+.mem-col-title.heap {
+  color: var(--mem-neon-purple);
+}
+
+/* Stack Variable Cards */
+.mem-var-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.mem-var-card:hover {
+  border-color: var(--mem-neon-cyan);
+  background: rgba(30, 41, 59, 0.9);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.mem-var-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mem-var-name {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.mem-var-type {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-family: var(--font-mono, monospace);
+}
+
+.mem-var-addr {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-family: var(--font-mono, monospace);
+}
+
+/* Heap Allocation Block Cards */
+.mem-heap-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.mem-heap-card:hover {
+  border-color: var(--mem-neon-purple);
+  background: rgba(30, 41, 59, 0.9);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.mem-heap-card.is-orphaned {
+  border-color: rgba(244, 63, 94, 0.5);
+  background: rgba(244, 63, 94, 0.08);
+}
+
+.mem-heap-card.is-reclaimed {
+  opacity: 0.35;
+  filter: grayscale(1);
+  pointer-events: none;
+  border-style: dashed;
+}
+
+.mem-heap-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mem-heap-addr {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--mem-neon-purple);
+}
+
+.mem-heap-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.mem-heap-val {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  color: #38bdf8;
+}
+
+/* Ports / Sockets */
+.mem-port {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--mem-neon-cyan);
+  background: #090d16;
+  cursor: crosshair;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mem-port::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mem-neon-cyan);
+  transition: all 0.2s;
+}
+
+.mem-port:hover {
+  transform: scale(1.35);
+  border-color: #fff;
+  box-shadow: 0 0 16px var(--mem-neon-cyan);
+}
+
+.mem-port:hover::after {
+  background: #fff;
+  transform: scale(1.2);
+}
+
+.mem-port.port-in {
+  border-color: var(--mem-neon-purple);
+}
+
+.mem-port.port-in::after {
+  background: var(--mem-neon-purple);
+}
+
+.mem-port.port-in:hover {
+  box-shadow: 0 0 16px var(--mem-neon-purple);
+}
+
+.mem-port.is-active-wire {
+  background: var(--mem-neon-emerald);
+  border-color: #fff;
+  box-shadow: 0 0 12px var(--mem-neon-emerald);
+}
+
+.mem-port.is-active-wire::after {
+  background: #fff;
+}
+
+/* --- Action Controls Bar --- */
+.mem-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.mem-feedback-banner {
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.88rem;
+  flex: 1;
+  min-width: 280px;
+  border: 1px solid transparent;
+  display: none;
+}
+
+.mem-feedback-banner.is-success {
+  display: block;
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.mem-feedback-banner.is-error {
+  display: block;
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.4);
+  color: #fb7185;
+}
+
+/* --- Leak Patrol Specific Components --- */
+.mem-leak-meter {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.mem-leak-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.mem-leak-progress-track {
+  width: 100%;
+  height: 12px;
+  background: #020617;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mem-leak-progress-bar {
+  height: 100%;
+  width: 50%;
+  background: linear-gradient(90deg, #10b981 0%, #f59e0b 70%, #f43f5e 100%);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mem-free-btn {
+  background: rgba(244, 63, 94, 0.2);
+  border: 1px solid rgba(244, 63, 94, 0.5);
+  color: #fda4af;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mem-free-btn:hover {
+  background: rgba(244, 63, 94, 0.4);
+  color: #fff;
+  border-color: #f43f5e;
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.4);
+}
+
+/* --- Dereference Rush Specific Components --- */
+.mem-rush-card {
+  background: radial-gradient(circle at 50% 20%, rgba(30, 41, 59, 0.7) 0%, rgba(2, 6, 23, 0.95) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  margin-bottom: 2rem;
+}
+
+.mem-rush-timer-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.mem-rush-timer-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--mem-neon-cyan);
+  transition: width 1s linear;
+}
+
+.mem-rush-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.mem-rush-btn {
+  padding: 1.25rem 1rem;
+  border-radius: 12px;
+  font-family: var(--font-display, monospace);
+  font-weight: 800;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.mem-rush-btn.opt-safe {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+.mem-rush-btn.opt-safe:hover {
+  background: rgba(16, 185, 129, 0.3);
+  border-color: #10b981;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+
+.mem-rush-btn.opt-null {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+.mem-rush-btn.opt-null:hover {
+  background: rgba(245, 158, 11, 0.3);
+  border-color: #f59e0b;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+  transform: translateY(-2px);
+}
+
+.mem-rush-btn.opt-dangling {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.4);
+  color: #fb7185;
+}
+.mem-rush-btn.opt-dangling:hover {
+  background: rgba(244, 63, 94, 0.3);
+  border-color: #f43f5e;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+  transform: translateY(-2px);
+}
+
+.mem-rush-btn.opt-bounds {
+  background: rgba(192, 132, 252, 0.15);
+  border-color: rgba(192, 132, 252, 0.4);
+  color: #c084fc;
+}
+.mem-rush-btn.opt-bounds:hover {
+  background: rgba(192, 132, 252, 0.3);
+  border-color: #a855f7;
+  box-shadow: 0 0 20px rgba(192, 132, 252, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Responsiveness */
+@media (max-width: 900px) {
+  .mem-interactive-stage {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}

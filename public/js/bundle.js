@@ -96309,6 +96309,7 @@ if (typeof window !== 'undefined') {
   window.DUEL_QUESTIONS = DUEL_QUESTIONS;
 }
 
+
 /* --- End of data/duel-questions.js --- */
 
 /* --- Start of data/battlestation-catalog.js --- */
@@ -96571,6 +96572,352 @@ if (typeof window !== 'undefined') {
 
 
 /* --- End of data/battlestation-catalog.js --- */
+
+/* --- Start of data/memory-levels.js --- */
+/**
+ * SyntaxArena Tactile Memory Pointer Minigames Catalog (Feature 8)
+ * Datasets for:
+ * 1. Cable Connect ("Stack Master") - Drag-and-drop pointer wire routing
+ * 2. Leak Patrol ("Heap Hunter") - Mark-and-sweep garbage collection & orphan deallocation
+ * 3. Dereference Rush ("Segfault Defuser") - Rapid-fire memory hazard triage
+ * Zero external dependencies.
+ */
+
+var CABLE_CONNECT_LEVELS = window.CABLE_CONNECT_LEVELS = [
+  {
+    id: 'cc_01_single_ptr',
+    title: 'Direct Integer Pointer',
+    difficulty: 'Beginner',
+    language: 'C',
+    codeSnippet: `int *ptr = (int*)malloc(sizeof(int));\n*ptr = 42;`,
+    explanation: '`ptr` is a local pointer residing on the stack frame that holds the hex address of a 4-byte heap integer block.',
+    xpReward: 120,
+    stack: [
+      { id: 'stk_ptr', name: 'ptr', type: 'int*', address: '0x7ffd08', isPointer: true, slot: 'port-out' },
+      { id: 'stk_dummy', name: 'argc', type: 'int', address: '0x7ffd10', isPointer: false, value: '1' }
+    ],
+    heap: [
+      { id: 'hp_val42', address: '0x55a100', size: '4B', type: 'int', value: '42', label: 'malloc(sizeof(int))', slot: 'port-in' },
+      { id: 'hp_decoy', address: '0x55a140', size: '4B', type: 'int', value: '0', label: 'Unrelated chunk', slot: 'port-in' }
+    ],
+    requiredConnections: [
+      { from: 'stk_ptr', to: 'hp_val42' }
+    ]
+  },
+  {
+    id: 'cc_02_pointer_aliasing',
+    title: 'Pointer Aliasing & Reassignment',
+    difficulty: 'Beginner',
+    language: 'C',
+    codeSnippet: `int *p = (int*)malloc(sizeof(int));\nint *q = (int*)malloc(sizeof(int));\np = q; // p now aliases q's target!`,
+    explanation: 'After `p = q`, both pointer variables point directly to the same heap block at address `0x55a240`.',
+    xpReward: 160,
+    stack: [
+      { id: 'stk_p', name: 'p', type: 'int*', address: '0x7ffd00', isPointer: true, slot: 'port-out' },
+      { id: 'stk_q', name: 'q', type: 'int*', address: '0x7ffd08', isPointer: true, slot: 'port-out' }
+    ],
+    heap: [
+      { id: 'hp_target_q', address: '0x55a240', size: '4B', type: 'int', value: '100', label: 'Block Q', slot: 'port-in' },
+      { id: 'hp_orphaned_p', address: '0x55a200', size: '4B', type: 'int', value: '50', label: 'Leaked Block P', slot: 'port-in' }
+    ],
+    requiredConnections: [
+      { from: 'stk_p', to: 'hp_target_q' },
+      { from: 'stk_q', to: 'hp_target_q' }
+    ]
+  },
+  {
+    id: 'cc_03_ptr_to_ptr',
+    title: 'Pointer to Pointer (Double Indirection)',
+    difficulty: 'Intermediate',
+    language: 'C',
+    codeSnippet: `int val = 99;\nint *p = &val;\nint **pp = &p;\nint *heap_val = (int*)malloc(sizeof(int));`,
+    explanation: '`pp` holds the address of stack pointer `p`, while `heap_val` holds the address of the dynamic integer block on the heap.',
+    xpReward: 200,
+    stack: [
+      { id: 'stk_val', name: 'val', type: 'int', address: '0x7ffcf8', isPointer: false, value: '99', slot: 'port-in' },
+      { id: 'stk_p', name: 'p', type: 'int*', address: '0x7ffd00', isPointer: true, slot: 'port-both' },
+      { id: 'stk_pp', name: 'pp', type: 'int**', address: '0x7ffd08', isPointer: true, slot: 'port-out' },
+      { id: 'stk_hptr', name: 'heap_val', type: 'int*', address: '0x7ffd10', isPointer: true, slot: 'port-out' }
+    ],
+    heap: [
+      { id: 'hp_int99', address: '0x55a300', size: '4B', type: 'int', value: '99', label: 'Heap Int', slot: 'port-in' }
+    ],
+    requiredConnections: [
+      { from: 'stk_pp', to: 'stk_p' },
+      { from: 'stk_p', to: 'stk_val' },
+      { from: 'stk_hptr', to: 'hp_int99' }
+    ]
+  },
+  {
+    id: 'cc_04_linked_list',
+    title: 'Singly Linked List Chain',
+    difficulty: 'Intermediate',
+    language: 'C',
+    codeSnippet: `struct Node {\n  int data;\n  struct Node *next;\n};\nstruct Node *head = malloc(sizeof(struct Node));\nhead->next = malloc(sizeof(struct Node));\nhead->next->next = NULL;`,
+    explanation: '`head` points to Node A on the heap (`0x55a400`), and Node A\'s `next` pointer routes forward to Node B (`0x55a430`).',
+    xpReward: 240,
+    stack: [
+      { id: 'stk_head', name: 'head', type: 'Node*', address: '0x7ffd00', isPointer: true, slot: 'port-out' }
+    ],
+    heap: [
+      { id: 'hp_node_a', address: '0x55a400', size: '16B', type: 'Node', value: 'data: 10', label: 'Node A [head]', slot: 'port-both' },
+      { id: 'hp_node_b', address: '0x55a430', size: '16B', type: 'Node', value: 'data: 20', label: 'Node B [tail]', slot: 'port-in' },
+      { id: 'hp_decoy_node', address: '0x55a460', size: '16B', type: 'Node', value: 'data: 99', label: 'Dangling Node', slot: 'port-in' }
+    ],
+    requiredConnections: [
+      { from: 'stk_head', to: 'hp_node_a' },
+      { from: 'hp_node_a', to: 'hp_node_b' }
+    ]
+  },
+  {
+    id: 'cc_05_string_array',
+    title: 'Dynamic String Vector (char**)',
+    difficulty: 'Advanced',
+    language: 'C',
+    codeSnippet: `char **tokens = malloc(2 * sizeof(char*));\ntokens[0] = strdup("GET");\ntokens[1] = strdup("/api");`,
+    explanation: '`tokens` references an array of pointer handles on the heap, which in turn connect to two independent string buffer allocations.',
+    xpReward: 280,
+    stack: [
+      { id: 'stk_tokens', name: 'tokens', type: 'char**', address: '0x7ffd00', isPointer: true, slot: 'port-out' }
+    ],
+    heap: [
+      { id: 'hp_tokens_arr', address: '0x55a500', size: '16B', type: 'char*[2]', value: '[ptr0, ptr1]', label: 'Pointer Table', slot: 'port-both' },
+      { id: 'hp_str_get', address: '0x55a540', size: '4B', type: 'char[]', value: '"GET\\0"', label: 'Token 0 Buffer', slot: 'port-in' },
+      { id: 'hp_str_api', address: '0x55a560', size: '5B', type: 'char[]', value: '"/api\\0"', label: 'Token 1 Buffer', slot: 'port-in' }
+    ],
+    requiredConnections: [
+      { from: 'stk_tokens', to: 'hp_tokens_arr' },
+      { from: 'hp_tokens_arr', to: 'hp_str_get' },
+      { from: 'hp_tokens_arr', to: 'hp_str_api' }
+    ]
+  },
+  {
+    id: 'cc_06_binary_tree',
+    title: 'Binary Search Tree Branching',
+    difficulty: 'Advanced',
+    language: 'C++',
+    codeSnippet: `struct TreeNode {\n  int key;\n  TreeNode *left, *right;\n};\nTreeNode *root = new TreeNode(50);\nroot->left = new TreeNode(25);\nroot->right = new TreeNode(75);`,
+    explanation: 'The stack root pointer directs to the root tree node, which branches out to both left and right child heap allocations.',
+    xpReward: 320,
+    stack: [
+      { id: 'stk_root', name: 'root', type: 'TreeNode*', address: '0x7ffd00', isPointer: true, slot: 'port-out' }
+    ],
+    heap: [
+      { id: 'hp_tree_root', address: '0x55a600', size: '24B', type: 'TreeNode', value: 'key: 50', label: 'Root Node (50)', slot: 'port-both' },
+      { id: 'hp_tree_left', address: '0x55a630', size: '24B', type: 'TreeNode', value: 'key: 25', label: 'Left Child (25)', slot: 'port-in' },
+      { id: 'hp_tree_right', address: '0x55a660', size: '24B', type: 'TreeNode', value: 'key: 75', label: 'Right Child (75)', slot: 'port-in' }
+    ],
+    requiredConnections: [
+      { from: 'stk_root', to: 'hp_tree_root' },
+      { from: 'hp_tree_root', to: 'hp_tree_left' },
+      { from: 'hp_tree_root', to: 'hp_tree_right' }
+    ]
+  }
+];
+
+var LEAK_PATROL_LEVELS = window.LEAK_PATROL_LEVELS = [
+  {
+    id: 'lp_01_reassign_leak',
+    title: 'Pointer Overwrite Leak',
+    difficulty: 'Beginner',
+    language: 'C',
+    story: 'A telemetry worker allocated a 128-byte cache chunk, then overwrote the pointer with another malloc without freeing!',
+    codeSnippet: `void record_telemetry() {\n  char *buf = malloc(128); // 0x55b100\n  buf = malloc(256);       // 0x55b200 (0x55b100 orphaned!)\n  // ...\n}`,
+    initialHeapBytes: 384,
+    maxHeapCapacity: 512,
+    xpReward: 150,
+    stackRoots: [
+      { id: 'stk_buf', name: 'buf', address: '0x7ffd00', pointsTo: 'hp_buf_new' }
+    ],
+    heapBlocks: [
+      { id: 'hp_buf_leaked', address: '0x55b100', sizeBytes: 128, label: 'Unreferenced Buffer', type: 'char[128]', incomingRefs: [], isOrphaned: true },
+      { id: 'hp_buf_new', address: '0x55b200', sizeBytes: 256, label: 'Active Telemetry Buffer', type: 'char[256]', incomingRefs: ['stk_buf'], isOrphaned: false }
+    ],
+    orphansToReclaim: ['hp_buf_leaked']
+  },
+  {
+    id: 'lp_02_loop_leak',
+    title: 'Loop Allocation Leak',
+    difficulty: 'Beginner',
+    language: 'C',
+    story: 'A batch processor allocated 3 temporary calculation blocks inside a loop, but only retained a handle to the last one.',
+    codeSnippet: `int *scratch = NULL;\nfor (int i = 0; i < 3; i++) {\n  scratch = malloc(64);\n}\n// Only final iteration (64B) is reachable! 2 chunks leaked.`,
+    initialHeapBytes: 192,
+    maxHeapCapacity: 256,
+    xpReward: 200,
+    stackRoots: [
+      { id: 'stk_scratch', name: 'scratch', address: '0x7ffd08', pointsTo: 'hp_loop_3' }
+    ],
+    heapBlocks: [
+      { id: 'hp_loop_1', address: '0x55b300', sizeBytes: 64, label: 'Iteration 0 Scratch', type: 'int[16]', incomingRefs: [], isOrphaned: true },
+      { id: 'hp_loop_2', address: '0x55b340', sizeBytes: 64, label: 'Iteration 1 Scratch', type: 'int[16]', incomingRefs: [], isOrphaned: true },
+      { id: 'hp_loop_3', address: '0x55b380', sizeBytes: 64, label: 'Iteration 2 Scratch (Active)', type: 'int[16]', incomingRefs: ['stk_scratch'], isOrphaned: false }
+    ],
+    orphansToReclaim: ['hp_loop_1', 'hp_loop_2']
+  },
+  {
+    id: 'lp_03_severed_list',
+    title: 'Severed Linked List Tail',
+    difficulty: 'Intermediate',
+    language: 'C',
+    story: 'A deque queue operation severed a list at node 2 by setting `n2->next = NULL` without traversing and freeing the trailing nodes.',
+    codeSnippet: `// Severing list node prematurely:\nNode *n2 = head->next;\nn2->next = NULL; // Trailing node3 & node4 are now floating unreachable!`,
+    initialHeapBytes: 320,
+    maxHeapCapacity: 400,
+    xpReward: 250,
+    stackRoots: [
+      { id: 'stk_head', name: 'head', address: '0x7ffd00', pointsTo: 'hp_node_1' }
+    ],
+    heapBlocks: [
+      { id: 'hp_node_1', address: '0x55b400', sizeBytes: 32, label: 'Queue Head', type: 'Node', incomingRefs: ['stk_head'], references: ['hp_node_2'], isOrphaned: false },
+      { id: 'hp_node_2', address: '0x55b440', sizeBytes: 32, label: 'Queue Mid', type: 'Node', incomingRefs: ['hp_node_1'], references: [], isOrphaned: false },
+      { id: 'hp_node_3', address: '0x55b480', sizeBytes: 32, label: 'Orphaned Tail 1', type: 'Node', incomingRefs: [], references: ['hp_node_4'], isOrphaned: true },
+      { id: 'hp_node_4', address: '0x55b4c0', sizeBytes: 32, label: 'Orphaned Tail 2', type: 'Node', incomingRefs: ['hp_node_3'], references: [], isOrphaned: true }
+    ],
+    orphansToReclaim: ['hp_node_3', 'hp_node_4']
+  },
+  {
+    id: 'lp_04_cyclic_island',
+    title: 'Cyclic Reference Island',
+    difficulty: 'Intermediate',
+    language: 'C++',
+    story: 'Two worker nodes hold shared pointer handles to each other forming a cyclic loop, but the stack root was dropped!',
+    codeSnippet: `struct Peer { Peer *partner; };\n// Peer A -> Peer B and Peer B -> Peer A\n// Stack pointer dropped: root = NULL;\n// Neither can be reached from stack, but their internal ref is > 0!`,
+    initialHeapBytes: 512,
+    maxHeapCapacity: 640,
+    xpReward: 300,
+    stackRoots: [
+      { id: 'stk_live', name: 'active_session', address: '0x7ffd10', pointsTo: 'hp_live_session' }
+    ],
+    heapBlocks: [
+      { id: 'hp_live_session', address: '0x55b500', sizeBytes: 128, label: 'Active Session Object', type: 'Session', incomingRefs: ['stk_live'], references: [], isOrphaned: false },
+      { id: 'hp_peer_a', address: '0x55b600', sizeBytes: 96, label: 'Peer A (Cyclic)', type: 'Peer', incomingRefs: ['hp_peer_b'], references: ['hp_peer_b'], isOrphaned: true },
+      { id: 'hp_peer_b', address: '0x55b660', sizeBytes: 96, label: 'Peer B (Cyclic)', type: 'Peer', incomingRefs: ['hp_peer_a'], references: ['hp_peer_a'], isOrphaned: true }
+    ],
+    orphansToReclaim: ['hp_peer_a', 'hp_peer_b']
+  },
+  {
+    id: 'lp_05_early_return',
+    title: 'Error Path Early Return Leak',
+    difficulty: 'Advanced',
+    language: 'C',
+    story: 'An authentication handler allocated an encryption key and a signature buffer. When validation failed, it returned immediately without `free()`!',
+    codeSnippet: `int verify_auth(Packet *p) {\n  char *key = malloc(64);\n  char *sig = malloc(128);\n  if (!p->valid) return -1; // LEAK! Neither key nor sig freed!\n  // ...\n}`,
+    initialHeapBytes: 448,
+    maxHeapCapacity: 512,
+    xpReward: 350,
+    stackRoots: [
+      { id: 'stk_packet', name: 'p', address: '0x7ffd00', pointsTo: 'hp_active_pkt' }
+    ],
+    heapBlocks: [
+      { id: 'hp_active_pkt', address: '0x55b700', sizeBytes: 64, label: 'Incoming Packet', type: 'Packet', incomingRefs: ['stk_packet'], references: [], isOrphaned: false },
+      { id: 'hp_leaked_key', address: '0x55b740', sizeBytes: 64, label: 'Unfreed Encryption Key', type: 'char[64]', incomingRefs: [], references: [], isOrphaned: true },
+      { id: 'hp_leaked_sig', address: '0x55b780', sizeBytes: 128, label: 'Unfreed RSA Signature', type: 'char[128]', incomingRefs: [], references: [], isOrphaned: true }
+    ],
+    orphansToReclaim: ['hp_leaked_key', 'hp_leaked_sig']
+  }
+];
+
+var DEREFERENCE_RUSH_CHALLENGES = window.DEREFERENCE_RUSH_CHALLENGES = [
+  {
+    id: 'dr_01',
+    code: `int *ptr = NULL;\n*ptr = 42;`,
+    category: 'null_dereference',
+    explanation: '`ptr` is explicitly initialized to NULL (address 0x0). Dereferencing address 0 triggers a CPU hardware fault (SIGSEGV).'
+  },
+  {
+    id: 'dr_02',
+    code: `int val = 100;\nint *ptr = &val;\n*ptr = 200;`,
+    category: 'safe_dereference',
+    explanation: '`ptr` holds the valid address of stack variable `val`. Writing through `*ptr` safely updates `val` to 200.'
+  },
+  {
+    id: 'dr_03',
+    code: `int *p = (int*)malloc(sizeof(int));\nfree(p);\n*p = 10;`,
+    category: 'dangling_pointer',
+    explanation: 'Memory at `p` was released via `free()`. Accessing it afterwards is a classic Use-After-Free (UAF) dangling pointer defect.'
+  },
+  {
+    id: 'dr_04',
+    code: `int arr[5] = {1, 2, 3, 4, 5};\nint val = arr[10];`,
+    category: 'out_of_bounds',
+    explanation: 'The array has 5 elements (indices 0..4). Index 10 accesses unallocated memory outside the array boundary.'
+  },
+  {
+    id: 'dr_05',
+    code: `int *ptr;\n*ptr = 55; // Notice: uninitialized!`,
+    category: 'wild_pointer',
+    explanation: '`ptr` is an uninitialized local pointer containing arbitrary garbage stack bits (a wild pointer). Dereferencing causes undefined behavior or crash.'
+  },
+  {
+    id: 'dr_06',
+    code: `char *str = (char*)malloc(16);\nstrcpy(str, "SyntaxArena");\nprintf("%c\\n", *str);`,
+    category: 'safe_dereference',
+    explanation: 'Heap buffer of 16 bytes is actively allocated, populated with a valid null-terminated string, and read safely.'
+  },
+  {
+    id: 'dr_07',
+    code: `int *p = NULL;\nif (p != NULL) {\n  *p = 10;\n}`,
+    category: 'safe_dereference',
+    explanation: 'The dereference is guarded behind a NULL check `p != NULL`. The code block never executes, preventing any crash.'
+  },
+  {
+    id: 'dr_08',
+    code: `int *p = (int*)malloc(4);\nint *q = p;\nfree(p);\n*q = 99;`,
+    category: 'dangling_pointer',
+    explanation: '`q` aliased `p`. When `free(p)` was called, `q` was also rendered a dangling pointer. `*q` causes Use-After-Free.'
+  },
+  {
+    id: 'dr_09',
+    code: `int* create_num() {\n  int local_val = 77;\n  return &local_val;\n}\nint *p = create_num();\nprintf("%d\\n", *p);`,
+    category: 'dangling_pointer',
+    explanation: 'Returning the address of a local stack variable causes `p` to point to a destroyed stack frame that has already popped.'
+  },
+  {
+    id: 'dr_10',
+    code: `int numbers[3] = {10, 20, 30};\nint *p = numbers + 3;\n*p = 40;`,
+    category: 'out_of_bounds',
+    explanation: 'Pointer arithmetic `numbers + 3` points one past the end of the 3-element buffer. Dereferencing it writes out of bounds.'
+  },
+  {
+    id: 'dr_11',
+    code: `char *s = (char*)calloc(8, sizeof(char));\ns[0] = 'K';\nfree(s);`,
+    category: 'safe_dereference',
+    explanation: '`calloc` zero-initializes the dynamic buffer, the first byte is safely mutated, and cleanly deallocated at the end.'
+  },
+  {
+    id: 'dr_12',
+    code: `struct Node { int val; struct Node* next; };\nstruct Node* head = NULL;\nint x = head->val;`,
+    category: 'null_dereference',
+    explanation: '`head->val` is equivalent to `(*head).val`. Since `head` is NULL, accessing member `val` triggers a NULL pointer dereference.'
+  },
+  {
+    id: 'dr_13',
+    code: `int **pp = NULL;\n**pp = 5;`,
+    category: 'null_dereference',
+    explanation: 'Double pointer `pp` is NULL. The first dereference `*pp` crashes immediately at address 0 before reaching the second indirection.'
+  },
+  {
+    id: 'dr_14',
+    code: `int *p = (int*)malloc(sizeof(int));\n*p = 100;\nfree(p);\np = NULL;\n// no further dereference`,
+    category: 'safe_dereference',
+    explanation: 'Memory allocated, safely dereferenced, freed, and zeroed out to NULL to prevent dangling pointers. 100% safe memory hygiene.'
+  },
+  {
+    id: 'dr_15',
+    code: `char buffer[4];\nstrcpy(buffer, "OverflowingSecretBuffer123");`,
+    category: 'out_of_bounds',
+    explanation: 'Attempting to copy a 27-byte string into a 4-byte stack buffer smashes the return address and crashes the process.'
+  }
+];
+
+if (typeof window !== 'undefined') {
+  window.CABLE_CONNECT_LEVELS = CABLE_CONNECT_LEVELS;
+  window.LEAK_PATROL_LEVELS = LEAK_PATROL_LEVELS;
+  window.DEREFERENCE_RUSH_CHALLENGES = DEREFERENCE_RUSH_CHALLENGES;
+}
+
+/* --- End of data/memory-levels.js --- */
 
 /* --- Start of js/data/index.js --- */
 /**
@@ -101847,6 +102194,450 @@ if (typeof window !== 'undefined') {
 }
 
 /* --- End of js/battlestation-engine.js --- */
+
+/* --- Start of js/memory-minigame.js --- */
+/**
+ * SyntaxArena Tactile Memory Pointer Minigames Engine (Feature 8)
+ * Powers:
+ * 1. Cable Connect ("Stack Master"): Drag-and-drop pointer wire routing
+ * 2. Leak Patrol ("Heap Hunter"): Mark-and-sweep garbage collection & orphan deallocation
+ * 3. Dereference Rush ("Segfault Defuser"): Rapid-fire memory hazard triage
+ * Zero external libraries or runtime dependencies.
+ */
+
+
+var MemoryMinigameEngine = window.MemoryMinigameEngine = class MemoryMinigameEngine {
+  constructor(options = {}) {
+    this.cableLevels = options.cableLevels || CABLE_CONNECT_LEVELS || [];
+    this.leakLevels = options.leakLevels || LEAK_PATROL_LEVELS || [];
+    this.rushChallenges = options.rushChallenges || DEREFERENCE_RUSH_CHALLENGES || [];
+
+    this.activeMode = 'cable_connect'; // 'cable_connect' | 'leak_patrol' | 'dereference_rush'
+    this.currentLevelIndex = 0;
+    this.score = 0;
+    this.streak = 0;
+    this.maxStreak = 0;
+
+    // Cable connect state
+    this.userConnections = []; // Array of { from: string, to: string }
+    this.activeDrag = null;    // { fromId, x, y }
+
+    // Leak patrol state
+    this.currentHeapBytes = 0;
+    this.maxHeapCapacity = 1024;
+    this.reclaimedBlockIds = new Set();
+    this.uafCount = 0;
+
+    // Dereference rush state
+    this.rushIndex = 0;
+    this.rushTimer = 15;
+    this._rushTimerInterval = null;
+    this.rushStats = { correct: 0, wrong: 0, segfaults: 0 };
+
+    this.listeners = new Map();
+  }
+
+  // ==========================================
+  // EVENT BUS SYSTEM
+  // ==========================================
+  on(event, callback) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event).push(callback);
+    return () => this.off(event, callback);
+  }
+
+  off(event, callback) {
+    if (!this.listeners.has(event)) return;
+    const list = this.listeners.get(event).filter(fn => fn !== callback);
+    this.listeners.set(event, list);
+  }
+
+  emit(event, data) {
+    if (!this.listeners.has(event)) return;
+    for (const fn of this.listeners.get(event)) {
+      try {
+        fn(data);
+      } catch (err) {
+        console.error(`[MemoryMinigameEngine] Error in listener for ${event}:`, err);
+      }
+    }
+  }
+
+  // ==========================================
+  // MODE & LEVEL MANAGEMENT
+  // ==========================================
+  setMode(mode) {
+    if (!['cable_connect', 'leak_patrol', 'dereference_rush'].includes(mode)) {
+      throw new Error(`Invalid minigame mode: ${mode}`);
+    }
+    this.activeMode = mode;
+    this.currentLevelIndex = 0;
+    this.streak = 0;
+    this._stopRushTimer();
+
+    if (mode === 'cable_connect') {
+      this.loadCableLevel(0);
+    } else if (mode === 'leak_patrol') {
+      this.loadLeakLevel(0);
+    } else if (mode === 'dereference_rush') {
+      this.startDereferenceRush();
+    }
+
+    this.emit('modeChanged', { mode });
+  }
+
+  // ==========================================
+  // 1. CABLE CONNECT ("STACK MASTER")
+  // ==========================================
+  loadCableLevel(index = 0) {
+    if (index < 0 || index >= this.cableLevels.length) {
+      index = 0;
+    }
+    this.currentLevelIndex = index;
+    this.userConnections = [];
+    const level = this.getCurrentCableLevel();
+    this.emit('cableLevelLoaded', { level, index });
+    return level;
+  }
+
+  getCurrentCableLevel() {
+    return this.cableLevels[this.currentLevelIndex] || null;
+  }
+
+  addConnection(fromId, toId) {
+    if (!fromId || !toId || fromId === toId) return false;
+
+    // Check if duplicate
+    const exists = this.userConnections.some(c => c.from === fromId && c.to === toId);
+    if (exists) return false;
+
+    // A single output port should typically originate one cable (or allow multi if specified)
+    this.userConnections = this.userConnections.filter(c => c.from !== fromId);
+    this.userConnections.push({ from: fromId, to: toId });
+
+    this.emit('cableConnected', { from: fromId, to: toId, connections: [...this.userConnections] });
+    return true;
+  }
+
+  removeConnection(fromId, toId) {
+    const beforeCount = this.userConnections.length;
+    this.userConnections = this.userConnections.filter(c => !(c.from === fromId && c.to === toId));
+    if (this.userConnections.length !== beforeCount) {
+      this.emit('cableRemoved', { from: fromId, to: toId, connections: [...this.userConnections] });
+      return true;
+    }
+    return false;
+  }
+
+  clearConnections() {
+    this.userConnections = [];
+    this.emit('cablesCleared', {});
+  }
+
+  validateCableWiring() {
+    const level = this.getCurrentCableLevel();
+    if (!level) return { valid: false, feedback: 'No active level.' };
+
+    const reqs = level.requiredConnections || [];
+    let correctCount = 0;
+    let incorrectCount = 0;
+
+    for (const userConn of this.userConnections) {
+      const match = reqs.some(r => r.from === userConn.from && r.to === userConn.to);
+      if (match) {
+        correctCount++;
+      } else {
+        incorrectCount++;
+      }
+    }
+
+    const missingCount = reqs.length - correctCount;
+    const isValid = correctCount === reqs.length && incorrectCount === 0;
+
+    if (isValid) {
+      this.streak++;
+      if (this.streak > this.maxStreak) this.maxStreak = this.streak;
+      const pts = level.xpReward + (this.streak * 25);
+      this.score += pts;
+      this._awardProfileXP(pts);
+
+      const result = {
+        valid: true,
+        scoreAwarded: pts,
+        totalScore: this.score,
+        streak: this.streak,
+        feedback: 'Pointer routing verified! All addresses match ground truth.'
+      };
+      this.emit('cableWiringValidated', result);
+      return result;
+    } else {
+      this.streak = 0;
+      let reason = 'Pointer wire configuration mismatch.';
+      if (missingCount > 0 && incorrectCount > 0) {
+        reason = `Missing ${missingCount} required wire(s) and detected ${incorrectCount} invalid route(s).`;
+      } else if (missingCount > 0) {
+        reason = `Still missing ${missingCount} required pointer connection(s).`;
+      } else if (incorrectCount > 0) {
+        reason = `Detected ${incorrectCount} erroneous pointer assignment(s). Check variable target types.`;
+      }
+
+      const result = {
+        valid: false,
+        missing: missingCount,
+        incorrect: incorrectCount,
+        feedback: reason
+      };
+      this.emit('cableWiringValidated', result);
+      return result;
+    }
+  }
+
+  // ==========================================
+  // 2. LEAK PATROL ("HEAP HUNTER")
+  // ==========================================
+  loadLeakLevel(index = 0) {
+    if (index < 0 || index >= this.leakLevels.length) {
+      index = 0;
+    }
+    this.currentLevelIndex = index;
+    this.reclaimedBlockIds.clear();
+    this.uafCount = 0;
+
+    const level = this.getCurrentLeakLevel();
+    if (level) {
+      this.currentHeapBytes = level.initialHeapBytes;
+      this.maxHeapCapacity = level.maxHeapCapacity;
+      this._computeReachability(level);
+    }
+
+    this.emit('leakLevelLoaded', { level, index });
+    return level;
+  }
+
+  getCurrentLeakLevel() {
+    return this.leakLevels[this.currentLevelIndex] || null;
+  }
+
+  /**
+   * Mark and sweep reachability graph solver.
+   * Traverses from stack roots through heap block references.
+   * Any block not reached is marked as orphaned.
+   */
+  _computeReachability(level) {
+    if (!level) return;
+    const reachable = new Set();
+    const roots = level.stackRoots || [];
+    const blocksMap = new Map((level.heapBlocks || []).map(b => [b.id, b]));
+
+    // Queue roots
+    const queue = [];
+    for (const root of roots) {
+      if (root.pointsTo && blocksMap.has(root.pointsTo)) {
+        queue.push(root.pointsTo);
+        reachable.add(root.pointsTo);
+      }
+    }
+
+    // BFS
+    while (queue.length > 0) {
+      const curId = queue.shift();
+      const block = blocksMap.get(curId);
+      if (block && block.references) {
+        for (const childId of block.references) {
+          if (blocksMap.has(childId) && !reachable.has(childId)) {
+            reachable.add(childId);
+            queue.push(childId);
+          }
+        }
+      }
+    }
+
+    // Mark blocks
+    for (const block of level.heapBlocks || []) {
+      block.isOrphaned = !reachable.has(block.id);
+    }
+  }
+
+  /**
+   * Attempt to deallocate/free a heap block.
+   * If orphaned: safe reclamation (+150 PTS, frees heap space).
+   * If reachable: Use-After-Free alert (-100 PTS penalty, streak reset).
+   */
+  attemptReclaimBlock(blockId) {
+    const level = this.getCurrentLeakLevel();
+    if (!level) return { success: false, feedback: 'No active leak level.' };
+
+    if (this.reclaimedBlockIds.has(blockId)) {
+      return { success: false, feedback: 'Block already deallocated.' };
+    }
+
+    const block = (level.heapBlocks || []).find(b => b.id === blockId);
+    if (!block) return { success: false, feedback: 'Block not found.' };
+
+    if (block.isOrphaned) {
+      this.reclaimedBlockIds.add(blockId);
+      this.currentHeapBytes = Math.max(0, this.currentHeapBytes - block.sizeBytes);
+      this.streak++;
+      if (this.streak > this.maxStreak) this.maxStreak = this.streak;
+
+      const pts = 150 + (this.streak * 20);
+      this.score += pts;
+      this._awardProfileXP(pts);
+
+      // Check if all orphans collected
+      const remainingOrphans = (level.orphansToReclaim || []).filter(id => !this.reclaimedBlockIds.has(id));
+      const levelComplete = remainingOrphans.length === 0;
+
+      const result = {
+        success: true,
+        blockId,
+        bytesReclaimed: block.sizeBytes,
+        currentHeapBytes: this.currentHeapBytes,
+        maxHeapCapacity: this.maxHeapCapacity,
+        scoreAwarded: pts,
+        totalScore: this.score,
+        streak: this.streak,
+        remainingOrphansCount: remainingOrphans.length,
+        levelComplete,
+        feedback: `Reclaimed ${block.sizeBytes}B orphaned memory at ${block.address}. Heap capacity relieved!`
+      };
+
+      this.emit('blockReclaimed', result);
+      if (levelComplete) {
+        this.emit('leakLevelCompleted', { level, score: this.score });
+      }
+      return result;
+    } else {
+      // Use After Free!
+      this.uafCount++;
+      this.streak = 0;
+      this.score = Math.max(0, this.score - 100);
+
+      const result = {
+        success: false,
+        useAfterFree: true,
+        blockId,
+        address: block.address,
+        totalScore: this.score,
+        feedback: `🚨 CRITICAL USE-AFTER-FREE! Block at ${block.address} is still actively referenced by live code!`
+      };
+
+      this.emit('useAfterFreeTriggered', result);
+      return result;
+    }
+  }
+
+  // ==========================================
+  // 3. DEREFERENCE RUSH ("SEGFAULT DEFUSER")
+  // ==========================================
+  startDereferenceRush() {
+    this.rushIndex = 0;
+    this.rushStats = { correct: 0, wrong: 0, segfaults: 0 };
+    this.streak = 0;
+    this._nextRushChallenge();
+  }
+
+  _nextRushChallenge() {
+    this._stopRushTimer();
+    if (this.rushIndex >= this.rushChallenges.length) {
+      this.emit('dereferenceRushCompleted', {
+        stats: { ...this.rushStats },
+        score: this.score,
+        maxStreak: this.maxStreak
+      });
+      return;
+    }
+
+    this.rushTimer = 12; // 12 seconds per hazard
+    const challenge = this.rushChallenges[this.rushIndex];
+
+    this._rushTimerInterval = setInterval(() => {
+      this.rushTimer--;
+      this.emit('rushTimerTick', { secondsRemaining: this.rushTimer });
+      if (this.rushTimer <= 0) {
+        this._stopRushTimer();
+        this.submitRushAnswer('TIMEOUT');
+      }
+    }, 1000);
+
+    this.emit('rushChallengeLoaded', {
+      challenge,
+      index: this.rushIndex,
+      total: this.rushChallenges.length,
+      secondsRemaining: this.rushTimer
+    });
+  }
+
+  _stopRushTimer() {
+    if (this._rushTimerInterval) {
+      clearInterval(this._rushTimerInterval);
+      this._rushTimerInterval = null;
+    }
+  }
+
+  submitRushAnswer(chosenCategory) {
+    this._stopRushTimer();
+    const challenge = this.rushChallenges[this.rushIndex];
+    if (!challenge) return null;
+
+    const isCorrect = chosenCategory === challenge.category;
+    let pts = 0;
+
+    if (isCorrect) {
+      this.streak++;
+      if (this.streak > this.maxStreak) this.maxStreak = this.streak;
+      pts = 100 + (this.streak * 25);
+      this.score += pts;
+      this.rushStats.correct++;
+      this._awardProfileXP(pts);
+    } else {
+      this.streak = 0;
+      this.rushStats.wrong++;
+      if (chosenCategory === 'safe_dereference' && challenge.category !== 'safe_dereference') {
+        this.rushStats.segfaults++;
+      }
+    }
+
+    const result = {
+      isCorrect,
+      chosenCategory,
+      correctCategory: challenge.category,
+      explanation: challenge.explanation,
+      scoreAwarded: pts,
+      totalScore: this.score,
+      streak: this.streak,
+      stats: { ...this.rushStats }
+    };
+
+    this.emit('rushAnswerEvaluated', result);
+
+    this.rushIndex++;
+    return result;
+  }
+
+  proceedToNextRushChallenge() {
+    this._nextRushChallenge();
+  }
+
+  // ==========================================
+  // PROFILE GAMIFICATION SYNC
+  // ==========================================
+  _awardProfileXP(pts) {
+    if (typeof window !== 'undefined' && window.Profile && typeof window.Profile.addXP === 'function') {
+      try {
+        window.Profile.addXP(pts);
+      } catch (_) {}
+    }
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.MemoryMinigameEngine = MemoryMinigameEngine;
+}
+
+/* --- End of js/memory-minigame.js --- */
 
 /* --- Start of js/analytics.js --- */
 /**
@@ -110230,6 +111021,657 @@ if (typeof window !== 'undefined') {
 }
 
 /* --- End of js/p2p-duel.js --- */
+
+/* --- Start of js/memory-controller.js --- */
+/**
+ * SyntaxArena Feature 8: Tactile Memory Pointer Minigames Controller
+ * Coordinates UI rendering, SVG bezier cable drag math, audio feedback,
+ * and game state events for memory-games.html.
+ */
+
+
+
+var MemoryMinigameController = window.MemoryMinigameController = {
+  engine: null,
+  activeDrag: null,
+
+  init() {
+    this.engine = new MemoryMinigameEngine({
+      cableLevels: window.CABLE_CONNECT_LEVELS || CABLE_CONNECT_LEVELS,
+      leakLevels: window.LEAK_PATROL_LEVELS || LEAK_PATROL_LEVELS,
+      rushChallenges: window.DEREFERENCE_RUSH_CHALLENGES || DEREFERENCE_RUSH_CHALLENGES
+    });
+
+    this._bindDOMEvents();
+    this._bindEngineEvents();
+
+    // Default to Cable Connect level 0
+    this.engine.setMode('cable_connect');
+  },
+
+  _bindDOMEvents() {
+    // Mode tabs
+    document.querySelectorAll('.mem-mode-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const mode = btn.dataset.mode;
+        document.querySelectorAll('.mem-mode-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        this.engine.setMode(mode);
+        this._playClick();
+      });
+    });
+
+    // Cable Connect Action buttons
+    const btnCheckWiring = document.getElementById('btn-check-wiring');
+    if (btnCheckWiring) {
+      btnCheckWiring.addEventListener('click', () => {
+        this.engine.validateCableWiring();
+      });
+    }
+
+    const btnClearCables = document.getElementById('btn-clear-cables');
+    if (btnClearCables) {
+      btnClearCables.addEventListener('click', () => {
+        this.engine.clearConnections();
+        this._renderCables();
+        this._playClick();
+      });
+    }
+
+    const btnNextLevel = document.getElementById('btn-next-level');
+    if (btnNextLevel) {
+      btnNextLevel.addEventListener('click', () => {
+        if (this.engine.activeMode === 'cable_connect') {
+          this.engine.loadCableLevel(this.engine.currentLevelIndex + 1);
+        } else if (this.engine.activeMode === 'leak_patrol') {
+          this.engine.loadLeakLevel(this.engine.currentLevelIndex + 1);
+        }
+        btnNextLevel.style.display = 'none';
+        this._playClick();
+      });
+    }
+
+    // Leak Patrol hint button
+    const btnGcHint = document.getElementById('btn-gc-hint');
+    if (btnGcHint) {
+      btnGcHint.addEventListener('click', () => {
+        this._triggerGcHintPulse();
+        this._playClick();
+      });
+    }
+
+    // Dereference Rush category buttons
+    document.querySelectorAll('.mem-rush-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cat = btn.dataset.category;
+        this.engine.submitRushAnswer(cat);
+      });
+    });
+
+    // SVG Drag listeners on interactive stage
+    const stage = document.getElementById('mem-stage-canvas');
+    if (stage) {
+      window.addEventListener('mousemove', (e) => this._onPointerMove(e));
+      window.addEventListener('mouseup', (e) => this._onPointerUp(e));
+      window.addEventListener('touchmove', (e) => this._onTouchMove(e), { passive: false });
+      window.addEventListener('touchend', (e) => this._onPointerUp(e));
+      window.addEventListener('resize', () => this._renderCables());
+    }
+  },
+
+  _bindEngineEvents() {
+    this.engine.on('modeChanged', ({ mode }) => {
+      this._updateHUD();
+      this._toggleModePanels(mode);
+    });
+
+    this.engine.on('cableLevelLoaded', ({ level, index }) => {
+      this._renderCableLevel(level, index);
+      this._updateHUD();
+    });
+
+    this.engine.on('cableConnected', () => {
+      this._renderCables();
+      this._playSnap();
+    });
+
+    this.engine.on('cableRemoved', () => {
+      this._renderCables();
+      this._playClick();
+    });
+
+    this.engine.on('cableWiringValidated', (result) => {
+      const banner = document.getElementById('mem-feedback');
+      const nextBtn = document.getElementById('btn-next-level');
+
+      if (result.valid) {
+        banner.className = 'mem-feedback-banner is-success';
+        banner.textContent = `⚡ ${result.feedback} (+${result.scoreAwarded} PTS)`;
+        if (nextBtn) nextBtn.style.display = 'inline-flex';
+        this._playChime();
+      } else {
+        banner.className = 'mem-feedback-banner is-error';
+        banner.textContent = `❌ ${result.feedback}`;
+        if (nextBtn) nextBtn.style.display = 'none';
+        this._playBuzzer();
+      }
+      this._updateHUD();
+    });
+
+    this.engine.on('leakLevelLoaded', ({ level, index }) => {
+      this._renderLeakLevel(level, index);
+      this._updateHUD();
+    });
+
+    this.engine.on('blockReclaimed', (result) => {
+      const card = document.getElementById(`card-${result.blockId}`);
+      if (card) {
+        card.classList.add('is-reclaimed');
+      }
+      const banner = document.getElementById('mem-feedback');
+      banner.className = 'mem-feedback-banner is-success';
+      banner.textContent = `🧹 ${result.feedback} (+${result.scoreAwarded} PTS)`;
+      this._updateLeakMeter();
+      this._updateHUD();
+      this._playChime();
+    });
+
+    this.engine.on('useAfterFreeTriggered', (result) => {
+      const banner = document.getElementById('mem-feedback');
+      banner.className = 'mem-feedback-banner is-error';
+      banner.textContent = result.feedback;
+      this._updateHUD();
+      this._playBuzzer();
+    });
+
+    this.engine.on('leakLevelCompleted', ({ level }) => {
+      const nextBtn = document.getElementById('btn-next-level');
+      if (nextBtn) nextBtn.style.display = 'inline-flex';
+    });
+
+    this.engine.on('rushChallengeLoaded', ({ challenge, index, total, secondsRemaining }) => {
+      this._renderRushChallenge(challenge, index, total);
+      this._updateHUD();
+    });
+
+    this.engine.on('rushTimerTick', ({ secondsRemaining }) => {
+      const fill = document.getElementById('rush-timer-fill');
+      if (fill) {
+        const pct = Math.max(0, (secondsRemaining / 12) * 100);
+        fill.style.width = `${pct}%`;
+      }
+    });
+
+    this.engine.on('rushAnswerEvaluated', (result) => {
+      const banner = document.getElementById('mem-rush-feedback');
+      if (banner) {
+        banner.style.display = 'block';
+        if (result.isCorrect) {
+          banner.className = 'mem-feedback-banner is-success';
+          banner.textContent = `🎯 CORRECT! (+${result.scoreAwarded} PTS) — ${result.explanation}`;
+          this._playChime();
+        } else {
+          banner.className = 'mem-feedback-banner is-error';
+          banner.textContent = `💥 INCORRECT! Ground truth: ${result.correctCategory}. ${result.explanation}`;
+          this._playBuzzer();
+        }
+      }
+      this._updateHUD();
+
+      // Proceed after 2.2 seconds
+      setTimeout(() => {
+        if (banner) banner.style.display = 'none';
+        this.engine.proceedToNextRushChallenge();
+      }, 2200);
+    });
+  },
+
+  // ==========================================
+  // HUD & PANELS
+  // ==========================================
+  _updateHUD() {
+    const scoreEl = document.getElementById('hud-mem-score');
+    if (scoreEl) scoreEl.textContent = this.engine.score;
+
+    const streakEl = document.getElementById('hud-mem-streak');
+    if (streakEl) streakEl.textContent = `${this.engine.streak}x`;
+
+    const titleEl = document.getElementById('hud-level-title');
+    const badgeEl = document.getElementById('hud-level-difficulty');
+
+    if (this.engine.activeMode === 'cable_connect') {
+      const lvl = this.engine.getCurrentCableLevel();
+      if (lvl && titleEl) titleEl.textContent = `Stack Master: ${lvl.title}`;
+      if (lvl && badgeEl) badgeEl.textContent = lvl.difficulty;
+    } else if (this.engine.activeMode === 'leak_patrol') {
+      const lvl = this.engine.getCurrentLeakLevel();
+      if (lvl && titleEl) titleEl.textContent = `Heap Hunter: ${lvl.title}`;
+      if (lvl && badgeEl) badgeEl.textContent = lvl.difficulty;
+    } else if (this.engine.activeMode === 'dereference_rush') {
+      if (titleEl) titleEl.textContent = `Segfault Defuser (Challenge ${this.engine.rushIndex + 1}/${this.engine.rushChallenges.length})`;
+      if (badgeEl) badgeEl.textContent = 'Arcade Rush';
+    }
+  },
+
+  _toggleModePanels(mode) {
+    const stage = document.getElementById('mem-stage-canvas');
+    const leakMeter = document.getElementById('mem-leak-meter-container');
+    const rushCard = document.getElementById('mem-rush-card-container');
+    const actionsBar = document.getElementById('mem-actions-bar');
+    const nextBtn = document.getElementById('btn-next-level');
+    const hintBtn = document.getElementById('btn-gc-hint');
+
+    if (nextBtn) nextBtn.style.display = 'none';
+    const feedback = document.getElementById('mem-feedback');
+    if (feedback) feedback.style.display = 'none';
+
+    if (mode === 'cable_connect') {
+      if (stage) stage.style.display = 'grid';
+      if (leakMeter) leakMeter.style.display = 'none';
+      if (rushCard) rushCard.style.display = 'none';
+      if (actionsBar) actionsBar.style.display = 'flex';
+      if (hintBtn) hintBtn.style.display = 'none';
+    } else if (mode === 'leak_patrol') {
+      if (stage) stage.style.display = 'grid';
+      if (leakMeter) leakMeter.style.display = 'block';
+      if (rushCard) rushCard.style.display = 'none';
+      if (actionsBar) actionsBar.style.display = 'flex';
+      if (hintBtn) hintBtn.style.display = 'inline-flex';
+    } else if (mode === 'dereference_rush') {
+      if (stage) stage.style.display = 'none';
+      if (leakMeter) leakMeter.style.display = 'none';
+      if (rushCard) rushCard.style.display = 'block';
+      if (actionsBar) actionsBar.style.display = 'none';
+    }
+  },
+
+  // ==========================================
+  // RENDER CABLE CONNECT LEVEL
+  // ==========================================
+  _renderCableLevel(level, index) {
+    const codePre = document.getElementById('mem-code-pre');
+    if (codePre) codePre.textContent = level.codeSnippet;
+
+    const expText = document.getElementById('mem-explanation-text');
+    if (expText) expText.textContent = level.explanation;
+
+    // Stack column
+    const stackCol = document.getElementById('mem-stack-list');
+    if (stackCol) {
+      stackCol.innerHTML = (level.stack || []).map(v => `
+        <div class="mem-var-card" id="card-${v.id}">
+          <div class="mem-var-meta">
+            <span class="mem-var-name">${v.name}</span>
+            <span class="mem-var-type">${v.type}</span>
+            <span class="mem-var-addr">${v.address}</span>
+          </div>
+          ${v.isPointer ? `<button class="mem-port port-out" data-port-id="${v.id}" aria-label="Connect pointer wire from ${v.name}"></button>` : `<span style="font-family: monospace; font-size: 0.85rem; color: #94a3b8;">${v.value || ''}</span>`}
+        </div>
+      `).join('');
+    }
+
+    // Heap column
+    const heapCol = document.getElementById('mem-heap-list');
+    if (heapCol) {
+      heapCol.innerHTML = (level.heap || []).map(h => `
+        <div class="mem-heap-card" id="card-${h.id}">
+          <button class="mem-port port-in" data-port-id="${h.id}" aria-label="Route pointer wire to heap block ${h.address}"></button>
+          <div class="mem-heap-meta">
+            <span class="mem-heap-addr">${h.address} (${h.size})</span>
+            <span class="mem-heap-label">${h.label}</span>
+            <span class="mem-heap-val">${h.value}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    this._bindPortEvents();
+    this._renderCables();
+  },
+
+  // ==========================================
+  // RENDER LEAK PATROL LEVEL
+  // ==========================================
+  _renderLeakLevel(level, index) {
+    const codePre = document.getElementById('mem-code-pre');
+    if (codePre) codePre.textContent = level.codeSnippet;
+
+    const expText = document.getElementById('mem-explanation-text');
+    if (expText) expText.textContent = level.story;
+
+    // Stack column (roots)
+    const stackCol = document.getElementById('mem-stack-list');
+    if (stackCol) {
+      stackCol.innerHTML = (level.stackRoots || []).map(v => `
+        <div class="mem-var-card" id="card-${v.id}">
+          <div class="mem-var-meta">
+            <span class="mem-var-name">ROOT: ${v.name}</span>
+            <span class="mem-var-addr">${v.address}</span>
+          </div>
+          <span style="font-size: 0.75rem; color: #38bdf8; font-family: monospace;">points to -> ${v.pointsTo}</span>
+        </div>
+      `).join('');
+    }
+
+    // Heap column with Free buttons
+    const heapCol = document.getElementById('mem-heap-list');
+    if (heapCol) {
+      heapCol.innerHTML = (level.heapBlocks || []).map(b => `
+        <div class="mem-heap-card ${b.isOrphaned ? 'is-orphaned' : ''}" id="card-${b.id}">
+          <div class="mem-heap-meta">
+            <span class="mem-heap-addr">${b.address} (${b.sizeBytes}B)</span>
+            <span class="mem-heap-label">${b.label}</span>
+            <span class="mem-heap-val">${b.type}</span>
+          </div>
+          <button class="mem-free-btn" data-block-id="${b.id}" aria-label="Deallocate memory block ${b.address}">
+            🧹 Free Block
+          </button>
+        </div>
+      `).join('');
+
+      heapCol.querySelectorAll('.mem-free-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.blockId;
+          this.engine.attemptReclaimBlock(id);
+        });
+      });
+    }
+
+    this._updateLeakMeter();
+    this._clearSvg();
+  },
+
+  _updateLeakMeter() {
+    const curEl = document.getElementById('leak-current-bytes');
+    const maxEl = document.getElementById('leak-max-bytes');
+    const barEl = document.getElementById('leak-progress-bar');
+
+    if (curEl) curEl.textContent = `${this.engine.currentHeapBytes}B`;
+    if (maxEl) maxEl.textContent = `${this.engine.maxHeapCapacity}B`;
+    if (barEl) {
+      const pct = Math.min(100, (this.engine.currentHeapBytes / this.engine.maxHeapCapacity) * 100);
+      barEl.style.width = `${pct}%`;
+    }
+  },
+
+  _triggerGcHintPulse() {
+    const level = this.engine.getCurrentLeakLevel();
+    if (!level) return;
+
+    level.heapBlocks.forEach(b => {
+      const el = document.getElementById(`card-${b.id}`);
+      if (!el) return;
+      if (b.isOrphaned) {
+        el.style.boxShadow = '0 0 25px rgba(244, 63, 94, 0.9)';
+      } else {
+        el.style.boxShadow = '0 0 25px rgba(16, 185, 129, 0.9)';
+      }
+      setTimeout(() => {
+        el.style.boxShadow = '';
+      }, 1600);
+    });
+  },
+
+  // ==========================================
+  // RENDER DEREFERENCE RUSH CHALLENGE
+  // ==========================================
+  _renderRushChallenge(challenge, index, total) {
+    const codeEl = document.getElementById('rush-code-display');
+    if (codeEl) codeEl.textContent = challenge.code;
+
+    const fill = document.getElementById('rush-timer-fill');
+    if (fill) fill.style.width = '100%';
+
+    const feedback = document.getElementById('mem-rush-feedback');
+    if (feedback) feedback.style.display = 'none';
+  },
+
+  // ==========================================
+  // SVG BEZIER CABLE DRAG & DRAW MATH
+  // ==========================================
+  _bindPortEvents() {
+    document.querySelectorAll('.mem-port').forEach(port => {
+      port.addEventListener('mousedown', (e) => this._onPortStart(e, port));
+      port.addEventListener('touchstart', (e) => this._onPortStart(e, port), { passive: false });
+    });
+  },
+
+  _onPortStart(e, port) {
+    e.stopPropagation();
+    const portId = port.dataset.portId;
+    const stage = document.getElementById('mem-stage-canvas');
+    if (!stage) return;
+
+    const rect = stage.getBoundingClientRect();
+    const portRect = port.getBoundingClientRect();
+    const startX = (portRect.left + portRect.width / 2) - rect.left;
+    const startY = (portRect.top + portRect.height / 2) - rect.top;
+
+    this.activeDrag = {
+      fromId: portId,
+      startX,
+      startY,
+      currentX: startX,
+      currentY: startY
+    };
+
+    this._playClick();
+  },
+
+  _onPointerMove(e) {
+    if (!this.activeDrag) return;
+    const stage = document.getElementById('mem-stage-canvas');
+    if (!stage) return;
+
+    const rect = stage.getBoundingClientRect();
+    this.activeDrag.currentX = e.clientX - rect.left;
+    this.activeDrag.currentY = e.clientY - rect.top;
+
+    this._renderCables();
+  },
+
+  _onTouchMove(e) {
+    if (!this.activeDrag) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    if (!touch) return;
+
+    const stage = document.getElementById('mem-stage-canvas');
+    if (!stage) return;
+
+    const rect = stage.getBoundingClientRect();
+    this.activeDrag.currentX = touch.clientX - rect.left;
+    this.activeDrag.currentY = touch.clientY - rect.top;
+
+    this._renderCables();
+  },
+
+  _onPointerUp(e) {
+    if (!this.activeDrag) return;
+
+    // Detect if mouse released over a target port
+    const clientX = e.clientX || (e.changedTouches && e.changedTouches[0]?.clientX);
+    const clientY = e.clientY || (e.changedTouches && e.changedTouches[0]?.clientY);
+
+    let targetPortId = null;
+    if (clientX && clientY) {
+      const el = document.elementFromPoint(clientX, clientY);
+      if (el && el.classList.contains('mem-port')) {
+        targetPortId = el.dataset.portId;
+      }
+    }
+
+    if (targetPortId && targetPortId !== this.activeDrag.fromId) {
+      this.engine.addConnection(this.activeDrag.fromId, targetPortId);
+    }
+
+    this.activeDrag = null;
+    this._renderCables();
+  },
+
+  _renderCables() {
+    const svg = document.getElementById('memory-cables-svg');
+    if (!svg) return;
+
+    const stage = document.getElementById('mem-stage-canvas');
+    if (!stage) return;
+    const rect = stage.getBoundingClientRect();
+
+    let pathsHtml = '';
+
+    // Render active connections
+    for (const conn of this.engine.userConnections) {
+      const fromEl = document.querySelector(`.mem-port[data-port-id="${conn.from}"]`);
+      const toEl = document.querySelector(`.mem-port[data-port-id="${conn.to}"]`);
+
+      if (fromEl && toEl) {
+        const fromRect = fromEl.getBoundingClientRect();
+        const toRect = toEl.getBoundingClientRect();
+
+        const x1 = (fromRect.left + fromRect.width / 2) - rect.left;
+        const y1 = (fromRect.top + fromRect.height / 2) - rect.top;
+        const x2 = (toRect.left + toRect.width / 2) - rect.left;
+        const y2 = (toRect.top + toRect.height / 2) - rect.top;
+
+        // Smooth cubic bezier with horizontal tension
+        const dx = Math.abs(x2 - x1) * 0.55;
+        const pathData = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+
+        pathsHtml += `
+          <path class="cable-wire" d="${pathData}" data-from="${conn.from}" data-to="${conn.to}"></path>
+        `;
+      }
+    }
+
+    // Render in-progress drag cable
+    if (this.activeDrag) {
+      const x1 = this.activeDrag.startX;
+      const y1 = this.activeDrag.startY;
+      const x2 = this.activeDrag.currentX;
+      const y2 = this.activeDrag.currentY;
+
+      const dx = Math.abs(x2 - x1) * 0.5;
+      const pathData = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+
+      pathsHtml += `
+        <path class="cable-wire is-dragging" d="${pathData}"></path>
+      `;
+    }
+
+    svg.innerHTML = pathsHtml;
+
+    // Attach click-to-disconnect on active cables
+    svg.querySelectorAll('.cable-wire:not(.is-dragging)').forEach(path => {
+      path.addEventListener('click', () => {
+        const from = path.dataset.from;
+        const to = path.dataset.to;
+        this.engine.removeConnection(from, to);
+      });
+    });
+  },
+
+  _clearSvg() {
+    const svg = document.getElementById('memory-cables-svg');
+    if (svg) svg.innerHTML = '';
+  },
+
+  // ==========================================
+  // PROCEDURAL AUDIO FEEDBACK
+  // ==========================================
+  _getContext() {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      if (!this._audioCtx) this._audioCtx = new AudioCtx();
+      if (this._audioCtx.state === 'suspended') this._audioCtx.resume().catch(() => {});
+      return this._audioCtx;
+    }
+    return null;
+  },
+
+  _playClick() {
+    try {
+      const ctx = this._getContext();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1400, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.015);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.018);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.02);
+    } catch (_) {}
+  },
+
+  _playSnap() {
+    try {
+      const ctx = this._getContext();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(450, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.035);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.045);
+    } catch (_) {}
+  },
+
+  _playChime() {
+    try {
+      const ctx = this._getContext();
+      if (!ctx) return;
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.06);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.06 + 0.25);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.06);
+        osc.stop(ctx.currentTime + i * 0.06 + 0.28);
+      });
+    } catch (_) {}
+  },
+
+  _playBuzzer() {
+    try {
+      const ctx = this._getContext();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(110, ctx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.25);
+    } catch (_) {}
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.MemoryMinigameController = MemoryMinigameController;
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.body.dataset.page === 'memory-games') {
+      MemoryMinigameController.init();
+    }
+  });
+}
+
+/* --- End of js/memory-controller.js --- */
 
 /* --- Start of js/gameplay.js --- */
 /**

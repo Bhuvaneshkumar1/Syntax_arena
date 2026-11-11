@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SyntaxArena — Tactile Memory Pointer Minigames: Heap Hunter, Stack Master & Segfault Defuser.">
+  <title>SyntaxArena — Tactile Memory Lab</title>
+  
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/battlestation.css">
+  <link rel="stylesheet" href="css/memory-minigame.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body data-page="memory-games">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Accessible Screen Reader Live Announcer -->
+  <div id="memory-live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Embedded SVG Icons -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>
+    </symbol>
+    <symbol id="icon-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="6" x2="10" y1="11" y2="11"></line><line x1="8" x2="8" y1="9" y2="13"></line>
+      <line x1="15" x2="15.01" y1="12" y2="12"></line><line x1="18" x2="18.01" y1="10" y2="10"></line>
+      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
+    </symbol>
+    <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+      <path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+    </symbol>
+    <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+    </symbol>
+    <symbol id="icon-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+      <rect x="9" y="9" width="6" height="6"></rect>
+      <line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line>
+      <line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line>
+      <line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line>
+      <line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line>
+    </symbol>
+  </svg>
+
+  <!-- Application Shell Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-link" aria-label="SyntaxArena Home">
+        <span class="brand-badge" aria-hidden="true">
+          <img src="assets/images/logo.svg" width="24" height="24" alt="SyntaxArena Logo">
+        </span>
+        <span class="brand-title">SyntaxArena</span>
+      </a>
+
+      <!-- Desktop Primary Navigation -->
+      <nav class="app-nav" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Hub</span>
+        </a>
+        <a href="game.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
+          <span>Arena</span>
+        </a>
+        <a href="memory-games.html" class="nav-link" aria-current="page">
+          <svg class="nav-icon"><use href="#icon-cpu"></use></svg>
+          <span>Memory Lab</span>
+        </a>
+        <a href="learn.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-zap"></use></svg>
+          <span>Academy</span>
+        </a>
+        <a href="sandbox.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-code"></use></svg>
+          <span>Sandbox</span>
+        </a>
+        <a href="progress.html" class="nav-link">
+          <svg class="nav-icon"><use href="#icon-trophy"></use></svg>
+          <span>Career</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="settings.html#section-battlestation" class="btn-arcade btn-secondary btn-sm" style="text-decoration: none;">
+          🖥️ Battlestation
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Shell -->
+  <main id="main-content" class="app-main">
+    <div class="memory-lab-container">
+      
+      <!-- Lab Header -->
+      <section class="mem-header">
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <span class="badge badge-cyan">Feature 8 Interactive Laboratory</span>
+          <span class="badge badge-emerald">0ms Hardware Latency</span>
+        </div>
+        <h1 class="mem-title">🧠 Tactile Memory Pointer Lab</h1>
+        <p class="mem-subtitle">
+          Master low-level pointers, dynamic heap allocations, and memory safety through tactile arcade puzzles.
+          Connect live pointer wires, hunt memory leaks with mark-and-sweep, and defuse segmentation faults before impact.
+        </p>
+
+        <!-- Mode Switcher Tabs -->
+        <div class="mem-mode-tabs" role="tablist" aria-label="Memory Minigame Modes">
+          <button class="mem-mode-btn is-active" data-mode="cable_connect" role="tab" aria-selected="true" id="tab-cable-connect">
+            🔌 Cable Connect (Stack Master)
+          </button>
+          <button class="mem-mode-btn" data-mode="leak_patrol" role="tab" aria-selected="false" id="tab-leak-patrol">
+            🧹 Leak Patrol (Heap Hunter)
+          </button>
+          <button class="mem-mode-btn" data-mode="dereference_rush" role="tab" aria-selected="false" id="tab-deref-rush">
+            ⚡ Dereference Rush (Segfault Defuser)
+          </button>
+        </div>
+      </section>
+
+      <!-- Live Telemetry HUD Bar -->
+      <section class="mem-hud-bar" aria-label="Game Telemetry">
+        <div class="mem-hud-level">
+          <span class="badge badge-cyan" id="hud-level-difficulty">Beginner</span>
+          <span class="mem-level-title" id="hud-level-title">Direct Integer Pointer</span>
+        </div>
+        <div class="mem-hud-stats">
+          <div class="mem-stat-pill">
+            <span>SCORE:</span>
+            <span class="mem-stat-val" id="hud-mem-score">0</span>
+          </div>
+          <div class="mem-stat-pill">
+            <span>STREAK:</span>
+            <span class="mem-stat-val streak" id="hud-mem-streak">0x</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Code Snippet / Scenario Briefing -->
+      <section class="mem-code-card">
+        <pre class="mem-code-pre"><code id="mem-code-pre">int *ptr = (int*)malloc(sizeof(int));
+*ptr = 42;</code></pre>
+        <div class="mem-explanation-text" id="mem-explanation-text">
+          Drag virtual pointer cables from stack variables to the corresponding heap memory allocation.
+        </div>
+      </section>
+
+      <!-- Leak Patrol Pressure Gauge (Visible in leak_patrol mode) -->
+      <section class="mem-leak-meter" id="mem-leak-meter-container" style="display: none;">
+        <div class="mem-leak-label-row">
+          <span>HEAP CAPACITY PRESSURE</span>
+          <span id="leak-current-bytes">384B</span> / <span id="leak-max-bytes">512B</span>
+        </div>
+        <div class="mem-leak-progress-track">
+          <div class="mem-leak-progress-bar" id="leak-progress-bar" style="width: 75%;"></div>
+        </div>
+      </section>
+
+      <!-- Dereference Rush Speed Arena (Visible in dereference_rush mode) -->
+      <section class="mem-rush-card" id="mem-rush-card-container" style="display: none;">
+        <div class="mem-rush-timer-bar">
+          <div class="mem-rush-timer-fill" id="rush-timer-fill"></div>
+        </div>
+        <div style="font-family: var(--font-display); font-size: 0.88rem; color: #94a3b8; margin-bottom: 1rem; text-transform: uppercase;">
+          RAPID MEMORY HAZARD TRIAGE — SELECT DEREFERENCE VALIDITY
+        </div>
+        <div style="background: #020617; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <pre style="margin: 0; font-family: monospace; font-size: 1.1rem; color: #38bdf8;" id="rush-code-display">int *ptr = NULL;\n*ptr = 42;</pre>
+        </div>
+
+        <div id="mem-rush-feedback" class="mem-feedback-banner" style="margin-bottom: 1.5rem;"></div>
+
+        <div class="mem-rush-options-grid">
+          <button class="mem-rush-btn opt-safe" data-category="safe_dereference">
+            <span>🟢 SAFE ACCESS</span>
+            <span style="font-size: 11px; opacity: 0.8;">Valid memory read/write</span>
+          </button>
+          <button class="mem-rush-btn opt-null" data-category="null_dereference">
+            <span>🟡 NULL POINTER</span>
+            <span style="font-size: 11px; opacity: 0.8;">Dereferencing 0x0</span>
+          </button>
+          <button class="mem-rush-btn opt-dangling" data-category="dangling_pointer">
+            <span>🔴 DANGLING / UAF</span>
+            <span style="font-size: 11px; opacity: 0.8;">Use-After-Free</span>
+          </button>
+          <button class="mem-rush-btn opt-bounds" data-category="out_of_bounds">
+            <span>🟣 BUFFER OVERRUN</span>
+            <span style="font-size: 11px; opacity: 0.8;">Out of bounds or wild</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Interactive Stage Canvas (Stack & Heap Column Grid + SVG Wires) -->
+      <div class="mem-interactive-stage" id="mem-stage-canvas">
+        <!-- SVG Cables Layer Overlay -->
+        <svg id="memory-cables-svg" aria-hidden="true"></svg>
+
+        <!-- Left Column: Stack Frames -->
+        <div class="mem-column">
+          <div class="mem-col-header">
+            <span class="mem-col-title stack">📍 CALL STACK (LIFO)</span>
+            <span class="badge badge-cyan" style="font-size: 10px;">FRAME: main()</span>
+          </div>
+          <div id="mem-stack-list" style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Right Column: Heap Memory Allocations -->
+        <div class="mem-column">
+          <div class="mem-col-header">
+            <span class="mem-col-title heap">💾 DYNAMIC HEAP (POOL)</span>
+            <span class="badge badge-purple" style="font-size: 10px;">0x55a100 BASE</span>
+          </div>
+          <div id="mem-heap-list" style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Feedback Banner -->
+      <div id="mem-feedback" class="mem-feedback-banner" style="margin-top: 1.5rem;"></div>
+
+      <!-- Action Controls Bar -->
+      <div class="mem-actions-bar" id="mem-actions-bar">
+        <div style="display: flex; gap: 0.75rem;">
+          <button id="btn-check-wiring" class="btn-arcade btn-primary">
+            ⚡ Check Wiring
+          </button>
+          <button id="btn-clear-cables" class="btn-arcade btn-neutral">
+            🔄 Clear Cables
+          </button>
+          <button id="btn-gc-hint" class="btn-arcade btn-secondary" style="display: none;">
+            💡 Mark & Sweep Pulse
+          </button>
+        </div>
+
+        <div>
+          <button id="btn-next-level" class="btn-arcade btn-primary" style="display: none; background: #10b981; border-color: #34d399;">
+            ➡️ Next Level (+XP)
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/bundle.js"></script>
+</body>
+</html>
