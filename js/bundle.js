@@ -101711,6 +101711,9 @@ var UI = window.UI = {
     const modal = Utils.qs(`#${modalId}`);
     if (!modal) return;
 
+    if (modal.style.display === 'none') {
+      modal.style.display = '';
+    }
     modal._triggerElement = triggerElement || document.activeElement;
     modal.classList.add('is-open');
     modal.setAttribute('aria-hidden', 'false');
@@ -107318,6 +107321,745 @@ var LandingPage = window.LandingPage = {
 
 /* --- End of js/landing.js --- */
 
+/* --- Start of js/p2p-duel.js --- */
+/**
+ * SyntaxArena P2P & Local 1v1 Duel Engine ("SyntaxDuel")
+ * Coordinates real-time multiplayer head-to-head coding battles:
+ * - Cross-tab / cross-window real-time messaging via BroadcastChannel & LocalStorage bridge
+ * - WebRTC DataChannel peer connectivity for remote zero-server duels
+ * - Shared keyboard local 2-player arcade split mode
+ * - Synchronized seeded question selection & real-time split delta tracking
+ * - Sabotage glitch disruptions on high streak combos
+ */
+
+
+var DuelEngine = window.DuelEngine = {
+  active: false,
+  isHost: false,
+  mode: 'p2p', // 'p2p' | 'local_split' | 'async_challenge'
+  roomCode: '',
+  seed: 0,
+  language: 'python',
+  difficulty: 'all',
+  questionCount: 10,
+  channel: null,
+  storageKey: null,
+  storageListener: null,
+  peerConnection: null,
+  dataChannel: null,
+
+  // Local & Remote Player States
+  localPlayer: {
+    id: 'local',
+    name: 'Player 1',
+    avatar: 'cyber_fox',
+    score: 0,
+    streak: 0,
+    highestStreak: 0,
+    currentQuestion: 0,
+    correctAnswers: 0,
+    totalAnswered: 0,
+    timeSpent: 0,
+    finished: false
+  },
+
+  opponentPlayer: {
+    id: 'opponent',
+    name: 'Challenger',
+    avatar: 'matrix_cat',
+    score: 0,
+    streak: 0,
+    highestStreak: 0,
+    currentQuestion: 0,
+    correctAnswers: 0,
+    totalAnswered: 0,
+    timeSpent: 0,
+    finished: false,
+    connected: false
+  },
+
+  // Event callbacks
+  callbacks: {
+    onOpponentJoined: null,
+    onMatchStart: null,
+    onOpponentProgress: null,
+    onOpponentFinished: null,
+    onSabotage: null
+  },
+
+  get session() {
+    return {
+      mode: this.mode,
+      roomCode: this.roomCode,
+      seed: this.seed,
+      localPlayer: this.localPlayer,
+      opponent: this.opponentPlayer
+    };
+  },
+
+  onRemoteProgress(fn) {
+    this.callbacks.onOpponentProgress = fn;
+  },
+
+  onSabotage(fn) {
+    this.callbacks.onSabotage = fn;
+  },
+
+  onStateChange(fn) {
+    this.callbacks.onMatchStart = fn;
+  },
+
+  initHost(config = {}) {
+    return this.createRoom({
+      roomCode: config.roomCode,
+      seed: config.seed,
+      language: config.language,
+      difficulty: config.difficulty,
+      questionCount: config.count || config.questionCount,
+      profile: config.profile
+    });
+  },
+
+  initChallenger(config = {}) {
+    return this.joinRoom(config.roomCode, {
+      seed: config.seed,
+      language: config.language,
+      difficulty: config.difficulty,
+      questionCount: config.count || config.questionCount,
+      profile: config.profile
+    });
+  },
+
+  initLocalSplit(config = {}) {
+    return this.startLocalSplitMode({
+      language: config.language,
+      difficulty: config.difficulty,
+      questionCount: config.count || config.questionCount,
+      seed: config.seed,
+      p1Name: config.p1Name,
+      p2Name: config.p2Name
+    });
+  },
+
+  /**
+   * Generate clean 6-character room code (e.g. "SYN-482")
+   */
+  generateRoomCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = 'SYN-';
+    for (let i = 0; i < 4; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  },
+
+  /**
+   * Generate deterministic seed from roomCode or timestamp
+   */
+  generateSeed(str = '') {
+    const s = str || (Date.now().toString(36) + Math.random().toString(36));
+    let hash = 0;
+    for (let i = 0; i < s.length; i++) {
+      hash = ((hash << 5) - hash) + s.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  },
+
+  /**
+   * Initialize a new Duel Match as Host
+   */
+  createRoom(config = {}) {
+    this.reset();
+    this.isHost = true;
+    this.mode = config.mode || 'p2p';
+    this.roomCode = config.roomCode || this.generateRoomCode();
+    this.seed = config.seed || this.generateSeed(this.roomCode);
+    this.language = config.language || 'python';
+    this.difficulty = config.difficulty || 'all';
+    this.questionCount = config.questionCount || 10;
+
+    const userProfile = config.profile || {};
+    this.localPlayer.name = userProfile.username || 'ScriptAdept';
+    this.localPlayer.avatar = userProfile.avatarId || 'cyber_fox';
+
+    this.active = true;
+    this._initTransport();
+    return this.getRoomConfig();
+  },
+
+  /**
+   * Join an existing Duel Match as Challenger
+   */
+  joinRoom(roomCode, config = {}) {
+    this.reset();
+    this.isHost = false;
+    this.mode = config.mode || 'p2p';
+    this.roomCode = (roomCode || '').toUpperCase().trim();
+    this.seed = config.seed || this.generateSeed(this.roomCode);
+    this.language = config.language || 'python';
+    this.difficulty = config.difficulty || 'all';
+    this.questionCount = config.questionCount || 10;
+
+    const userProfile = config.profile || {};
+    this.localPlayer.name = userProfile.username || 'CodeChallenger';
+    this.localPlayer.avatar = userProfile.avatarId || 'terminal_owl';
+
+    this.active = true;
+    this._initTransport();
+
+    // Announce presence to Host
+    this._broadcastMessage({
+      type: 'PLAYER_JOIN',
+      player: {
+        name: this.localPlayer.name,
+        avatar: this.localPlayer.avatar
+      }
+    });
+
+    return this.getRoomConfig();
+  },
+
+  /**
+   * Initialize Local Same-Keyboard / Shared Screen Mode
+   */
+  startLocalSplitMode(config = {}) {
+    this.reset();
+    this.isHost = true;
+    this.mode = 'local_split';
+    this.roomCode = 'LOCAL-ARCADE';
+    this.seed = config.seed || this.generateSeed('local');
+    this.language = config.language || 'python';
+    this.difficulty = config.difficulty || 'all';
+    this.questionCount = config.questionCount || 10;
+
+    this.localPlayer.name = config.p1Name || 'Player 1 (Keys 1-4)';
+    this.localPlayer.avatar = 'cyber_fox';
+    this.opponentPlayer.name = config.p2Name || 'Player 2 (Keys 7-0)';
+    this.opponentPlayer.avatar = 'matrix_cat';
+    this.opponentPlayer.connected = true;
+
+    this.active = true;
+    return this.getRoomConfig();
+  },
+
+  /**
+   * Retrieve active room configuration payload
+   */
+  getRoomConfig() {
+    return {
+      roomCode: this.roomCode,
+      isHost: this.isHost,
+      mode: this.mode,
+      seed: this.seed,
+      language: this.language,
+      difficulty: this.difficulty,
+      questionCount: this.questionCount,
+      shareUrl: this.getShareUrl()
+    };
+  },
+
+  /**
+   * Construct 1-click shareable join URL
+   */
+  getShareUrl(baseUrl = '') {
+    let base = baseUrl;
+    if (!base && typeof window !== 'undefined' && window.location) {
+      base = window.location.origin + window.location.pathname;
+    }
+    if (!base) base = 'game.html';
+    const params = new URLSearchParams();
+    params.set('mode', 'duel');
+    params.set('room', this.roomCode);
+    params.set('lang', this.language);
+    params.set('diff', this.difficulty);
+    params.set('count', String(this.questionCount));
+    params.set('seed', String(this.seed));
+    return `${base}?${params.toString()}`;
+  },
+
+  /**
+   * Setup communication channels (BroadcastChannel + LocalStorage Bridge)
+   */
+  _initTransport() {
+    if (typeof window === 'undefined') return;
+
+    // 1. Cross-Tab/Window BroadcastChannel
+    if ('BroadcastChannel' in window) {
+      try {
+        if (this.channel) this.channel.close();
+        this.channel = new BroadcastChannel(`syntaxarena_duel_${this.roomCode}`);
+        this.channel.onmessage = (e) => this._handleMessage(e.data);
+      } catch (e) {
+        console.warn('[DuelEngine] BroadcastChannel unavailable, using LocalStorage bridge:', e);
+      }
+    }
+
+    // 2. Cross-Window LocalStorage bridge fallback
+    this.storageKey = `syntaxarena_duel_msg_${this.roomCode}`;
+    if (!this.storageListener && typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      this.storageListener = (e) => {
+        if (e.key === this.storageKey && e.newValue) {
+          try {
+            const data = JSON.parse(e.newValue);
+            this._handleMessage(data);
+          } catch (_) {}
+        }
+      };
+      window.addEventListener('storage', this.storageListener);
+    }
+  },
+
+  /**
+   * Broadcast message to peer
+   */
+  _broadcastMessage(msg) {
+    const payload = {
+      ...msg,
+      sender: this.isHost ? 'host' : 'guest',
+      timestamp: Date.now()
+    };
+
+    if (this.channel) {
+      try {
+        this.channel.postMessage(payload);
+      } catch (_) {}
+    }
+
+    if (typeof window !== 'undefined' && window.localStorage && this.storageKey) {
+      try {
+        window.localStorage.setItem(this.storageKey, JSON.stringify(payload));
+      } catch (_) {}
+    }
+  },
+
+  /**
+   * Process incoming messages from peer
+   */
+  _handleMessage(msg) {
+    if (!msg || !msg.type) return;
+
+    // Filter out echo from self
+    const expectedSender = this.isHost ? 'guest' : 'host';
+    if (msg.sender && msg.sender !== expectedSender && msg.type !== 'PLAYER_JOIN') {
+      return;
+    }
+
+    switch (msg.type) {
+      case 'PLAYER_JOIN':
+        this.opponentPlayer.connected = true;
+        if (msg.player) {
+          this.opponentPlayer.name = msg.player.name || this.opponentPlayer.name;
+          this.opponentPlayer.avatar = msg.player.avatar || this.opponentPlayer.avatar;
+        }
+        if (this.isHost) {
+          // Acknowledge challenger and send current room config
+          this._broadcastMessage({
+            type: 'ROOM_SYNC',
+            room: this.getRoomConfig(),
+            host: {
+              name: this.localPlayer.name,
+              avatar: this.localPlayer.avatar
+            }
+          });
+        }
+        if (typeof this.callbacks.onOpponentJoined === 'function') {
+          this.callbacks.onOpponentJoined(this.opponentPlayer);
+        }
+        break;
+
+      case 'ROOM_SYNC':
+        if (!this.isHost && msg.room) {
+          this.seed = msg.room.seed || this.seed;
+          this.language = msg.room.language || this.language;
+          this.difficulty = msg.room.difficulty || this.difficulty;
+          this.questionCount = msg.room.questionCount || this.questionCount;
+          if (msg.host) {
+            this.opponentPlayer.name = msg.host.name || this.opponentPlayer.name;
+            this.opponentPlayer.avatar = msg.host.avatar || this.opponentPlayer.avatar;
+            this.opponentPlayer.connected = true;
+          }
+          if (typeof this.callbacks.onOpponentJoined === 'function') {
+            this.callbacks.onOpponentJoined(this.opponentPlayer);
+          }
+        }
+        break;
+
+      case 'MATCH_START':
+        this.seed = msg.seed || this.seed;
+        if (typeof this.callbacks.onMatchStart === 'function') {
+          this.callbacks.onMatchStart(msg);
+        }
+        break;
+
+      case 'PROGRESS_UPDATE':
+        this.opponentPlayer.currentQuestion = msg.questionIndex !== undefined ? msg.questionIndex : this.opponentPlayer.currentQuestion;
+        this.opponentPlayer.score = msg.score !== undefined ? msg.score : this.opponentPlayer.score;
+        this.opponentPlayer.streak = msg.streak !== undefined ? msg.streak : this.opponentPlayer.streak;
+        this.opponentPlayer.totalAnswered = (this.opponentPlayer.totalAnswered || 0) + 1;
+        if (msg.isCorrect) {
+          this.opponentPlayer.correctAnswers = (this.opponentPlayer.correctAnswers || 0) + 1;
+        }
+        if (this.opponentPlayer.streak > this.opponentPlayer.highestStreak) {
+          this.opponentPlayer.highestStreak = this.opponentPlayer.streak;
+        }
+
+        if (typeof this.callbacks.onOpponentProgress === 'function') {
+          this.callbacks.onOpponentProgress(this.opponentPlayer, msg);
+        }
+        break;
+
+      case 'SABOTAGE':
+        if (typeof this.callbacks.onSabotage === 'function') {
+          this.callbacks.onSabotage(msg);
+        }
+        break;
+
+      case 'PLAYER_FINISH':
+        this.opponentPlayer.finished = true;
+        this.opponentPlayer.score = msg.score || this.opponentPlayer.score;
+        this.opponentPlayer.timeSpent = msg.timeSpent || 0;
+        if (typeof this.callbacks.onOpponentFinished === 'function') {
+          this.callbacks.onOpponentFinished(this.opponentPlayer);
+        }
+        break;
+    }
+  },
+
+  /**
+   * Host starts the synchronized match
+   */
+  startMatch() {
+    if (!this.active) return;
+    this._broadcastMessage({
+      type: 'MATCH_START',
+      seed: this.seed,
+      language: this.language,
+      difficulty: this.difficulty,
+      questionCount: this.questionCount
+    });
+  },
+
+  /**
+   * Record local player's question submission and broadcast update
+   */
+  recordLocalAnswer({ questionIndex, isCorrect, score, streak, pointsEarned = 0 }) {
+    this.localPlayer.currentQuestion = questionIndex + 1;
+    this.localPlayer.score = score;
+    this.localPlayer.streak = streak;
+    this.localPlayer.totalAnswered++;
+    if (isCorrect) {
+      this.localPlayer.correctAnswers++;
+      if (streak > this.localPlayer.highestStreak) {
+        this.localPlayer.highestStreak = streak;
+      }
+    }
+
+    // Broadcast live progress to opponent
+    this._broadcastMessage({
+      type: 'PROGRESS_UPDATE',
+      questionIndex: this.localPlayer.currentQuestion,
+      isCorrect,
+      score: this.localPlayer.score,
+      streak: this.localPlayer.streak,
+      pointsEarned
+    });
+
+    // Sabotage attack on 3-streak
+    if (isCorrect && streak >= 3 && streak % 3 === 0) {
+      this._broadcastMessage({
+        type: 'SABOTAGE',
+        attacker: this.localPlayer.name,
+        streak
+      });
+    }
+
+    return this.getLeadStatus();
+  },
+
+  /**
+   * Record local player match finish
+   */
+  recordLocalFinish(totalTimeMs = 0) {
+    this.localPlayer.finished = true;
+    this.localPlayer.timeSpent = totalTimeMs;
+
+    this._broadcastMessage({
+      type: 'PLAYER_FINISH',
+      score: this.localPlayer.score,
+      correctAnswers: this.localPlayer.correctAnswers,
+      timeSpent: totalTimeMs
+    });
+
+    return this.getMatchResult();
+  },
+
+  /**
+   * Calculate real-time race lead between Local and Opponent
+   * @returns {object} { status: 'lead'|'behind'|'tied', deltaScore, deltaQuestions, text }
+   */
+  getLeadStatus() {
+    const diff = this.localPlayer.score - this.opponentPlayer.score;
+    const qDiff = this.localPlayer.currentQuestion - this.opponentPlayer.currentQuestion;
+
+    const base = {
+      p1Score: this.localPlayer.score,
+      p2Score: this.opponentPlayer.score,
+      p1Progress: this.localPlayer.currentQuestion,
+      p2Progress: this.opponentPlayer.currentQuestion,
+      p1Streak: this.localPlayer.streak,
+      p2Streak: this.opponentPlayer.streak
+    };
+
+    if (diff > 0) {
+      return {
+        ...base,
+        status: 'lead',
+        deltaScore: diff,
+        deltaQuestions: qDiff,
+        text: `+${diff} PTS AHEAD`,
+        deltaClass: 'is-lead',
+        deltaText: `+${diff} PTS AHEAD`
+      };
+    } else if (diff < 0) {
+      return {
+        ...base,
+        status: 'behind',
+        deltaScore: Math.abs(diff),
+        deltaQuestions: Math.abs(qDiff),
+        text: `-${Math.abs(diff)} PTS BEHIND`,
+        deltaClass: 'is-behind',
+        deltaText: `-${Math.abs(diff)} PTS BEHIND`
+      };
+    } else {
+      return {
+        ...base,
+        status: 'tied',
+        deltaScore: 0,
+        deltaQuestions: qDiff,
+        text: `⚡ TIED`,
+        deltaClass: 'is-tied',
+        deltaText: `⚡ TIED`
+      };
+    }
+  },
+
+  /**
+   * Resolve final winner and head-to-head match stats
+   */
+  getMatchResult() {
+    const p1 = this.localPlayer;
+    const p2 = this.opponentPlayer;
+
+    let winner = 'draw';
+    if (p1.score > p2.score) {
+      winner = 'p1';
+    } else if (p2.score > p1.score) {
+      winner = 'p2';
+    } else {
+      // Tie breaker 1: Most correct answers
+      if (p1.correctAnswers > p2.correctAnswers) {
+        winner = 'p1';
+      } else if (p2.correctAnswers > p1.correctAnswers) {
+        winner = 'p2';
+      } else {
+        // Tie breaker 2: Faster total time
+        if (p1.timeSpent < p2.timeSpent && p1.timeSpent > 0) {
+          winner = 'p1';
+        } else if (p2.timeSpent < p1.timeSpent && p2.timeSpent > 0) {
+          winner = 'p2';
+        } else {
+          winner = 'draw';
+        }
+      }
+    }
+
+    const p1Acc = p1.totalAnswered > 0 ? Math.round((p1.correctAnswers / p1.totalAnswered) * 100) : 0;
+    const p2Acc = p2.totalAnswered > 0 ? Math.round((p2.correctAnswers / p2.totalAnswered) * 100) : 0;
+
+    return {
+      winner, // 'p1' | 'p2' | 'draw'
+      isVictory: winner === 'p1',
+      isDefeat: winner === 'p2',
+      isDraw: winner === 'draw',
+      isTie: winner === 'draw',
+      isHostWin: winner === 'p1',
+      host: {
+        username: p1.name,
+        name: p1.name,
+        score: p1.score,
+        accuracy: p1Acc,
+        maxStreak: p1.highestStreak,
+        totalTimeMs: p1.timeSpent
+      },
+      challenger: {
+        username: p2.name,
+        name: p2.name,
+        score: p2.score,
+        accuracy: p2Acc,
+        maxStreak: p2.highestStreak,
+        totalTimeMs: p2.timeSpent
+      },
+      verdictSummary: winner === 'draw'
+        ? 'Epic tie! Both competitors displayed remarkable syntax mastery.'
+        : (winner === 'p1' ? `${p1.name} conquered the head-to-head syntax duel!` : `${p2.name} claimed the syntax victory!`),
+      p1: {
+        name: p1.name,
+        avatar: p1.avatar,
+        score: p1.score,
+        correctAnswers: p1.correctAnswers,
+        totalAnswered: p1.totalAnswered,
+        accuracy: p1Acc,
+        highestStreak: p1.highestStreak,
+        timeSpentSec: Math.round(p1.timeSpent / 1000)
+      },
+      p2: {
+        name: p2.name,
+        avatar: p2.avatar,
+        score: p2.score,
+        correctAnswers: p2.correctAnswers,
+        totalAnswered: p2.totalAnswered,
+        accuracy: p2Acc,
+        highestStreak: p2.highestStreak,
+        timeSpentSec: Math.round(p2.timeSpent / 1000)
+      }
+    };
+  },
+
+  /**
+   * Generate markdown report card for match sharing
+   */
+  generateMarkdownReport() {
+    const res = this.getMatchResult();
+    return `### ⚔️ SyntaxDuel Versus Match Report
+**Room:** ${this.roomCode || 'LOCAL-SPLIT'} • **Track:** ${this.language} (${this.difficulty})
+**Outcome:** ${res.isTie ? 'HONORABLE DRAW' : (res.isVictory ? `🏆 VICTORY for ${res.p1.name}` : `💀 DEFEAT - ${res.p2.name} Wins`)}
+
+| Metric | ${res.p1.name} | ${res.p2.name} |
+| :--- | :--- | :--- |
+| **Final Score** | ${res.p1.score} PTS | ${res.p2.score} PTS |
+| **Accuracy** | ${res.p1.accuracy}% | ${res.p2.accuracy}% |
+| **Max Streak** | ${res.p1.highestStreak}x | ${res.p2.highestStreak}x |
+| **Elapsed Time** | ${res.p1.timeSpentSec}s | ${res.p2.timeSpentSec}s |
+
+*Generated via SyntaxArena Real-Time P2P Duel Engine*`;
+  },
+
+  /**
+   * Deterministically select identical question deck using Mulberry32 PRNG
+   * @param {Array|object} catalogOrOpts Master list of questions or options object
+   * @param {number} seed Integer seed
+   * @param {number} count Number of questions (default 10)
+   * @param {string} [language='python']
+   * @param {string} [difficulty='all']
+   * @returns {Array} Shuffled question array
+   */
+  getSynchronizedQuestionDeck(catalogOrOpts, seed = 0, count = 10, language = 'python', difficulty = 'all') {
+    let catalog = catalogOrOpts;
+    if (catalogOrOpts && !Array.isArray(catalogOrOpts) && typeof catalogOrOpts === 'object') {
+      seed = catalogOrOpts.seed !== undefined ? catalogOrOpts.seed : 0;
+      count = catalogOrOpts.count || 10;
+      language = catalogOrOpts.language || 'python';
+      difficulty = catalogOrOpts.difficulty || 'all';
+      catalog = catalogOrOpts.catalog;
+    }
+
+    if (!Array.isArray(catalog) || catalog.length === 0) {
+      if (typeof QuestionBank !== 'undefined' && typeof QuestionBank.getAll === 'function') {
+        catalog = QuestionBank.getAll();
+      } else {
+        return [];
+      }
+    }
+
+    let pool = catalog.filter(q => {
+      const matchLang = (language === 'all' || q.language === language);
+      const matchDiff = (difficulty === 'all' || q.difficulty === difficulty);
+      return matchLang && matchDiff;
+    });
+
+    if (pool.length < count) {
+      pool = catalog.filter(q => language === 'all' || q.language === language);
+    }
+    if (pool.length === 0) {
+      pool = catalog.slice();
+    }
+
+    // Mulberry32 seeded PRNG
+    let s = (seed || 123456789) >>> 0;
+    const nextRandom = () => {
+      s = (s + 0x6D2B79F5) >>> 0;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+
+    // Seeded Fisher-Yates shuffle
+    const shuffled = pool.slice();
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(nextRandom() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled.slice(0, Math.min(count, shuffled.length));
+  },
+
+  /**
+   * Reset duel state and close active transport channels
+   */
+  reset() {
+    this.active = false;
+    this.isHost = false;
+    this.roomCode = '';
+    this.seed = 0;
+
+    if (this.channel) {
+      try { this.channel.close(); } catch (_) {}
+      this.channel = null;
+    }
+
+    if (this.storageListener && typeof window !== 'undefined' && typeof window.removeEventListener === 'function') {
+      window.removeEventListener('storage', this.storageListener);
+      this.storageListener = null;
+    }
+
+    this.localPlayer = {
+      id: 'local',
+      name: 'Player 1',
+      avatar: 'cyber_fox',
+      score: 0,
+      streak: 0,
+      highestStreak: 0,
+      currentQuestion: 0,
+      correctAnswers: 0,
+      totalAnswered: 0,
+      timeSpent: 0,
+      finished: false
+    };
+
+    this.opponentPlayer = {
+      id: 'opponent',
+      name: 'Challenger',
+      avatar: 'matrix_cat',
+      score: 0,
+      streak: 0,
+      highestStreak: 0,
+      currentQuestion: 0,
+      correctAnswers: 0,
+      totalAnswered: 0,
+      timeSpent: 0,
+      finished: false,
+      connected: false
+    };
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.DuelEngine = DuelEngine;
+}
+
+/* --- End of js/p2p-duel.js --- */
+
 /* --- Start of js/gameplay.js --- */
 /**
  * SyntaxArena Gameplay Controller & UI Coordinator (Batch 5)
@@ -107326,6 +108068,7 @@ var LandingPage = window.LandingPage = {
  * exit confirmation, and results navigation.
  * Source of truth: docs/GAME_RULES.md, docs/ARCHITECTURE.md, docs/QUESTION_SCHEMA.md
  */
+
 
 
 
@@ -107388,6 +108131,9 @@ var Gameplay = window.Gameplay = {
     pacePerQuestion: 8.5
   },
   consecutiveMistakes: 0,
+  isDuelMode: false,
+  duelSession: null,
+  _activeDuelHostConfig: null,
 
   /**
    * Save an atomic snapshot of current session state to reactive state & localStorage.
@@ -107451,7 +108197,7 @@ var Gameplay = window.Gameplay = {
 
     const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html', 'asm'];
     const ALLOWED_DIFFS = ['beginner', 'intermediate', 'expert'];
-    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless', 'boss'];
+    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless', 'boss', 'duel'];
 
     let rawLang = (params.lang || (activeProfile && activeProfile.preferences?.language) || 'python').toLowerCase();
     if (rawLang === 'ts') rawLang = 'typescript';
@@ -107614,7 +108360,17 @@ var Gameplay = window.Gameplay = {
     // 3. Load questions from QuestionBank with support for Endless Mode, Retry Missed and Topic Practice
     let questions = [];
 
-    if (mode === 'boss') {
+    if (mode === 'duel') {
+      const duelSeed = params.seed ? parseInt(params.seed, 10) : DuelEngine.generateSeed();
+      const duelCount = Math.min(20, Math.max(3, parseInt(params.count || 10, 10)));
+      questions = DuelEngine.getSynchronizedQuestionDeck({
+        language,
+        difficulty,
+        seed: duelSeed,
+        count: duelCount
+      });
+      this.isDuelMode = true;
+    } else if (mode === 'boss') {
       const bossId = params.boss || 'null_leviathan';
       const bossData = (typeof BossEncounters !== 'undefined' && BossEncounters.getById(bossId)) || (typeof BossEncounters !== 'undefined' && BossEncounters.getDefaultBoss());
       if (bossData) {
@@ -107689,7 +108445,7 @@ var Gameplay = window.Gameplay = {
       timeLimit,
       questions,
       stage: activeStage.id,
-      randomizeOrder: mode !== 'boss'
+      randomizeOrder: mode !== 'boss' && mode !== 'duel'
     };
 
     try {
@@ -107703,13 +108459,19 @@ var Gameplay = window.Gameplay = {
     // 5. Update reactive state with active session snapshot
     this._saveSessionSnapshot();
 
-    // 6. Bind DOM controls, keyboard shortcuts & Ghost Speed Duel
-    if (mode === 'boss') {
+    // 6. Bind DOM controls, keyboard shortcuts, Ghost Duel & 1v1 SyntaxDuel
+    if (mode === 'duel') {
+      this._initDuelUI(params);
+    } else if (mode === 'boss') {
       const bossBar = Utils.qs('#hud-boss-battle-bar');
       if (bossBar) bossBar.style.display = 'block';
       const ghostRail = Utils.qs('#hud-ghost-duel-rail');
       if (ghostRail) ghostRail.style.display = 'none';
+      const duelBar = Utils.qs('#hud-duel-versus-bar');
+      if (duelBar) duelBar.style.display = 'none';
     } else {
+      const duelBar = Utils.qs('#hud-duel-versus-bar');
+      if (duelBar) duelBar.style.display = 'none';
       this._initGhostDuelUI(difficulty);
     }
     this._bindEvents();
@@ -107962,8 +108724,12 @@ var Gameplay = window.Gameplay = {
     // Render Answer Interface for Question Type
     this._renderAnswerInterface(q);
 
-    // Update Ghost Speed Duel position rail & restart question timer
-    this._updateGhostDuelTrack(q);
+    // Update Ghost Speed Duel position rail or 1v1 SyntaxDuel HUD
+    if (this.isDuelMode) {
+      this._updateDuelVersusHUD();
+    } else {
+      this._updateGhostDuelTrack(q);
+    }
 
     // Announce to Screen Readers
     this._announceLive(`Question ${q.index + 1} of ${q.totalQuestions}: ${q.prompt}`);
@@ -108402,6 +109168,21 @@ var Gameplay = window.Gameplay = {
         this._processBossTurn(result, timeRemaining);
       }
 
+      // 1v1 SyntaxDuel record local progress
+      if (this.isDuelMode) {
+        const sess = this.engine ? this.engine.getSession() : null;
+        if (sess) {
+          DuelEngine.recordLocalAnswer({
+            questionIndex: sess.currentIndex,
+            isCorrect: true,
+            score: sess.totalScore,
+            streak: sess.currentStreak,
+            pointsEarned: result.points || 0
+          });
+          this._updateDuelVersusHUD();
+        }
+      }
+
       // Auto-advance to next question automatically after 2.0s delay
       if (this._autoAdvanceTimer) {
         clearTimeout(this._autoAdvanceTimer);
@@ -108493,6 +109274,21 @@ var Gameplay = window.Gameplay = {
         // Boss Battle Turn counter-attack on incorrect answer
         if (this.sessionConfig && this.sessionConfig.mode === 'boss' && !result.canRetry) {
           this._processBossTurn(result, timeRemaining);
+        }
+
+        // 1v1 SyntaxDuel record local progress on incorrect
+        if (this.isDuelMode) {
+          const sess = this.engine ? this.engine.getSession() : null;
+          if (sess) {
+            DuelEngine.recordLocalAnswer({
+              questionIndex: sess.currentIndex,
+              isCorrect: false,
+              score: sess.totalScore,
+              streak: 0,
+              pointsEarned: 0
+            });
+            this._updateDuelVersusHUD();
+          }
         }
 
         // Speed Ghost Tug-of-War Setback: pull back player progress on error
@@ -108889,6 +109685,27 @@ var Gameplay = window.Gameplay = {
 
     // Audio fanfare
     AudioEngine.playLevelUp();
+
+    // 1v1 SyntaxDuel post-match flow (render head-to-head modal without navigating away)
+    if (this.isDuelMode) {
+      this.isCompleted = true;
+      this._stopTimer();
+      const totalElapsedMs = summary ? (summary.totalTimeMs || (Date.now() - (summary.startTime || Date.now()))) : 0;
+      const matchResult = DuelEngine.recordLocalFinish(totalElapsedMs);
+
+      const activeProf = Profile.getActiveProfile();
+      if (activeProf) {
+        activeProf.stats = activeProf.stats || {};
+        if (matchResult && matchResult.isHostWin) {
+          activeProf.stats.duelsWon = (activeProf.stats.duelsWon || 0) + 1;
+        }
+        activeProf.xp = (activeProf.xp || 0) + (summary.totalScore || 0);
+        Profile.updateProfile(activeProf.id, { stats: activeProf.stats, xp: activeProf.xp });
+      }
+
+      this._renderDuelResults(matchResult);
+      return;
+    }
 
     // Navigate to results page
     const params = {
@@ -109304,6 +110121,9 @@ var Gameplay = window.Gameplay = {
         }
       }
     });
+
+    // Bind 1v1 SyntaxDuel Lobby, Controls and Modals
+    this._bindDuelEvents();
 
     // Cleanup timer on page beforeunload
     window.addEventListener('beforeunload', () => {
@@ -109841,6 +110661,438 @@ var Gameplay = window.Gameplay = {
         Router.navigateTo('game', { mode: 'boss', boss: bossId, new: 'true' });
       };
     });
+  },
+
+  /* ==========================================================================
+     FEATURE 2: REAL-TIME 1v1 SYNTAXDUEL PEER-TO-PEER ENGINE COORDINATOR
+     ========================================================================== */
+
+  /**
+   * Initialize 1v1 SyntaxDuel interface and multiplayer state.
+   * @param {object} params URL Query Parameters
+   */
+  _initDuelUI(params = {}) {
+    this.isDuelMode = true;
+
+    // Toggle HUDs
+    const duelHud = Utils.qs('#hud-duel-versus-bar');
+    if (duelHud) duelHud.style.display = 'block';
+
+    const ghostRail = Utils.qs('#hud-ghost-duel-rail');
+    if (ghostRail) ghostRail.style.display = 'none';
+
+    const bossBar = Utils.qs('#hud-boss-battle-bar');
+    if (bossBar) bossBar.style.display = 'none';
+
+    const count = this.sessionConfig?.questions?.length || 10;
+    const lang = (params.lang || 'python').toLowerCase();
+    const diff = (params.diff || 'beginner').toLowerCase();
+    const duelSeed = params.seed ? parseInt(params.seed, 10) : DuelEngine.generateSeed();
+    const isLocalSplit = params.submode === 'local_split' || params.duel === 'local';
+
+    if (isLocalSplit) {
+      DuelEngine.initLocalSplit({
+        language: lang,
+        difficulty: diff,
+        count,
+        seed: duelSeed
+      });
+    } else {
+      const isChallenger = params.role === 'challenger';
+      const roomCode = params.room || DuelEngine.generateRoomCode();
+      if (isChallenger) {
+        DuelEngine.initChallenger({
+          roomCode,
+          seed: duelSeed,
+          language: lang,
+          difficulty: diff,
+          count
+        });
+      } else {
+        DuelEngine.initHost({
+          roomCode,
+          seed: duelSeed,
+          language: lang,
+          difficulty: diff,
+          count
+        });
+      }
+    }
+
+    // Subscribe to multiplayer events
+    DuelEngine.onRemoteProgress(() => {
+      this._updateDuelVersusHUD();
+    });
+
+    DuelEngine.onSabotage((data) => {
+      this._onDuelSabotage(data);
+    });
+
+    // Populate Player Identities
+    const prof = Profile.getActiveProfile();
+    const p1Avatar = (prof && prof.avatarEmoji) || '🦊';
+    const p1Name = (prof && prof.username) || 'Player 1';
+    const p1AvatarEl = Utils.qs('#duel-p1-avatar');
+    const p1NameEl = Utils.qs('#duel-p1-name');
+    const p1Pin = Utils.qs('#duel-p1-pin');
+
+    if (p1AvatarEl) p1AvatarEl.textContent = p1Avatar;
+    if (p1NameEl) p1NameEl.textContent = p1Name;
+    if (p1Pin) p1Pin.textContent = p1Avatar;
+
+    const p2Avatar = DuelEngine.session?.opponent?.avatar || '🐱';
+    const p2Name = DuelEngine.session?.opponent?.username || (isLocalSplit ? 'Player 2 (Keys 7-0)' : 'Challenger');
+    const p2AvatarEl = Utils.qs('#duel-p2-avatar');
+    const p2NameEl = Utils.qs('#duel-p2-name');
+    const p2Pin = Utils.qs('#duel-p2-pin');
+
+    if (p2AvatarEl) p2AvatarEl.textContent = p2Avatar;
+    if (p2NameEl) p2NameEl.textContent = p2Name;
+    if (p2Pin) p2Pin.textContent = p2Avatar;
+
+    this._updateDuelVersusHUD();
+    UI.showToast(`⚔️ 1v1 SyntaxDuel Engaged! Race to solve ${count} challenges!`, 'info');
+  },
+
+  /**
+   * Handle Sabotage Glitch triggered when opponent achieves a 3-streak combo.
+   * @param {object} data
+   */
+  _onDuelSabotage(data) {
+    if (typeof AudioEngine !== 'undefined' && AudioEngine.playError) {
+      AudioEngine.playError();
+    }
+    UI.showToast('⚡ INCOMING SABOTAGE! Opponent reached a 3-Streak combo!', 'warning');
+
+    const card = Utils.qs('#arena-card') || document.body;
+    if (card) {
+      card.classList.remove('duel-sabotage-glitch');
+      void card.offsetWidth;
+      card.classList.add('duel-sabotage-glitch');
+      setTimeout(() => card.classList.remove('duel-sabotage-glitch'), 950);
+    }
+  },
+
+  /**
+   * Update 1v1 SyntaxDuel HUD (scores, progress pins, streaks, and lead pill).
+   */
+  _updateDuelVersusHUD() {
+    const duelBar = Utils.qs('#hud-duel-versus-bar');
+    if (!duelBar || !this.isDuelMode) return;
+
+    const lead = DuelEngine.getLeadStatus();
+    const total = (this.sessionConfig && this.sessionConfig.questions) ? this.sessionConfig.questions.length : 10;
+
+    // P1 Updates
+    const p1ScoreEl = Utils.qs('#duel-p1-score');
+    const p1ProgEl = Utils.qs('#duel-p1-prog');
+    const p1Pin = Utils.qs('#duel-p1-pin');
+    const p1StreakBadge = Utils.qs('#duel-p1-streak-badge');
+
+    if (p1ScoreEl) p1ScoreEl.textContent = `${lead.p1Score.toLocaleString()} PTS`;
+    if (p1ProgEl) p1ProgEl.textContent = `Q ${lead.p1Progress} / ${total}`;
+    if (p1Pin) {
+      const pct = Math.min(100, Math.max(0, (lead.p1Progress / total) * 100));
+      p1Pin.style.left = `${pct}%`;
+    }
+    if (p1StreakBadge) {
+      if (lead.p1Streak >= 3) {
+        p1StreakBadge.style.display = 'inline-block';
+        p1StreakBadge.textContent = `🔥 ${lead.p1Streak} STREAK`;
+      } else {
+        p1StreakBadge.style.display = 'none';
+      }
+    }
+
+    // P2 Updates
+    const p2ScoreEl = Utils.qs('#duel-p2-score');
+    const p2ProgEl = Utils.qs('#duel-p2-prog');
+    const p2Pin = Utils.qs('#duel-p2-pin');
+    const p2StreakBadge = Utils.qs('#duel-p2-streak-badge');
+    const p2NameEl = Utils.qs('#duel-p2-name');
+
+    if (p2NameEl && DuelEngine.session && DuelEngine.session.opponent) {
+      p2NameEl.textContent = DuelEngine.session.opponent.username || 'Challenger';
+    }
+    if (p2ScoreEl) p2ScoreEl.textContent = `${lead.p2Score.toLocaleString()} PTS`;
+    if (p2ProgEl) p2ProgEl.textContent = `Q ${lead.p2Progress} / ${total}`;
+    if (p2Pin) {
+      const pct = Math.min(100, Math.max(0, (lead.p2Progress / total) * 100));
+      p2Pin.style.left = `${pct}%`;
+    }
+    if (p2StreakBadge) {
+      if (lead.p2Streak >= 3) {
+        p2StreakBadge.style.display = 'inline-block';
+        p2StreakBadge.textContent = `🔥 ${lead.p2Streak} STREAK`;
+      } else {
+        p2StreakBadge.style.display = 'none';
+      }
+    }
+
+    // Center Nexus Lead Pill
+    const pill = Utils.qs('#duel-lead-pill');
+    if (pill) {
+      pill.className = `duel-delta-pill ${lead.deltaClass}`;
+      pill.textContent = lead.deltaText;
+    }
+  },
+
+  /**
+   * Render head-to-head Versus Report Card upon duel completion.
+   * @param {object} matchResult Result from DuelEngine.getMatchResult()
+   */
+  _renderDuelResults(matchResult) {
+    if (!matchResult) return;
+
+    const iconEl = Utils.qs('#duel-result-icon');
+    const badgeEl = Utils.qs('#duel-result-badge');
+    const titleEl = Utils.qs('#modal-duel-results-title');
+    const subtitleEl = Utils.qs('#duel-result-subtitle');
+
+    const isHostWin = matchResult.isHostWin;
+    const isTie = matchResult.isTie;
+
+    if (iconEl) iconEl.textContent = isTie ? '⚔️' : (isHostWin ? '🏆' : '💀');
+    if (badgeEl) {
+      badgeEl.textContent = isTie ? 'HONORABLE DRAW' : (isHostWin ? 'VICTORY' : 'DEFEAT');
+      badgeEl.className = `badge ${isTie ? 'badge-amber' : (isHostWin ? 'badge-emerald' : 'badge-coral')}`;
+    }
+    if (titleEl) {
+      titleEl.textContent = isTie ? 'MATCH TIED!' : (isHostWin ? `VICTORY: ${matchResult.host.username}!` : `${matchResult.challenger.username} WINS!`);
+    }
+    if (subtitleEl) {
+      subtitleEl.textContent = matchResult.verdictSummary || 'Head-to-head syntax showdown concluded.';
+    }
+
+    const p1Score = Utils.qs('#stat-duel-p1-score');
+    const p2Score = Utils.qs('#stat-duel-p2-score');
+    const p1Acc = Utils.qs('#stat-duel-p1-acc');
+    const p2Acc = Utils.qs('#stat-duel-p2-acc');
+    const p1Streak = Utils.qs('#stat-duel-p1-streak');
+    const p2Streak = Utils.qs('#stat-duel-p2-streak');
+    const p1Time = Utils.qs('#stat-duel-p1-time');
+    const p2Time = Utils.qs('#stat-duel-p2-time');
+
+    if (p1Score) p1Score.textContent = `${matchResult.host.score.toLocaleString()} PTS`;
+    if (p2Score) p2Score.textContent = `${matchResult.challenger.score.toLocaleString()} PTS`;
+    if (p1Acc) p1Acc.textContent = `${matchResult.host.accuracy}%`;
+    if (p2Acc) p2Acc.textContent = `${matchResult.challenger.accuracy}%`;
+    if (p1Streak) p1Streak.textContent = `${matchResult.host.maxStreak}x`;
+    if (p2Streak) p2Streak.textContent = `${matchResult.challenger.maxStreak}x`;
+    if (p1Time) p1Time.textContent = `${(matchResult.host.totalTimeMs / 1000).toFixed(1)}s`;
+    if (p2Time) p2Time.textContent = `${(matchResult.challenger.totalTimeMs / 1000).toFixed(1)}s`;
+
+    if (isHostWin) {
+      UI.triggerConfetti();
+    }
+    UI.openModal('modal-duel-results');
+  },
+
+  /**
+   * Bind event handlers for Duel Lobby, controls, tab switching, and result actions.
+   */
+  _bindDuelEvents() {
+    // Open Lobby Button in HUD
+    const openLobbyBtn = Utils.qs('#btn-open-duel-lobby');
+    if (openLobbyBtn) {
+      openLobbyBtn.onclick = () => {
+        AudioEngine.playClick();
+        UI.openModal('modal-duel-lobby');
+      };
+    }
+
+    // Lobby Close / Cancel Buttons
+    const closeLobbyX = Utils.qs('#btn-close-duel-lobby-x');
+    if (closeLobbyX) {
+      closeLobbyX.onclick = () => UI.closeModal('modal-duel-lobby');
+    }
+    const cancelLobby = Utils.qs('#btn-cancel-duel-lobby');
+    if (cancelLobby) {
+      cancelLobby.onclick = () => UI.closeModal('modal-duel-lobby');
+    }
+
+    // Tab switching (Online vs Local Split)
+    const tabOnline = Utils.qs('#tab-duel-online');
+    const tabLocal = Utils.qs('#tab-duel-local');
+    const viewOnline = Utils.qs('#duel-view-online');
+    const viewLocal = Utils.qs('#duel-view-local');
+    const startMatchBtn = Utils.qs('#btn-start-duel-match');
+
+    if (tabOnline && tabLocal) {
+      tabOnline.onclick = () => {
+        AudioEngine.playClick();
+        tabOnline.classList.add('is-active');
+        tabLocal.classList.remove('is-active');
+        if (viewOnline) viewOnline.style.display = 'block';
+        if (viewLocal) viewLocal.style.display = 'none';
+        if (startMatchBtn) {
+          startMatchBtn.disabled = !this._activeDuelHostConfig;
+        }
+      };
+      tabLocal.onclick = () => {
+        AudioEngine.playClick();
+        tabLocal.classList.add('is-active');
+        tabOnline.classList.remove('is-active');
+        if (viewOnline) viewOnline.style.display = 'none';
+        if (viewLocal) viewLocal.style.display = 'block';
+        if (startMatchBtn) {
+          startMatchBtn.disabled = false;
+        }
+      };
+    }
+
+    // Host New Room
+    const createRoomBtn = Utils.qs('#btn-create-duel-room');
+    if (createRoomBtn) {
+      createRoomBtn.onclick = () => {
+        AudioEngine.playClick();
+        const lang = Utils.qs('#duel-select-lang')?.value || 'python';
+        const diff = Utils.qs('#duel-select-diff')?.value || 'beginner';
+        const count = parseInt(Utils.qs('#duel-select-count')?.value || '10', 10);
+        const roomCode = DuelEngine.generateRoomCode();
+        const seed = DuelEngine.generateSeed();
+
+        DuelEngine.initHost({ roomCode, seed, language: lang, difficulty: diff, count });
+        this._activeDuelHostConfig = { roomCode, seed, language: lang, difficulty: diff, count };
+
+        const roomCard = Utils.qs('#duel-room-active-card');
+        const displayCode = Utils.qs('#duel-display-room-code');
+        const shareInput = Utils.qs('#duel-share-url-input');
+
+        if (displayCode) displayCode.textContent = roomCode;
+        if (shareInput) {
+          const shareUrl = DuelEngine.getShareUrl(roomCode, seed, lang, diff, count);
+          shareInput.value = shareUrl;
+        }
+        if (roomCard) roomCard.style.display = 'block';
+        if (startMatchBtn) startMatchBtn.disabled = false;
+        UI.showToast(`Duel Room ${roomCode} created! Share link with your rival.`, 'success');
+      };
+    }
+
+    // Join Room Button
+    const joinBtn = Utils.qs('#btn-join-duel-room');
+    const joinInput = Utils.qs('#input-join-room-code');
+    if (joinBtn && joinInput) {
+      joinBtn.onclick = () => {
+        const code = (joinInput.value || '').trim().toUpperCase();
+        if (!code || code.length < 4) {
+          UI.showToast('Please enter a valid Room Code (e.g. SYN-482)', 'warning');
+          return;
+        }
+        AudioEngine.playClick();
+        UI.closeModal('modal-duel-lobby');
+        const lang = Utils.qs('#duel-select-lang')?.value || 'python';
+        const diff = Utils.qs('#duel-select-diff')?.value || 'beginner';
+        const count = parseInt(Utils.qs('#duel-select-count')?.value || '10', 10);
+        Router.navigateTo('game', {
+          mode: 'duel',
+          room: code,
+          role: 'challenger',
+          lang,
+          diff,
+          count,
+          new: 'true'
+        });
+      };
+    }
+
+    // Copy share link button
+    const copyLinkBtn = Utils.qs('#btn-copy-duel-link');
+    if (copyLinkBtn) {
+      copyLinkBtn.onclick = () => {
+        const shareInput = Utils.qs('#duel-share-url-input');
+        const link = shareInput ? shareInput.value : '';
+        if (link && typeof navigator !== 'undefined' && navigator.clipboard) {
+          navigator.clipboard.writeText(link).then(() => {
+            UI.showToast('📋 Duel invite link copied to clipboard!', 'success');
+          }).catch(() => {
+            UI.showToast('Failed to copy. Please manually copy the URL.', 'info');
+          });
+        }
+      };
+    }
+
+    // Start Duel Match Button
+    if (startMatchBtn) {
+      startMatchBtn.onclick = () => {
+        AudioEngine.playClick();
+        const isLocal = tabLocal && tabLocal.classList.contains('is-active');
+        const lang = Utils.qs('#duel-select-lang')?.value || 'python';
+        const diff = Utils.qs('#duel-select-diff')?.value || 'beginner';
+        const count = parseInt(Utils.qs('#duel-select-count')?.value || '10', 10);
+        UI.closeModal('modal-duel-lobby');
+
+        if (isLocal) {
+          const seed = DuelEngine.generateSeed();
+          Router.navigateTo('game', {
+            mode: 'duel',
+            submode: 'local_split',
+            lang,
+            diff,
+            count,
+            seed,
+            new: 'true'
+          });
+        } else {
+          const cfg = this._activeDuelHostConfig || {
+            roomCode: DuelEngine.generateRoomCode(),
+            seed: DuelEngine.generateSeed(),
+            language: lang,
+            difficulty: diff,
+            count
+          };
+          Router.navigateTo('game', {
+            mode: 'duel',
+            room: cfg.roomCode,
+            role: 'host',
+            seed: cfg.seed,
+            lang: cfg.language,
+            diff: cfg.difficulty,
+            count: cfg.count,
+            new: 'true'
+          });
+        }
+      };
+    }
+
+    // Rematch Button
+    const rematchBtn = Utils.qs('#btn-duel-rematch');
+    if (rematchBtn) {
+      rematchBtn.onclick = () => {
+        AudioEngine.playClick();
+        UI.closeModal('modal-duel-results');
+        const params = Router.getQueryParams();
+        params.seed = DuelEngine.generateSeed();
+        params.new = 'true';
+        Router.navigateTo('game', params);
+      };
+    }
+
+    // Copy Duel Report Card Button
+    const copyReportBtn = Utils.qs('#btn-copy-duel-report');
+    if (copyReportBtn) {
+      copyReportBtn.onclick = () => {
+        AudioEngine.playClick();
+        const report = DuelEngine.generateMarkdownReport();
+        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+          navigator.clipboard.writeText(report).then(() => {
+            UI.showToast('📋 SyntaxDuel report copied to clipboard!', 'success');
+          }).catch(() => {
+            UI.showToast('Failed to copy report.', 'error');
+          });
+        }
+      };
+    }
+
+    // Return to Hub from Duel Results
+    const duelHubBtn = Utils.qs('#btn-duel-hub');
+    if (duelHubBtn) {
+      duelHubBtn.onclick = () => {
+        UI.closeModal('modal-duel-results');
+        Router.navigateTo('index');
+      };
+    }
   }
 };
 

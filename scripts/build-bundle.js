@@ -45,6 +45,7 @@ const files = [
   'js/learn.js',
   'js/onboarding.js',
   'js/landing.js',
+  'js/p2p-duel.js',
   'js/gameplay.js',
   'js/lesson-uploader.js',
   'js/admin.js',

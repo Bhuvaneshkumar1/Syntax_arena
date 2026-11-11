@@ -18,6 +18,7 @@ import { Utils } from './utils.js';
 import { LANGUAGE_METADATA } from './data/index.js';
 import { BossEncounters } from '../data/boss-encounters.js';
 import { BossEngine } from './boss-engine.js';
+import { DuelEngine } from './p2p-duel.js';
 
 export const HINT_PENALTIES = {
   beginner: 25,
@@ -68,6 +69,9 @@ export const Gameplay = {
     pacePerQuestion: 8.5
   },
   consecutiveMistakes: 0,
+  isDuelMode: false,
+  duelSession: null,
+  _activeDuelHostConfig: null,
 
   /**
    * Save an atomic snapshot of current session state to reactive state & localStorage.
@@ -131,7 +135,7 @@ export const Gameplay = {
 
     const ALLOWED_LANGS = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html', 'asm'];
     const ALLOWED_DIFFS = ['beginner', 'intermediate', 'expert'];
-    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless', 'boss'];
+    const ALLOWED_MODES = ['campaign', 'practice', 'speedrun', 'hardcore', 'retry_missed', 'endless', 'boss', 'duel'];
 
     let rawLang = (params.lang || (activeProfile && activeProfile.preferences?.language) || 'python').toLowerCase();
     if (rawLang === 'ts') rawLang = 'typescript';
@@ -294,7 +298,17 @@ export const Gameplay = {
     // 3. Load questions from QuestionBank with support for Endless Mode, Retry Missed and Topic Practice
     let questions = [];
 
-    if (mode === 'boss') {
+    if (mode === 'duel') {
+      const duelSeed = params.seed ? parseInt(params.seed, 10) : DuelEngine.generateSeed();
+      const duelCount = Math.min(20, Math.max(3, parseInt(params.count || 10, 10)));
+      questions = DuelEngine.getSynchronizedQuestionDeck({
+        language,
+        difficulty,
+        seed: duelSeed,
+        count: duelCount
+      });
+      this.isDuelMode = true;
+    } else if (mode === 'boss') {
       const bossId = params.boss || 'null_leviathan';
       const bossData = (typeof BossEncounters !== 'undefined' && BossEncounters.getById(bossId)) || (typeof BossEncounters !== 'undefined' && BossEncounters.getDefaultBoss());
       if (bossData) {
@@ -369,7 +383,7 @@ export const Gameplay = {
       timeLimit,
       questions,
       stage: activeStage.id,
-      randomizeOrder: mode !== 'boss'
+      randomizeOrder: mode !== 'boss' && mode !== 'duel'
     };
 
     try {
@@ -383,13 +397,19 @@ export const Gameplay = {
     // 5. Update reactive state with active session snapshot
     this._saveSessionSnapshot();
 
-    // 6. Bind DOM controls, keyboard shortcuts & Ghost Speed Duel
-    if (mode === 'boss') {
+    // 6. Bind DOM controls, keyboard shortcuts, Ghost Duel & 1v1 SyntaxDuel
+    if (mode === 'duel') {
+      this._initDuelUI(params);
+    } else if (mode === 'boss') {
       const bossBar = Utils.qs('#hud-boss-battle-bar');
       if (bossBar) bossBar.style.display = 'block';
       const ghostRail = Utils.qs('#hud-ghost-duel-rail');
       if (ghostRail) ghostRail.style.display = 'none';
+      const duelBar = Utils.qs('#hud-duel-versus-bar');
+      if (duelBar) duelBar.style.display = 'none';
     } else {
+      const duelBar = Utils.qs('#hud-duel-versus-bar');
+      if (duelBar) duelBar.style.display = 'none';
       this._initGhostDuelUI(difficulty);
     }
     this._bindEvents();
@@ -642,8 +662,12 @@ export const Gameplay = {
     // Render Answer Interface for Question Type
     this._renderAnswerInterface(q);
 
-    // Update Ghost Speed Duel position rail & restart question timer
-    this._updateGhostDuelTrack(q);
+    // Update Ghost Speed Duel position rail or 1v1 SyntaxDuel HUD
+    if (this.isDuelMode) {
+      this._updateDuelVersusHUD();
+    } else {
+      this._updateGhostDuelTrack(q);
+    }
 
     // Announce to Screen Readers
     this._announceLive(`Question ${q.index + 1} of ${q.totalQuestions}: ${q.prompt}`);
@@ -1082,6 +1106,21 @@ export const Gameplay = {
         this._processBossTurn(result, timeRemaining);
       }
 
+      // 1v1 SyntaxDuel record local progress
+      if (this.isDuelMode) {
+        const sess = this.engine ? this.engine.getSession() : null;
+        if (sess) {
+          DuelEngine.recordLocalAnswer({
+            questionIndex: sess.currentIndex,
+            isCorrect: true,
+            score: sess.totalScore,
+            streak: sess.currentStreak,
+            pointsEarned: result.points || 0
+          });
+          this._updateDuelVersusHUD();
+        }
+      }
+
       // Auto-advance to next question automatically after 2.0s delay
       if (this._autoAdvanceTimer) {
         clearTimeout(this._autoAdvanceTimer);
@@ -1173,6 +1212,21 @@ export const Gameplay = {
         // Boss Battle Turn counter-attack on incorrect answer
         if (this.sessionConfig && this.sessionConfig.mode === 'boss' && !result.canRetry) {
           this._processBossTurn(result, timeRemaining);
+        }
+
+        // 1v1 SyntaxDuel record local progress on incorrect
+        if (this.isDuelMode) {
+          const sess = this.engine ? this.engine.getSession() : null;
+          if (sess) {
+            DuelEngine.recordLocalAnswer({
+              questionIndex: sess.currentIndex,
+              isCorrect: false,
+              score: sess.totalScore,
+              streak: 0,
+              pointsEarned: 0
+            });
+            this._updateDuelVersusHUD();
+          }
         }
 
         // Speed Ghost Tug-of-War Setback: pull back player progress on error
@@ -1569,6 +1623,27 @@ export const Gameplay = {
 
     // Audio fanfare
     AudioEngine.playLevelUp();
+
+    // 1v1 SyntaxDuel post-match flow (render head-to-head modal without navigating away)
+    if (this.isDuelMode) {
+      this.isCompleted = true;
+      this._stopTimer();
+      const totalElapsedMs = summary ? (summary.totalTimeMs || (Date.now() - (summary.startTime || Date.now()))) : 0;
+      const matchResult = DuelEngine.recordLocalFinish(totalElapsedMs);
+
+      const activeProf = Profile.getActiveProfile();
+      if (activeProf) {
+        activeProf.stats = activeProf.stats || {};
+        if (matchResult && matchResult.isHostWin) {
+          activeProf.stats.duelsWon = (activeProf.stats.duelsWon || 0) + 1;
+        }
+        activeProf.xp = (activeProf.xp || 0) + (summary.totalScore || 0);
+        Profile.updateProfile(activeProf.id, { stats: activeProf.stats, xp: activeProf.xp });
+      }
+
+      this._renderDuelResults(matchResult);
+      return;
+    }
 
     // Navigate to results page
     const params = {
@@ -1984,6 +2059,9 @@ export const Gameplay = {
         }
       }
     });
+
+    // Bind 1v1 SyntaxDuel Lobby, Controls and Modals
+    this._bindDuelEvents();
 
     // Cleanup timer on page beforeunload
     window.addEventListener('beforeunload', () => {
@@ -2521,6 +2599,438 @@ export const Gameplay = {
         Router.navigateTo('game', { mode: 'boss', boss: bossId, new: 'true' });
       };
     });
+  },
+
+  /* ==========================================================================
+     FEATURE 2: REAL-TIME 1v1 SYNTAXDUEL PEER-TO-PEER ENGINE COORDINATOR
+     ========================================================================== */
+
+  /**
+   * Initialize 1v1 SyntaxDuel interface and multiplayer state.
+   * @param {object} params URL Query Parameters
+   */
+  _initDuelUI(params = {}) {
+    this.isDuelMode = true;
+
+    // Toggle HUDs
+    const duelHud = Utils.qs('#hud-duel-versus-bar');
+    if (duelHud) duelHud.style.display = 'block';
+
+    const ghostRail = Utils.qs('#hud-ghost-duel-rail');
+    if (ghostRail) ghostRail.style.display = 'none';
+
+    const bossBar = Utils.qs('#hud-boss-battle-bar');
+    if (bossBar) bossBar.style.display = 'none';
+
+    const count = this.sessionConfig?.questions?.length || 10;
+    const lang = (params.lang || 'python').toLowerCase();
+    const diff = (params.diff || 'beginner').toLowerCase();
+    const duelSeed = params.seed ? parseInt(params.seed, 10) : DuelEngine.generateSeed();
+    const isLocalSplit = params.submode === 'local_split' || params.duel === 'local';
+
+    if (isLocalSplit) {
+      DuelEngine.initLocalSplit({
+        language: lang,
+        difficulty: diff,
+        count,
+        seed: duelSeed
+      });
+    } else {
+      const isChallenger = params.role === 'challenger';
+      const roomCode = params.room || DuelEngine.generateRoomCode();
+      if (isChallenger) {
+        DuelEngine.initChallenger({
+          roomCode,
+          seed: duelSeed,
+          language: lang,
+          difficulty: diff,
+          count
+        });
+      } else {
+        DuelEngine.initHost({
+          roomCode,
+          seed: duelSeed,
+          language: lang,
+          difficulty: diff,
+          count
+        });
+      }
+    }
+
+    // Subscribe to multiplayer events
+    DuelEngine.onRemoteProgress(() => {
+      this._updateDuelVersusHUD();
+    });
+
+    DuelEngine.onSabotage((data) => {
+      this._onDuelSabotage(data);
+    });
+
+    // Populate Player Identities
+    const prof = Profile.getActiveProfile();
+    const p1Avatar = (prof && prof.avatarEmoji) || '🦊';
+    const p1Name = (prof && prof.username) || 'Player 1';
+    const p1AvatarEl = Utils.qs('#duel-p1-avatar');
+    const p1NameEl = Utils.qs('#duel-p1-name');
+    const p1Pin = Utils.qs('#duel-p1-pin');
+
+    if (p1AvatarEl) p1AvatarEl.textContent = p1Avatar;
+    if (p1NameEl) p1NameEl.textContent = p1Name;
+    if (p1Pin) p1Pin.textContent = p1Avatar;
+
+    const p2Avatar = DuelEngine.session?.opponent?.avatar || '🐱';
+    const p2Name = DuelEngine.session?.opponent?.username || (isLocalSplit ? 'Player 2 (Keys 7-0)' : 'Challenger');
+    const p2AvatarEl = Utils.qs('#duel-p2-avatar');
+    const p2NameEl = Utils.qs('#duel-p2-name');
+    const p2Pin = Utils.qs('#duel-p2-pin');
+
+    if (p2AvatarEl) p2AvatarEl.textContent = p2Avatar;
+    if (p2NameEl) p2NameEl.textContent = p2Name;
+    if (p2Pin) p2Pin.textContent = p2Avatar;
+
+    this._updateDuelVersusHUD();
+    UI.showToast(`⚔️ 1v1 SyntaxDuel Engaged! Race to solve ${count} challenges!`, 'info');
+  },
+
+  /**
+   * Handle Sabotage Glitch triggered when opponent achieves a 3-streak combo.
+   * @param {object} data
+   */
+  _onDuelSabotage(data) {
+    if (typeof AudioEngine !== 'undefined' && AudioEngine.playError) {
+      AudioEngine.playError();
+    }
+    UI.showToast('⚡ INCOMING SABOTAGE! Opponent reached a 3-Streak combo!', 'warning');
+
+    const card = Utils.qs('#arena-card') || document.body;
+    if (card) {
+      card.classList.remove('duel-sabotage-glitch');
+      void card.offsetWidth;
+      card.classList.add('duel-sabotage-glitch');
+      setTimeout(() => card.classList.remove('duel-sabotage-glitch'), 950);
+    }
+  },
+
+  /**
+   * Update 1v1 SyntaxDuel HUD (scores, progress pins, streaks, and lead pill).
+   */
+  _updateDuelVersusHUD() {
+    const duelBar = Utils.qs('#hud-duel-versus-bar');
+    if (!duelBar || !this.isDuelMode) return;
+
+    const lead = DuelEngine.getLeadStatus();
+    const total = (this.sessionConfig && this.sessionConfig.questions) ? this.sessionConfig.questions.length : 10;
+
+    // P1 Updates
+    const p1ScoreEl = Utils.qs('#duel-p1-score');
+    const p1ProgEl = Utils.qs('#duel-p1-prog');
+    const p1Pin = Utils.qs('#duel-p1-pin');
+    const p1StreakBadge = Utils.qs('#duel-p1-streak-badge');
+
+    if (p1ScoreEl) p1ScoreEl.textContent = `${lead.p1Score.toLocaleString()} PTS`;
+    if (p1ProgEl) p1ProgEl.textContent = `Q ${lead.p1Progress} / ${total}`;
+    if (p1Pin) {
+      const pct = Math.min(100, Math.max(0, (lead.p1Progress / total) * 100));
+      p1Pin.style.left = `${pct}%`;
+    }
+    if (p1StreakBadge) {
+      if (lead.p1Streak >= 3) {
+        p1StreakBadge.style.display = 'inline-block';
+        p1StreakBadge.textContent = `🔥 ${lead.p1Streak} STREAK`;
+      } else {
+        p1StreakBadge.style.display = 'none';
+      }
+    }
+
+    // P2 Updates
+    const p2ScoreEl = Utils.qs('#duel-p2-score');
+    const p2ProgEl = Utils.qs('#duel-p2-prog');
+    const p2Pin = Utils.qs('#duel-p2-pin');
+    const p2StreakBadge = Utils.qs('#duel-p2-streak-badge');
+    const p2NameEl = Utils.qs('#duel-p2-name');
+
+    if (p2NameEl && DuelEngine.session && DuelEngine.session.opponent) {
+      p2NameEl.textContent = DuelEngine.session.opponent.username || 'Challenger';
+    }
+    if (p2ScoreEl) p2ScoreEl.textContent = `${lead.p2Score.toLocaleString()} PTS`;
+    if (p2ProgEl) p2ProgEl.textContent = `Q ${lead.p2Progress} / ${total}`;
+    if (p2Pin) {
+      const pct = Math.min(100, Math.max(0, (lead.p2Progress / total) * 100));
+      p2Pin.style.left = `${pct}%`;
+    }
+    if (p2StreakBadge) {
+      if (lead.p2Streak >= 3) {
+        p2StreakBadge.style.display = 'inline-block';
+        p2StreakBadge.textContent = `🔥 ${lead.p2Streak} STREAK`;
+      } else {
+        p2StreakBadge.style.display = 'none';
+      }
+    }
+
+    // Center Nexus Lead Pill
+    const pill = Utils.qs('#duel-lead-pill');
+    if (pill) {
+      pill.className = `duel-delta-pill ${lead.deltaClass}`;
+      pill.textContent = lead.deltaText;
+    }
+  },
+
+  /**
+   * Render head-to-head Versus Report Card upon duel completion.
+   * @param {object} matchResult Result from DuelEngine.getMatchResult()
+   */
+  _renderDuelResults(matchResult) {
+    if (!matchResult) return;
+
+    const iconEl = Utils.qs('#duel-result-icon');
+    const badgeEl = Utils.qs('#duel-result-badge');
+    const titleEl = Utils.qs('#modal-duel-results-title');
+    const subtitleEl = Utils.qs('#duel-result-subtitle');
+
+    const isHostWin = matchResult.isHostWin;
+    const isTie = matchResult.isTie;
+
+    if (iconEl) iconEl.textContent = isTie ? '⚔️' : (isHostWin ? '🏆' : '💀');
+    if (badgeEl) {
+      badgeEl.textContent = isTie ? 'HONORABLE DRAW' : (isHostWin ? 'VICTORY' : 'DEFEAT');
+      badgeEl.className = `badge ${isTie ? 'badge-amber' : (isHostWin ? 'badge-emerald' : 'badge-coral')}`;
+    }
+    if (titleEl) {
+      titleEl.textContent = isTie ? 'MATCH TIED!' : (isHostWin ? `VICTORY: ${matchResult.host.username}!` : `${matchResult.challenger.username} WINS!`);
+    }
+    if (subtitleEl) {
+      subtitleEl.textContent = matchResult.verdictSummary || 'Head-to-head syntax showdown concluded.';
+    }
+
+    const p1Score = Utils.qs('#stat-duel-p1-score');
+    const p2Score = Utils.qs('#stat-duel-p2-score');
+    const p1Acc = Utils.qs('#stat-duel-p1-acc');
+    const p2Acc = Utils.qs('#stat-duel-p2-acc');
+    const p1Streak = Utils.qs('#stat-duel-p1-streak');
+    const p2Streak = Utils.qs('#stat-duel-p2-streak');
+    const p1Time = Utils.qs('#stat-duel-p1-time');
+    const p2Time = Utils.qs('#stat-duel-p2-time');
+
+    if (p1Score) p1Score.textContent = `${matchResult.host.score.toLocaleString()} PTS`;
+    if (p2Score) p2Score.textContent = `${matchResult.challenger.score.toLocaleString()} PTS`;
+    if (p1Acc) p1Acc.textContent = `${matchResult.host.accuracy}%`;
+    if (p2Acc) p2Acc.textContent = `${matchResult.challenger.accuracy}%`;
+    if (p1Streak) p1Streak.textContent = `${matchResult.host.maxStreak}x`;
+    if (p2Streak) p2Streak.textContent = `${matchResult.challenger.maxStreak}x`;
+    if (p1Time) p1Time.textContent = `${(matchResult.host.totalTimeMs / 1000).toFixed(1)}s`;
+    if (p2Time) p2Time.textContent = `${(matchResult.challenger.totalTimeMs / 1000).toFixed(1)}s`;
+
+    if (isHostWin) {
+      UI.triggerConfetti();
+    }
+    UI.openModal('modal-duel-results');
+  },
+
+  /**
+   * Bind event handlers for Duel Lobby, controls, tab switching, and result actions.
+   */
+  _bindDuelEvents() {
+    // Open Lobby Button in HUD
+    const openLobbyBtn = Utils.qs('#btn-open-duel-lobby');
+    if (openLobbyBtn) {
+      openLobbyBtn.onclick = () => {
+        AudioEngine.playClick();
+        UI.openModal('modal-duel-lobby');
+      };
+    }
+
+    // Lobby Close / Cancel Buttons
+    const closeLobbyX = Utils.qs('#btn-close-duel-lobby-x');
+    if (closeLobbyX) {
+      closeLobbyX.onclick = () => UI.closeModal('modal-duel-lobby');
+    }
+    const cancelLobby = Utils.qs('#btn-cancel-duel-lobby');
+    if (cancelLobby) {
+      cancelLobby.onclick = () => UI.closeModal('modal-duel-lobby');
+    }
+
+    // Tab switching (Online vs Local Split)
+    const tabOnline = Utils.qs('#tab-duel-online');
+    const tabLocal = Utils.qs('#tab-duel-local');
+    const viewOnline = Utils.qs('#duel-view-online');
+    const viewLocal = Utils.qs('#duel-view-local');
+    const startMatchBtn = Utils.qs('#btn-start-duel-match');
+
+    if (tabOnline && tabLocal) {
+      tabOnline.onclick = () => {
+        AudioEngine.playClick();
+        tabOnline.classList.add('is-active');
+        tabLocal.classList.remove('is-active');
+        if (viewOnline) viewOnline.style.display = 'block';
+        if (viewLocal) viewLocal.style.display = 'none';
+        if (startMatchBtn) {
+          startMatchBtn.disabled = !this._activeDuelHostConfig;
+        }
+      };
+      tabLocal.onclick = () => {
+        AudioEngine.playClick();
+        tabLocal.classList.add('is-active');
+        tabOnline.classList.remove('is-active');
+        if (viewOnline) viewOnline.style.display = 'none';
+        if (viewLocal) viewLocal.style.display = 'block';
+        if (startMatchBtn) {
+          startMatchBtn.disabled = false;
+        }
+      };
+    }
+
+    // Host New Room
+    const createRoomBtn = Utils.qs('#btn-create-duel-room');
+    if (createRoomBtn) {
+      createRoomBtn.onclick = () => {
+        AudioEngine.playClick();
+        const lang = Utils.qs('#duel-select-lang')?.value || 'python';
+        const diff = Utils.qs('#duel-select-diff')?.value || 'beginner';
+        const count = parseInt(Utils.qs('#duel-select-count')?.value || '10', 10);
+        const roomCode = DuelEngine.generateRoomCode();
+        const seed = DuelEngine.generateSeed();
+
+        DuelEngine.initHost({ roomCode, seed, language: lang, difficulty: diff, count });
+        this._activeDuelHostConfig = { roomCode, seed, language: lang, difficulty: diff, count };
+
+        const roomCard = Utils.qs('#duel-room-active-card');
+        const displayCode = Utils.qs('#duel-display-room-code');
+        const shareInput = Utils.qs('#duel-share-url-input');
+
+        if (displayCode) displayCode.textContent = roomCode;
+        if (shareInput) {
+          const shareUrl = DuelEngine.getShareUrl(roomCode, seed, lang, diff, count);
+          shareInput.value = shareUrl;
+        }
+        if (roomCard) roomCard.style.display = 'block';
+        if (startMatchBtn) startMatchBtn.disabled = false;
+        UI.showToast(`Duel Room ${roomCode} created! Share link with your rival.`, 'success');
+      };
+    }
+
+    // Join Room Button
+    const joinBtn = Utils.qs('#btn-join-duel-room');
+    const joinInput = Utils.qs('#input-join-room-code');
+    if (joinBtn && joinInput) {
+      joinBtn.onclick = () => {
+        const code = (joinInput.value || '').trim().toUpperCase();
+        if (!code || code.length < 4) {
+          UI.showToast('Please enter a valid Room Code (e.g. SYN-482)', 'warning');
+          return;
+        }
+        AudioEngine.playClick();
+        UI.closeModal('modal-duel-lobby');
+        const lang = Utils.qs('#duel-select-lang')?.value || 'python';
+        const diff = Utils.qs('#duel-select-diff')?.value || 'beginner';
+        const count = parseInt(Utils.qs('#duel-select-count')?.value || '10', 10);
+        Router.navigateTo('game', {
+          mode: 'duel',
+          room: code,
+          role: 'challenger',
+          lang,
+          diff,
+          count,
+          new: 'true'
+        });
+      };
+    }
+
+    // Copy share link button
+    const copyLinkBtn = Utils.qs('#btn-copy-duel-link');
+    if (copyLinkBtn) {
+      copyLinkBtn.onclick = () => {
+        const shareInput = Utils.qs('#duel-share-url-input');
+        const link = shareInput ? shareInput.value : '';
+        if (link && typeof navigator !== 'undefined' && navigator.clipboard) {
+          navigator.clipboard.writeText(link).then(() => {
+            UI.showToast('📋 Duel invite link copied to clipboard!', 'success');
+          }).catch(() => {
+            UI.showToast('Failed to copy. Please manually copy the URL.', 'info');
+          });
+        }
+      };
+    }
+
+    // Start Duel Match Button
+    if (startMatchBtn) {
+      startMatchBtn.onclick = () => {
+        AudioEngine.playClick();
+        const isLocal = tabLocal && tabLocal.classList.contains('is-active');
+        const lang = Utils.qs('#duel-select-lang')?.value || 'python';
+        const diff = Utils.qs('#duel-select-diff')?.value || 'beginner';
+        const count = parseInt(Utils.qs('#duel-select-count')?.value || '10', 10);
+        UI.closeModal('modal-duel-lobby');
+
+        if (isLocal) {
+          const seed = DuelEngine.generateSeed();
+          Router.navigateTo('game', {
+            mode: 'duel',
+            submode: 'local_split',
+            lang,
+            diff,
+            count,
+            seed,
+            new: 'true'
+          });
+        } else {
+          const cfg = this._activeDuelHostConfig || {
+            roomCode: DuelEngine.generateRoomCode(),
+            seed: DuelEngine.generateSeed(),
+            language: lang,
+            difficulty: diff,
+            count
+          };
+          Router.navigateTo('game', {
+            mode: 'duel',
+            room: cfg.roomCode,
+            role: 'host',
+            seed: cfg.seed,
+            lang: cfg.language,
+            diff: cfg.difficulty,
+            count: cfg.count,
+            new: 'true'
+          });
+        }
+      };
+    }
+
+    // Rematch Button
+    const rematchBtn = Utils.qs('#btn-duel-rematch');
+    if (rematchBtn) {
+      rematchBtn.onclick = () => {
+        AudioEngine.playClick();
+        UI.closeModal('modal-duel-results');
+        const params = Router.getQueryParams();
+        params.seed = DuelEngine.generateSeed();
+        params.new = 'true';
+        Router.navigateTo('game', params);
+      };
+    }
+
+    // Copy Duel Report Card Button
+    const copyReportBtn = Utils.qs('#btn-copy-duel-report');
+    if (copyReportBtn) {
+      copyReportBtn.onclick = () => {
+        AudioEngine.playClick();
+        const report = DuelEngine.generateMarkdownReport();
+        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+          navigator.clipboard.writeText(report).then(() => {
+            UI.showToast('📋 SyntaxDuel report copied to clipboard!', 'success');
+          }).catch(() => {
+            UI.showToast('Failed to copy report.', 'error');
+          });
+        }
+      };
+    }
+
+    // Return to Hub from Duel Results
+    const duelHubBtn = Utils.qs('#btn-duel-hub');
+    if (duelHubBtn) {
+      duelHubBtn.onclick = () => {
+        UI.closeModal('modal-duel-results');
+        Router.navigateTo('index');
+      };
+    }
   }
 };
 

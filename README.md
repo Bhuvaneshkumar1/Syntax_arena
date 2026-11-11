@@ -18,12 +18,13 @@
 [![Zero Runtime Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20Vanilla)-10b981.svg?style=for-the-badge&logo=javascript&logoColor=white)](index.html)
 [![Offline Ready](https://img.shields.io/badge/Offline-100%25%20Ready-8b5cf6.svg?style=for-the-badge&logo=pwa&logoColor=white)](index.html)
 [![12 Curriculum Tracks](https://img.shields.io/badge/Curriculum-12%20Tracks-f59e0b.svg?style=for-the-badge&logo=codeforces&logoColor=white)](learn.html)
+[![1v1 SyntaxDuel](https://img.shields.io/badge/1v1%20SyntaxDuel-P2P%20%26%20Local-a855f7.svg?style=for-the-badge&logo=riotgames&logoColor=white)](game.html?mode=duel)
 [![Mega-Boss Incursions](https://img.shields.io/badge/Mega--Boss-Daemon%20Incursions-f43f5e.svg?style=for-the-badge&logo=target&logoColor=white)](game.html?mode=boss)
-[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-796%20%2F%20796%20Passed-10b981.svg?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/)
-[![Playwright E2E](https://img.shields.io/badge/Playwright%20E2E-171%20%2F%20171%20Passed-10b981.svg?style=for-the-badge&logo=playwright&logoColor=white)](tests/)
+[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-834%20%2F%20834%20Passed-10b981.svg?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/)
+[![Playwright E2E](https://img.shields.io/badge/Playwright%20E2E-Multi--Suite%20Passed-10b981.svg?style=for-the-badge&logo=playwright&logoColor=white)](tests/)
 [![Stealth Admin Vault](https://img.shields.io/badge/Admin%20Vault-Stealth%20%26%20SHA--256-blueviolet.svg?style=for-the-badge&logo=auth0&logoColor=white)](admin.html)
 
-[🚀 Quick Start](#-quick-start) • [✨ Key Features](#-features-overview) • [👾 Mega-Boss Battles](#-daemon-incursion-mega-boss-battles) • [🕹️ Arena & Ghost Duel](#-arcade-arena--asynchronous-ghost-racing) • [🔐 Stealth Admin & Curriculum Studio](#-stealth-admin-vault--curriculum-studio) • [📅 Daily Gauntlet](#-daily-hacker-gauntlet--7-day-punch-card) • [🔬 Visual Memory Inspector](#-visual-memory--pointer-inspector) • [💻 Multi-Language Sandbox](#-client-side-sandbox--repl) • [🎓 Cyber Academy](#-cyber-academy--graduation-diplomas) • [🧪 Testing](#-testing--quality-assurance)
+[🚀 Quick Start](#-quick-start) • [✨ Key Features](#-features-overview) • [⚔️ 1v1 SyntaxDuel](#-1v1-syntaxduel-peer-to-peer--local-arcade) • [👾 Mega-Boss Battles](#-daemon-incursion-mega-boss-battles) • [🕹️ Arena & Ghost Duel](#-arcade-arena--asynchronous-ghost-racing) • [🔐 Stealth Admin & Curriculum Studio](#-stealth-admin-vault--curriculum-studio) • [📅 Daily Gauntlet](#-daily-hacker-gauntlet--7-day-punch-card) • [🔬 Visual Memory Inspector](#-visual-memory--pointer-inspector) • [💻 Multi-Language Sandbox](#-client-side-sandbox--repl) • [🎓 Cyber Academy](#-cyber-academy--graduation-diplomas) • [🧪 Testing](#-testing--quality-assurance)
 
 ---
 
@@ -98,6 +99,30 @@ Race against an autonomous rival racer, **CyberPhantom** (👻), in real-time!
 2. **Predict Output:** Mentally trace code execution and predict standard stdout output.
 3. **Find the Bug:** Click directly on syntax-highlighted code terminal lines to isolate the exact line causing a bug.
 4. **Fill Code:** Drag or click code token chips into missing syntax slots.
+
+---
+
+## ⚔️ 1v1 SyntaxDuel: Peer-to-Peer & Local Arcade Mode
+
+Challenge friends or rivals to live, head-to-head syntax coding battles! Built 100% client-side with zero external servers or backend infrastructure needed:
+
+* **Zero-Server P2P Networking (`DuelEngine`):**
+  * Instant room code generation (e.g. `SYN-482`) with 1-click clipboard invite link sharing.
+  * Real-time cross-tab and cross-window packet delivery over modern `BroadcastChannel` with `LocalStorage` event bridge fallback and WebRTC DataChannel packet support.
+* **Deterministic Synchronized Seeded Shuffling:**
+  * Uses a Mulberry32 PRNG seed derived from the match room code to guarantee that both competitors solve the **exact same questions in the exact same sequence** simultaneously.
+* **Shared Keyboard Local Arcade Split Mode:**
+  * Battle side-by-side on a single physical keyboard! Player 1 answers using keys `1`, `2`, `3`, `4`; Player 2 answers using keys `7`, `8`, `9`, `0`.
+* **Live Split Versus HUD Bar (`#hud-duel-versus-bar`):**
+  * Replaces the solo ghost rail with dual player cards (P1 Cyan vs P2 Coral).
+  * Central glowing VS Nexus with dynamic lead pill (`.duel-delta-pill`) displaying advantage telemetry (`+150 PTS AHEAD`, `-50 PTS BEHIND`, `⚡ TIED`).
+  * Dual runner track pins (`#duel-p1-pin`, `#duel-p2-pin`) racing toward the finish line in real-time.
+* **Sabotage Glitch Mechanic:**
+  * Achieving a 3-streak combo triggers an instantaneous screen sabotage glitch (`.duel-sabotage-glitch`) and audible distress alarm on the opponent's view to break their concentration.
+* **Versus Results Modal & Markdown Sharing (`#modal-duel-results`):**
+  * Detailed head-to-head performance scorecard comparing final points, accuracy percentage, max combo streaks, and elapsed time.
+  * 1-click **Copy Match Report** button generating a clean Markdown summary table ready for Discord, Slack, or GitHub.
+  * 1-click **Rematch** button launching a fresh duel with a new deterministic seed.
 
 ---
 

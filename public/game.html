@@ -184,6 +184,9 @@
           <div style="display: flex; align-items: center; gap: 0.75rem;">
             <span class="tag-lang tag-python" id="hud-lang-tag">Python 3</span>
             <span class="badge badge-cyan" id="hud-step-counter">Question 1 of 20</span>
+            <button type="button" id="btn-open-duel-lobby" class="btn-arcade btn-primary btn-sm" style="font-size: 11px; padding: 2px 8px;" title="Challenge a friend or rival to a 1v1 SyntaxDuel">
+              ⚔️ 1v1 Duel
+            </button>
           </div>
 
           <!-- Streaks & Multiplier -->
@@ -281,6 +284,54 @@
         <!-- Boss Dialogue / Taunt Bar -->
         <div class="boss-taunt-bar" id="boss-taunt-text">
           "You dare wander into the unallocated heap? Everything here points to nothingness."
+        </div>
+      </section>
+
+      <!-- 1v1 SyntaxDuel Live Versus HUD Bar (Feature 2) -->
+      <section id="hud-duel-versus-bar" class="duel-versus-hud" style="display: none;" aria-label="1v1 SyntaxDuel Versus HUD">
+        <div class="duel-versus-grid">
+          <!-- Player 1 (You) -->
+          <div class="duel-player-card is-p1">
+            <div class="duel-avatar-emblem" id="duel-p1-avatar">🦊</div>
+            <div class="duel-info-block">
+              <div class="duel-callsign">
+                <span id="duel-p1-name">ScriptAdept</span>
+                <span class="badge badge-emerald" id="duel-p1-streak-badge" style="display: none;">🔥 3 STREAK</span>
+              </div>
+              <div class="duel-score-display">
+                <span id="duel-p1-score" class="duel-score-val">0 PTS</span>
+                <span class="duel-question-progress" id="duel-p1-prog">Q 0 / 10</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center VS Badge & Dynamic Split Delta Pill -->
+          <div class="duel-center-nexus">
+            <div class="duel-vs-emblem">VS</div>
+            <div class="duel-delta-pill is-tied" id="duel-lead-pill">⚡ TIED</div>
+          </div>
+
+          <!-- Player 2 (Challenger / Opponent) -->
+          <div class="duel-player-card is-p2">
+            <div class="duel-avatar-emblem" id="duel-p2-avatar">🐱</div>
+            <div class="duel-info-block" style="text-align: right;">
+              <div class="duel-callsign" style="justify-content: flex-end;">
+                <span class="badge badge-emerald" id="duel-p2-streak-badge" style="display: none;">🔥 3 STREAK</span>
+                <span id="duel-p2-name">Challenger</span>
+              </div>
+              <div class="duel-score-display" style="justify-content: flex-end;">
+                <span class="duel-question-progress" id="duel-p2-prog">Q 0 / 10</span>
+                <span id="duel-p2-score" class="duel-score-val">0 PTS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dual Split-Progress Race Track -->
+        <div class="duel-track-wrap">
+          <div class="duel-track-line"></div>
+          <div id="duel-p1-pin" class="duel-runner-pin is-p1" style="left: 0%;" title="Player 1 Position">🦊</div>
+          <div id="duel-p2-pin" class="duel-runner-pin is-p2" style="left: 0%;" title="Player 2 Position">🐱</div>
         </div>
       </section>
 
@@ -542,6 +593,193 @@
         </button>
         <button id="btn-modal-academy-no" class="btn-arcade btn-neutral btn-sm" type="button">
           No, Keep Fighting ⚔️
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1v1 SyntaxDuel Lobby Modal Dialog -->
+  <div id="modal-duel-lobby" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-duel-lobby-title">
+    <div class="modal-dialog card card-raised" style="max-width: 580px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.5rem;">⚔️</span>
+          <h2 id="modal-duel-lobby-title" style="font-family: var(--font-display); font-size: var(--text-xl); margin: 0;">
+            1v1 SyntaxDuel Lobby
+          </h2>
+        </div>
+        <button class="btn-icon-toggle" id="btn-close-duel-lobby-x" aria-label="Close dialog">
+          <svg width="18" height="18"><use href="#icon-x"></use></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Mode Tabs: Online P2P vs Local Same-Keyboard -->
+        <div class="sandbox-env-segmented-bar" style="margin-bottom: var(--space-4);">
+          <button type="button" class="env-tab-btn is-active" id="tab-duel-online" data-duel-tab="online">
+            🌐 Online P2P / Share Link
+          </button>
+          <button type="button" class="env-tab-btn" id="tab-duel-local" data-duel-tab="local">
+            🎮 Same Keyboard (Local 2-Player)
+          </button>
+        </div>
+
+        <!-- Duel Configuration Controls -->
+        <div class="card" style="padding: 1rem; background: var(--bg-surface-raised); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+            <div>
+              <label for="duel-select-lang" style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Language</label>
+              <select id="duel-select-lang" class="input-base" style="width: 100%; font-size: 12px; padding: 6px 8px;">
+                <option value="python" selected>🐍 Python 3</option>
+                <option value="c">⚡ C (C99/C11)</option>
+                <option value="cpp">🚀 C++ (Modern)</option>
+                <option value="java">☕ Java (SE 17)</option>
+                <option value="cyber">🛡️ Cyber &amp; Linux</option>
+                <option value="javascript">🌐 JavaScript</option>
+                <option value="rust">🦀 Rust</option>
+                <option value="sql">🗄️ SQL</option>
+                <option value="typescript">📘 TypeScript</option>
+                <option value="go">🔷 Go (Golang)</option>
+                <option value="html">🎨 HTML5 &amp; CSS</option>
+                <option value="asm">⚙️ x86-64 ASM</option>
+              </select>
+            </div>
+            <div>
+              <label for="duel-select-tier" style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Difficulty</label>
+              <select id="duel-select-tier" class="input-base" style="width: 100%; font-size: 12px; padding: 6px 8px;">
+                <option value="all" selected>All Tiers Mixed</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="expert">Expert</option>
+              </select>
+            </div>
+            <div>
+              <label for="duel-select-count" style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Questions</label>
+              <select id="duel-select-count" class="input-base" style="width: 100%; font-size: 12px; padding: 6px 8px;">
+                <option value="5">5 Questions (Sprint)</option>
+                <option value="10" selected>10 Questions (Standard)</option>
+                <option value="15">15 Questions (Endurance)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Online Tab View -->
+        <div id="duel-view-online">
+          <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
+            <button type="button" id="btn-create-duel-room" class="btn-arcade btn-primary btn-sm" style="flex: 1; min-width: 140px;">
+              + Host New Room
+            </button>
+            <div style="display: flex; flex: 1; min-width: 180px; gap: 0.25rem;">
+              <input type="text" id="input-join-room-code" placeholder="ROOM CODE (SYN-XXXX)" class="input-base" style="flex: 1; font-family: var(--font-mono); text-transform: uppercase; font-size: 12px; padding: 6px 8px;" maxlength="10">
+              <button type="button" id="btn-join-duel-room" class="btn-arcade btn-secondary btn-sm">
+                Join
+              </button>
+            </div>
+          </div>
+
+          <!-- Room Code & Share URL Box (Displayed when Room Created) -->
+          <div id="duel-room-active-card" style="display: none; background: rgba(16, 185, 129, 0.08); border: 1px dashed var(--color-success); border-radius: var(--radius-md); padding: 1rem; text-align: center; margin-bottom: 1rem;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">Your Live Duel Room Code</div>
+            <div id="duel-display-room-code" style="font-family: var(--font-mono); font-size: 2rem; font-weight: 900; letter-spacing: 0.1em; color: var(--color-primary); margin-bottom: 0.5rem;">
+              SYN-7X9B
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
+              <input type="text" id="duel-share-url-input" readonly class="input-base" style="font-size: 11px; max-width: 340px; padding: 4px 8px; font-family: var(--font-mono);">
+              <button type="button" id="btn-copy-duel-link" class="btn-arcade btn-neutral btn-sm" style="font-size: 11px; padding: 4px 8px;">
+                📋 Copy Link
+              </button>
+            </div>
+            <div id="duel-lobby-status" style="margin-top: 0.75rem; font-size: 12px; color: var(--text-secondary);">
+              ⏳ Waiting for challenger to connect...
+            </div>
+          </div>
+        </div>
+
+        <!-- Local Same-Keyboard Tab View -->
+        <div id="duel-view-local" style="display: none;">
+          <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+            <h3 style="font-size: var(--text-sm); color: var(--color-primary); margin: 0 0 0.5rem 0;">⌨️ Shared Keyboard Control Scheme</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div style="background: var(--bg-surface); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                <strong style="color: var(--color-cyan); font-size: 12px;">🦊 Player 1 (Left):</strong>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Number Keys: <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code></div>
+              </div>
+              <div style="background: var(--bg-surface); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                <strong style="color: var(--color-coral); font-size: 12px;">🐱 Player 2 (Right):</strong>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Number Keys: <code>7</code>, <code>8</code>, <code>9</code>, <code>0</code></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button type="button" id="btn-cancel-duel-lobby" class="btn-arcade btn-neutral btn-sm">Cancel</button>
+        <button type="button" id="btn-start-duel-match" class="btn-arcade btn-primary btn-sm" disabled>
+          ⚔️ Launch Duel Match
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1v1 SyntaxDuel Versus Results Modal Dialog -->
+  <div id="modal-duel-results" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-duel-results-title">
+    <div class="modal-dialog card card-raised" style="max-width: 620px; text-align: center;">
+      <div class="modal-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
+        <span style="font-size: 3rem;" id="duel-result-icon">🏆</span>
+      </div>
+      <div class="modal-body" style="padding-top: var(--space-2);">
+        <span class="badge badge-cyan" id="duel-result-badge">SYNTAXDUEL COMPLETE</span>
+        <h2 id="modal-duel-results-title" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; margin: 0.5rem 0 0.25rem 0; color: var(--color-primary);">
+          VICTORY: ScriptAdept
+        </h2>
+        <p id="duel-result-subtitle" style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">
+          Head-to-head syntax showdown concluded.
+        </p>
+
+        <!-- Head to Head Stats Comparison Table -->
+        <div class="duel-results-table-wrap" style="margin-bottom: 1.25rem;">
+          <table class="duel-compare-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-subtle); color: var(--text-muted);">
+                <th style="padding: 8px; text-align: left;" id="duel-th-p1">🦊 Player 1</th>
+                <th style="padding: 8px; text-align: center;">METRIC</th>
+                <th style="padding: 8px; text-align: right;" id="duel-th-p2">🐱 Player 2</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-subtle);">
+                <td style="padding: 8px; text-align: left; font-weight: 800; font-family: var(--font-mono); color: var(--color-cyan);" id="stat-duel-p1-score">0 PTS</td>
+                <td style="padding: 8px; text-align: center; color: var(--text-muted);">FINAL SCORE</td>
+                <td style="padding: 8px; text-align: right; font-weight: 800; font-family: var(--font-mono); color: var(--color-coral);" id="stat-duel-p2-score">0 PTS</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-subtle);">
+                <td style="padding: 8px; text-align: left;" id="stat-duel-p1-acc">0%</td>
+                <td style="padding: 8px; text-align: center; color: var(--text-muted);">ACCURACY</td>
+                <td style="padding: 8px; text-align: right;" id="stat-duel-p2-acc">0%</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-subtle);">
+                <td style="padding: 8px; text-align: left;" id="stat-duel-p1-streak">0x</td>
+                <td style="padding: 8px; text-align: center; color: var(--text-muted);">MAX STREAK</td>
+                <td style="padding: 8px; text-align: right;" id="stat-duel-p2-streak">0x</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; text-align: left;" id="stat-duel-p1-time">0s</td>
+                <td style="padding: 8px; text-align: center; color: var(--text-muted);">TOTAL TIME</td>
+                <td style="padding: 8px; text-align: right;" id="stat-duel-p2-time">0s</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: var(--space-3); flex-wrap: wrap;">
+        <button id="btn-duel-rematch" class="btn-arcade btn-primary btn-sm" type="button">
+          ↺ Rematch
+        </button>
+        <button id="btn-copy-duel-report" class="btn-arcade btn-secondary btn-sm" type="button">
+          📋 Copy Match Report
+        </button>
+        <button id="btn-duel-hub" class="btn-arcade btn-neutral btn-sm" type="button">
+          🏠 Return to Hub
         </button>
       </div>
     </div>

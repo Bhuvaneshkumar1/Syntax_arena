@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.11.0] - 2026-11-11
+
+### Added (Feature 2: Real-Time 1v1 SyntaxDuel Mode)
+- **Zero-Server P2P & Local Multiplayer Engine (`js/p2p-duel.js`):**
+  - Implemented the client-side `DuelEngine` coordinator supporting peer-to-peer coding battles over `BroadcastChannel`, `LocalStorage` event signaling bridge fallback, and WebRTC-ready packet architecture.
+  - Generates deterministic room codes (e.g. `SYN-482`) and Mulberry32 seeded PRNG decks to ensure both competitors face identical questions in identical sequence.
+  - Supports 3 match modes: Online P2P (`p2p`), Local Same-Keyboard Arcade Split (`local_split` with P1 keys 1–4 vs P2 keys 7–0), and Asynchronous Challenge link dispatch.
+- **Real-Time Split Versus HUD (`game.html`, `css/components.css`, `js/gameplay.js`):**
+  - Replaced the AI ghost rail in duel mode with the dual human `#hud-duel-versus-bar`.
+  - Added Player 1 (Cyan) and Player 2 (Coral) cards showing live scores, question progress, and active streak combo badges.
+  - Centered glowing VS nexus with dynamic telemetry lead pill (`.duel-delta-pill`) displaying real-time advantage (`+120 PTS AHEAD`, `-50 PTS BEHIND`, `⚡ TIED`).
+  - Added dual runner progress track with animated avatar runner pins (`#duel-p1-pin`, `#duel-p2-pin`).
+- **Sabotage Glitch Combo Mechanic (`css/animations.css`, `js/gameplay.js`):**
+  - Racking up a 3-streak combo triggers a visual screen disruption pulse (`.duel-sabotage-glitch`) and alert sound on the opponent's screen.
+- **Versus Results Modal & 1-Click Clipboard Report (`game.html`, `js/gameplay.js`):**
+  - Added post-match head-to-head comparison table (`#modal-duel-results`) comparing final score, accuracy, maximum streak, and completion time.
+  - Added 1-click markdown report generator (`#btn-copy-duel-report`) formatted for Discord/Slack/GitHub brag sharing.
+  - Added instant rematch button (`#btn-duel-rematch`) with fresh seeded shuffle.
+- **Hub Quick-Launch & Showcase Integration (`index.html`):**
+  - Added `⚔️ 1v1 SyntaxDuel` quick launch button to the Hero Command Deck.
+  - Added dedicated `⚔️ 1v1 SyntaxDuel` showcase card to Featured Game Modes.
+- **Testing & Verification:**
+  - 38/38 unit tests in `tests/p2p-duel-tests.js` (total 834/834 unit tests passing).
+  - 20/20 Playwright E2E tests in `tests/test-duel-playwright.js`.
+  - 86/86 Responsive Viewport tests passing.
+  - 47/47 Enhancements tests passing.
+
+---
+
 ## [2.10.0] - 2026-11-11
 
 ### Fixed & Enhanced (Critical Corrections & Curriculum Expansion)

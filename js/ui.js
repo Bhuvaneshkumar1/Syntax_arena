@@ -281,6 +281,9 @@ export const UI = {
     const modal = Utils.qs(`#${modalId}`);
     if (!modal) return;
 
+    if (modal.style.display === 'none') {
+      modal.style.display = '';
+    }
     modal._triggerElement = triggerElement || document.activeElement;
     modal.classList.add('is-open');
     modal.setAttribute('aria-hidden', 'false');
