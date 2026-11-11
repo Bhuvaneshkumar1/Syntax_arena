@@ -144,15 +144,18 @@ export const IncidentEngine = {
 
   /**
    * Submit Root Cause Diagnosis answer (Phase 1)
-   * @param {number} optionIndex
+   * @param {number|string} optionIndexOrText
    */
-  submitDiagnosis(optionIndex) {
+  submitDiagnosis(optionIndexOrText) {
     if (!this.activeIncident || this.state !== INCIDENT_STATES.ACTIVE) {
       return { success: false, error: 'No active incident drill.' };
     }
 
     const q = this.activeIncident.diagnosisQuestion;
-    const isCorrect = (optionIndex === q.correctAnswer);
+    const isCorrect = (optionIndexOrText === q.correctAnswer) ||
+      (typeof optionIndexOrText === 'number' && q.options && q.options[optionIndexOrText] === q.options[q.correctAnswer]) ||
+      (typeof optionIndexOrText === 'string' && (optionIndexOrText === q.options[q.correctAnswer] || optionIndexOrText === q.correctAnswer));
+
     this.triage.diagnosisAnswered = true;
     this.triage.diagnosisCorrect = isCorrect;
     this.triage.attempts++;
@@ -172,15 +175,18 @@ export const IncidentEngine = {
 
   /**
    * Submit Code Patch Hotfix selection (Phase 2)
-   * @param {number} optionIndex
+   * @param {number|string} optionIndexOrText
    */
-  submitPatch(optionIndex) {
+  submitPatch(optionIndexOrText) {
     if (!this.activeIncident || this.phase < 2) {
       return { success: false, error: 'Diagnosis must be verified before patch deployment.' };
     }
 
     const q = this.activeIncident.patchQuestion;
-    const isCorrect = (optionIndex === q.correctAnswer);
+    const isCorrect = (optionIndexOrText === q.correctAnswer) ||
+      (typeof optionIndexOrText === 'number' && q.options && q.options[optionIndexOrText] === q.options[q.correctAnswer]) ||
+      (typeof optionIndexOrText === 'string' && (optionIndexOrText === q.options[q.correctAnswer] || optionIndexOrText === q.correctAnswer));
+
     this.triage.patchAnswered = true;
     this.triage.patchCorrect = isCorrect;
     this.triage.attempts++;
@@ -203,6 +209,79 @@ export const IncidentEngine = {
       isResolved: this.state === INCIDENT_STATES.STABILIZED,
       postMortem: this.state === INCIDENT_STATES.STABILIZED ? this.getPostMortem() : null
     };
+  },
+
+  /**
+   * Execute interactive SRE terminal commands against live incident logs and telemetry.
+   * Commands supported: cat, tail, head, grep, status, top, clear, help
+   * @param {string} cmdString
+   */
+  executeTerminalCommand(cmdString = '') {
+    const raw = (cmdString || '').trim();
+    if (!raw) return { output: '', error: null };
+    const tokens = raw.split(/\s+/);
+    const cmd = tokens[0].toLowerCase();
+    const args = tokens.slice(1);
+    const logs = this.activeIncident?.logs || [];
+
+    switch (cmd) {
+      case 'clear':
+        return { output: '__CLEAR__', error: null };
+      case 'help':
+        return {
+          output: [
+            'SRE Outage Diagnostic Shell Commands:',
+            '  tail [-n N]     Show last N log lines (default 8)',
+            '  head [-n N]     Show first N log lines (default 8)',
+            '  cat [file]      Dump entire incident log stream',
+            '  grep [-i] <q>   Search log entries for string pattern',
+            '  status          Display service, node health and telemetry',
+            '  top             Inspect container process table',
+            '  clear           Clear terminal view'
+          ].join('\n'),
+          error: null
+        };
+      case 'status':
+        return {
+          output: [
+            `Incident: ${this.activeIncident?.title || 'None'} [${this.activeIncident?.severity || 'SEV-1'}]`,
+            `Service:  ${this.activeIncident?.service || 'worker'} (Language: ${this.activeIncident?.language || 'python'})`,
+            `State:    ${this.state.toUpperCase()} (Phase: ${this.phase})`,
+            `CPU:      ${this.telemetry.cpu}% | RAM: ${this.telemetry.ram}%`,
+            `5xx Err:  ${this.telemetry.errorRate}% | Latency: ${this.telemetry.latencyMs}ms`
+          ].join('\n'),
+          error: null
+        };
+      case 'top':
+        return {
+          output: [
+            'PID   USER     PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND',
+            `4201  app      20   0  7892M  6910M   140M R  ${this.telemetry.cpu.toFixed(1)}  ${this.telemetry.ram.toFixed(1)}   4:12.80 ${this.activeIncident?.service || 'worker'}`,
+            '1     root     20   0   168M    12M     8M S   0.1   0.2   0:01.42 systemd',
+            '241   k8s      20   0   890M    48M    24M S   1.2   0.6   0:24.10 kubelet'
+          ].join('\n'),
+          error: null
+        };
+      case 'head': {
+        const nIdx = args.indexOf('-n');
+        const count = nIdx !== -1 && args[nIdx + 1] ? parseInt(args[nIdx + 1], 10) : 8;
+        return { output: logs.slice(0, count).join('\n'), error: null };
+      }
+      case 'tail': {
+        const nIdx = args.indexOf('-n');
+        const count = nIdx !== -1 && args[nIdx + 1] ? parseInt(args[nIdx + 1], 10) : 8;
+        return { output: logs.slice(Math.max(0, logs.length - count)).join('\n'), error: null };
+      }
+      case 'cat':
+        return { output: logs.join('\n'), error: null };
+      case 'grep': {
+        const pattern = args.find(a => !a.startsWith('-')) || '';
+        const filtered = this.filterLogs(pattern);
+        return { output: filtered.length ? filtered.join('\n') : `(No matching log entries found for '${pattern}')`, error: null };
+      }
+      default:
+        return { output: '', error: `sre-shell: command not found: ${cmd}. Type 'help' for available commands.` };
+    }
   },
 
   /**

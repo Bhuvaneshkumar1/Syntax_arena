@@ -83,14 +83,12 @@ async function runSandboxLanguagesTest() {
     await page.goto(`http://localhost:${PORT}/sandbox.html`);
     await page.waitForLoadState('networkidle');
 
-    // Environments to test in order
+    // Environments to test in order (HTML/CSS & JavaScript pruned per spec)
     const envs = [
       { key: 'typescript', name: 'TypeScript', expectedSnippets: ['generics', 'interfaces'] },
       { key: 'go', name: 'Go (Golang)', expectedSnippets: ['goroutines_channels', 'slice_cap', 'defer_order'] },
-      { key: 'javascript', name: 'JavaScript', expectedSnippets: ['array_quirks', 'async_closure'] },
       { key: 'sql', name: 'SQL', expectedSnippets: ['select_all', 'aggregates', 'challenges'] },
       { key: 'cyber', name: 'Cyber & Linux Shell', expectedSnippets: ['wildcard', 'pipes', 'perms', 'base64'] },
-      { key: 'html', name: 'HTML5 & CSS', expectedSnippets: ['subgrid', 'cascade_layers'] },
       { key: 'asm', name: 'Assembly', expectedSnippets: ['registers_arithmetic', 'stack_frame_prologue'] },
       { key: 'systems', name: 'Systems Simulators', expectedSnippets: ['c_macro', 'c_struct', 'java_sub', 'rust_borrow'] }
     ];

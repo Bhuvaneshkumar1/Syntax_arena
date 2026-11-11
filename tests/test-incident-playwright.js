@@ -129,8 +129,8 @@ async function runIncidentPlaywrightSuite() {
     // Test 5: Full 2-Phase Triage & Stabilization Workflow
     // -------------------------------------------------------------
     console.log('\n--- 5. Full 2-Phase Triage & Stabilization Workflow ---');
-    // Phase 1 Diagnosis: Select correct option 0 (_GLOBAL_CACHE unbounded heap leak)
-    await page.click('.option-card[data-index="0"]');
+    // Phase 1 Diagnosis: Select correct option (_GLOBAL_CACHE unbounded heap leak, index 2)
+    await page.click('.option-card[data-index="2"]');
     await page.waitForTimeout(150);
     await page.click('#btn-submit-answer');
     await page.waitForTimeout(400);
@@ -141,8 +141,8 @@ async function runIncidentPlaywrightSuite() {
     // Advance to Question 2 (auto-advance or click next)
     await page.waitForTimeout(2200);
 
-    // Phase 2 Patch: Select correct option 0 (Replace unbounded global list with LRUCache)
-    await page.click('.option-card[data-index="0"]');
+    // Phase 2 Patch: Select correct option (Replace unbounded global list with LRUCache, index 1)
+    await page.click('.option-card[data-index="1"]');
     await page.waitForTimeout(150);
     await page.click('#btn-submit-answer');
     

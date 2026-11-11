@@ -404,6 +404,12 @@
           <div id="incident-log-stream" class="incident-log-stream" tabindex="0" aria-label="Streaming server logs">
             <!-- Populated dynamically by IncidentEngine -->
           </div>
+          <!-- Interactive SRE Log Shell Terminal Sandbox -->
+          <form id="incident-terminal-form" style="display: flex; gap: 0.5rem; align-items: center; padding: 6px 12px; background: rgba(0,0,0,0.6); border-top: 1px solid var(--border-subtle); border-radius: 0 0 6px 6px;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--color-success); font-weight: 700;">sre@cluster:~$</span>
+            <input type="text" id="incident-terminal-input" class="form-input" placeholder="Type: tail, head, cat, grep &lt;term&gt;, status, top, clear, help..." style="flex: 1; font-family: var(--font-mono); font-size: 11px; padding: 2px 8px; height: 26px; background: transparent; border: 1px solid rgba(255,255,255,0.1);">
+            <button type="submit" class="btn-arcade btn-primary btn-sm" style="padding: 2px 8px; font-size: 10px; height: 26px;">Run</button>
+          </form>
         </div>
       </section>
 

@@ -536,26 +536,185 @@ export const SandboxManager = {
       }
 
       case 'touch': {
-        const target = this._normalizePath(args[0] || '');
         if (!args[0]) {
           error = 'touch: missing file operand';
           exitCode = 1;
-        } else if (!this.vfs[target]) {
-          this.vfs[target] = { type: 'file', perms: 'rw-r--r--', owner: 'hacker', content: '' };
+        } else {
+          for (const arg of args.filter(a => !a.startsWith('-'))) {
+            const target = this._normalizePath(arg);
+            if (!this.vfs[target]) {
+              this.vfs[target] = { type: 'file', perms: 'rw-r--r--', owner: 'hacker', content: '' };
+            }
+          }
         }
         break;
       }
 
       case 'rm': {
-        const target = this._normalizePath(args.find(a => !a.startsWith('-')) || '');
-        if (!target) {
-          error = 'rm: missing operand';
-          exitCode = 1;
-        } else if (!this.vfs[target]) {
-          error = `rm: cannot remove '${args[0]}': No such file or directory`;
+        const isRecursive = args.some(a => a.includes('r') || a.includes('R'));
+        const force = args.some(a => a.includes('f'));
+        const nonFlags = args.filter(a => !a.startsWith('-'));
+        if (nonFlags.length === 0) {
+          if (!force) {
+            error = 'rm: missing operand';
+            exitCode = 1;
+          }
+        } else {
+          for (const targetArg of nonFlags) {
+            const target = this._normalizePath(targetArg);
+            if (!this.vfs[target]) {
+              if (!force) {
+                error = `rm: cannot remove '${targetArg}': No such file or directory`;
+                exitCode = 1;
+              }
+            } else if (this.vfs[target].type === 'dir' && !isRecursive) {
+              error = `rm: cannot remove '${targetArg}': Is a directory`;
+              exitCode = 1;
+            } else {
+              delete this.vfs[target];
+              if (isRecursive) {
+                const prefix = target === '/' ? '/' : target + '/';
+                Object.keys(this.vfs).forEach(k => {
+                  if (k.startsWith(prefix)) delete this.vfs[k];
+                });
+              }
+            }
+          }
+        }
+        break;
+      }
+
+      case 'cp': {
+        const nonFlags = args.filter(a => !a.startsWith('-'));
+        if (nonFlags.length < 2) {
+          error = `cp: missing destination file operand after '${nonFlags[0] || ''}'`;
           exitCode = 1;
         } else {
-          delete this.vfs[target];
+          const srcPath = this._normalizePath(nonFlags[0]);
+          const destPath = this._normalizePath(nonFlags[1]);
+          const src = this.vfs[srcPath];
+          if (!src) {
+            error = `cp: cannot stat '${nonFlags[0]}': No such file or directory`;
+            exitCode = 1;
+          } else {
+            this.vfs[destPath] = JSON.parse(JSON.stringify(src));
+          }
+        }
+        break;
+      }
+
+      case 'mv': {
+        const nonFlags = args.filter(a => !a.startsWith('-'));
+        if (nonFlags.length < 2) {
+          error = `mv: missing destination file operand after '${nonFlags[0] || ''}'`;
+          exitCode = 1;
+        } else {
+          const srcPath = this._normalizePath(nonFlags[0]);
+          const destPath = this._normalizePath(nonFlags[1]);
+          const src = this.vfs[srcPath];
+          if (!src) {
+            error = `mv: cannot stat '${nonFlags[0]}': No such file or directory`;
+            exitCode = 1;
+          } else {
+            this.vfs[destPath] = src;
+            delete this.vfs[srcPath];
+          }
+        }
+        break;
+      }
+
+      case 'nano':
+      case 'vim':
+      case 'vi': {
+        const filename = args.find(a => !a.startsWith('-'));
+        if (!filename) {
+          error = `${command}: missing filename operand`;
+          exitCode = 1;
+          break;
+        }
+        const targetPath = this._normalizePath(filename);
+        const contentArg = args.filter(a => !a.startsWith('-')).slice(1).join(' ');
+        if (contentArg) {
+          this.vfs[targetPath] = {
+            type: 'file',
+            perms: 'rw-r--r--',
+            owner: 'hacker',
+            content: contentArg
+          };
+          output = `[ GNU nano 7.2 ] Wrote ${contentArg.length} bytes to ${targetPath}`;
+        } else {
+          if (!this.vfs[targetPath]) {
+            this.vfs[targetPath] = {
+              type: 'file',
+              perms: 'rw-r--r--',
+              owner: 'hacker',
+              content: ''
+            };
+          }
+          const editor = (typeof document !== 'undefined') ? document.getElementById('page-code-editor') : null;
+          const fnEl = (typeof document !== 'undefined') ? document.getElementById('editor-filename') : null;
+          if (editor) {
+            editor.value = this.vfs[targetPath].content || '';
+          }
+          if (fnEl) {
+            fnEl.textContent = filename;
+          }
+          output = `[ GNU nano 7.2 ] File '${targetPath}' loaded into editor pane.`;
+        }
+        break;
+      }
+
+      case 'python':
+      case 'python3': {
+        let pyCode = '';
+        if (args.includes('-c')) {
+          const cIdx = args.indexOf('-c');
+          pyCode = args.slice(cIdx + 1).join(' ').replace(/^["']|["']$/g, '');
+        } else if (args[0] && !args[0].startsWith('-')) {
+          const target = this._normalizePath(args[0]);
+          if (!this.vfs[target] || this.vfs[target].type === 'dir') {
+            error = `python: can't open file '${args[0]}': [Errno 2] No such file or directory`;
+            exitCode = 2;
+            break;
+          }
+          pyCode = this.vfs[target].content || '';
+        } else if (stdInput) {
+          pyCode = stdInput;
+        } else {
+          error = 'python: specify a script to run (e.g. python script.py or python -c "print(\'hello\')")';
+          exitCode = 1;
+          break;
+        }
+
+        if (typeof window !== 'undefined' && window.Sk && typeof window.Sk.misceval !== 'undefined') {
+          let stdoutBuf = '';
+          try {
+            window.Sk.configure({
+              output: (t) => { stdoutBuf += t; },
+              read: (fname) => {
+                if (window.Sk.builtinFiles && window.Sk.builtinFiles['files'][fname]) {
+                  return window.Sk.builtinFiles['files'][fname];
+                }
+                throw new Error(`File not found: '${fname}'`);
+              },
+              execLimit: 4000,
+              __future__: window.Sk.python3
+            });
+            window.Sk.importMainWithBody('<stdin>', false, pyCode, false);
+            output = stdoutBuf || '(Program exited with no output)';
+          } catch (pyErr) {
+            error = pyErr.toString();
+            output = stdoutBuf;
+            exitCode = 1;
+          }
+        } else {
+          // Fallback simulation for basic prints and arithmetic
+          const printMatches = pyCode.matchAll(/print\s*\(\s*(['"]?)(.*?)\1\s*\)/g);
+          const out = [];
+          for (const m of printMatches) {
+            out.push(m[2]);
+          }
+          output = out.length > 0 ? out.join('\n') : `Python 3.10 virtual execution finished (${pyCode.length} chars)`;
         }
         break;
       }
@@ -1538,22 +1697,19 @@ function __sprintf(fmt, ...args) {
       const hex = (v) => '0x' + (v & 0xFFFFFFFFFFFFFFFFn).toString(16).toUpperCase().padStart(16, '0');
       const dec = (v) => Number(v & 0xFFFFFFFFFFFFFFFFn);
 
-      log.push('╔══════════════════════════════════════════════════════════════════╗');
-      log.push('║             x86-64 CPU REGISTER & STACK SNAPSHOT                 ║');
-      log.push('╠══════════════════════════════════════════════════════════════════╣');
-      log.push(`  RAX: ${hex(regs.rax)} (${dec(regs.rax).toLocaleString()})`);
-      log.push(`  RBX: ${hex(regs.rbx)} (${dec(regs.rbx).toLocaleString()})`);
-      log.push(`  RCX: ${hex(regs.rcx)} (${dec(regs.rcx).toLocaleString()})`);
-      log.push(`  RDX: ${hex(regs.rdx)} (${dec(regs.rdx).toLocaleString()})`);
-      log.push(`  RSI: ${hex(regs.rsi)}`);
-      log.push(`  RDI: ${hex(regs.rdi)}`);
-      log.push(`  RSP: ${hex(regs.rsp)}`);
-      log.push(`  RBP: ${hex(regs.rbp)}`);
-      log.push('──────────────────────────────────────────────────────────────────');
-      log.push(`  FLAGS: [ ZF=${flags.ZF} | SF=${flags.SF} | CF=${flags.CF} ]`);
-      log.push(`  Virtual Stack Depth: ${stack.length} quadwords`);
-      log.push(`  Total Instructions Emulated: ${instrCount}`);
-      log.push('╚══════════════════════════════════════════════════════════════════╝');
+      log.push(`Program exited with code: ${dec(regs.rax)}`);
+      log.push('Registers:');
+      log.push(`  rax: ${hex(regs.rax)} (${dec(regs.rax).toLocaleString()})`);
+      log.push(`  rbx: ${hex(regs.rbx)} (${dec(regs.rbx).toLocaleString()})`);
+      log.push(`  rcx: ${hex(regs.rcx)} (${dec(regs.rcx).toLocaleString()})`);
+      log.push(`  rdx: ${hex(regs.rdx)} (${dec(regs.rdx).toLocaleString()})`);
+      log.push(`  rsi: ${hex(regs.rsi)}`);
+      log.push(`  rdi: ${hex(regs.rdi)}`);
+      log.push(`  rsp: ${hex(regs.rsp)}`);
+      log.push(`  rbp: ${hex(regs.rbp)}`);
+      log.push(`Flags: ZF=${flags.ZF} SF=${flags.SF} CF=${flags.CF}`);
+      log.push(`Stack depth: ${stack.length} quadwords`);
+      log.push(`Instructions executed: ${instrCount}`);
 
       return {
         success: true,

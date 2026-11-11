@@ -254,3 +254,4 @@ if (typeof window !== 'undefined') {
   window.BATTLESTATION_CATALOG = BATTLESTATION_CATALOG;
   window.BattlestationCatalog = BattlestationCatalog;
 }
+

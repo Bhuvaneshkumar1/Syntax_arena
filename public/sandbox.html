@@ -186,17 +186,11 @@
         <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="sql" aria-selected="false">
           <span>🗄️ SQL Engine</span>
         </button>
-        <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="javascript" aria-selected="false">
-          <span>🌐 JavaScript</span>
-        </button>
         <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="typescript" aria-selected="false">
           <span>📘 TypeScript</span>
         </button>
         <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="go" aria-selected="false">
           <span>🐹 Go (Golang)</span>
-        </button>
-        <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="html" aria-selected="false">
-          <span>🎨 HTML5 &amp; CSS</span>
         </button>
         <button type="button" role="tab" class="btn-arcade btn-neutral btn-sm env-tab-btn sandbox-env-pill" data-env="asm" aria-selected="false">
           <span>⚙️ Assembly &amp; RE</span>
@@ -247,29 +241,25 @@
             <textarea id="page-code-editor" class="sandbox-code-editor" style="min-height: 400px; border: 1px solid var(--border-strong); border-radius: 0 0 var(--radius-md) var(--radius-md); background: var(--bg-code-terminal);" spellcheck="false"></textarea>
           </div>
 
-          <!-- Console Terminal Side -->
+          <!-- Console Terminal Side with Embedded Interactive Shell -->
           <div style="display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); border-bottom: none; border-radius: var(--radius-md) var(--radius-md) 0 0; font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
               <span id="console-header-title">Standard Output (stdout)</span>
               <span id="page-time-pill" class="badge badge-neutral" style="font-size: 10px;">0ms</span>
             </div>
-            <div id="page-console-output" class="sandbox-terminal" style="min-height: 400px; max-height: 400px; border: 1px solid var(--border-strong); border-radius: 0 0 var(--radius-md) var(--radius-md); background: var(--bg-surface-sunken); padding: 1rem; overflow-y: auto;" role="region" aria-label="Console Output">
-              <span style="color: var(--text-muted);">Terminal initialized. Click <strong>Run Code (Ctrl+Enter)</strong> to execute code and stream standard output.</span>
+            <div class="terminal-shell-box" style="display: flex; flex-direction: column; min-height: 400px; max-height: 400px; border: 1px solid var(--border-strong); border-radius: 0 0 var(--radius-md) var(--radius-md); background: var(--bg-surface-sunken); overflow: hidden;">
+              <div id="page-console-output" class="sandbox-terminal" style="flex: 1; min-height: 0; padding: 1rem; overflow-y: auto; font-family: var(--font-mono); font-size: 12px;" role="region" aria-label="Console Output">
+                <span style="color: var(--text-muted);">Terminal initialized. Click <strong>Run Code (Ctrl+Enter)</strong> to execute code and stream standard output.</span>
+              </div>
+              <!-- Embedded Interactive Linux Shell Prompt (Inside stdout section) -->
+              <form id="linux-cli-form" style="display: none; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.6); padding: 8px 12px; align-items: center; gap: 0.5rem;">
+                <span style="font-family: var(--font-mono); font-size: 12px; color: var(--color-success); font-weight: 700; white-space: nowrap;">hacker@syntaxarena:~$</span>
+                <input type="text" id="linux-cli-input" class="form-input" placeholder="ls, cat, nano, python, rm, touch..." autocomplete="off" spellcheck="false" style="flex: 1; font-family: var(--font-mono); font-size: 12px; padding: 4px 8px; background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #fff;">
+                <button type="submit" class="btn-arcade btn-primary btn-sm" style="padding: 3px 10px; font-size: 11px;">Run</button>
+              </form>
             </div>
           </div>
 
-        </div>
-
-        <!-- Interactive Linux Terminal CLI (Shown when Cyber / Linux tab is active) -->
-        <div id="linux-cli-interactive" style="display: none; margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.5); border: 1px solid var(--border-strong); border-radius: var(--radius-md);">
-          <div style="font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--color-cyan); margin-bottom: 0.35rem;">
-            🐧 QUICK SHELL COMMAND PROMPT (VIRTUAL LINUX FILESYSTEM)
-          </div>
-          <form id="linux-cli-form" style="display: flex; gap: 0.5rem; align-items: center;">
-            <span style="font-family: var(--font-mono); font-size: 12px; color: var(--color-success); font-weight: 700;">hacker@syntaxarena:~$</span>
-            <input type="text" id="linux-cli-input" class="form-input" placeholder="Try: ls -la, cat /etc/passwd, cat /var/log/auth.log | grep Failed, whoami, uname -a" style="flex: 1; font-family: var(--font-mono); font-size: 12px; padding: 4px 8px;">
-            <button type="submit" class="btn-arcade btn-primary btn-sm" style="padding: 4px 10px; font-size: 11px;">Send</button>
-          </form>
         </div>
 
         <!-- Interactive Visual Memory & Pointer Inspector (Batch 11 Feature) -->
@@ -459,37 +449,6 @@ SHOW TABLES;
         }
       },
 
-      javascript: {
-        title: 'JavaScript Sandbox Console',
-        subtitle: 'Sandboxed modern ES2024 runtime capturing console logs and return expressions.',
-        badge: '🌐 ES2024 JavaScript',
-        filename: 'script.js',
-        templates: {
-          array_quirks: `// Array methods & mutation quirks
-const arr = [10, 20, 30, 40];
-const mapped = arr.map(x => x * 2);
-console.log("Original:", arr);
-console.log("Mapped:", mapped);
-
-const [first, ...rest] = arr;
-console.log("Destructured:", first, rest);
-`,
-          async_closure: `// Closures and Scope
-function createMultiplier(factor) {
-  return function(num) {
-    return num * factor;
-  };
-}
-
-const double = createMultiplier(2);
-const triple = createMultiplier(3);
-console.log("Double 21:", double(21));
-console.log("Triple 14:", triple(14));
-`,
-          blank: `console.log("Hello from JavaScript Engine!");\n`
-        }
-      },
-
       typescript: {
         title: 'TypeScript Compiler & Sandbox',
         subtitle: 'Static typing, generics, interfaces, and utility types with live execution.',
@@ -585,84 +544,6 @@ import "fmt"
 func main() {
     fmt.Println("Hello, SyntaxArena from Go 1.22+!")
 }
-`
-        }
-      },
-
-      html: {
-        title: 'HTML5 & Modern CSS Sandbox',
-        subtitle: 'Grid subgrid, flexbox, cascade layers, container queries, dialog, and ARIA.',
-        badge: '🎨 HTML5 & CSS',
-        filename: 'index.html',
-        templates: {
-          subgrid: `<!-- Modern CSS Grid Subgrid Layout -->
-<style>
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: auto auto;
-    gap: 1rem;
-  }
-  .card {
-    display: grid;
-    grid-row: span 2;
-    grid-template-rows: subgrid;
-    border: 1px solid #38bdf8;
-    padding: 1rem;
-    border-radius: 8px;
-  }
-</style>
-
-<div class="card-grid">
-  <article class="card">
-    <h3>Semantic Header</h3>
-    <p>Body aligned seamlessly with sibling card via subgrid.</p>
-  </article>
-  <article class="card">
-    <h3>Another Card</h3>
-    <p>Consistent row alignment across cards.</p>
-  </article>
-</div>
-`,
-          cascade_layers: `<!-- Modern CSS @layer Rule Order -->
-<style>
-  @layer reset, framework, custom;
-
-  @layer framework {
-    .btn { background: blue; color: white; }
-  }
-  @layer custom {
-    .btn { background: coral; }
-  }
-</style>
-
-<button class="btn">Layered Button (Renders Coral)</button>
-`,
-          native_dialog: `<!-- HTML5 Native <dialog> Modal with Backdrop -->
-<dialog id="fav-dialog">
-  <form method="dialog">
-    <p>HTML5 Native Dialog with top-layer rendering!</p>
-    <button value="confirm">Confirm</button>
-  </form>
-</dialog>
-
-<button onclick="document.getElementById('fav-dialog').showModal()">
-  Open Native Modal
-</button>
-`,
-          blank: `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <style>
-    body { font-family: system-ui, sans-serif; padding: 2rem; }
-    h1 { color: #e34f26; }
-  </style>
-</head>
-<body>
-  <h1>Hello from HTML5 &amp; Modern CSS!</h1>
-</body>
-</html>
 `
         }
       },
@@ -766,7 +647,8 @@ fn main() {
       const subtitleEl = Utils.qs('#sandbox-page-subtitle');
       const badgeEl = Utils.qs('#active-env-badge');
       const filenameEl = Utils.qs('#editor-filename');
-      const linuxCli = Utils.qs('#linux-cli-interactive');
+      const linuxForm = Utils.qs('#linux-cli-form');
+      const linuxInput = Utils.qs('#linux-cli-input');
       const consoleTitle = Utils.qs('#console-header-title');
 
       if (titleEl) titleEl.textContent = conf.title;
@@ -774,8 +656,11 @@ fn main() {
       if (badgeEl) badgeEl.textContent = conf.badge;
       if (filenameEl) filenameEl.textContent = conf.filename;
 
-      if (linuxCli) {
-        linuxCli.style.display = (envKey === 'cyber') ? 'block' : 'none';
+      if (linuxForm) {
+        linuxForm.style.display = (envKey === 'cyber') ? 'flex' : 'none';
+        if (envKey === 'cyber' && linuxInput) {
+          setTimeout(() => linuxInput.focus(), 60);
+        }
       }
 
       if (consoleTitle) {
@@ -811,10 +696,17 @@ fn main() {
         editor.value = conf.templates[firstKey];
       }
 
-      // Clear Console
+      // Clear / initialize Console
       const consoleOutput = Utils.qs('#page-console-output');
       if (consoleOutput) {
-        consoleOutput.innerHTML = `<span style="color: var(--text-muted);">${conf.title} ready. Press <strong>Run Code (Ctrl+Enter)</strong> to execute.</span>`;
+        if (envKey === 'cyber') {
+          consoleOutput.innerHTML = `
+            <div style="color: var(--color-cyan); font-weight: 700; margin-bottom: 2px;">🐧 Linux syntaxarena-node 5.15.0-generic x86_64 GNU/Linux</div>
+            <div style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 11px;">Interactive shell active. Type shell commands below (ls, cat, nano, python, rm, touch...) or click 'Run Code'.</div>
+          `;
+        } else {
+          consoleOutput.innerHTML = `<span style="color: var(--text-muted);">${conf.title} ready. Press <strong>Run Code (Ctrl+Enter)</strong> to execute.</span>`;
+        }
       }
 
       // Update Visual Memory & Pointer Inspector
@@ -1068,26 +960,6 @@ fn main() {
                 consoleOutput.appendChild(table);
               }
             }
-          } else if (currentEnv === 'javascript') {
-            const res = SandboxManager.runJS(code);
-            runBtn.disabled = false;
-            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
-            if (consoleOutput) {
-              consoleOutput.innerHTML = '';
-              if (res.output) {
-                const outEl = document.createElement('div');
-                outEl.style.whiteSpace = 'pre-wrap';
-                outEl.style.color = 'var(--color-primary-light, #38bdf8)';
-                outEl.textContent = res.output;
-                consoleOutput.appendChild(outEl);
-              }
-              if (res.error) {
-                const errEl = document.createElement('div');
-                errEl.style.color = 'var(--color-coral, #f43f5e)';
-                errEl.innerHTML = `⚠️ <strong>JavaScript Runtime Error:</strong>\n${Utils.escapeHTML(res.error)}`;
-                consoleOutput.appendChild(errEl);
-              }
-            }
           } else if (currentEnv === 'typescript') {
             const res = SandboxManager.runTypeScript(code);
             runBtn.disabled = false;
@@ -1125,26 +997,6 @@ fn main() {
                 const errEl = document.createElement('div');
                 errEl.style.color = 'var(--color-coral, #f43f5e)';
                 errEl.innerHTML = `⚠️ <strong>Go Compiler / Runtime Error:</strong>\n${Utils.escapeHTML(res.error)}`;
-                consoleOutput.appendChild(errEl);
-              }
-            }
-          } else if (currentEnv === 'html') {
-            const res = SandboxManager.runHTML(code);
-            runBtn.disabled = false;
-            if (timePill) timePill.textContent = `${res.elapsedMs}ms`;
-            if (consoleOutput) {
-              consoleOutput.innerHTML = '';
-              if (res.output) {
-                const outEl = document.createElement('div');
-                outEl.style.whiteSpace = 'pre-wrap';
-                outEl.style.color = 'var(--color-primary-light, #38bdf8)';
-                outEl.textContent = res.output;
-                consoleOutput.appendChild(outEl);
-              }
-              if (res.error) {
-                const errEl = document.createElement('div');
-                errEl.style.color = 'var(--color-coral, #f43f5e)';
-                errEl.innerHTML = `⚠️ <strong>HTML/CSS Parsing Error:</strong>\n${Utils.escapeHTML(res.error)}`;
                 consoleOutput.appendChild(errEl);
               }
             }

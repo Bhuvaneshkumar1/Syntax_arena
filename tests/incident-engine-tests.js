@@ -45,7 +45,7 @@ export function runIncidentEngineTests() {
   const snapshot = IncidentEngine.startIncident('inc_memory_leak');
   assert(IncidentEngine.state === INCIDENT_STATES.ACTIVE, 'Engine transitions to ACTIVE state');
   assert(IncidentEngine.phase === 1, 'Incident begins at Phase 1 (Diagnosis)');
-  assert(IncidentEngine.slaLimitSeconds === 45, 'Incident SLA target is 45 seconds');
+  assert(IncidentEngine.slaLimitSeconds === 180, 'Incident SLA target is 180 seconds (3 minutes)');
 
   const initialTele = IncidentEngine.computeTelemetry();
   assert(initialTele.cpu > 90, 'Initial CPU telemetry reflects critical load (> 90%)');
@@ -65,22 +65,22 @@ export function runIncidentEngineTests() {
 
   // --- 4. Diagnostic Triage (Phase 1) ---
   console.log('\n--- 4. Diagnostic Triage (Phase 1) ---');
-  const wrongDiag = IncidentEngine.submitDiagnosis(3); // Incorrect
+  const wrongDiag = IncidentEngine.submitDiagnosis(0); // Incorrect: Connection pool
   assert(wrongDiag.isCorrect === false, 'Incorrect root cause diagnosis rejected');
   assert(IncidentEngine.phase === 1, 'Phase remains at 1 on incorrect diagnosis');
 
-  const correctDiag = IncidentEngine.submitDiagnosis(0); // Correct: _GLOBAL_CACHE leak
+  const correctDiag = IncidentEngine.submitDiagnosis(2); // Correct: _GLOBAL_CACHE leak
   assert(correctDiag.isCorrect === true, 'Correct root cause diagnosis verified');
   assert(IncidentEngine.phase === 2, 'Phase advances to 2 (Patch Deployment)');
   assert(correctDiag.explanation.includes('GLOBAL_CACHE'), 'Diagnosis explanation returned');
 
   // --- 5. Hotfix Patch Deployment (Phase 2) ---
   console.log('\n--- 5. Hotfix Patch Deployment (Phase 2) ---');
-  const wrongPatch = IncidentEngine.submitPatch(1); // Incorrect: Doubling RAM only delays OOM
+  const wrongPatch = IncidentEngine.submitPatch(0); // Incorrect: Silently pass on MemoryError
   assert(wrongPatch.isCorrect === false, 'Ineffective hotfix patch rejected');
   assert(IncidentEngine.state === INCIDENT_STATES.ACTIVE, 'State remains active before correct patch');
 
-  const correctPatch = IncidentEngine.submitPatch(0); // Correct: LRUCache bounded buffer
+  const correctPatch = IncidentEngine.submitPatch(1); // Correct: LRUCache bounded buffer
   assert(correctPatch.isCorrect === true, 'Correct hotfix patch verified');
   assert(IncidentEngine.state === INCIDENT_STATES.STABILIZED, 'Incident transitions to STABILIZED state');
   assert(IncidentEngine.phase === 3, 'Phase advances to 3 (Post-Mortem)');

@@ -82,6 +82,14 @@ export const DuelEngine = {
     this.callbacks.onSabotage = fn;
   },
 
+  onOpponentJoined(fn) {
+    this.callbacks.onOpponentJoined = fn;
+  },
+
+  onOpponentFinished(fn) {
+    this.callbacks.onOpponentFinished = fn;
+  },
+
   onStateChange(fn) {
     this.callbacks.onMatchStart = fn;
   },
@@ -93,7 +101,7 @@ export const DuelEngine = {
       language: config.language,
       difficulty: config.difficulty,
       questionCount: config.count || config.questionCount,
-      profile: config.profile
+      profile: config.profile || (typeof Profile !== 'undefined' ? Profile.getActiveProfile() : null)
     });
   },
 
@@ -103,7 +111,7 @@ export const DuelEngine = {
       language: config.language,
       difficulty: config.difficulty,
       questionCount: config.count || config.questionCount,
-      profile: config.profile
+      profile: config.profile || (typeof Profile !== 'undefined' ? Profile.getActiveProfile() : null)
     });
   },
 
@@ -392,6 +400,24 @@ export const DuelEngine = {
         }
         break;
 
+      case 'OPPONENT_BLUNDER': {
+        const bonus = msg.bonusPoints || 100;
+        this.localPlayer.score += bonus;
+        if (typeof window !== 'undefined' && window.Gameplay && window.Gameplay.engine) {
+          const sess = window.Gameplay.engine.getSession();
+          if (sess) {
+            sess.totalScore = (sess.totalScore || 0) + bonus;
+          }
+          if (typeof window.Gameplay._updateDuelVersusHUD === 'function') {
+            window.Gameplay._updateDuelVersusHUD();
+          }
+        }
+        if (typeof UI !== 'undefined' && typeof UI.showToast === 'function') {
+          UI.showToast(`⚡ OPPONENT BLUNDER! ${msg.blunderingPlayer || 'Opponent'} made an error. +${bonus} PTS awarded to you!`, 'success');
+        }
+        break;
+      }
+
       case 'PLAYER_FINISH':
         this.opponentPlayer.finished = true;
         this.opponentPlayer.score = msg.score || this.opponentPlayer.score;
@@ -451,6 +477,28 @@ export const DuelEngine = {
       });
     }
 
+    return this.getLeadStatus();
+  },
+
+  /**
+   * Record blunder on incorrect answer: points automatically awarded to opponent
+   */
+  recordBlunder({ blunderPlayer = 'p1', points = 100 } = {}) {
+    if (this.mode === 'local_split') {
+      if (blunderPlayer === 'p1') {
+        this.opponentPlayer.score += points;
+      } else {
+        this.localPlayer.score += points;
+      }
+    } else {
+      // P2P: Local player blundered, opponent is awarded the points
+      this.opponentPlayer.score += points;
+      this._broadcastMessage({
+        type: 'OPPONENT_BLUNDER',
+        bonusPoints: points,
+        blunderingPlayer: this.localPlayer.name
+      });
+    }
     return this.getLeadStatus();
   },
 
@@ -642,7 +690,9 @@ export const DuelEngine = {
     }
 
     if (!Array.isArray(catalog) || catalog.length === 0) {
-      if (typeof QuestionBank !== 'undefined' && typeof QuestionBank.getAll === 'function') {
+      if (typeof DUEL_QUESTIONS !== 'undefined' && Array.isArray(DUEL_QUESTIONS) && DUEL_QUESTIONS.length > 0) {
+        catalog = DUEL_QUESTIONS;
+      } else if (typeof QuestionBank !== 'undefined' && typeof QuestionBank.getAll === 'function') {
         catalog = QuestionBank.getAll();
       } else {
         return [];

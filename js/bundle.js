@@ -95431,7 +95431,7 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
     service: 'analytics-worker-v3',
     language: 'python',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'At 03:14 UTC, the analytics ingestion workers began failing health checks. Pods are getting OOM-killed (Exit Code 137) every 90 seconds. Ingestion backlog has accumulated 4.2 million events.',
     initialMetrics: {
       cpu: 96.5,
@@ -95450,40 +95450,51 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       activeConnections: 1200
     },
     logs: [
-      '[03:12:01.402] [INFO] [analytics-worker-04] Batch ingestion started for partition #14',
-      '[03:12:44.119] [WARN] [analytics-worker-04] Garbage collector cycle took 840ms (> 200ms threshold)',
-      '[03:13:10.822] [WARN] [memory_watchdog] Heap usage at 87.4% (6.99 GB / 8.00 GB)',
+      '[03:11:45.100] [INFO] [analytics-worker-04] Initializing Kafka consumer group: cgrp-analytics-v3',
+      '[03:11:47.304] [INFO] [analytics-worker-04] Assigned partitions: [partition-0, partition-1, partition-2]',
+      '[03:12:01.402] [INFO] [analytics-worker-04] Batch ingestion started for partition #14 (offset: 8912401)',
+      '[03:12:15.912] [DEBUG] [memory_watchdog] Heap usage at 42.1% (3.37 GB / 8.00 GB)',
+      '[03:12:30.405] [DEBUG] [cache_manager] Module cache size: 142,000 entries across 12 tenant sessions',
+      '[03:12:44.119] [WARN] [analytics-worker-04] Garbage collector gen 2 cycle took 840ms (> 200ms threshold)',
+      '[03:12:55.002] [WARN] [metrics] Ingestion queue latency spiked to 1,240ms',
+      '[03:13:10.822] [WARN] [memory_watchdog] Heap usage at 87.4% (6.99 GB / 8.00 GB) - CRITICAL THRESHOLD',
+      '[03:13:22.109] [WARN] [cgroup] Memory cgroup memory.usage_in_bytes reaching memory.limit_in_bytes (8589934592)',
+      '[03:13:35.811] [ERROR] [analytics-worker-04] Failed to allocate PyList buffer for incoming payload batch',
+      '[03:13:42.503] [ERROR] [kernel] Low memory warning: page allocation failure: order:4, mode:0x40cc0',
       '[03:13:58.204] [ERROR] [analytics-worker-04] Traceback (most recent call last):',
-      '[03:13:58.205] [ERROR] [analytics-worker-04]   File "pipeline/ingest.py", line 42, in process_event_batch',
+      '[03:13:58.205] [ERROR] [analytics-worker-04]   File "/app/pipeline/ingest.py", line 42, in process_event_batch',
       '[03:13:58.206] [ERROR] [analytics-worker-04]     _GLOBAL_CACHE[session_id].append(raw_event_payload)',
       '[03:13:58.207] [ERROR] [analytics-worker-04] MemoryError: Out of memory allocation failed (cannot allocate 64MB block)',
-      '[03:14:02.001] [FATAL] [kubelet] Pod analytics-worker-04 terminated with signal SIGKILL (OOMKilled)'
+      '[03:14:00.110] [ALERT] [kubelet] Killing container analytics-worker-04: memory cgroup limit exceeded',
+      '[03:14:02.001] [FATAL] [kubelet] Pod analytics-worker-04 terminated with signal SIGKILL (OOMKilled - Exit 137)',
+      '[03:14:05.302] [INFO] [replicaset] Creating replacement pod analytics-worker-05',
+      '[03:14:15.901] [WARN] [gateway] 502 Bad Gateway: upstream worker unreachable on port 8080'
     ],
     diagnosisQuestion: {
       id: 'inc_q_mem_diag',
       type: 'multiple_choice',
-      prompt: 'Based on the stack trace and memory growth velocity, what is the architectural root cause of the crash loop?',
+      prompt: 'Examining the stack trace in pipeline/ingest.py:42 and memory velocity, what architectural defect causes the crash loop?',
       options: [
-        '_GLOBAL_CACHE is appending raw payloads indefinitely without eviction, creating an unbounded heap leak.',
-        'Python 3.10 garbage collection is disabled in production settings.',
-        'The partition reader is attempting to load a file larger than physical RAM in a single byte stream.',
-        'The database cursor connection pool is closing prematurely.'
+        'The database connection pool has exhausted its maximum TCP socket capacity.',
+        'Python 3.10 garbage collection was explicitly disabled in the systemd service config.',
+        '_GLOBAL_CACHE is appending raw payloads indefinitely without TTL or eviction, causing an unbounded heap leak.',
+        'The Kafka partition reader attempted to read a single byte payload larger than 8GB.'
       ],
-      correctAnswer: 0,
-      explanation: 'Lines 41-42 append raw event payloads into a module-level global dict `_GLOBAL_CACHE[session_id]` with no TTL, LRU eviction, or size bounds. In Python, module-level globals persist for the life of the worker process, creating an unbounded memory leak until the kernel triggers an OOM kill.'
+      correctAnswer: 2,
+      explanation: 'Lines 41-42 append raw event payloads into a module-level global dictionary `_GLOBAL_CACHE[session_id]` with no TTL, size ceiling, or LRU eviction policy. Module-level globals persist in Python for the lifetime of the worker, continuously growing until the OS cgroup kills the container with OOMKilled (Exit Code 137).'
     },
     patchQuestion: {
       id: 'inc_q_mem_patch',
       type: 'multiple_choice',
-      prompt: 'Select the optimal production hotfix patch to stabilize the worker heap immediately without data loss:',
+      prompt: 'Select the optimal zero-downtime hotfix patch to permanently stabilize heap consumption:',
       options: [
-        'Replace unbounded global list with an LRUCache(maxsize=10_000) or weakref-backed buffer with streaming flush to disk.',
-        'Double pod memory request in Kubernetes deployment spec from 8GB to 16GB.',
-        'Run gc.collect() manually inside the for loop after processing every individual event.',
-        'Wrap the append call in a try/except MemoryError and pass.'
+        'Wrap the append call in a try/except MemoryError block and silently pass.',
+        'Replace unbounded global list with a bounded LRUCache(maxsize=10_000) or streaming disk/Redis buffer.',
+        'Call gc.collect() manually inside the event ingestion loop after every single item.',
+        'Double the Kubernetes deployment pod memory limit from 8GB to 16GB in values.yaml.'
       ],
-      correctAnswer: 0,
-      explanation: 'Replacing the unbounded list accumulator with a bounded LRU cache / sliding window buffer (`functools.lru_cache` or a Redis/disk-backed queue) ensures memory cannot grow beyond configured bounds. Doubling RAM only delays OOM by minutes, while manual `gc.collect()` degrades CPU throughput by 80% without freeing reachable global references.'
+      correctAnswer: 1,
+      explanation: 'Replacing the unbounded list accumulator with a bounded LRU cache / sliding window buffer (`functools.lru_cache` or a Redis/disk-backed queue) guarantees heap usage cannot exceed predictable operational thresholds. Doubling RAM only postpones OOM by minutes, while manual `gc.collect()` causes 80% CPU degradation without freeing reachable references.'
     }
   },
   {
@@ -95494,7 +95505,7 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
     service: 'ledger-router-worker',
     language: 'go',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'At 14:02 UTC, 100% of payment authorization webhooks stalled simultaneously. HTTP goroutines exploded from 120 to over 48,000. All worker threads are blocked indefinitely.',
     initialMetrics: {
       cpu: 18.0,
@@ -95513,39 +95524,44 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       activeConnections: 850
     },
     logs: [
-      '[14:01:52.012] [INFO] [ledger] Processing Transfer txn_9812: Account A -> Account B',
-      '[14:01:52.013] [INFO] [ledger] Processing Transfer txn_9813: Account B -> Account A',
-      '[14:01:52.014] [DEBUG] [ledger] txn_9812: acquired lock for Account A, awaiting Account B lock...',
-      '[14:01:52.015] [DEBUG] [ledger] txn_9813: acquired lock for Account B, awaiting Account A lock...',
-      '[14:02:15.901] [WARN] [http_pool] Inflight HTTP request queue full (10,000 requests pending)',
-      '[14:02:30.002] [ERROR] [goroutine_monitor] 48,211 goroutines in state `chan receive` or `sync.Mutex.Lock` wait > 30s',
-      '[14:02:45.109] [FATAL] [healthcheck] Liveness probe timeout (GET /livez timed out after 10.0s)'
+      '[14:01:45.001] [INFO] [ledger] Payment gateway listening on :8443 (HTTP/2 TLS enabled)',
+      '[14:01:50.110] [INFO] [ledger] Processing batch transfers: 1,400 concurrent settlement transactions',
+      '[14:01:52.012] [INFO] [ledger] Transfer txn_9812: Account A -> Account B ($450.00 USD)',
+      '[14:01:52.013] [INFO] [ledger] Transfer txn_9813: Account B -> Account A ($120.00 USD)',
+      '[14:01:52.014] [DEBUG] [ledger] txn_9812: acquired lock for Account A (lock_id=0xaa01), awaiting lock for Account B...',
+      '[14:01:52.015] [DEBUG] [ledger] txn_9813: acquired lock for Account B (lock_id=0xbb02), awaiting lock for Account A...',
+      '[14:02:05.100] [WARN] [http_pool] Inflight HTTP request queue reaching saturation (5,000 pending requests)',
+      '[14:02:15.901] [WARN] [http_pool] Inflight HTTP request queue full (10,000 requests pending, dropping new arrivals)',
+      '[14:02:22.404] [ERROR] [goroutine_monitor] Goroutine count surged: 124 -> 48,211 active goroutines',
+      '[14:02:30.002] [ERROR] [goroutine_monitor] 48,211 goroutines in state `sync.Mutex.Lock` wait > 30s',
+      '[14:02:40.810] [ALERT] [healthcheck] GET /healthz failed: context deadline exceeded (client timeout 5000ms)',
+      '[14:02:45.109] [FATAL] [kubelet] Liveness probe timeout for ledger-router-worker: container restarting'
     ],
     diagnosisQuestion: {
       id: 'inc_q_deadlock_diag',
       type: 'multiple_choice',
-      prompt: 'Analyze the lock acquisition sequence between txn_9812 and txn_9813. What concurrency bug triggered this outage?',
+      prompt: 'Analyze the lock acquisition sequence between txn_9812 and txn_9813. What concurrency bug caused this outage?',
       options: [
-        'A circular wait deadlock caused by acquiring multiple resource locks in inconsistent, arbitrary order.',
-        'A goroutine stack overflow from infinite mutual recursion.',
-        'Channel starvation due to an unbuffered channel without a listener.',
-        'Atomic memory tearing across 64-bit integer pointers.'
+        'A circular wait deadlock caused by acquiring multiple shared locks in inconsistent, arbitrary order.',
+        'A goroutine stack overflow triggered by infinite mutual recursion.',
+        'Channel starvation caused by an unbuffered channel lacking a dedicated reader goroutine.',
+        'Memory tearing caused by non-atomic 64-bit integer writes across CPU cores.'
       ],
       correctAnswer: 0,
-      explanation: 'Classic circular wait deadlock (Coffman condition): Transaction 1 locks Account A and waits for Account B, while Transaction 2 locks Account B and waits for Account A. Because neither releases their held lock, both goroutines freeze forever, causing cascading queue exhaustion.'
+      explanation: 'Classic circular wait deadlock (Coffman condition): Transaction 1 locks Account A and waits for Account B, while Transaction 2 locks Account B and waits for Account A. Neither can progress or release its lock, permanently freezing both goroutines and exhausting the worker pool.'
     },
     patchQuestion: {
       id: 'inc_q_deadlock_patch',
       type: 'multiple_choice',
-      prompt: 'Which algorithmic pattern permanently prevents circular lock acquisition deadlocks in account transfers?',
+      prompt: 'Which synchronization pattern permanently eliminates circular lock acquisition deadlocks in Go transfers?',
       options: [
-        'Enforce a strict canonical lock acquisition ordering by sorting account IDs (e.g. lock min(idA, idB) first, then max(idA, idB)).',
-        'Add a time.Sleep(10 * time.Millisecond) between the two lock acquisition statements.',
-        'Replace sync.Mutex with sync.RWMutex and acquire RLock on both accounts.',
-        'Launch each lock operation inside a new go func() goroutine without joining.'
+        'Replace sync.Mutex with sync.RWMutex and acquire read locks on both accounts.',
+        'Insert time.Sleep(10 * time.Millisecond) between the two lock statements.',
+        'Launch each lock operation in its own detached go func() without synchronization.',
+        'Enforce canonical lock ordering by sorting account IDs (e.g., lock min(idA, idB) first, then max(idA, idB)).'
       ],
-      correctAnswer: 0,
-      explanation: 'Enforcing a global canonical order for acquiring locks (e.g., sorting account IDs alphabetically or by numerical key: `if fromID > toID { swap() }`) completely breaks the circular wait condition. Every transaction acquires locks in the exact same sequence, making deadlocks mathematically impossible.'
+      correctAnswer: 3,
+      explanation: 'Enforcing a strict canonical order for acquiring locks (such as always locking the numerically or alphabetically smaller account ID first: `first, second := sort(fromID, toID); first.Lock(); second.Lock()`) mathematically breaks the circular wait condition, making deadlocks impossible.'
     }
   },
   {
@@ -95556,7 +95572,7 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
     service: 'auth-proxy-daemon',
     language: 'c',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'At 21:40 UTC, the edge reverse proxy crashed violently with a SIGABRT signal. Core dumps report stack canary corruption immediately after parsing authorization headers.',
     initialMetrics: {
       cpu: 99.0,
@@ -95575,38 +95591,41 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       activeConnections: 1800
     },
     logs: [
+      '[21:39:40.100] [INFO] [proxy] Edge gateway listening on 0.0.0.0:443 (workers: 8)',
+      '[21:39:52.401] [INFO] [auth] Received HTTP POST /api/v1/auth/exchange from 198.51.100.24',
       '[21:39:58.201] [INFO] [auth] Received HTTP POST /api/v1/auth/exchange (Content-Length: 1048)',
-      '[21:39:58.202] [DEBUG] [auth] Extracting Bearer token header...',
+      '[21:39:58.202] [DEBUG] [auth] Extracting Bearer token header into fixed buffer char token[256]...',
       '[21:39:58.203] [CRITICAL] [glibc] *** stack smashing detected ***: terminated',
       '[21:39:58.204] [FATAL] [kernel] Traps: auth-proxy-daemon[4201] general protection fault ip:0x7f8842 sp:0x7ffcb4',
       '[21:40:02.100] [ERROR] [systemd] auth-proxy-daemon.service: Main process exited, code=dumped, status=6/ABRT',
-      '[21:40:02.101] [ALERT] [watchdog] Zero healthy upstream authentication nodes available.'
+      '[21:40:02.101] [ALERT] [watchdog] Zero healthy upstream authentication nodes available in pool.',
+      '[21:40:05.409] [WARN] [systemd] Restarting service auth-proxy-daemon.service (attempt 1/5)'
     ],
     diagnosisQuestion: {
       id: 'inc_q_bof_diag',
       type: 'multiple_choice',
-      prompt: 'Examining the glibc message "*** stack smashing detected ***", which unsafe C standard library function is responsible?',
+      prompt: 'Examining the glibc message "*** stack smashing detected ***", which unsafe C operation triggered this crash?',
       options: [
-        'strcpy() or sprintf() copying an unbounded header string into a fixed stack array without bounds checking.',
-        'malloc() returning NULL because physical virtual memory addresses were exhausted.',
-        'free() called twice on the same heap pointer (double free error).',
-        'qsort() called with an invalid comparator function causing stack depth explosion.'
+        'malloc() returned NULL because physical virtual memory was exhausted.',
+        'strcpy() or sprintf() copied an unbounded header string into a fixed stack array without bounds checking.',
+        'free() was invoked twice on the same memory pointer (double free error).',
+        'qsort() was called with an inconsistent comparison function.'
       ],
-      correctAnswer: 0,
-      explanation: 'Stack smashing detection (GCC `-fstack-protector`) aborts execution when a canary word placed on the stack before the function return address is overwritten. This happens when an unbounded string copy like `strcpy(token_buf, header_str)` copies more bytes than the stack array allocated, overflowing into the canary.'
+      correctAnswer: 1,
+      explanation: 'Stack smashing detection (GCC `-fstack-protector`) aborts execution when a canary word placed on the stack before the function return address is overwritten. An unbounded string copy like `strcpy(token_buf, header_str)` copies more bytes than the 256-byte stack array allocated, overflowing into the canary.'
     },
     patchQuestion: {
       id: 'inc_q_bof_patch',
       type: 'multiple_choice',
-      prompt: 'Select the standard secure C mitigation to replace the vulnerable stack string copy:',
+      prompt: 'Select the standard secure C remediation to replace the vulnerable stack copy:',
       options: [
+        'Compile the binary with -fno-stack-protector to bypass canary verification.',
         'Use strncpy(dest, src, sizeof(dest) - 1) and guarantee null-termination: dest[sizeof(dest) - 1] = \'\\0\'.',
-        'Compile the binary with -fno-stack-protector to disable canary checking.',
-        'Increase the stack buffer size from char token[256] to char token[65536].',
-        'Add a printf("%s", header_str) to inspect buffer bounds before copying.'
+        'Increase stack buffer size from char token[256] to char token[65536].',
+        'Cast header_str to (void*) before calling strcpy.'
       ],
-      correctAnswer: 0,
-      explanation: 'Safe bounded copying functions (`strncpy`, `strlcpy`, or `snprintf(dest, sizeof(dest), "%s", src)`) prevent buffer overruns by strictly capping write operations to the size of destination buffer minus 1, followed by explicit null-byte termination.'
+      correctAnswer: 1,
+      explanation: 'Safe bounded copying functions (`strncpy`, `snprintf(dest, sizeof(dest), "%s", src)`) prevent buffer overruns by strictly capping write operations to the size of the destination buffer minus 1, followed by explicit null-byte termination.'
     }
   },
   {
@@ -95617,7 +95636,7 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
     service: 'checkout-api-backend',
     language: 'sql',
     badgeClass: 'badge-amber',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'Shoppers report that the checkout payment button spins indefinitely. Database CPU is only at 6%, but all backend application instances have exhausted their 100-connection database pools.',
     initialMetrics: {
       cpu: 8.5,
@@ -95636,9 +95655,11 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       activeConnections: 45
     },
     logs: [
-      '[11:02:10.119] [INFO] [checkout] Processing order ord_4910: starting transaction',
+      '[11:02:01.002] [INFO] [checkout] Checkout worker node 2 active. DB Pool Size: 100/100',
+      '[11:02:10.119] [INFO] [checkout] Processing order ord_4910: starting transaction (leased conn #84)',
       '[11:02:10.420] [WARN] [payment_gateway] External card network returned HTTP 504 Gateway Timeout',
       '[11:02:10.421] [ERROR] [checkout] Exception raised during card charge; returning 500 to user',
+      '[11:02:15.809] [WARN] [db_pool] Leased connection #84 not returned after 5000ms',
       '[11:02:30.901] [WARN] [db_pool] Pool checkout wait time exceeded 10,000ms (Active: 100/100, Idle: 0)',
       '[11:02:35.002] [ERROR] [checkout] TimeoutException: Connection not available in pool within specified timeout (10000ms)',
       '[11:02:40.110] [FATAL] [ingress] 503 Service Unavailable: upstream connection pool exhausted'
@@ -95646,27 +95667,27 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
     diagnosisQuestion: {
       id: 'inc_q_pool_diag',
       type: 'multiple_choice',
-      prompt: 'The database server is idling, but all client connections remain leased. What code bug causes this starvation?',
+      prompt: 'The database server is idling at 6% CPU, yet client connections remain 100% leased. What code bug caused this leak?',
       options: [
-        'The database connection is not closed/released inside a finally block or deferred cleanup when an exception occurs.',
-        'The SQL query is missing an index on the primary key column.',
-        'The connection pool size of 100 is too small for standard HTTP traffic.',
-        'The database WAL transaction log disk partition is 100% full.'
+        'The database connection is not closed/released inside a finally block or context manager when an exception occurs.',
+        'The database WAL transaction log disk partition reached 100% capacity.',
+        'The SQL query is missing a composite index on order_id and user_id.',
+        'The connection pool size of 100 is too small for standard HTTP traffic.'
       ],
       correctAnswer: 0,
-      explanation: 'When an external exception (such as a 504 timeout from a card network) aborts function execution before an explicit `conn.close()` line is reached, the connection remains leased forever unless wrapped in a `try...finally` block, context manager (`with`), or Go `defer` statement.'
+      explanation: 'When an exception (such as a 504 timeout from an external card gateway) aborts execution before an explicit `conn.close()` line is reached, the connection remains leased forever unless wrapped in a `try...finally` block, context manager (`with`), or Go `defer` statement.'
     },
     patchQuestion: {
       id: 'inc_q_pool_patch',
       type: 'multiple_choice',
       prompt: 'Select the correct architectural fix to guarantee database connection release under all execution branches:',
       options: [
-        'Enclose the connection lease in a try-with-resources / with context manager to guarantee release even on unhandled exceptions.',
-        'Increase connection pool max_connections from 100 to 50,000 on PostgreSQL server.',
+        'Increase max_connections on the PostgreSQL server from 100 to 50,000.',
         'Catch all exceptions and silently suppress them so execution reaches conn.close().',
-        'Disable timeouts on the external card processing gateway.'
+        'Enclose the connection lease in a try-with-resources / with context manager to guarantee release even on unhandled exceptions.',
+        'Disable timeouts on the external payment gateway.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 2,
       explanation: 'Using RAII / auto-closable idioms (`with pool.acquire() as conn:`, `try (Connection c = pool.getConnection())`, or `defer conn.Close()`) guarantees the leased connection is returned to the pool regardless of whether the function returns normally or throws an exception.'
     }
   },
@@ -95678,7 +95699,7 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
     service: 'auth-validator-node',
     language: 'javascript',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'CPU on all Node.js cluster nodes pinned at 100%. Node event loop lag surged to 42,000ms. All health checks are timing out because the single JavaScript event loop thread is frozen.',
     initialMetrics: {
       cpu: 100.0,
@@ -95697,24 +95718,27 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       activeConnections: 640
     },
     logs: [
+      '[18:13:50.001] [INFO] [cluster] Node cluster primary spawned 4 worker threads',
       '[18:14:02.104] [INFO] [server] POST /api/v1/validate-email received payload size: 84 bytes',
-      '[18:14:02.105] [DEBUG] [validator] Executing regex test on input: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa!"',
+      '[18:14:02.105] [DEBUG] [validator] Executing regex test: /^([a-zA-Z0-9]+)+$/ on input "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa!"',
+      '[18:14:05.801] [WARN] [event_loop] Event loop lag: 3,420ms (Threshold: 100ms)',
       '[18:14:15.002] [WARN] [event_loop] Event loop lag: 12,898ms (Threshold: 100ms)',
       '[18:14:30.401] [ERROR] [event_loop] Event loop completely blocked. 3,892 timer callbacks delayed.',
+      '[18:14:40.119] [ALERT] [kubelet] Liveness probe failed: HTTP GET /healthz connection refused',
       '[18:14:45.001] [FATAL] [k8s] Liveness probe failed 3 times consecutive. Pod killed.'
     ],
     diagnosisQuestion: {
       id: 'inc_q_redos_diag',
       type: 'multiple_choice',
-      prompt: 'What regular expression pattern characteristic causes Catastrophic Backtracking (ReDoS) on unmatched inputs?',
+      prompt: 'What structural regular expression pattern characteristic causes Catastrophic Backtracking (ReDoS) on unmatched inputs?',
       options: [
-        'Nested overlapping quantifiers like (a+)+ evaluated against a string that fails near the end.',
-        'Using the global flag /g without resetting lastIndex.',
+        'Using negative lookahead assertions (?!) without capturing groups.',
         'Compiling regular expressions inside a loop instead of reusing a module constant.',
-        'Using negative lookahead assertions (?!) without capturing groups.'
+        'Nested overlapping quantifiers like (a+)+ evaluated against a string that fails near the end.',
+        'Using the global flag /g without resetting lastIndex between calls.'
       ],
-      correctAnswer: 0,
-      explanation: 'Regular expression engines using Nondeterministic Finite Automata (NFA) exhibit catastrophic $O(2^n)$ exponential backtracking when matching nested quantifiers (e.g. `^([a-zA-Z0-9]+)*$`). When an input string fails at the final character, the engine explores billions of recursive permutation branches, pegging CPU at 100%.'
+      correctAnswer: 2,
+      explanation: 'Regular expression engines using Nondeterministic Finite Automata (NFA) exhibit catastrophic $O(2^n)$ exponential backtracking when matching nested quantifiers (e.g. `^([a-zA-Z0-9]+)+$`). When an input string fails at the final character, the engine explores billions of recursive permutation branches, pegging CPU at 100%.'
     },
     patchQuestion: {
       id: 'inc_q_redos_patch',
@@ -95738,7 +95762,7 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
     service: 'orderbook-feed-engine',
     language: 'cpp',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'Market data feed handlers are crashing sporadically during heavy volatility. Valgrind and ASan report Use-After-Free heap corruption in orderbook depth buffers.',
     initialMetrics: {
       cpu: 75.0,
@@ -95757,24 +95781,26 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       activeConnections: 540
     },
     logs: [
+      '[08:30:00.001] [INFO] [feed] Initializing orderbook memory arena (size: 4GB)',
       '[08:30:01.002] [INFO] [feed] Connected to Nasdaq ITCH 5.0 Multicast feed',
       '[08:30:14.204] [DEBUG] [orderbook] Cancel order #884912: executing delete order_ptr',
       '[08:30:14.205] [DEBUG] [orderbook] Order ptr 0x55a8f0 freed back to heap arena',
       '[08:30:14.208] [CRITICAL] [asan] AddressSanitizer: heap-use-after-free on address 0x55a8f0',
       '[08:30:14.209] [CRITICAL] [asan] READ of size 8 at 0x55a8f0 thread T0 (orderbook_worker)',
-      '[08:30:14.210] [FATAL] [kernel] Process terminated with SIGSEGV (Segmentation Fault)'
+      '[08:30:14.210] [FATAL] [kernel] Process terminated with SIGSEGV (Segmentation Fault)',
+      '[08:30:15.801] [WARN] [cluster] Fast restart triggered for orderbook-feed-engine'
     ],
     diagnosisQuestion: {
       id: 'inc_q_cpp_diag',
       type: 'multiple_choice',
-      prompt: 'Why did dereferencing 0x55a8f0 crash the application after the order was canceled?',
+      prompt: 'Why did dereferencing address 0x55a8f0 crash the application after the order was canceled?',
       options: [
+        'The struct memory was not aligned to a 64-byte CPU cache line boundary.',
         'A raw pointer was retained and accessed after delete freed the underlying heap memory (Dangling Pointer / Use-After-Free).',
-        'The struct memory was not aligned to a 64-byte cache line boundary.',
         'The compiler failed to inline the virtual destructor.',
-        'The thread attempted to lock a recursive mutex twice.'
+        'The thread attempted to lock an uninitialized spinlock.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 1,
       explanation: 'When raw memory is released via `delete order_ptr;`, the pointer variable still contains the numerical memory address (`0x55a8f0`), but the operating system heap allocator has marked that chunk as freed. Dereferencing it later is undefined behavior and triggers AddressSanitizer / SIGSEGV.'
     },
     patchQuestion: {
@@ -95782,12 +95808,12 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       type: 'multiple_choice',
       prompt: 'What modern C++ (C++17/20) idiom guarantees that memory is never accessed after deallocation?',
       options: [
-        'Adopt smart pointers (std::unique_ptr or std::shared_ptr) and RAII instead of raw manual new/delete.',
         'Set order_ptr = (Order*)0x12345678 immediately after calling delete.',
         'Allocate all orders with malloc() and avoid the C++ delete operator.',
-        'Cast the pointer to void* before accessing struct members.'
+        'Cast the pointer to void* before accessing struct members.',
+        'Adopt smart pointers (std::unique_ptr or std::shared_ptr) and RAII instead of raw manual new/delete.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 3,
       explanation: 'Modern C++ RAII with `std::unique_ptr` and `std::shared_ptr` / `std::weak_ptr` automatically manages ownership semantics and nullifies handles upon move/reset, mathematically eliminating dangling pointers and manual memory leak pitfalls.'
     }
   },
@@ -95799,7 +95825,7 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
     service: 'doc-export-worker',
     language: 'typescript',
     badgeClass: 'badge-amber',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'Users requesting 1,000-page PDF exports cause the entire cloud API to freeze. All lightweight health checks and auth routes stall until the PDF export finishes.',
     initialMetrics: {
       cpu: 100.0,
@@ -95818,23 +95844,25 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       activeConnections: 420
     },
     logs: [
+      '[16:19:50.001] [INFO] [doc-worker] Gateway listening on port 3000 (Express + TypeScript)',
       '[16:20:00.101] [INFO] [export] Starting PDF generation for document doc_84102 (1,450 pages)',
       '[16:20:00.102] [DEBUG] [crypto] Generating cryptographic watermark signatures synchronously in loop',
       '[16:20:08.502] [WARN] [gateway] Upstream response time for GET /healthz exceeded 5,000ms',
       '[16:20:18.901] [ERROR] [proxy] 504 Gateway Timeout: no bytes received from doc-export-worker in 15s',
-      '[16:20:25.001] [WARN] [cluster] Node worker 3 unresponsive, event loop delay = 24,912ms'
+      '[16:20:25.001] [WARN] [cluster] Node worker 3 unresponsive, event loop delay = 24,912ms',
+      '[16:20:30.812] [ALERT] [ingress] Error rate spike: 65.4% of API gateway requests timed out'
     ],
     diagnosisQuestion: {
       id: 'inc_q_ts_diag',
       type: 'multiple_choice',
       prompt: 'Why does a long-running synchronous computation freeze completely unrelated incoming HTTP routes in Node.js?',
       options: [
-        'Node.js executes JavaScript on a single thread; synchronous loops starve the event loop from processing I/O events.',
         'TypeScript compilation removes multi-threading support at transpilation time.',
+        'Node.js executes JavaScript on a single thread; synchronous loops starve the event loop from processing I/O events.',
         'The V8 garbage collector enters a stop-the-world pause when processing strings longer than 1MB.',
         'HTTP keep-alive sockets cannot coexist with cryptographic hashing.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 1,
       explanation: 'JavaScript in Node.js is single-threaded. When CPU-intensive operations (like synchronous hashing or layout calculation) execute synchronously on the main thread, the event loop cannot pick up incoming TCP packets, timers, or I/O callbacks, causing every endpoint to freeze.'
     },
     patchQuestion: {
@@ -95859,7 +95887,7 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
     service: 'discount-evaluator',
     language: 'java',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'During Black Friday flash deals, a promotion with a null coupon code caused 100% of shopping cart evaluations to crash with NullPointerException, triggering a cascading container restart loop.',
     initialMetrics: {
       cpu: 89.0,
@@ -95878,24 +95906,26 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       activeConnections: 720
     },
     logs: [
+      '[00:01:00.001] [INFO] [cart] DiscountService initialized with 48 active rule beans',
       '[00:01:05.112] [INFO] [cart] Evaluating discount rules for cart_99182',
       '[00:01:05.114] [ERROR] [cart] java.lang.NullPointerException: Cannot invoke "String.toUpperCase()" because "couponCode" is null',
       '[00:01:05.115] [ERROR] [cart]   at com.syntaxarena.discount.RuleEngine.apply(RuleEngine.java:54)',
       '[00:01:05.116] [ERROR] [cart]   at com.syntaxarena.cart.CartService.calculateTotal(CartService.java:112)',
       '[00:01:10.820] [WARN] [resilience] CircuitBreaker "discount-service" tripped OPEN (failure rate: 100%)',
-      '[00:01:15.001] [FATAL] [cart] Unhandled runtime exception in reactive pipeline: 500 Internal Server Error'
+      '[00:01:15.001] [FATAL] [cart] Unhandled runtime exception in reactive pipeline: 500 Internal Server Error',
+      '[00:01:20.404] [WARN] [kubernetes] Readiness probe failed: 500 Internal Server Error'
     ],
     diagnosisQuestion: {
       id: 'inc_q_java_diag',
       type: 'multiple_choice',
-      prompt: 'What caused the NullPointerException at RuleEngine.java:54?',
+      prompt: 'What caused the NullPointerException at RuleEngine.java:54 in the cart pipeline?',
       options: [
-        'Calling an instance method (toUpperCase) on a null object reference without null-checking or using Optional.',
         'The Java Virtual Machine ran out of PermGen / Metaspace memory.',
         'The Coupon class did not implement the Serializable interface.',
-        'A generic type cast from Object to String failed at runtime.'
+        'A generic type cast from Object to String failed at runtime.',
+        'Calling an instance method (toUpperCase) on a null object reference without null-checking or using Optional.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 3,
       explanation: 'In Java, invoking any method on a reference variable that evaluates to `null` throws `java.lang.NullPointerException`. When guest shoppers or promotions without coupon codes were evaluated, `couponCode` was null, crashing the cart calculation.'
     },
     patchQuestion: {
@@ -95903,12 +95933,12 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       type: 'multiple_choice',
       prompt: 'Select the idiomatic Java defensive pattern to handle optional coupon codes safely:',
       options: [
-        'Use Optional.ofNullable(couponCode).map(String::toUpperCase).orElse("") or Objects.requireNonNullElse().',
         'Catch java.lang.Error at the top-level main class.',
+        'Use Optional.ofNullable(couponCode).map(String::toUpperCase).orElse("") or Objects.requireNonNullElse().',
         'Add a static boolean flag isCouponPresent initialized to true.',
         'Declare the method as synchronized.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 1,
       explanation: '`Optional.ofNullable(couponCode).map(String::toUpperCase).orElse("")` or standard null-safe checks (e.g., `Objects.requireNonNullElse(couponCode, "").toUpperCase()`) gracefully handle null values without throwing NullPointerException.'
     }
   }
@@ -95933,8 +95963,353 @@ if (typeof window !== 'undefined') {
   window.IncidentScenarios = IncidentScenarios;
 }
 
-
 /* --- End of data/incident-scenarios.js --- */
+
+/* --- Start of data/duel-questions.js --- */
+/**
+ * SyntaxArena — 1v1 SyntaxDuel Dedicated Question Deck
+ * Exclusive competitive head-to-head questions not found in standard tracks.
+ * High-speed trivia, edge-case evaluation, rapid syntax traps, and concurrency.
+ */
+
+var DUEL_QUESTIONS = window.DUEL_QUESTIONS = [
+  {
+    id: 'duel_py_01',
+    language: 'python',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What will be output by this rapid slice and comprehension?',
+    codeSnippet: 'nums = [1, 2, 3, 4, 5]\nprint([x * 2 for x in nums[::-2]])',
+    options: ['[10, 6, 2]', '[2, 6, 10]', '[10, 8, 6]', '[8, 4]'],
+    correctAnswer: '[10, 6, 2]',
+    explanation: 'nums[::-2] traverses the list backwards by step 2, producing [5, 3, 1]. Doubling each yields [10, 6, 2].'
+  },
+  {
+    id: 'duel_py_02',
+    language: 'python',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What is the boolean evaluation of this chained comparison in Python?',
+    codeSnippet: 'print(False == False in [False])',
+    options: ['True', 'False', 'TypeError', 'SyntaxError'],
+    correctAnswer: 'True',
+    explanation: 'Python chains comparisons: `False == False and False in [False]`. Both sub-expressions evaluate to True, so result is True.'
+  },
+  {
+    id: 'duel_py_03',
+    language: 'python',
+    difficulty: 'beginner',
+    type: 'multiple_choice',
+    prompt: 'What does this dict merge expression evaluate to in Python 3.9+?',
+    codeSnippet: 'a = {"x": 1, "y": 2}\nb = {"y": 99, "z": 3}\nprint(a | b)',
+    options: [
+      "{'x': 1, 'y': 99, 'z': 3}",
+      "{'x': 1, 'y': 2, 'z': 3}",
+      "TypeError: unsupported operand",
+      "{'y': 99}"
+    ],
+    correctAnswer: "{'x': 1, 'y': 99, 'z': 3}",
+    explanation: 'The dictionary union operator `|` takes keys from both dicts, with values from the right operand overriding keys on the left.'
+  },
+  {
+    id: 'duel_js_01',
+    language: 'javascript',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What will be logged by this async closure race?',
+    codeSnippet: 'const arr = [1, 2, 3];\nfor (var i = 0; i < arr.length; i++) {\n  setTimeout(() => console.log(i), 0);\n}',
+    options: ['3 3 3', '0 1 2', '1 2 3', 'undefined undefined undefined'],
+    correctAnswer: '3 3 3',
+    explanation: 'Because `var` is function-scoped (not block-scoped), all three timeout callbacks capture the exact same variable `i`, which equals 3 when the event loop fires.'
+  },
+  {
+    id: 'duel_js_02',
+    language: 'javascript',
+    difficulty: 'beginner',
+    type: 'multiple_choice',
+    prompt: 'What does the JavaScript nullish coalescing operator return here?',
+    codeSnippet: 'const val = 0 ?? 42;\nconst alt = "" || "fallback";\nconsole.log(val, alt);',
+    options: [
+      '0 fallback',
+      '42 fallback',
+      '0 ""',
+      '42 ""'
+    ],
+    correctAnswer: '0 fallback',
+    explanation: '`??` only falls back on `null` or `undefined`. Since 0 is defined, `val` is 0. `||` falls back on any falsy value, so `""` yields "fallback".'
+  },
+  {
+    id: 'duel_ts_01',
+    language: 'typescript',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What is the inferred type of Result in this TypeScript conditional type?',
+    codeSnippet: 'type Unbox<T> = T extends Array<infer U> ? U : T;\ntype Result = Unbox<string[]>;',
+    options: ['string', 'string[]', 'Array<string>', 'any'],
+    correctAnswer: 'string',
+    explanation: 'The `infer U` extracts the element type from `Array<infer U>`, unwrapping `string[]` down to `string`.'
+  },
+  {
+    id: 'duel_c_01',
+    language: 'c',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What is the output of this pointer arithmetic sequence?',
+    codeSnippet: 'int arr[] = { 10, 20, 30, 40 };\nint *p = arr + 1;\nprintf("%d", *(p + 2));',
+    options: ['40', '30', '20', 'Undefined behavior'],
+    correctAnswer: '40',
+    explanation: 'arr + 1 points to arr[1] (20). *(p + 2) accesses offset +2 from there, which is arr[3] (40).'
+  },
+  {
+    id: 'duel_c_02',
+    language: 'c',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What will sizeof return on an x86-64 Linux target for this struct?',
+    codeSnippet: 'struct Data {\n    char a;    // 1 byte\n    int b;     // 4 bytes\n    short c;   // 2 bytes\n};',
+    options: ['12', '7', '8', '16'],
+    correctAnswer: '12',
+    explanation: 'char a takes 1 byte + 3 bytes padding so int b starts at 4-byte boundary. short c takes 2 bytes + 2 bytes trailing padding to match largest alignment (4). Total = 12 bytes.'
+  },
+  {
+    id: 'duel_cpp_01',
+    language: 'cpp',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What is printed by this C++ move constructor demonstration?',
+    codeSnippet: '#include <iostream>\n#include <string>\n#include <utility>\n\nint main() {\n    std::string s = "Rocket";\n    std::string t = std::move(s);\n    std::cout << t.length();\n}',
+    options: ['6', '0', 'undefined', 'Segmentation Fault'],
+    correctAnswer: '6',
+    explanation: 'std::move casts s to an rvalue reference, transferring ownership of the underlying buffer to t. t has length 6.'
+  },
+  {
+    id: 'duel_rust_01',
+    language: 'rust',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'Why will this Rust snippet fail compilation?',
+    codeSnippet: 'let s1 = String::from("duel");\nlet s2 = s1;\nprintln!("{}", s1);',
+    options: [
+      'Value used after move',
+      'Borrow checker immutable borrow conflict',
+      'String does not implement Display',
+      'Missing mut keyword on s1'
+    ],
+    correctAnswer: 'Value used after move',
+    explanation: 'String implements Move semantics without Copy. Binding s2 = s1 moves ownership, leaving s1 uninitialized.'
+  },
+  {
+    id: 'duel_rust_02',
+    language: 'rust',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What is the result of unwrap_or on an Ok variant?',
+    codeSnippet: 'let res: Result<i32, &str> = Ok(42);\nprintln!("{}", res.unwrap_or(0));',
+    options: ['42', '0', 'panic', 'Ok(42)'],
+    correctAnswer: '42',
+    explanation: 'unwrap_or returns the contained value if Ok, and the default fallback value only if Err.'
+  },
+  {
+    id: 'duel_go_01',
+    language: 'go',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What will be printed by this Go defer order?',
+    codeSnippet: 'func main() {\n    defer fmt.Print("A")\n    defer fmt.Print("B")\n    fmt.Print("C")\n}',
+    options: ['CBA', 'CAB', 'ABC', 'BAC'],
+    correctAnswer: 'CBA',
+    explanation: 'Deferred function calls are pushed onto a LIFO stack. C prints first, then defer B, then defer A -> CBA.'
+  },
+  {
+    id: 'duel_go_02',
+    language: 'go',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What is the length and capacity of this Go slice?',
+    codeSnippet: 's := make([]int, 3, 7)\nfmt.Println(len(s), cap(s))',
+    options: ['3 7', '7 3', '3 3', '0 7'],
+    correctAnswer: '3 7',
+    explanation: 'make([]T, len, cap) sets the initial slice length to 3 and allocates capacity for 7 elements.'
+  },
+  {
+    id: 'duel_sql_01',
+    language: 'sql',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'Which aggregate function ignores NULL values when computing results?',
+    codeSnippet: 'SELECT COUNT(points), AVG(points) FROM scores;',
+    options: [
+      'Both COUNT(column) and AVG(column)',
+      'Only AVG(column)',
+      'Only COUNT(column)',
+      'Neither function ignores NULL'
+    ],
+    correctAnswer: 'Both COUNT(column) and AVG(column)',
+    explanation: 'In ANSI SQL, aggregate functions on column names (like COUNT(col), AVG(col), SUM(col)) discard NULL entries before calculating.'
+  },
+  {
+    id: 'duel_sql_02',
+    language: 'sql',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What is the difference between UNION and UNION ALL?',
+    codeSnippet: 'SELECT id FROM tbl1 UNION SELECT id FROM tbl2;',
+    options: [
+      'UNION removes duplicate rows; UNION ALL retains duplicates',
+      'UNION retains duplicates; UNION ALL removes them',
+      'UNION sorts in descending order; UNION ALL is unsorted',
+      'UNION only works on numeric columns'
+    ],
+    correctAnswer: 'UNION removes duplicate rows; UNION ALL retains duplicates',
+    explanation: 'UNION performs a distinct sorting pass to eliminate identical rows. UNION ALL simply concatenates result sets without deduplication.'
+  },
+  {
+    id: 'duel_bash_01',
+    language: 'cyber',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What does this Bash redirection construct 2>&1 do?',
+    codeSnippet: './server.sh > output.log 2>&1',
+    options: [
+      'Redirects stderr (fd 2) to the same target as stdout (fd 1)',
+      'Redirects stdout to file descriptor 2',
+      'Runs server.sh twice simultaneously in background',
+      'Appends error code 2 to output.log'
+    ],
+    correctAnswer: 'Redirects stderr (fd 2) to the same target as stdout (fd 1)',
+    explanation: 'File descriptor 1 is stdout, 2 is stderr. 2>&1 redirects standard error to the current destination of standard output.'
+  },
+  {
+    id: 'duel_bash_02',
+    language: 'cyber',
+    difficulty: 'beginner',
+    type: 'multiple_choice',
+    prompt: 'What Linux file permission numeric mode corresponds to rwxr-xr-x?',
+    codeSnippet: 'chmod ??? /opt/bin/daemon',
+    options: ['755', '644', '777', '700'],
+    correctAnswer: '755',
+    explanation: 'rwx = 4+2+1=7 (owner), r-x = 4+0+1=5 (group), r-x = 4+0+1=5 (others). Total: 755.'
+  },
+  {
+    id: 'duel_asm_01',
+    language: 'cyber',
+    difficulty: 'expert',
+    type: 'multiple_choice',
+    prompt: 'What register does the x86-64 System V ABI use to pass the 1st integer argument?',
+    codeSnippet: 'mov rdi, offset msg\ncall puts',
+    options: ['RDI', 'RAX', 'RSI', 'RDX'],
+    correctAnswer: 'RDI',
+    explanation: 'Under the System V AMD64 ABI (Linux/macOS), the first six integer/pointer arguments are passed in: RDI, RSI, RDX, RCX, R8, R9.'
+  },
+  {
+    id: 'duel_asm_02',
+    language: 'cyber',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What is the fastest way in x86-64 assembly to zero out register EAX / RAX?',
+    codeSnippet: '; Set RAX to zero in 2 bytes without memory access',
+    options: [
+      'xor eax, eax',
+      'mov rax, 0',
+      'sub rax, rax',
+      'imul rax, 0'
+    ],
+    correctAnswer: 'xor eax, eax',
+    explanation: '`xor eax, eax` is encoded in only 2 bytes and CPU register-renaming hardware zeroes it with zero latency, automatically zero-extending into 64-bit RAX.'
+  },
+  {
+    id: 'duel_py_04',
+    language: 'python',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What happens with default mutable arguments in Python functions?',
+    codeSnippet: 'def add_item(val, items=[]):\n    items.append(val)\n    return items\n\nadd_item(1)\nprint(add_item(2))',
+    options: ['[1, 2]', '[2]', '[1]', 'TypeError'],
+    correctAnswer: '[1, 2]',
+    explanation: 'Default argument expressions in Python are evaluated once at function definition time, sharing the same list object across successive calls.'
+  },
+  {
+    id: 'duel_py_05',
+    language: 'python',
+    difficulty: 'expert',
+    type: 'multiple_choice',
+    prompt: 'What does this generator expression produce when consumed?',
+    codeSnippet: 'gen = (x * 2 for x in range(3))\nprint(list(gen))\nprint(list(gen))',
+    options: [
+      '[0, 2, 4] then []',
+      '[0, 2, 4] then [0, 2, 4]',
+      '[] then [0, 2, 4]',
+      'StopIteration exception'
+    ],
+    correctAnswer: '[0, 2, 4] then []',
+    explanation: 'Generators are single-use iterators. Once fully consumed by the first `list()`, subsequent iterations yield an empty list.'
+  },
+  {
+    id: 'duel_java_01',
+    language: 'java',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What will this Java string pool comparison output?',
+    codeSnippet: 'String s1 = "Duel";\nString s2 = new String("Duel");\nSystem.out.println(s1 == s2);',
+    options: ['false', 'true', 'NullPointerException', 'Compiler Error'],
+    correctAnswer: 'false',
+    explanation: '`==` in Java checks reference identity. `s1` references the string literal in the constant pool, while `new String(...)` allocates a separate heap object.'
+  },
+  {
+    id: 'duel_java_02',
+    language: 'java',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What does the Java final keyword on a variable guarantee?',
+    codeSnippet: 'final List<String> list = new ArrayList<>();\nlist.add("Apex");',
+    options: [
+      'The reference cannot be reassigned; the contents remain mutable',
+      'The list contents become completely immutable',
+      'The list cannot have elements added',
+      'It creates a compile error'
+    ],
+    correctAnswer: 'The reference cannot be reassigned; the contents remain mutable',
+    explanation: '`final` on an object reference prevents reassigning `list` to another object, but the referenced ArrayList instance itself remains mutable.'
+  },
+  {
+    id: 'duel_sec_01',
+    language: 'cyber',
+    difficulty: 'expert',
+    type: 'multiple_choice',
+    prompt: 'What compiler mitigation places a randomized canary before the saved return pointer?',
+    codeSnippet: 'gcc -fstack-protector-all -o vuln vuln.c',
+    options: [
+      'Stack Smashing Protector (Canary)',
+      'Address Space Layout Randomization (ASLR)',
+      'Data Execution Prevention (DEP / NX)',
+      'Position Independent Executable (PIE)'
+    ],
+    correctAnswer: 'Stack Smashing Protector (Canary)',
+    explanation: '-fstack-protector inserts a guard value (canary) between local buffer variables and the saved frame pointer/return address to detect stack overflows.'
+  },
+  {
+    id: 'duel_sec_02',
+    language: 'cyber',
+    difficulty: 'intermediate',
+    type: 'multiple_choice',
+    prompt: 'What HTTP header instructs the browser to only communicate with the origin via HTTPS?',
+    codeSnippet: 'Strict-Transport-Security: max-age=63072000; includeSubDomains; preload',
+    options: [
+      'HSTS (Strict-Transport-Security)',
+      'CSP (Content-Security-Policy)',
+      'CORS (Cross-Origin Resource Sharing)',
+      'X-Frame-Options'
+    ],
+    correctAnswer: 'HSTS (Strict-Transport-Security)',
+    explanation: 'HTTP Strict Transport Security (HSTS) informs user agents to automatically upgrade all subsequent HTTP requests to HTTPS.'
+  }
+];
+
+if (typeof window !== 'undefined') {
+  window.DUEL_QUESTIONS = DUEL_QUESTIONS;
+}
+
+/* --- End of data/duel-questions.js --- */
 
 /* --- Start of data/battlestation-catalog.js --- */
 /**
@@ -96193,6 +96568,7 @@ if (typeof window !== 'undefined') {
   window.BATTLESTATION_CATALOG = BATTLESTATION_CATALOG;
   window.BattlestationCatalog = BattlestationCatalog;
 }
+
 
 /* --- End of data/battlestation-catalog.js --- */
 
@@ -100824,15 +101200,18 @@ var IncidentEngine = window.IncidentEngine = {
 
   /**
    * Submit Root Cause Diagnosis answer (Phase 1)
-   * @param {number} optionIndex
+   * @param {number|string} optionIndexOrText
    */
-  submitDiagnosis(optionIndex) {
+  submitDiagnosis(optionIndexOrText) {
     if (!this.activeIncident || this.state !== INCIDENT_STATES.ACTIVE) {
       return { success: false, error: 'No active incident drill.' };
     }
 
     const q = this.activeIncident.diagnosisQuestion;
-    const isCorrect = (optionIndex === q.correctAnswer);
+    const isCorrect = (optionIndexOrText === q.correctAnswer) ||
+      (typeof optionIndexOrText === 'number' && q.options && q.options[optionIndexOrText] === q.options[q.correctAnswer]) ||
+      (typeof optionIndexOrText === 'string' && (optionIndexOrText === q.options[q.correctAnswer] || optionIndexOrText === q.correctAnswer));
+
     this.triage.diagnosisAnswered = true;
     this.triage.diagnosisCorrect = isCorrect;
     this.triage.attempts++;
@@ -100852,15 +101231,18 @@ var IncidentEngine = window.IncidentEngine = {
 
   /**
    * Submit Code Patch Hotfix selection (Phase 2)
-   * @param {number} optionIndex
+   * @param {number|string} optionIndexOrText
    */
-  submitPatch(optionIndex) {
+  submitPatch(optionIndexOrText) {
     if (!this.activeIncident || this.phase < 2) {
       return { success: false, error: 'Diagnosis must be verified before patch deployment.' };
     }
 
     const q = this.activeIncident.patchQuestion;
-    const isCorrect = (optionIndex === q.correctAnswer);
+    const isCorrect = (optionIndexOrText === q.correctAnswer) ||
+      (typeof optionIndexOrText === 'number' && q.options && q.options[optionIndexOrText] === q.options[q.correctAnswer]) ||
+      (typeof optionIndexOrText === 'string' && (optionIndexOrText === q.options[q.correctAnswer] || optionIndexOrText === q.correctAnswer));
+
     this.triage.patchAnswered = true;
     this.triage.patchCorrect = isCorrect;
     this.triage.attempts++;
@@ -100883,6 +101265,79 @@ var IncidentEngine = window.IncidentEngine = {
       isResolved: this.state === INCIDENT_STATES.STABILIZED,
       postMortem: this.state === INCIDENT_STATES.STABILIZED ? this.getPostMortem() : null
     };
+  },
+
+  /**
+   * Execute interactive SRE terminal commands against live incident logs and telemetry.
+   * Commands supported: cat, tail, head, grep, status, top, clear, help
+   * @param {string} cmdString
+   */
+  executeTerminalCommand(cmdString = '') {
+    const raw = (cmdString || '').trim();
+    if (!raw) return { output: '', error: null };
+    const tokens = raw.split(/\s+/);
+    const cmd = tokens[0].toLowerCase();
+    const args = tokens.slice(1);
+    const logs = this.activeIncident?.logs || [];
+
+    switch (cmd) {
+      case 'clear':
+        return { output: '__CLEAR__', error: null };
+      case 'help':
+        return {
+          output: [
+            'SRE Outage Diagnostic Shell Commands:',
+            '  tail [-n N]     Show last N log lines (default 8)',
+            '  head [-n N]     Show first N log lines (default 8)',
+            '  cat [file]      Dump entire incident log stream',
+            '  grep [-i] <q>   Search log entries for string pattern',
+            '  status          Display service, node health and telemetry',
+            '  top             Inspect container process table',
+            '  clear           Clear terminal view'
+          ].join('\n'),
+          error: null
+        };
+      case 'status':
+        return {
+          output: [
+            `Incident: ${this.activeIncident?.title || 'None'} [${this.activeIncident?.severity || 'SEV-1'}]`,
+            `Service:  ${this.activeIncident?.service || 'worker'} (Language: ${this.activeIncident?.language || 'python'})`,
+            `State:    ${this.state.toUpperCase()} (Phase: ${this.phase})`,
+            `CPU:      ${this.telemetry.cpu}% | RAM: ${this.telemetry.ram}%`,
+            `5xx Err:  ${this.telemetry.errorRate}% | Latency: ${this.telemetry.latencyMs}ms`
+          ].join('\n'),
+          error: null
+        };
+      case 'top':
+        return {
+          output: [
+            'PID   USER     PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND',
+            `4201  app      20   0  7892M  6910M   140M R  ${this.telemetry.cpu.toFixed(1)}  ${this.telemetry.ram.toFixed(1)}   4:12.80 ${this.activeIncident?.service || 'worker'}`,
+            '1     root     20   0   168M    12M     8M S   0.1   0.2   0:01.42 systemd',
+            '241   k8s      20   0   890M    48M    24M S   1.2   0.6   0:24.10 kubelet'
+          ].join('\n'),
+          error: null
+        };
+      case 'head': {
+        const nIdx = args.indexOf('-n');
+        const count = nIdx !== -1 && args[nIdx + 1] ? parseInt(args[nIdx + 1], 10) : 8;
+        return { output: logs.slice(0, count).join('\n'), error: null };
+      }
+      case 'tail': {
+        const nIdx = args.indexOf('-n');
+        const count = nIdx !== -1 && args[nIdx + 1] ? parseInt(args[nIdx + 1], 10) : 8;
+        return { output: logs.slice(Math.max(0, logs.length - count)).join('\n'), error: null };
+      }
+      case 'cat':
+        return { output: logs.join('\n'), error: null };
+      case 'grep': {
+        const pattern = args.find(a => !a.startsWith('-')) || '';
+        const filtered = this.filterLogs(pattern);
+        return { output: filtered.length ? filtered.join('\n') : `(No matching log entries found for '${pattern}')`, error: null };
+      }
+      default:
+        return { output: '', error: `sre-shell: command not found: ${cmd}. Type 'help' for available commands.` };
+    }
   },
 
   /**
@@ -104507,26 +104962,185 @@ var SandboxManager = window.SandboxManager = {
       }
 
       case 'touch': {
-        const target = this._normalizePath(args[0] || '');
         if (!args[0]) {
           error = 'touch: missing file operand';
           exitCode = 1;
-        } else if (!this.vfs[target]) {
-          this.vfs[target] = { type: 'file', perms: 'rw-r--r--', owner: 'hacker', content: '' };
+        } else {
+          for (const arg of args.filter(a => !a.startsWith('-'))) {
+            const target = this._normalizePath(arg);
+            if (!this.vfs[target]) {
+              this.vfs[target] = { type: 'file', perms: 'rw-r--r--', owner: 'hacker', content: '' };
+            }
+          }
         }
         break;
       }
 
       case 'rm': {
-        const target = this._normalizePath(args.find(a => !a.startsWith('-')) || '');
-        if (!target) {
-          error = 'rm: missing operand';
-          exitCode = 1;
-        } else if (!this.vfs[target]) {
-          error = `rm: cannot remove '${args[0]}': No such file or directory`;
+        const isRecursive = args.some(a => a.includes('r') || a.includes('R'));
+        const force = args.some(a => a.includes('f'));
+        const nonFlags = args.filter(a => !a.startsWith('-'));
+        if (nonFlags.length === 0) {
+          if (!force) {
+            error = 'rm: missing operand';
+            exitCode = 1;
+          }
+        } else {
+          for (const targetArg of nonFlags) {
+            const target = this._normalizePath(targetArg);
+            if (!this.vfs[target]) {
+              if (!force) {
+                error = `rm: cannot remove '${targetArg}': No such file or directory`;
+                exitCode = 1;
+              }
+            } else if (this.vfs[target].type === 'dir' && !isRecursive) {
+              error = `rm: cannot remove '${targetArg}': Is a directory`;
+              exitCode = 1;
+            } else {
+              delete this.vfs[target];
+              if (isRecursive) {
+                const prefix = target === '/' ? '/' : target + '/';
+                Object.keys(this.vfs).forEach(k => {
+                  if (k.startsWith(prefix)) delete this.vfs[k];
+                });
+              }
+            }
+          }
+        }
+        break;
+      }
+
+      case 'cp': {
+        const nonFlags = args.filter(a => !a.startsWith('-'));
+        if (nonFlags.length < 2) {
+          error = `cp: missing destination file operand after '${nonFlags[0] || ''}'`;
           exitCode = 1;
         } else {
-          delete this.vfs[target];
+          const srcPath = this._normalizePath(nonFlags[0]);
+          const destPath = this._normalizePath(nonFlags[1]);
+          const src = this.vfs[srcPath];
+          if (!src) {
+            error = `cp: cannot stat '${nonFlags[0]}': No such file or directory`;
+            exitCode = 1;
+          } else {
+            this.vfs[destPath] = JSON.parse(JSON.stringify(src));
+          }
+        }
+        break;
+      }
+
+      case 'mv': {
+        const nonFlags = args.filter(a => !a.startsWith('-'));
+        if (nonFlags.length < 2) {
+          error = `mv: missing destination file operand after '${nonFlags[0] || ''}'`;
+          exitCode = 1;
+        } else {
+          const srcPath = this._normalizePath(nonFlags[0]);
+          const destPath = this._normalizePath(nonFlags[1]);
+          const src = this.vfs[srcPath];
+          if (!src) {
+            error = `mv: cannot stat '${nonFlags[0]}': No such file or directory`;
+            exitCode = 1;
+          } else {
+            this.vfs[destPath] = src;
+            delete this.vfs[srcPath];
+          }
+        }
+        break;
+      }
+
+      case 'nano':
+      case 'vim':
+      case 'vi': {
+        const filename = args.find(a => !a.startsWith('-'));
+        if (!filename) {
+          error = `${command}: missing filename operand`;
+          exitCode = 1;
+          break;
+        }
+        const targetPath = this._normalizePath(filename);
+        const contentArg = args.filter(a => !a.startsWith('-')).slice(1).join(' ');
+        if (contentArg) {
+          this.vfs[targetPath] = {
+            type: 'file',
+            perms: 'rw-r--r--',
+            owner: 'hacker',
+            content: contentArg
+          };
+          output = `[ GNU nano 7.2 ] Wrote ${contentArg.length} bytes to ${targetPath}`;
+        } else {
+          if (!this.vfs[targetPath]) {
+            this.vfs[targetPath] = {
+              type: 'file',
+              perms: 'rw-r--r--',
+              owner: 'hacker',
+              content: ''
+            };
+          }
+          const editor = (typeof document !== 'undefined') ? document.getElementById('page-code-editor') : null;
+          const fnEl = (typeof document !== 'undefined') ? document.getElementById('editor-filename') : null;
+          if (editor) {
+            editor.value = this.vfs[targetPath].content || '';
+          }
+          if (fnEl) {
+            fnEl.textContent = filename;
+          }
+          output = `[ GNU nano 7.2 ] File '${targetPath}' loaded into editor pane.`;
+        }
+        break;
+      }
+
+      case 'python':
+      case 'python3': {
+        let pyCode = '';
+        if (args.includes('-c')) {
+          const cIdx = args.indexOf('-c');
+          pyCode = args.slice(cIdx + 1).join(' ').replace(/^["']|["']$/g, '');
+        } else if (args[0] && !args[0].startsWith('-')) {
+          const target = this._normalizePath(args[0]);
+          if (!this.vfs[target] || this.vfs[target].type === 'dir') {
+            error = `python: can't open file '${args[0]}': [Errno 2] No such file or directory`;
+            exitCode = 2;
+            break;
+          }
+          pyCode = this.vfs[target].content || '';
+        } else if (stdInput) {
+          pyCode = stdInput;
+        } else {
+          error = 'python: specify a script to run (e.g. python script.py or python -c "print(\'hello\')")';
+          exitCode = 1;
+          break;
+        }
+
+        if (typeof window !== 'undefined' && window.Sk && typeof window.Sk.misceval !== 'undefined') {
+          let stdoutBuf = '';
+          try {
+            window.Sk.configure({
+              output: (t) => { stdoutBuf += t; },
+              read: (fname) => {
+                if (window.Sk.builtinFiles && window.Sk.builtinFiles['files'][fname]) {
+                  return window.Sk.builtinFiles['files'][fname];
+                }
+                throw new Error(`File not found: '${fname}'`);
+              },
+              execLimit: 4000,
+              __future__: window.Sk.python3
+            });
+            window.Sk.importMainWithBody('<stdin>', false, pyCode, false);
+            output = stdoutBuf || '(Program exited with no output)';
+          } catch (pyErr) {
+            error = pyErr.toString();
+            output = stdoutBuf;
+            exitCode = 1;
+          }
+        } else {
+          // Fallback simulation for basic prints and arithmetic
+          const printMatches = pyCode.matchAll(/print\s*\(\s*(['"]?)(.*?)\1\s*\)/g);
+          const out = [];
+          for (const m of printMatches) {
+            out.push(m[2]);
+          }
+          output = out.length > 0 ? out.join('\n') : `Python 3.10 virtual execution finished (${pyCode.length} chars)`;
         }
         break;
       }
@@ -105509,22 +106123,19 @@ function __sprintf(fmt, ...args) {
       const hex = (v) => '0x' + (v & 0xFFFFFFFFFFFFFFFFn).toString(16).toUpperCase().padStart(16, '0');
       const dec = (v) => Number(v & 0xFFFFFFFFFFFFFFFFn);
 
-      log.push('╔══════════════════════════════════════════════════════════════════╗');
-      log.push('║             x86-64 CPU REGISTER & STACK SNAPSHOT                 ║');
-      log.push('╠══════════════════════════════════════════════════════════════════╣');
-      log.push(`  RAX: ${hex(regs.rax)} (${dec(regs.rax).toLocaleString()})`);
-      log.push(`  RBX: ${hex(regs.rbx)} (${dec(regs.rbx).toLocaleString()})`);
-      log.push(`  RCX: ${hex(regs.rcx)} (${dec(regs.rcx).toLocaleString()})`);
-      log.push(`  RDX: ${hex(regs.rdx)} (${dec(regs.rdx).toLocaleString()})`);
-      log.push(`  RSI: ${hex(regs.rsi)}`);
-      log.push(`  RDI: ${hex(regs.rdi)}`);
-      log.push(`  RSP: ${hex(regs.rsp)}`);
-      log.push(`  RBP: ${hex(regs.rbp)}`);
-      log.push('──────────────────────────────────────────────────────────────────');
-      log.push(`  FLAGS: [ ZF=${flags.ZF} | SF=${flags.SF} | CF=${flags.CF} ]`);
-      log.push(`  Virtual Stack Depth: ${stack.length} quadwords`);
-      log.push(`  Total Instructions Emulated: ${instrCount}`);
-      log.push('╚══════════════════════════════════════════════════════════════════╝');
+      log.push(`Program exited with code: ${dec(regs.rax)}`);
+      log.push('Registers:');
+      log.push(`  rax: ${hex(regs.rax)} (${dec(regs.rax).toLocaleString()})`);
+      log.push(`  rbx: ${hex(regs.rbx)} (${dec(regs.rbx).toLocaleString()})`);
+      log.push(`  rcx: ${hex(regs.rcx)} (${dec(regs.rcx).toLocaleString()})`);
+      log.push(`  rdx: ${hex(regs.rdx)} (${dec(regs.rdx).toLocaleString()})`);
+      log.push(`  rsi: ${hex(regs.rsi)}`);
+      log.push(`  rdi: ${hex(regs.rdi)}`);
+      log.push(`  rsp: ${hex(regs.rsp)}`);
+      log.push(`  rbp: ${hex(regs.rbp)}`);
+      log.push(`Flags: ZF=${flags.ZF} SF=${flags.SF} CF=${flags.CF}`);
+      log.push(`Stack depth: ${stack.length} quadwords`);
+      log.push(`Instructions executed: ${instrCount}`);
 
       return {
         success: true,
@@ -108915,6 +109526,14 @@ var DuelEngine = window.DuelEngine = {
     this.callbacks.onSabotage = fn;
   },
 
+  onOpponentJoined(fn) {
+    this.callbacks.onOpponentJoined = fn;
+  },
+
+  onOpponentFinished(fn) {
+    this.callbacks.onOpponentFinished = fn;
+  },
+
   onStateChange(fn) {
     this.callbacks.onMatchStart = fn;
   },
@@ -108926,7 +109545,7 @@ var DuelEngine = window.DuelEngine = {
       language: config.language,
       difficulty: config.difficulty,
       questionCount: config.count || config.questionCount,
-      profile: config.profile
+      profile: config.profile || (typeof Profile !== 'undefined' ? Profile.getActiveProfile() : null)
     });
   },
 
@@ -108936,7 +109555,7 @@ var DuelEngine = window.DuelEngine = {
       language: config.language,
       difficulty: config.difficulty,
       questionCount: config.count || config.questionCount,
-      profile: config.profile
+      profile: config.profile || (typeof Profile !== 'undefined' ? Profile.getActiveProfile() : null)
     });
   },
 
@@ -109225,6 +109844,24 @@ var DuelEngine = window.DuelEngine = {
         }
         break;
 
+      case 'OPPONENT_BLUNDER': {
+        const bonus = msg.bonusPoints || 100;
+        this.localPlayer.score += bonus;
+        if (typeof window !== 'undefined' && window.Gameplay && window.Gameplay.engine) {
+          const sess = window.Gameplay.engine.getSession();
+          if (sess) {
+            sess.totalScore = (sess.totalScore || 0) + bonus;
+          }
+          if (typeof window.Gameplay._updateDuelVersusHUD === 'function') {
+            window.Gameplay._updateDuelVersusHUD();
+          }
+        }
+        if (typeof UI !== 'undefined' && typeof UI.showToast === 'function') {
+          UI.showToast(`⚡ OPPONENT BLUNDER! ${msg.blunderingPlayer || 'Opponent'} made an error. +${bonus} PTS awarded to you!`, 'success');
+        }
+        break;
+      }
+
       case 'PLAYER_FINISH':
         this.opponentPlayer.finished = true;
         this.opponentPlayer.score = msg.score || this.opponentPlayer.score;
@@ -109284,6 +109921,28 @@ var DuelEngine = window.DuelEngine = {
       });
     }
 
+    return this.getLeadStatus();
+  },
+
+  /**
+   * Record blunder on incorrect answer: points automatically awarded to opponent
+   */
+  recordBlunder({ blunderPlayer = 'p1', points = 100 } = {}) {
+    if (this.mode === 'local_split') {
+      if (blunderPlayer === 'p1') {
+        this.opponentPlayer.score += points;
+      } else {
+        this.localPlayer.score += points;
+      }
+    } else {
+      // P2P: Local player blundered, opponent is awarded the points
+      this.opponentPlayer.score += points;
+      this._broadcastMessage({
+        type: 'OPPONENT_BLUNDER',
+        bonusPoints: points,
+        blunderingPlayer: this.localPlayer.name
+      });
+    }
     return this.getLeadStatus();
   },
 
@@ -109475,7 +110134,9 @@ var DuelEngine = window.DuelEngine = {
     }
 
     if (!Array.isArray(catalog) || catalog.length === 0) {
-      if (typeof QuestionBank !== 'undefined' && typeof QuestionBank.getAll === 'function') {
+      if (typeof DUEL_QUESTIONS !== 'undefined' && Array.isArray(DUEL_QUESTIONS) && DUEL_QUESTIONS.length > 0) {
+        catalog = DUEL_QUESTIONS;
+      } else if (typeof QuestionBank !== 'undefined' && typeof QuestionBank.getAll === 'function') {
         catalog = QuestionBank.getAll();
       } else {
         return [];
@@ -110136,15 +110797,19 @@ var Gameplay = window.Gameplay = {
       submitBtn.style.display = 'inline-flex';
     }
 
-    // Configure hint button (disabled in Hardcore Mode)
+    // Configure hint button (disabled in Hardcore Mode & removed in 1v1 Duel)
     const isHardcore = this.sessionConfig && this.sessionConfig.mode === 'hardcore';
     const penalty = HINT_PENALTIES[q.difficulty] || 25;
     if (hintBtn) {
-      if (isHardcore) {
+      if (this.isDuelMode) {
+        hintBtn.style.display = 'none';
+      } else if (isHardcore) {
+        hintBtn.style.display = 'inline-flex';
         hintBtn.disabled = true;
         hintBtn.textContent = 'Hints Disabled (Hardcore)';
         hintBtn.style.opacity = '0.5';
       } else if (q.hasUsedHint) {
+        hintBtn.style.display = 'inline-flex';
         hintBtn.disabled = true;
         hintBtn.textContent = 'Hint Activated';
         hintBtn.style.opacity = '0.6';
@@ -110154,6 +110819,7 @@ var Gameplay = window.Gameplay = {
           hintDrawer.style.display = 'block';
         }
       } else {
+        hintBtn.style.display = 'inline-flex';
         hintBtn.disabled = false;
         hintBtn.textContent = `Use Hint (-${penalty} pts)`;
         hintBtn.style.opacity = '1';
@@ -110429,7 +111095,6 @@ var Gameplay = window.Gameplay = {
       helper.style.color = 'var(--text-muted)';
       helper.style.fontStyle = 'italic';
       helper.style.marginBottom = 'var(--space-3)';
-      helper.textContent = 'ℹ Select the exact stdout string produced by this program execution.';
       container.appendChild(helper);
     }
   },
@@ -110879,7 +111544,7 @@ var Gameplay = window.Gameplay = {
           this._processBossTurn(result, timeRemaining);
         }
 
-        // 1v1 SyntaxDuel record local progress on incorrect
+        // 1v1 SyntaxDuel record local progress on incorrect & blunder point transfer
         if (this.isDuelMode) {
           const sess = this.engine ? this.engine.getSession() : null;
           if (sess) {
@@ -110890,6 +111555,8 @@ var Gameplay = window.Gameplay = {
               streak: 0,
               pointsEarned: 0
             });
+            DuelEngine.recordBlunder({ blunderPlayer: 'p1', points: 100 });
+            UI.showToast(`⚡ BLUNDER! Incorrect answer: +100 PTS awarded to Opponent!`, 'warning');
             this._updateDuelVersusHUD();
           }
         }
@@ -111009,7 +111676,7 @@ var Gameplay = window.Gameplay = {
         nextBtn.focus();
       }
       if (retryBtn) {
-        if (type === 'incorrect' && !isGameOver) {
+        if (type === 'incorrect' && !isGameOver && !this.isDuelMode) {
           retryBtn.style.display = 'inline-flex';
         } else {
           retryBtn.style.display = 'none';
@@ -111770,6 +112437,42 @@ var Gameplay = window.Gameplay = {
      ========================================================================== */
 
   /**
+   * Helper to render avatar emblem with SVG image and emoji fallback
+   */
+  _renderDuelAvatar(el, avatarIdOrSymbol) {
+    if (!el) return;
+    const avatarMap = {
+      cyber_fox: { file: 'cyber_fox.svg', symbol: '🦊' },
+      terminal_owl: { file: 'terminal_owl.svg', symbol: '🦉' },
+      matrix_cat: { file: 'matrix_cat.svg', symbol: '🐱' },
+      bit_knight: { file: 'bit_knight.svg', symbol: '🛡️' },
+      hex_dragon: { file: 'hex_dragon.svg', symbol: '🐉' },
+      glitch_bot: { file: 'glitch_bot.svg', symbol: '🤖' }
+    };
+
+    const entry = avatarMap[avatarIdOrSymbol];
+    if (entry) {
+      el.innerHTML = `<img src="assets/images/${entry.file}" alt="${avatarIdOrSymbol}" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle; pointer-events: none;" onerror="this.parentElement.textContent='${entry.symbol}'">`;
+    } else if (avatarIdOrSymbol && avatarIdOrSymbol.length <= 4) {
+      el.textContent = avatarIdOrSymbol;
+    } else {
+      el.innerHTML = `<img src="assets/images/matrix_cat.svg" alt="Avatar" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle; pointer-events: none;" onerror="this.parentElement.textContent='🐱'">`;
+    }
+  },
+
+  _getAvatarSymbol(avatarIdOrSymbol) {
+    const avatarMap = {
+      cyber_fox: '🦊',
+      terminal_owl: '🦉',
+      matrix_cat: '🐱',
+      bit_knight: '🛡️',
+      hex_dragon: '🐉',
+      glitch_bot: '🤖'
+    };
+    return avatarMap[avatarIdOrSymbol] || avatarIdOrSymbol || '🦊';
+  },
+
+  /**
    * Initialize Ghost Speed Duel HUD components, events, and baseline pacing.
    * @param {string} difficulty
    */
@@ -111781,6 +112484,7 @@ var Gameplay = window.Gameplay = {
       ghostAvatar: '👻',
       playerCumulativeTime: 0,
       ghostCumulativeTime: 0,
+      sessionStartTime: Date.now(),
       questionStartTime: Date.now(),
       lastSplitDelta: 0,
       pacePerQuestion: diff === 'expert' ? 21.0 : (diff === 'intermediate' ? 14.0 : 8.5)
@@ -111803,13 +112507,13 @@ var Gameplay = window.Gameplay = {
 
     // Populate Player Profile Info
     const prof = Profile.getActiveProfile();
-    const avatar = (prof && prof.avatarEmoji) || '🦊';
+    const avatar = (prof && (prof.avatarId || prof.avatarEmoji)) || 'cyber_fox';
     const playerAvatarEl = Utils.qs('#ghost-player-avatar');
     const playerPin = Utils.qs('#ghost-player-pin');
     const playerNameEl = Utils.qs('#ghost-player-name');
 
-    if (playerAvatarEl) playerAvatarEl.textContent = avatar;
-    if (playerPin) playerPin.textContent = avatar;
+    if (playerAvatarEl) this._renderDuelAvatar(playerAvatarEl, avatar);
+    if (playerPin) playerPin.textContent = this._getAvatarSymbol(avatar);
     if (playerNameEl && prof && prof.username) playerNameEl.textContent = prof.username;
 
     // Reset split badge
@@ -111828,6 +112532,9 @@ var Gameplay = window.Gameplay = {
   _updateGhostDuelTrack(q) {
     if (!this.ghostDuel) return;
     this.ghostDuel.questionStartTime = Date.now();
+    if (!this.ghostDuel.sessionStartTime) {
+      this.ghostDuel.sessionStartTime = Date.now();
+    }
 
     if (!this.ghostDuel.enabled) return;
 
@@ -111836,16 +112543,13 @@ var Gameplay = window.Gameplay = {
     const pct = Math.min(100, Math.max(0, (currentIdx / total) * 100));
 
     const playerPin = Utils.qs('#ghost-player-pin');
-    const ghostPin = Utils.qs('#ghost-opponent-pin');
-
     if (playerPin) playerPin.style.left = `${pct}%`;
-    if (ghostPin) ghostPin.style.left = `${pct}%`;
 
     const prof = Profile.getActiveProfile();
-    const avatar = (prof && prof.avatarEmoji) || '🦊';
+    const avatar = (prof && (prof.avatarId || prof.avatarEmoji)) || 'cyber_fox';
     const playerAvatarEl = Utils.qs('#ghost-player-avatar');
-    if (playerAvatarEl) playerAvatarEl.textContent = avatar;
-    if (playerPin) playerPin.textContent = avatar;
+    if (playerAvatarEl) this._renderDuelAvatar(playerAvatarEl, avatar);
+    if (playerPin) playerPin.textContent = this._getAvatarSymbol(avatar);
   },
 
   /**
@@ -111896,25 +112600,52 @@ var Gameplay = window.Gameplay = {
   },
 
   /**
-   * Smoothly interpolate Speed Ghost position during question countdown.
+   * Smoothly interpolate Speed Ghost position continuously without stops.
+   * Relentless speed ghost: advances from 0% to 100% based on total session time.
    */
   _updateGhostRealTimeTrack() {
     if (!this.ghostDuel || !this.ghostDuel.enabled) return;
 
-    const q = this.engine ? this.engine.getCurrentQuestion() : null;
-    const total = (this.engine && this.engine.getSession()) ? this.engine.getSession().questions.length : (q ? (q.totalQuestions || 10) : 10);
-    const currentIdx = (q && typeof q.index === 'number') ? q.index : 0;
-    const stepPct = 100 / Math.max(1, total);
-    const basePct = currentIdx * stepPct;
+    if (!this.ghostDuel.sessionStartTime) {
+      this.ghostDuel.sessionStartTime = Date.now();
+    }
 
-    const elapsed = Math.max(0, (Date.now() - (this.ghostDuel.questionStartTime || Date.now())) / 1000);
-    const pace = this.ghostDuel.pacePerQuestion || 10;
-    const paceFraction = Math.min(1.2, elapsed / pace);
-    const ghostPct = Math.min(100, Math.max(0, basePct + (paceFraction * stepPct)));
+    const total = (this.engine && this.engine.getSession()) ? this.engine.getSession().questions.length : 10;
+    const pace = this.ghostDuel.pacePerQuestion || 8.5;
+    const totalDuration = Math.max(15, total * pace);
+
+    // Continuous glide without stops
+    const elapsed = Math.max(0, (Date.now() - this.ghostDuel.sessionStartTime) / 1000);
+    const ghostPct = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
 
     const ghostPin = Utils.qs('#ghost-opponent-pin');
     if (ghostPin) {
       ghostPin.style.left = `${ghostPct.toFixed(1)}%`;
+    }
+
+    // Dynamic split calculation
+    const q = this.engine ? this.engine.getCurrentQuestion() : null;
+    const currentIdx = (q && typeof q.index === 'number') ? q.index : 0;
+    const playerPct = Math.min(100, Math.max(0, (currentIdx / total) * 100));
+
+    const splitBadge = Utils.qs('#ghost-split-badge');
+    const splitText = Utils.qs('#ghost-split-text');
+    const splitIcon = Utils.qs('#ghost-split-icon');
+    if (splitBadge && splitText) {
+      const delta = playerPct - ghostPct;
+      if (delta > 2) {
+        splitBadge.className = 'ghost-duel-split-badge is-ahead';
+        if (splitIcon) splitIcon.textContent = '⚡';
+        splitText.textContent = `AHEAD (+${Math.round(delta)}%)`;
+      } else if (delta < -2) {
+        splitBadge.className = 'ghost-duel-split-badge is-behind';
+        if (splitIcon) splitIcon.textContent = '⚠️';
+        splitText.textContent = `BEHIND (${Math.round(delta)}%)`;
+      } else {
+        splitBadge.className = 'ghost-duel-split-badge is-even';
+        if (splitIcon) splitIcon.textContent = '⏱️';
+        splitText.textContent = 'NECK & NECK';
+      }
     }
   },
 
@@ -112323,6 +113054,7 @@ var Gameplay = window.Gameplay = {
     const diff = (params.diff || 'beginner').toLowerCase();
     const duelSeed = params.seed ? parseInt(params.seed, 10) : DuelEngine.generateSeed();
     const isLocalSplit = params.submode === 'local_split' || params.duel === 'local';
+    const prof = Profile.getActiveProfile();
 
     if (isLocalSplit) {
       DuelEngine.initLocalSplit({
@@ -112340,7 +113072,8 @@ var Gameplay = window.Gameplay = {
           seed: duelSeed,
           language: lang,
           difficulty: diff,
-          count
+          count,
+          profile: prof
         });
       } else {
         DuelEngine.initHost({
@@ -112348,10 +113081,17 @@ var Gameplay = window.Gameplay = {
           seed: duelSeed,
           language: lang,
           difficulty: diff,
-          count
+          count,
+          profile: prof
         });
       }
     }
+
+    // Hide hint and retry actions in 1v1 SyntaxDuel
+    const hintBtn = Utils.qs('#btn-use-hint');
+    if (hintBtn) hintBtn.style.display = 'none';
+    const retryBtn = Utils.qs('#btn-retry-question');
+    if (retryBtn) retryBtn.style.display = 'none';
 
     // Subscribe to multiplayer events
     DuelEngine.onRemoteProgress(() => {
@@ -112362,27 +113102,36 @@ var Gameplay = window.Gameplay = {
       this._onDuelSabotage(data);
     });
 
-    // Populate Player Identities
-    const prof = Profile.getActiveProfile();
-    const p1Avatar = (prof && prof.avatarEmoji) || '🦊';
+    // Populate Player Identities with SVG rendering & emoji fallback
+    const p1Avatar = (prof && (prof.avatarId || prof.avatarEmoji)) || 'cyber_fox';
     const p1Name = (prof && prof.username) || 'Player 1';
     const p1AvatarEl = Utils.qs('#duel-p1-avatar');
     const p1NameEl = Utils.qs('#duel-p1-name');
     const p1Pin = Utils.qs('#duel-p1-pin');
 
-    if (p1AvatarEl) p1AvatarEl.textContent = p1Avatar;
+    if (p1AvatarEl) this._renderDuelAvatar(p1AvatarEl, p1Avatar);
     if (p1NameEl) p1NameEl.textContent = p1Name;
-    if (p1Pin) p1Pin.textContent = p1Avatar;
+    if (p1Pin) p1Pin.textContent = this._getAvatarSymbol(p1Avatar);
 
-    const p2Avatar = DuelEngine.session?.opponent?.avatar || '🐱';
-    const p2Name = DuelEngine.session?.opponent?.username || (isLocalSplit ? 'Player 2 (Keys 7-0)' : 'Challenger');
+    const opponent = DuelEngine.opponentPlayer || {};
+    const p2Avatar = opponent.avatar || (isLocalSplit ? 'matrix_cat' : (params.role === 'challenger' ? 'cyber_fox' : 'terminal_owl'));
+    const p2Name = opponent.name || (isLocalSplit ? 'Player 2 (Keys 7-0)' : (params.role === 'challenger' ? 'Host' : 'Challenger'));
     const p2AvatarEl = Utils.qs('#duel-p2-avatar');
     const p2NameEl = Utils.qs('#duel-p2-name');
     const p2Pin = Utils.qs('#duel-p2-pin');
 
-    if (p2AvatarEl) p2AvatarEl.textContent = p2Avatar;
+    if (p2AvatarEl) this._renderDuelAvatar(p2AvatarEl, p2Avatar);
     if (p2NameEl) p2NameEl.textContent = p2Name;
-    if (p2Pin) p2Pin.textContent = p2Avatar;
+    if (p2Pin) p2Pin.textContent = this._getAvatarSymbol(p2Avatar);
+
+    // Update avatar and name when opponent joins
+    DuelEngine.onOpponentJoined((opp) => {
+      if (p2NameEl) p2NameEl.textContent = opp.name || 'Challenger';
+      if (p2AvatarEl) this._renderDuelAvatar(p2AvatarEl, opp.avatar || 'matrix_cat');
+      if (p2Pin) p2Pin.textContent = this._getAvatarSymbol(opp.avatar || 'matrix_cat');
+      this._updateDuelVersusHUD();
+      UI.showToast(`⚔️ Rival connected: ${opp.name || 'Challenger'} ready for duel!`, 'success');
+    });
 
     this._updateDuelVersusHUD();
     UI.showToast(`⚔️ 1v1 SyntaxDuel Engaged! Race to solve ${count} challenges!`, 'info');
@@ -112445,8 +113194,20 @@ var Gameplay = window.Gameplay = {
     const p2StreakBadge = Utils.qs('#duel-p2-streak-badge');
     const p2NameEl = Utils.qs('#duel-p2-name');
 
-    if (p2NameEl && DuelEngine.session && DuelEngine.session.opponent) {
-      p2NameEl.textContent = DuelEngine.session.opponent.username || 'Challenger';
+    const p2AvatarEl = Utils.qs('#duel-p2-avatar');
+
+    const opp = (DuelEngine.session && DuelEngine.session.opponent) || DuelEngine.opponentPlayer;
+    if (opp) {
+      if (p2NameEl && opp.name) {
+        p2NameEl.textContent = opp.name;
+      }
+      if (p2AvatarEl && opp.avatar && p2AvatarEl.getAttribute('data-avatar') !== opp.avatar) {
+        p2AvatarEl.setAttribute('data-avatar', opp.avatar);
+        this._renderDuelAvatar(p2AvatarEl, opp.avatar);
+      }
+      if (p2Pin && opp.avatar) {
+        p2Pin.textContent = this._getAvatarSymbol(opp.avatar);
+      }
     }
     if (p2ScoreEl) p2ScoreEl.textContent = `${lead.p2Score.toLocaleString()} PTS`;
     if (p2ProgEl) p2ProgEl.textContent = `Q ${lead.p2Progress} / ${total}`;
@@ -113012,6 +113773,41 @@ var Gameplay = window.Gameplay = {
         logSearchInput.value = '';
         if (typeof IncidentEngine !== 'undefined') {
           this._renderIncidentLogs(IncidentEngine.getStreamingLogs());
+        }
+      });
+    }
+
+    // Terminal Shell in Incident HUD
+    const termForm = Utils.qs('#incident-terminal-form');
+    const termInput = Utils.qs('#incident-terminal-input');
+    if (termForm && termInput) {
+      termForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const cmd = termInput.value.trim();
+        if (!cmd) return;
+        termInput.value = '';
+        if (typeof IncidentEngine !== 'undefined') {
+          const res = IncidentEngine.executeTerminalCommand(cmd);
+          const stream = Utils.qs('#incident-log-stream');
+          if (stream) {
+            if (res.output === '__CLEAR__') {
+              stream.innerHTML = '';
+            } else if (res.error) {
+              const errRow = document.createElement('div');
+              errRow.className = 'log-line';
+              errRow.style.color = 'var(--color-danger)';
+              errRow.textContent = `[sre@cluster]$ ${cmd}\n${res.error}`;
+              stream.appendChild(errRow);
+              stream.scrollTop = stream.scrollHeight;
+            } else {
+              const outRow = document.createElement('div');
+              outRow.className = 'log-line';
+              outRow.style.color = '#38bdf8';
+              outRow.textContent = `[sre@cluster]$ ${cmd}\n${res.output}`;
+              stream.appendChild(outRow);
+              stream.scrollTop = stream.scrollHeight;
+            }
+          }
         }
       });
     }

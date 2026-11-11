@@ -564,15 +564,19 @@ export const Gameplay = {
       submitBtn.style.display = 'inline-flex';
     }
 
-    // Configure hint button (disabled in Hardcore Mode)
+    // Configure hint button (disabled in Hardcore Mode & removed in 1v1 Duel)
     const isHardcore = this.sessionConfig && this.sessionConfig.mode === 'hardcore';
     const penalty = HINT_PENALTIES[q.difficulty] || 25;
     if (hintBtn) {
-      if (isHardcore) {
+      if (this.isDuelMode) {
+        hintBtn.style.display = 'none';
+      } else if (isHardcore) {
+        hintBtn.style.display = 'inline-flex';
         hintBtn.disabled = true;
         hintBtn.textContent = 'Hints Disabled (Hardcore)';
         hintBtn.style.opacity = '0.5';
       } else if (q.hasUsedHint) {
+        hintBtn.style.display = 'inline-flex';
         hintBtn.disabled = true;
         hintBtn.textContent = 'Hint Activated';
         hintBtn.style.opacity = '0.6';
@@ -582,6 +586,7 @@ export const Gameplay = {
           hintDrawer.style.display = 'block';
         }
       } else {
+        hintBtn.style.display = 'inline-flex';
         hintBtn.disabled = false;
         hintBtn.textContent = `Use Hint (-${penalty} pts)`;
         hintBtn.style.opacity = '1';
@@ -857,7 +862,6 @@ export const Gameplay = {
       helper.style.color = 'var(--text-muted)';
       helper.style.fontStyle = 'italic';
       helper.style.marginBottom = 'var(--space-3)';
-      helper.textContent = 'ℹ Select the exact stdout string produced by this program execution.';
       container.appendChild(helper);
     }
   },
@@ -1307,7 +1311,7 @@ export const Gameplay = {
           this._processBossTurn(result, timeRemaining);
         }
 
-        // 1v1 SyntaxDuel record local progress on incorrect
+        // 1v1 SyntaxDuel record local progress on incorrect & blunder point transfer
         if (this.isDuelMode) {
           const sess = this.engine ? this.engine.getSession() : null;
           if (sess) {
@@ -1318,6 +1322,8 @@ export const Gameplay = {
               streak: 0,
               pointsEarned: 0
             });
+            DuelEngine.recordBlunder({ blunderPlayer: 'p1', points: 100 });
+            UI.showToast(`⚡ BLUNDER! Incorrect answer: +100 PTS awarded to Opponent!`, 'warning');
             this._updateDuelVersusHUD();
           }
         }
@@ -1437,7 +1443,7 @@ export const Gameplay = {
         nextBtn.focus();
       }
       if (retryBtn) {
-        if (type === 'incorrect' && !isGameOver) {
+        if (type === 'incorrect' && !isGameOver && !this.isDuelMode) {
           retryBtn.style.display = 'inline-flex';
         } else {
           retryBtn.style.display = 'none';
@@ -2198,6 +2204,42 @@ export const Gameplay = {
      ========================================================================== */
 
   /**
+   * Helper to render avatar emblem with SVG image and emoji fallback
+   */
+  _renderDuelAvatar(el, avatarIdOrSymbol) {
+    if (!el) return;
+    const avatarMap = {
+      cyber_fox: { file: 'cyber_fox.svg', symbol: '🦊' },
+      terminal_owl: { file: 'terminal_owl.svg', symbol: '🦉' },
+      matrix_cat: { file: 'matrix_cat.svg', symbol: '🐱' },
+      bit_knight: { file: 'bit_knight.svg', symbol: '🛡️' },
+      hex_dragon: { file: 'hex_dragon.svg', symbol: '🐉' },
+      glitch_bot: { file: 'glitch_bot.svg', symbol: '🤖' }
+    };
+
+    const entry = avatarMap[avatarIdOrSymbol];
+    if (entry) {
+      el.innerHTML = `<img src="assets/images/${entry.file}" alt="${avatarIdOrSymbol}" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle; pointer-events: none;" onerror="this.parentElement.textContent='${entry.symbol}'">`;
+    } else if (avatarIdOrSymbol && avatarIdOrSymbol.length <= 4) {
+      el.textContent = avatarIdOrSymbol;
+    } else {
+      el.innerHTML = `<img src="assets/images/matrix_cat.svg" alt="Avatar" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle; pointer-events: none;" onerror="this.parentElement.textContent='🐱'">`;
+    }
+  },
+
+  _getAvatarSymbol(avatarIdOrSymbol) {
+    const avatarMap = {
+      cyber_fox: '🦊',
+      terminal_owl: '🦉',
+      matrix_cat: '🐱',
+      bit_knight: '🛡️',
+      hex_dragon: '🐉',
+      glitch_bot: '🤖'
+    };
+    return avatarMap[avatarIdOrSymbol] || avatarIdOrSymbol || '🦊';
+  },
+
+  /**
    * Initialize Ghost Speed Duel HUD components, events, and baseline pacing.
    * @param {string} difficulty
    */
@@ -2209,6 +2251,7 @@ export const Gameplay = {
       ghostAvatar: '👻',
       playerCumulativeTime: 0,
       ghostCumulativeTime: 0,
+      sessionStartTime: Date.now(),
       questionStartTime: Date.now(),
       lastSplitDelta: 0,
       pacePerQuestion: diff === 'expert' ? 21.0 : (diff === 'intermediate' ? 14.0 : 8.5)
@@ -2231,13 +2274,13 @@ export const Gameplay = {
 
     // Populate Player Profile Info
     const prof = Profile.getActiveProfile();
-    const avatar = (prof && prof.avatarEmoji) || '🦊';
+    const avatar = (prof && (prof.avatarId || prof.avatarEmoji)) || 'cyber_fox';
     const playerAvatarEl = Utils.qs('#ghost-player-avatar');
     const playerPin = Utils.qs('#ghost-player-pin');
     const playerNameEl = Utils.qs('#ghost-player-name');
 
-    if (playerAvatarEl) playerAvatarEl.textContent = avatar;
-    if (playerPin) playerPin.textContent = avatar;
+    if (playerAvatarEl) this._renderDuelAvatar(playerAvatarEl, avatar);
+    if (playerPin) playerPin.textContent = this._getAvatarSymbol(avatar);
     if (playerNameEl && prof && prof.username) playerNameEl.textContent = prof.username;
 
     // Reset split badge
@@ -2256,6 +2299,9 @@ export const Gameplay = {
   _updateGhostDuelTrack(q) {
     if (!this.ghostDuel) return;
     this.ghostDuel.questionStartTime = Date.now();
+    if (!this.ghostDuel.sessionStartTime) {
+      this.ghostDuel.sessionStartTime = Date.now();
+    }
 
     if (!this.ghostDuel.enabled) return;
 
@@ -2264,16 +2310,13 @@ export const Gameplay = {
     const pct = Math.min(100, Math.max(0, (currentIdx / total) * 100));
 
     const playerPin = Utils.qs('#ghost-player-pin');
-    const ghostPin = Utils.qs('#ghost-opponent-pin');
-
     if (playerPin) playerPin.style.left = `${pct}%`;
-    if (ghostPin) ghostPin.style.left = `${pct}%`;
 
     const prof = Profile.getActiveProfile();
-    const avatar = (prof && prof.avatarEmoji) || '🦊';
+    const avatar = (prof && (prof.avatarId || prof.avatarEmoji)) || 'cyber_fox';
     const playerAvatarEl = Utils.qs('#ghost-player-avatar');
-    if (playerAvatarEl) playerAvatarEl.textContent = avatar;
-    if (playerPin) playerPin.textContent = avatar;
+    if (playerAvatarEl) this._renderDuelAvatar(playerAvatarEl, avatar);
+    if (playerPin) playerPin.textContent = this._getAvatarSymbol(avatar);
   },
 
   /**
@@ -2324,25 +2367,52 @@ export const Gameplay = {
   },
 
   /**
-   * Smoothly interpolate Speed Ghost position during question countdown.
+   * Smoothly interpolate Speed Ghost position continuously without stops.
+   * Relentless speed ghost: advances from 0% to 100% based on total session time.
    */
   _updateGhostRealTimeTrack() {
     if (!this.ghostDuel || !this.ghostDuel.enabled) return;
 
-    const q = this.engine ? this.engine.getCurrentQuestion() : null;
-    const total = (this.engine && this.engine.getSession()) ? this.engine.getSession().questions.length : (q ? (q.totalQuestions || 10) : 10);
-    const currentIdx = (q && typeof q.index === 'number') ? q.index : 0;
-    const stepPct = 100 / Math.max(1, total);
-    const basePct = currentIdx * stepPct;
+    if (!this.ghostDuel.sessionStartTime) {
+      this.ghostDuel.sessionStartTime = Date.now();
+    }
 
-    const elapsed = Math.max(0, (Date.now() - (this.ghostDuel.questionStartTime || Date.now())) / 1000);
-    const pace = this.ghostDuel.pacePerQuestion || 10;
-    const paceFraction = Math.min(1.2, elapsed / pace);
-    const ghostPct = Math.min(100, Math.max(0, basePct + (paceFraction * stepPct)));
+    const total = (this.engine && this.engine.getSession()) ? this.engine.getSession().questions.length : 10;
+    const pace = this.ghostDuel.pacePerQuestion || 8.5;
+    const totalDuration = Math.max(15, total * pace);
+
+    // Continuous glide without stops
+    const elapsed = Math.max(0, (Date.now() - this.ghostDuel.sessionStartTime) / 1000);
+    const ghostPct = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
 
     const ghostPin = Utils.qs('#ghost-opponent-pin');
     if (ghostPin) {
       ghostPin.style.left = `${ghostPct.toFixed(1)}%`;
+    }
+
+    // Dynamic split calculation
+    const q = this.engine ? this.engine.getCurrentQuestion() : null;
+    const currentIdx = (q && typeof q.index === 'number') ? q.index : 0;
+    const playerPct = Math.min(100, Math.max(0, (currentIdx / total) * 100));
+
+    const splitBadge = Utils.qs('#ghost-split-badge');
+    const splitText = Utils.qs('#ghost-split-text');
+    const splitIcon = Utils.qs('#ghost-split-icon');
+    if (splitBadge && splitText) {
+      const delta = playerPct - ghostPct;
+      if (delta > 2) {
+        splitBadge.className = 'ghost-duel-split-badge is-ahead';
+        if (splitIcon) splitIcon.textContent = '⚡';
+        splitText.textContent = `AHEAD (+${Math.round(delta)}%)`;
+      } else if (delta < -2) {
+        splitBadge.className = 'ghost-duel-split-badge is-behind';
+        if (splitIcon) splitIcon.textContent = '⚠️';
+        splitText.textContent = `BEHIND (${Math.round(delta)}%)`;
+      } else {
+        splitBadge.className = 'ghost-duel-split-badge is-even';
+        if (splitIcon) splitIcon.textContent = '⏱️';
+        splitText.textContent = 'NECK & NECK';
+      }
     }
   },
 
@@ -2751,6 +2821,7 @@ export const Gameplay = {
     const diff = (params.diff || 'beginner').toLowerCase();
     const duelSeed = params.seed ? parseInt(params.seed, 10) : DuelEngine.generateSeed();
     const isLocalSplit = params.submode === 'local_split' || params.duel === 'local';
+    const prof = Profile.getActiveProfile();
 
     if (isLocalSplit) {
       DuelEngine.initLocalSplit({
@@ -2768,7 +2839,8 @@ export const Gameplay = {
           seed: duelSeed,
           language: lang,
           difficulty: diff,
-          count
+          count,
+          profile: prof
         });
       } else {
         DuelEngine.initHost({
@@ -2776,10 +2848,17 @@ export const Gameplay = {
           seed: duelSeed,
           language: lang,
           difficulty: diff,
-          count
+          count,
+          profile: prof
         });
       }
     }
+
+    // Hide hint and retry actions in 1v1 SyntaxDuel
+    const hintBtn = Utils.qs('#btn-use-hint');
+    if (hintBtn) hintBtn.style.display = 'none';
+    const retryBtn = Utils.qs('#btn-retry-question');
+    if (retryBtn) retryBtn.style.display = 'none';
 
     // Subscribe to multiplayer events
     DuelEngine.onRemoteProgress(() => {
@@ -2790,27 +2869,36 @@ export const Gameplay = {
       this._onDuelSabotage(data);
     });
 
-    // Populate Player Identities
-    const prof = Profile.getActiveProfile();
-    const p1Avatar = (prof && prof.avatarEmoji) || '🦊';
+    // Populate Player Identities with SVG rendering & emoji fallback
+    const p1Avatar = (prof && (prof.avatarId || prof.avatarEmoji)) || 'cyber_fox';
     const p1Name = (prof && prof.username) || 'Player 1';
     const p1AvatarEl = Utils.qs('#duel-p1-avatar');
     const p1NameEl = Utils.qs('#duel-p1-name');
     const p1Pin = Utils.qs('#duel-p1-pin');
 
-    if (p1AvatarEl) p1AvatarEl.textContent = p1Avatar;
+    if (p1AvatarEl) this._renderDuelAvatar(p1AvatarEl, p1Avatar);
     if (p1NameEl) p1NameEl.textContent = p1Name;
-    if (p1Pin) p1Pin.textContent = p1Avatar;
+    if (p1Pin) p1Pin.textContent = this._getAvatarSymbol(p1Avatar);
 
-    const p2Avatar = DuelEngine.session?.opponent?.avatar || '🐱';
-    const p2Name = DuelEngine.session?.opponent?.username || (isLocalSplit ? 'Player 2 (Keys 7-0)' : 'Challenger');
+    const opponent = DuelEngine.opponentPlayer || {};
+    const p2Avatar = opponent.avatar || (isLocalSplit ? 'matrix_cat' : (params.role === 'challenger' ? 'cyber_fox' : 'terminal_owl'));
+    const p2Name = opponent.name || (isLocalSplit ? 'Player 2 (Keys 7-0)' : (params.role === 'challenger' ? 'Host' : 'Challenger'));
     const p2AvatarEl = Utils.qs('#duel-p2-avatar');
     const p2NameEl = Utils.qs('#duel-p2-name');
     const p2Pin = Utils.qs('#duel-p2-pin');
 
-    if (p2AvatarEl) p2AvatarEl.textContent = p2Avatar;
+    if (p2AvatarEl) this._renderDuelAvatar(p2AvatarEl, p2Avatar);
     if (p2NameEl) p2NameEl.textContent = p2Name;
-    if (p2Pin) p2Pin.textContent = p2Avatar;
+    if (p2Pin) p2Pin.textContent = this._getAvatarSymbol(p2Avatar);
+
+    // Update avatar and name when opponent joins
+    DuelEngine.onOpponentJoined((opp) => {
+      if (p2NameEl) p2NameEl.textContent = opp.name || 'Challenger';
+      if (p2AvatarEl) this._renderDuelAvatar(p2AvatarEl, opp.avatar || 'matrix_cat');
+      if (p2Pin) p2Pin.textContent = this._getAvatarSymbol(opp.avatar || 'matrix_cat');
+      this._updateDuelVersusHUD();
+      UI.showToast(`⚔️ Rival connected: ${opp.name || 'Challenger'} ready for duel!`, 'success');
+    });
 
     this._updateDuelVersusHUD();
     UI.showToast(`⚔️ 1v1 SyntaxDuel Engaged! Race to solve ${count} challenges!`, 'info');
@@ -2873,8 +2961,20 @@ export const Gameplay = {
     const p2StreakBadge = Utils.qs('#duel-p2-streak-badge');
     const p2NameEl = Utils.qs('#duel-p2-name');
 
-    if (p2NameEl && DuelEngine.session && DuelEngine.session.opponent) {
-      p2NameEl.textContent = DuelEngine.session.opponent.username || 'Challenger';
+    const p2AvatarEl = Utils.qs('#duel-p2-avatar');
+
+    const opp = (DuelEngine.session && DuelEngine.session.opponent) || DuelEngine.opponentPlayer;
+    if (opp) {
+      if (p2NameEl && opp.name) {
+        p2NameEl.textContent = opp.name;
+      }
+      if (p2AvatarEl && opp.avatar && p2AvatarEl.getAttribute('data-avatar') !== opp.avatar) {
+        p2AvatarEl.setAttribute('data-avatar', opp.avatar);
+        this._renderDuelAvatar(p2AvatarEl, opp.avatar);
+      }
+      if (p2Pin && opp.avatar) {
+        p2Pin.textContent = this._getAvatarSymbol(opp.avatar);
+      }
     }
     if (p2ScoreEl) p2ScoreEl.textContent = `${lead.p2Score.toLocaleString()} PTS`;
     if (p2ProgEl) p2ProgEl.textContent = `Q ${lead.p2Progress} / ${total}`;
@@ -3440,6 +3540,41 @@ export const Gameplay = {
         logSearchInput.value = '';
         if (typeof IncidentEngine !== 'undefined') {
           this._renderIncidentLogs(IncidentEngine.getStreamingLogs());
+        }
+      });
+    }
+
+    // Terminal Shell in Incident HUD
+    const termForm = Utils.qs('#incident-terminal-form');
+    const termInput = Utils.qs('#incident-terminal-input');
+    if (termForm && termInput) {
+      termForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const cmd = termInput.value.trim();
+        if (!cmd) return;
+        termInput.value = '';
+        if (typeof IncidentEngine !== 'undefined') {
+          const res = IncidentEngine.executeTerminalCommand(cmd);
+          const stream = Utils.qs('#incident-log-stream');
+          if (stream) {
+            if (res.output === '__CLEAR__') {
+              stream.innerHTML = '';
+            } else if (res.error) {
+              const errRow = document.createElement('div');
+              errRow.className = 'log-line';
+              errRow.style.color = 'var(--color-danger)';
+              errRow.textContent = `[sre@cluster]$ ${cmd}\n${res.error}`;
+              stream.appendChild(errRow);
+              stream.scrollTop = stream.scrollHeight;
+            } else {
+              const outRow = document.createElement('div');
+              outRow.className = 'log-line';
+              outRow.style.color = '#38bdf8';
+              outRow.textContent = `[sre@cluster]$ ${cmd}\n${res.output}`;
+              stream.appendChild(outRow);
+              stream.scrollTop = stream.scrollHeight;
+            }
+          }
         }
       });
     }

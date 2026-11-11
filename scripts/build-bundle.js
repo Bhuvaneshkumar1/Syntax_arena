@@ -24,6 +24,7 @@ const files = [
   'data/academy-lessons.js',
   'data/boss-encounters.js',
   'data/incident-scenarios.js',
+  'data/duel-questions.js',
   'data/battlestation-catalog.js',
   'js/data/index.js',
   'js/utils.js',

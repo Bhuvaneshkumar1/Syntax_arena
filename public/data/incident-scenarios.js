@@ -14,7 +14,7 @@ export const INCIDENT_SCENARIOS = [
     service: 'analytics-worker-v3',
     language: 'python',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'At 03:14 UTC, the analytics ingestion workers began failing health checks. Pods are getting OOM-killed (Exit Code 137) every 90 seconds. Ingestion backlog has accumulated 4.2 million events.',
     initialMetrics: {
       cpu: 96.5,
@@ -33,40 +33,51 @@ export const INCIDENT_SCENARIOS = [
       activeConnections: 1200
     },
     logs: [
-      '[03:12:01.402] [INFO] [analytics-worker-04] Batch ingestion started for partition #14',
-      '[03:12:44.119] [WARN] [analytics-worker-04] Garbage collector cycle took 840ms (> 200ms threshold)',
-      '[03:13:10.822] [WARN] [memory_watchdog] Heap usage at 87.4% (6.99 GB / 8.00 GB)',
+      '[03:11:45.100] [INFO] [analytics-worker-04] Initializing Kafka consumer group: cgrp-analytics-v3',
+      '[03:11:47.304] [INFO] [analytics-worker-04] Assigned partitions: [partition-0, partition-1, partition-2]',
+      '[03:12:01.402] [INFO] [analytics-worker-04] Batch ingestion started for partition #14 (offset: 8912401)',
+      '[03:12:15.912] [DEBUG] [memory_watchdog] Heap usage at 42.1% (3.37 GB / 8.00 GB)',
+      '[03:12:30.405] [DEBUG] [cache_manager] Module cache size: 142,000 entries across 12 tenant sessions',
+      '[03:12:44.119] [WARN] [analytics-worker-04] Garbage collector gen 2 cycle took 840ms (> 200ms threshold)',
+      '[03:12:55.002] [WARN] [metrics] Ingestion queue latency spiked to 1,240ms',
+      '[03:13:10.822] [WARN] [memory_watchdog] Heap usage at 87.4% (6.99 GB / 8.00 GB) - CRITICAL THRESHOLD',
+      '[03:13:22.109] [WARN] [cgroup] Memory cgroup memory.usage_in_bytes reaching memory.limit_in_bytes (8589934592)',
+      '[03:13:35.811] [ERROR] [analytics-worker-04] Failed to allocate PyList buffer for incoming payload batch',
+      '[03:13:42.503] [ERROR] [kernel] Low memory warning: page allocation failure: order:4, mode:0x40cc0',
       '[03:13:58.204] [ERROR] [analytics-worker-04] Traceback (most recent call last):',
-      '[03:13:58.205] [ERROR] [analytics-worker-04]   File "pipeline/ingest.py", line 42, in process_event_batch',
+      '[03:13:58.205] [ERROR] [analytics-worker-04]   File "/app/pipeline/ingest.py", line 42, in process_event_batch',
       '[03:13:58.206] [ERROR] [analytics-worker-04]     _GLOBAL_CACHE[session_id].append(raw_event_payload)',
       '[03:13:58.207] [ERROR] [analytics-worker-04] MemoryError: Out of memory allocation failed (cannot allocate 64MB block)',
-      '[03:14:02.001] [FATAL] [kubelet] Pod analytics-worker-04 terminated with signal SIGKILL (OOMKilled)'
+      '[03:14:00.110] [ALERT] [kubelet] Killing container analytics-worker-04: memory cgroup limit exceeded',
+      '[03:14:02.001] [FATAL] [kubelet] Pod analytics-worker-04 terminated with signal SIGKILL (OOMKilled - Exit 137)',
+      '[03:14:05.302] [INFO] [replicaset] Creating replacement pod analytics-worker-05',
+      '[03:14:15.901] [WARN] [gateway] 502 Bad Gateway: upstream worker unreachable on port 8080'
     ],
     diagnosisQuestion: {
       id: 'inc_q_mem_diag',
       type: 'multiple_choice',
-      prompt: 'Based on the stack trace and memory growth velocity, what is the architectural root cause of the crash loop?',
+      prompt: 'Examining the stack trace in pipeline/ingest.py:42 and memory velocity, what architectural defect causes the crash loop?',
       options: [
-        '_GLOBAL_CACHE is appending raw payloads indefinitely without eviction, creating an unbounded heap leak.',
-        'Python 3.10 garbage collection is disabled in production settings.',
-        'The partition reader is attempting to load a file larger than physical RAM in a single byte stream.',
-        'The database cursor connection pool is closing prematurely.'
+        'The database connection pool has exhausted its maximum TCP socket capacity.',
+        'Python 3.10 garbage collection was explicitly disabled in the systemd service config.',
+        '_GLOBAL_CACHE is appending raw payloads indefinitely without TTL or eviction, causing an unbounded heap leak.',
+        'The Kafka partition reader attempted to read a single byte payload larger than 8GB.'
       ],
-      correctAnswer: 0,
-      explanation: 'Lines 41-42 append raw event payloads into a module-level global dict `_GLOBAL_CACHE[session_id]` with no TTL, LRU eviction, or size bounds. In Python, module-level globals persist for the life of the worker process, creating an unbounded memory leak until the kernel triggers an OOM kill.'
+      correctAnswer: 2,
+      explanation: 'Lines 41-42 append raw event payloads into a module-level global dictionary `_GLOBAL_CACHE[session_id]` with no TTL, size ceiling, or LRU eviction policy. Module-level globals persist in Python for the lifetime of the worker, continuously growing until the OS cgroup kills the container with OOMKilled (Exit Code 137).'
     },
     patchQuestion: {
       id: 'inc_q_mem_patch',
       type: 'multiple_choice',
-      prompt: 'Select the optimal production hotfix patch to stabilize the worker heap immediately without data loss:',
+      prompt: 'Select the optimal zero-downtime hotfix patch to permanently stabilize heap consumption:',
       options: [
-        'Replace unbounded global list with an LRUCache(maxsize=10_000) or weakref-backed buffer with streaming flush to disk.',
-        'Double pod memory request in Kubernetes deployment spec from 8GB to 16GB.',
-        'Run gc.collect() manually inside the for loop after processing every individual event.',
-        'Wrap the append call in a try/except MemoryError and pass.'
+        'Wrap the append call in a try/except MemoryError block and silently pass.',
+        'Replace unbounded global list with a bounded LRUCache(maxsize=10_000) or streaming disk/Redis buffer.',
+        'Call gc.collect() manually inside the event ingestion loop after every single item.',
+        'Double the Kubernetes deployment pod memory limit from 8GB to 16GB in values.yaml.'
       ],
-      correctAnswer: 0,
-      explanation: 'Replacing the unbounded list accumulator with a bounded LRU cache / sliding window buffer (`functools.lru_cache` or a Redis/disk-backed queue) ensures memory cannot grow beyond configured bounds. Doubling RAM only delays OOM by minutes, while manual `gc.collect()` degrades CPU throughput by 80% without freeing reachable global references.'
+      correctAnswer: 1,
+      explanation: 'Replacing the unbounded list accumulator with a bounded LRU cache / sliding window buffer (`functools.lru_cache` or a Redis/disk-backed queue) guarantees heap usage cannot exceed predictable operational thresholds. Doubling RAM only postpones OOM by minutes, while manual `gc.collect()` causes 80% CPU degradation without freeing reachable references.'
     }
   },
   {
@@ -77,7 +88,7 @@ export const INCIDENT_SCENARIOS = [
     service: 'ledger-router-worker',
     language: 'go',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'At 14:02 UTC, 100% of payment authorization webhooks stalled simultaneously. HTTP goroutines exploded from 120 to over 48,000. All worker threads are blocked indefinitely.',
     initialMetrics: {
       cpu: 18.0,
@@ -96,39 +107,44 @@ export const INCIDENT_SCENARIOS = [
       activeConnections: 850
     },
     logs: [
-      '[14:01:52.012] [INFO] [ledger] Processing Transfer txn_9812: Account A -> Account B',
-      '[14:01:52.013] [INFO] [ledger] Processing Transfer txn_9813: Account B -> Account A',
-      '[14:01:52.014] [DEBUG] [ledger] txn_9812: acquired lock for Account A, awaiting Account B lock...',
-      '[14:01:52.015] [DEBUG] [ledger] txn_9813: acquired lock for Account B, awaiting Account A lock...',
-      '[14:02:15.901] [WARN] [http_pool] Inflight HTTP request queue full (10,000 requests pending)',
-      '[14:02:30.002] [ERROR] [goroutine_monitor] 48,211 goroutines in state `chan receive` or `sync.Mutex.Lock` wait > 30s',
-      '[14:02:45.109] [FATAL] [healthcheck] Liveness probe timeout (GET /livez timed out after 10.0s)'
+      '[14:01:45.001] [INFO] [ledger] Payment gateway listening on :8443 (HTTP/2 TLS enabled)',
+      '[14:01:50.110] [INFO] [ledger] Processing batch transfers: 1,400 concurrent settlement transactions',
+      '[14:01:52.012] [INFO] [ledger] Transfer txn_9812: Account A -> Account B ($450.00 USD)',
+      '[14:01:52.013] [INFO] [ledger] Transfer txn_9813: Account B -> Account A ($120.00 USD)',
+      '[14:01:52.014] [DEBUG] [ledger] txn_9812: acquired lock for Account A (lock_id=0xaa01), awaiting lock for Account B...',
+      '[14:01:52.015] [DEBUG] [ledger] txn_9813: acquired lock for Account B (lock_id=0xbb02), awaiting lock for Account A...',
+      '[14:02:05.100] [WARN] [http_pool] Inflight HTTP request queue reaching saturation (5,000 pending requests)',
+      '[14:02:15.901] [WARN] [http_pool] Inflight HTTP request queue full (10,000 requests pending, dropping new arrivals)',
+      '[14:02:22.404] [ERROR] [goroutine_monitor] Goroutine count surged: 124 -> 48,211 active goroutines',
+      '[14:02:30.002] [ERROR] [goroutine_monitor] 48,211 goroutines in state `sync.Mutex.Lock` wait > 30s',
+      '[14:02:40.810] [ALERT] [healthcheck] GET /healthz failed: context deadline exceeded (client timeout 5000ms)',
+      '[14:02:45.109] [FATAL] [kubelet] Liveness probe timeout for ledger-router-worker: container restarting'
     ],
     diagnosisQuestion: {
       id: 'inc_q_deadlock_diag',
       type: 'multiple_choice',
-      prompt: 'Analyze the lock acquisition sequence between txn_9812 and txn_9813. What concurrency bug triggered this outage?',
+      prompt: 'Analyze the lock acquisition sequence between txn_9812 and txn_9813. What concurrency bug caused this outage?',
       options: [
-        'A circular wait deadlock caused by acquiring multiple resource locks in inconsistent, arbitrary order.',
-        'A goroutine stack overflow from infinite mutual recursion.',
-        'Channel starvation due to an unbuffered channel without a listener.',
-        'Atomic memory tearing across 64-bit integer pointers.'
+        'A circular wait deadlock caused by acquiring multiple shared locks in inconsistent, arbitrary order.',
+        'A goroutine stack overflow triggered by infinite mutual recursion.',
+        'Channel starvation caused by an unbuffered channel lacking a dedicated reader goroutine.',
+        'Memory tearing caused by non-atomic 64-bit integer writes across CPU cores.'
       ],
       correctAnswer: 0,
-      explanation: 'Classic circular wait deadlock (Coffman condition): Transaction 1 locks Account A and waits for Account B, while Transaction 2 locks Account B and waits for Account A. Because neither releases their held lock, both goroutines freeze forever, causing cascading queue exhaustion.'
+      explanation: 'Classic circular wait deadlock (Coffman condition): Transaction 1 locks Account A and waits for Account B, while Transaction 2 locks Account B and waits for Account A. Neither can progress or release its lock, permanently freezing both goroutines and exhausting the worker pool.'
     },
     patchQuestion: {
       id: 'inc_q_deadlock_patch',
       type: 'multiple_choice',
-      prompt: 'Which algorithmic pattern permanently prevents circular lock acquisition deadlocks in account transfers?',
+      prompt: 'Which synchronization pattern permanently eliminates circular lock acquisition deadlocks in Go transfers?',
       options: [
-        'Enforce a strict canonical lock acquisition ordering by sorting account IDs (e.g. lock min(idA, idB) first, then max(idA, idB)).',
-        'Add a time.Sleep(10 * time.Millisecond) between the two lock acquisition statements.',
-        'Replace sync.Mutex with sync.RWMutex and acquire RLock on both accounts.',
-        'Launch each lock operation inside a new go func() goroutine without joining.'
+        'Replace sync.Mutex with sync.RWMutex and acquire read locks on both accounts.',
+        'Insert time.Sleep(10 * time.Millisecond) between the two lock statements.',
+        'Launch each lock operation in its own detached go func() without synchronization.',
+        'Enforce canonical lock ordering by sorting account IDs (e.g., lock min(idA, idB) first, then max(idA, idB)).'
       ],
-      correctAnswer: 0,
-      explanation: 'Enforcing a global canonical order for acquiring locks (e.g., sorting account IDs alphabetically or by numerical key: `if fromID > toID { swap() }`) completely breaks the circular wait condition. Every transaction acquires locks in the exact same sequence, making deadlocks mathematically impossible.'
+      correctAnswer: 3,
+      explanation: 'Enforcing a strict canonical order for acquiring locks (such as always locking the numerically or alphabetically smaller account ID first: `first, second := sort(fromID, toID); first.Lock(); second.Lock()`) mathematically breaks the circular wait condition, making deadlocks impossible.'
     }
   },
   {
@@ -139,7 +155,7 @@ export const INCIDENT_SCENARIOS = [
     service: 'auth-proxy-daemon',
     language: 'c',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'At 21:40 UTC, the edge reverse proxy crashed violently with a SIGABRT signal. Core dumps report stack canary corruption immediately after parsing authorization headers.',
     initialMetrics: {
       cpu: 99.0,
@@ -158,38 +174,41 @@ export const INCIDENT_SCENARIOS = [
       activeConnections: 1800
     },
     logs: [
+      '[21:39:40.100] [INFO] [proxy] Edge gateway listening on 0.0.0.0:443 (workers: 8)',
+      '[21:39:52.401] [INFO] [auth] Received HTTP POST /api/v1/auth/exchange from 198.51.100.24',
       '[21:39:58.201] [INFO] [auth] Received HTTP POST /api/v1/auth/exchange (Content-Length: 1048)',
-      '[21:39:58.202] [DEBUG] [auth] Extracting Bearer token header...',
+      '[21:39:58.202] [DEBUG] [auth] Extracting Bearer token header into fixed buffer char token[256]...',
       '[21:39:58.203] [CRITICAL] [glibc] *** stack smashing detected ***: terminated',
       '[21:39:58.204] [FATAL] [kernel] Traps: auth-proxy-daemon[4201] general protection fault ip:0x7f8842 sp:0x7ffcb4',
       '[21:40:02.100] [ERROR] [systemd] auth-proxy-daemon.service: Main process exited, code=dumped, status=6/ABRT',
-      '[21:40:02.101] [ALERT] [watchdog] Zero healthy upstream authentication nodes available.'
+      '[21:40:02.101] [ALERT] [watchdog] Zero healthy upstream authentication nodes available in pool.',
+      '[21:40:05.409] [WARN] [systemd] Restarting service auth-proxy-daemon.service (attempt 1/5)'
     ],
     diagnosisQuestion: {
       id: 'inc_q_bof_diag',
       type: 'multiple_choice',
-      prompt: 'Examining the glibc message "*** stack smashing detected ***", which unsafe C standard library function is responsible?',
+      prompt: 'Examining the glibc message "*** stack smashing detected ***", which unsafe C operation triggered this crash?',
       options: [
-        'strcpy() or sprintf() copying an unbounded header string into a fixed stack array without bounds checking.',
-        'malloc() returning NULL because physical virtual memory addresses were exhausted.',
-        'free() called twice on the same heap pointer (double free error).',
-        'qsort() called with an invalid comparator function causing stack depth explosion.'
+        'malloc() returned NULL because physical virtual memory was exhausted.',
+        'strcpy() or sprintf() copied an unbounded header string into a fixed stack array without bounds checking.',
+        'free() was invoked twice on the same memory pointer (double free error).',
+        'qsort() was called with an inconsistent comparison function.'
       ],
-      correctAnswer: 0,
-      explanation: 'Stack smashing detection (GCC `-fstack-protector`) aborts execution when a canary word placed on the stack before the function return address is overwritten. This happens when an unbounded string copy like `strcpy(token_buf, header_str)` copies more bytes than the stack array allocated, overflowing into the canary.'
+      correctAnswer: 1,
+      explanation: 'Stack smashing detection (GCC `-fstack-protector`) aborts execution when a canary word placed on the stack before the function return address is overwritten. An unbounded string copy like `strcpy(token_buf, header_str)` copies more bytes than the 256-byte stack array allocated, overflowing into the canary.'
     },
     patchQuestion: {
       id: 'inc_q_bof_patch',
       type: 'multiple_choice',
-      prompt: 'Select the standard secure C mitigation to replace the vulnerable stack string copy:',
+      prompt: 'Select the standard secure C remediation to replace the vulnerable stack copy:',
       options: [
+        'Compile the binary with -fno-stack-protector to bypass canary verification.',
         'Use strncpy(dest, src, sizeof(dest) - 1) and guarantee null-termination: dest[sizeof(dest) - 1] = \'\\0\'.',
-        'Compile the binary with -fno-stack-protector to disable canary checking.',
-        'Increase the stack buffer size from char token[256] to char token[65536].',
-        'Add a printf("%s", header_str) to inspect buffer bounds before copying.'
+        'Increase stack buffer size from char token[256] to char token[65536].',
+        'Cast header_str to (void*) before calling strcpy.'
       ],
-      correctAnswer: 0,
-      explanation: 'Safe bounded copying functions (`strncpy`, `strlcpy`, or `snprintf(dest, sizeof(dest), "%s", src)`) prevent buffer overruns by strictly capping write operations to the size of destination buffer minus 1, followed by explicit null-byte termination.'
+      correctAnswer: 1,
+      explanation: 'Safe bounded copying functions (`strncpy`, `snprintf(dest, sizeof(dest), "%s", src)`) prevent buffer overruns by strictly capping write operations to the size of the destination buffer minus 1, followed by explicit null-byte termination.'
     }
   },
   {
@@ -200,7 +219,7 @@ export const INCIDENT_SCENARIOS = [
     service: 'checkout-api-backend',
     language: 'sql',
     badgeClass: 'badge-amber',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'Shoppers report that the checkout payment button spins indefinitely. Database CPU is only at 6%, but all backend application instances have exhausted their 100-connection database pools.',
     initialMetrics: {
       cpu: 8.5,
@@ -219,9 +238,11 @@ export const INCIDENT_SCENARIOS = [
       activeConnections: 45
     },
     logs: [
-      '[11:02:10.119] [INFO] [checkout] Processing order ord_4910: starting transaction',
+      '[11:02:01.002] [INFO] [checkout] Checkout worker node 2 active. DB Pool Size: 100/100',
+      '[11:02:10.119] [INFO] [checkout] Processing order ord_4910: starting transaction (leased conn #84)',
       '[11:02:10.420] [WARN] [payment_gateway] External card network returned HTTP 504 Gateway Timeout',
       '[11:02:10.421] [ERROR] [checkout] Exception raised during card charge; returning 500 to user',
+      '[11:02:15.809] [WARN] [db_pool] Leased connection #84 not returned after 5000ms',
       '[11:02:30.901] [WARN] [db_pool] Pool checkout wait time exceeded 10,000ms (Active: 100/100, Idle: 0)',
       '[11:02:35.002] [ERROR] [checkout] TimeoutException: Connection not available in pool within specified timeout (10000ms)',
       '[11:02:40.110] [FATAL] [ingress] 503 Service Unavailable: upstream connection pool exhausted'
@@ -229,27 +250,27 @@ export const INCIDENT_SCENARIOS = [
     diagnosisQuestion: {
       id: 'inc_q_pool_diag',
       type: 'multiple_choice',
-      prompt: 'The database server is idling, but all client connections remain leased. What code bug causes this starvation?',
+      prompt: 'The database server is idling at 6% CPU, yet client connections remain 100% leased. What code bug caused this leak?',
       options: [
-        'The database connection is not closed/released inside a finally block or deferred cleanup when an exception occurs.',
-        'The SQL query is missing an index on the primary key column.',
-        'The connection pool size of 100 is too small for standard HTTP traffic.',
-        'The database WAL transaction log disk partition is 100% full.'
+        'The database connection is not closed/released inside a finally block or context manager when an exception occurs.',
+        'The database WAL transaction log disk partition reached 100% capacity.',
+        'The SQL query is missing a composite index on order_id and user_id.',
+        'The connection pool size of 100 is too small for standard HTTP traffic.'
       ],
       correctAnswer: 0,
-      explanation: 'When an external exception (such as a 504 timeout from a card network) aborts function execution before an explicit `conn.close()` line is reached, the connection remains leased forever unless wrapped in a `try...finally` block, context manager (`with`), or Go `defer` statement.'
+      explanation: 'When an exception (such as a 504 timeout from an external card gateway) aborts execution before an explicit `conn.close()` line is reached, the connection remains leased forever unless wrapped in a `try...finally` block, context manager (`with`), or Go `defer` statement.'
     },
     patchQuestion: {
       id: 'inc_q_pool_patch',
       type: 'multiple_choice',
       prompt: 'Select the correct architectural fix to guarantee database connection release under all execution branches:',
       options: [
-        'Enclose the connection lease in a try-with-resources / with context manager to guarantee release even on unhandled exceptions.',
-        'Increase connection pool max_connections from 100 to 50,000 on PostgreSQL server.',
+        'Increase max_connections on the PostgreSQL server from 100 to 50,000.',
         'Catch all exceptions and silently suppress them so execution reaches conn.close().',
-        'Disable timeouts on the external card processing gateway.'
+        'Enclose the connection lease in a try-with-resources / with context manager to guarantee release even on unhandled exceptions.',
+        'Disable timeouts on the external payment gateway.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 2,
       explanation: 'Using RAII / auto-closable idioms (`with pool.acquire() as conn:`, `try (Connection c = pool.getConnection())`, or `defer conn.Close()`) guarantees the leased connection is returned to the pool regardless of whether the function returns normally or throws an exception.'
     }
   },
@@ -261,7 +282,7 @@ export const INCIDENT_SCENARIOS = [
     service: 'auth-validator-node',
     language: 'javascript',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'CPU on all Node.js cluster nodes pinned at 100%. Node event loop lag surged to 42,000ms. All health checks are timing out because the single JavaScript event loop thread is frozen.',
     initialMetrics: {
       cpu: 100.0,
@@ -280,24 +301,27 @@ export const INCIDENT_SCENARIOS = [
       activeConnections: 640
     },
     logs: [
+      '[18:13:50.001] [INFO] [cluster] Node cluster primary spawned 4 worker threads',
       '[18:14:02.104] [INFO] [server] POST /api/v1/validate-email received payload size: 84 bytes',
-      '[18:14:02.105] [DEBUG] [validator] Executing regex test on input: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa!"',
+      '[18:14:02.105] [DEBUG] [validator] Executing regex test: /^([a-zA-Z0-9]+)+$/ on input "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa!"',
+      '[18:14:05.801] [WARN] [event_loop] Event loop lag: 3,420ms (Threshold: 100ms)',
       '[18:14:15.002] [WARN] [event_loop] Event loop lag: 12,898ms (Threshold: 100ms)',
       '[18:14:30.401] [ERROR] [event_loop] Event loop completely blocked. 3,892 timer callbacks delayed.',
+      '[18:14:40.119] [ALERT] [kubelet] Liveness probe failed: HTTP GET /healthz connection refused',
       '[18:14:45.001] [FATAL] [k8s] Liveness probe failed 3 times consecutive. Pod killed.'
     ],
     diagnosisQuestion: {
       id: 'inc_q_redos_diag',
       type: 'multiple_choice',
-      prompt: 'What regular expression pattern characteristic causes Catastrophic Backtracking (ReDoS) on unmatched inputs?',
+      prompt: 'What structural regular expression pattern characteristic causes Catastrophic Backtracking (ReDoS) on unmatched inputs?',
       options: [
-        'Nested overlapping quantifiers like (a+)+ evaluated against a string that fails near the end.',
-        'Using the global flag /g without resetting lastIndex.',
+        'Using negative lookahead assertions (?!) without capturing groups.',
         'Compiling regular expressions inside a loop instead of reusing a module constant.',
-        'Using negative lookahead assertions (?!) without capturing groups.'
+        'Nested overlapping quantifiers like (a+)+ evaluated against a string that fails near the end.',
+        'Using the global flag /g without resetting lastIndex between calls.'
       ],
-      correctAnswer: 0,
-      explanation: 'Regular expression engines using Nondeterministic Finite Automata (NFA) exhibit catastrophic $O(2^n)$ exponential backtracking when matching nested quantifiers (e.g. `^([a-zA-Z0-9]+)*$`). When an input string fails at the final character, the engine explores billions of recursive permutation branches, pegging CPU at 100%.'
+      correctAnswer: 2,
+      explanation: 'Regular expression engines using Nondeterministic Finite Automata (NFA) exhibit catastrophic $O(2^n)$ exponential backtracking when matching nested quantifiers (e.g. `^([a-zA-Z0-9]+)+$`). When an input string fails at the final character, the engine explores billions of recursive permutation branches, pegging CPU at 100%.'
     },
     patchQuestion: {
       id: 'inc_q_redos_patch',
@@ -321,7 +345,7 @@ export const INCIDENT_SCENARIOS = [
     service: 'orderbook-feed-engine',
     language: 'cpp',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'Market data feed handlers are crashing sporadically during heavy volatility. Valgrind and ASan report Use-After-Free heap corruption in orderbook depth buffers.',
     initialMetrics: {
       cpu: 75.0,
@@ -340,24 +364,26 @@ export const INCIDENT_SCENARIOS = [
       activeConnections: 540
     },
     logs: [
+      '[08:30:00.001] [INFO] [feed] Initializing orderbook memory arena (size: 4GB)',
       '[08:30:01.002] [INFO] [feed] Connected to Nasdaq ITCH 5.0 Multicast feed',
       '[08:30:14.204] [DEBUG] [orderbook] Cancel order #884912: executing delete order_ptr',
       '[08:30:14.205] [DEBUG] [orderbook] Order ptr 0x55a8f0 freed back to heap arena',
       '[08:30:14.208] [CRITICAL] [asan] AddressSanitizer: heap-use-after-free on address 0x55a8f0',
       '[08:30:14.209] [CRITICAL] [asan] READ of size 8 at 0x55a8f0 thread T0 (orderbook_worker)',
-      '[08:30:14.210] [FATAL] [kernel] Process terminated with SIGSEGV (Segmentation Fault)'
+      '[08:30:14.210] [FATAL] [kernel] Process terminated with SIGSEGV (Segmentation Fault)',
+      '[08:30:15.801] [WARN] [cluster] Fast restart triggered for orderbook-feed-engine'
     ],
     diagnosisQuestion: {
       id: 'inc_q_cpp_diag',
       type: 'multiple_choice',
-      prompt: 'Why did dereferencing 0x55a8f0 crash the application after the order was canceled?',
+      prompt: 'Why did dereferencing address 0x55a8f0 crash the application after the order was canceled?',
       options: [
+        'The struct memory was not aligned to a 64-byte CPU cache line boundary.',
         'A raw pointer was retained and accessed after delete freed the underlying heap memory (Dangling Pointer / Use-After-Free).',
-        'The struct memory was not aligned to a 64-byte cache line boundary.',
         'The compiler failed to inline the virtual destructor.',
-        'The thread attempted to lock a recursive mutex twice.'
+        'The thread attempted to lock an uninitialized spinlock.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 1,
       explanation: 'When raw memory is released via `delete order_ptr;`, the pointer variable still contains the numerical memory address (`0x55a8f0`), but the operating system heap allocator has marked that chunk as freed. Dereferencing it later is undefined behavior and triggers AddressSanitizer / SIGSEGV.'
     },
     patchQuestion: {
@@ -365,12 +391,12 @@ export const INCIDENT_SCENARIOS = [
       type: 'multiple_choice',
       prompt: 'What modern C++ (C++17/20) idiom guarantees that memory is never accessed after deallocation?',
       options: [
-        'Adopt smart pointers (std::unique_ptr or std::shared_ptr) and RAII instead of raw manual new/delete.',
         'Set order_ptr = (Order*)0x12345678 immediately after calling delete.',
         'Allocate all orders with malloc() and avoid the C++ delete operator.',
-        'Cast the pointer to void* before accessing struct members.'
+        'Cast the pointer to void* before accessing struct members.',
+        'Adopt smart pointers (std::unique_ptr or std::shared_ptr) and RAII instead of raw manual new/delete.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 3,
       explanation: 'Modern C++ RAII with `std::unique_ptr` and `std::shared_ptr` / `std::weak_ptr` automatically manages ownership semantics and nullifies handles upon move/reset, mathematically eliminating dangling pointers and manual memory leak pitfalls.'
     }
   },
@@ -382,7 +408,7 @@ export const INCIDENT_SCENARIOS = [
     service: 'doc-export-worker',
     language: 'typescript',
     badgeClass: 'badge-amber',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'Users requesting 1,000-page PDF exports cause the entire cloud API to freeze. All lightweight health checks and auth routes stall until the PDF export finishes.',
     initialMetrics: {
       cpu: 100.0,
@@ -401,23 +427,25 @@ export const INCIDENT_SCENARIOS = [
       activeConnections: 420
     },
     logs: [
+      '[16:19:50.001] [INFO] [doc-worker] Gateway listening on port 3000 (Express + TypeScript)',
       '[16:20:00.101] [INFO] [export] Starting PDF generation for document doc_84102 (1,450 pages)',
       '[16:20:00.102] [DEBUG] [crypto] Generating cryptographic watermark signatures synchronously in loop',
       '[16:20:08.502] [WARN] [gateway] Upstream response time for GET /healthz exceeded 5,000ms',
       '[16:20:18.901] [ERROR] [proxy] 504 Gateway Timeout: no bytes received from doc-export-worker in 15s',
-      '[16:20:25.001] [WARN] [cluster] Node worker 3 unresponsive, event loop delay = 24,912ms'
+      '[16:20:25.001] [WARN] [cluster] Node worker 3 unresponsive, event loop delay = 24,912ms',
+      '[16:20:30.812] [ALERT] [ingress] Error rate spike: 65.4% of API gateway requests timed out'
     ],
     diagnosisQuestion: {
       id: 'inc_q_ts_diag',
       type: 'multiple_choice',
       prompt: 'Why does a long-running synchronous computation freeze completely unrelated incoming HTTP routes in Node.js?',
       options: [
-        'Node.js executes JavaScript on a single thread; synchronous loops starve the event loop from processing I/O events.',
         'TypeScript compilation removes multi-threading support at transpilation time.',
+        'Node.js executes JavaScript on a single thread; synchronous loops starve the event loop from processing I/O events.',
         'The V8 garbage collector enters a stop-the-world pause when processing strings longer than 1MB.',
         'HTTP keep-alive sockets cannot coexist with cryptographic hashing.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 1,
       explanation: 'JavaScript in Node.js is single-threaded. When CPU-intensive operations (like synchronous hashing or layout calculation) execute synchronously on the main thread, the event loop cannot pick up incoming TCP packets, timers, or I/O callbacks, causing every endpoint to freeze.'
     },
     patchQuestion: {
@@ -442,7 +470,7 @@ export const INCIDENT_SCENARIOS = [
     service: 'discount-evaluator',
     language: 'java',
     badgeClass: 'badge-coral',
-    slaSeconds: 45,
+    slaSeconds: 180, // 3 Minutes
     lore: 'During Black Friday flash deals, a promotion with a null coupon code caused 100% of shopping cart evaluations to crash with NullPointerException, triggering a cascading container restart loop.',
     initialMetrics: {
       cpu: 89.0,
@@ -461,24 +489,26 @@ export const INCIDENT_SCENARIOS = [
       activeConnections: 720
     },
     logs: [
+      '[00:01:00.001] [INFO] [cart] DiscountService initialized with 48 active rule beans',
       '[00:01:05.112] [INFO] [cart] Evaluating discount rules for cart_99182',
       '[00:01:05.114] [ERROR] [cart] java.lang.NullPointerException: Cannot invoke "String.toUpperCase()" because "couponCode" is null',
       '[00:01:05.115] [ERROR] [cart]   at com.syntaxarena.discount.RuleEngine.apply(RuleEngine.java:54)',
       '[00:01:05.116] [ERROR] [cart]   at com.syntaxarena.cart.CartService.calculateTotal(CartService.java:112)',
       '[00:01:10.820] [WARN] [resilience] CircuitBreaker "discount-service" tripped OPEN (failure rate: 100%)',
-      '[00:01:15.001] [FATAL] [cart] Unhandled runtime exception in reactive pipeline: 500 Internal Server Error'
+      '[00:01:15.001] [FATAL] [cart] Unhandled runtime exception in reactive pipeline: 500 Internal Server Error',
+      '[00:01:20.404] [WARN] [kubernetes] Readiness probe failed: 500 Internal Server Error'
     ],
     diagnosisQuestion: {
       id: 'inc_q_java_diag',
       type: 'multiple_choice',
-      prompt: 'What caused the NullPointerException at RuleEngine.java:54?',
+      prompt: 'What caused the NullPointerException at RuleEngine.java:54 in the cart pipeline?',
       options: [
-        'Calling an instance method (toUpperCase) on a null object reference without null-checking or using Optional.',
         'The Java Virtual Machine ran out of PermGen / Metaspace memory.',
         'The Coupon class did not implement the Serializable interface.',
-        'A generic type cast from Object to String failed at runtime.'
+        'A generic type cast from Object to String failed at runtime.',
+        'Calling an instance method (toUpperCase) on a null object reference without null-checking or using Optional.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 3,
       explanation: 'In Java, invoking any method on a reference variable that evaluates to `null` throws `java.lang.NullPointerException`. When guest shoppers or promotions without coupon codes were evaluated, `couponCode` was null, crashing the cart calculation.'
     },
     patchQuestion: {
@@ -486,12 +516,12 @@ export const INCIDENT_SCENARIOS = [
       type: 'multiple_choice',
       prompt: 'Select the idiomatic Java defensive pattern to handle optional coupon codes safely:',
       options: [
-        'Use Optional.ofNullable(couponCode).map(String::toUpperCase).orElse("") or Objects.requireNonNullElse().',
         'Catch java.lang.Error at the top-level main class.',
+        'Use Optional.ofNullable(couponCode).map(String::toUpperCase).orElse("") or Objects.requireNonNullElse().',
         'Add a static boolean flag isCouponPresent initialized to true.',
         'Declare the method as synchronized.'
       ],
-      correctAnswer: 0,
+      correctAnswer: 1,
       explanation: '`Optional.ofNullable(couponCode).map(String::toUpperCase).orElse("")` or standard null-safe checks (e.g., `Objects.requireNonNullElse(couponCode, "").toUpperCase()`) gracefully handle null values without throwing NullPointerException.'
     }
   }
@@ -515,4 +545,3 @@ if (typeof window !== 'undefined') {
   window.INCIDENT_SCENARIOS = INCIDENT_SCENARIOS;
   window.IncidentScenarios = IncidentScenarios;
 }
-
