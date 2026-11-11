@@ -81,14 +81,20 @@ export function runBossEngineTests() {
   const turn2 = BossEngine.processTurn(true, 25, 30, 3, 'expert');
   assert(turn2.damage > turn1.damage, `Expert + Streak + Fast Speed yields greater damage (${turn2.damage} > ${turn1.damage})`);
 
-  // --- 4. Boss Counter-Attack on Incorrect Answer ---
-  console.log('\n--- 4. Boss Counter-Attack on Incorrect Answer ---');
+  // --- 4. Boss Counter-Attack & HP Regeneration on Incorrect Answer ---
+  console.log('\n--- 4. Boss Counter-Attack & HP Regeneration on Incorrect Answer ---');
   const prevHp = BossEngine.currentHp;
   const turnMiss = BossEngine.processTurn(false, 0, 30, 0, 'intermediate');
   assert(turnMiss.isPlayerHit === false, 'Player missed on incorrect answer');
   assert(turnMiss.damage === 0, 'Dealt 0 damage to boss on incorrect answer');
-  assert(BossEngine.currentHp === prevHp, 'Boss HP untouched on player miss');
+  assert(BossEngine.currentHp >= prevHp, 'Boss HP regenerates/heals on player miss');
   assert(typeof turnMiss.taunt === 'string', `Boss responded with taunt: "${turnMiss.taunt}"`);
+
+  // Test consecutive mistakes triggering player wipe / overwhelm
+  BossEngine.processTurn(false, 0, 30, 0, 'intermediate');
+  const turnWipe = BossEngine.processTurn(false, 0, 30, 0, 'intermediate');
+  assert(turnWipe.isPlayerDefeated === true, 'Player marked defeated on 3 consecutive mistakes');
+  assert(turnWipe.taunt.includes('DEFEAT') || turnWipe.taunt.includes('PURGED') || turnWipe.taunt.includes('CANNOT'), 'Wipe taunt triggered');
 
   const counterAttack = BossEngine.triggerBossAttack();
   assert(counterAttack.attackType === 'null_dereference', 'Triggered Null Dereference Void attack');

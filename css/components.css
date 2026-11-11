@@ -1528,12 +1528,12 @@
 }
 
 /* ==========================================================================
-   CYBER ACADEMY (LEARN MODE) STYLES
+   CYBER ACADEMY (LEARN MODE) STYLES (W3Schools Multi-Chapter Layout)
    ========================================================================== */
 .academy-layout {
   display: grid;
-  grid-template-columns: minmax(0, 290px) minmax(0, 1fr);
-  gap: var(--space-6);
+  grid-template-columns: minmax(0, 270px) minmax(0, 1fr) minmax(0, 250px);
+  gap: var(--space-5);
   align-items: start;
 }
 
@@ -1542,10 +1542,84 @@
   max-width: 100%;
 }
 
+@media (max-width: 1200px) {
+  .academy-layout {
+    grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  }
+  .academy-right-panel {
+    display: none !important;
+  }
+}
+
 @media (max-width: 880px) {
   .academy-layout {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.academy-right-panel {
+  display: block;
+}
+
+.academy-right-ch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.academy-right-ch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--bg-surface-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.academy-right-ch-item:hover {
+  background: var(--bg-surface-raised);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: translateX(2px);
+}
+
+.academy-right-ch-item.is-active {
+  background: rgba(99, 102, 241, 0.14);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+}
+
+.academy-toc-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.academy-toc-link {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 5px 8px;
+  border-radius: var(--radius-xs);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.academy-toc-link:hover {
+  color: var(--color-cyan);
+  background: rgba(6, 182, 212, 0.1);
+  transform: translateX(2px);
 }
 
 .lesson-nav-menu {

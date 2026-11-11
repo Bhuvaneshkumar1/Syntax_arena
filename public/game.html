@@ -492,6 +492,35 @@
     </div>
   </div>
 
+  <!-- Mega-Boss Defeat & System Wipe Modal Dialog -->
+  <div id="modal-boss-defeat" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-boss-defeat-title" style="display: none;">
+    <div class="modal-dialog card card-raised" style="max-width: 520px; text-align: center; border: 2px solid var(--color-danger); box-shadow: 0 0 50px rgba(239, 68, 68, 0.45);">
+      <div class="modal-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
+        <span style="font-size: 3.5rem; animation: pulse 1.2s infinite;" id="boss-defeat-icon">💀</span>
+      </div>
+      <div class="modal-body" style="padding-top: var(--space-2);">
+        <span class="badge badge-coral" style="font-size: 11px; letter-spacing: 0.08em;">SYSTEM PURGED • CRITICAL FAILURE</span>
+        <h2 id="modal-boss-defeat-title" style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; margin: 0.5rem 0 0.25rem 0; color: var(--color-danger);">
+          YOU CANNOT DEFEAT THE DAEMON
+        </h2>
+        <p id="boss-defeat-taunt" style="color: var(--text-secondary); font-size: var(--text-sm); line-height: 1.5; margin-bottom: var(--space-4); font-style: italic; font-family: var(--font-mono);">
+          "Your syntax was obliterated by corruption. The Daemon has regenerated full power."
+        </p>
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-md); padding: 0.75rem; margin-bottom: 1.25rem; font-size: var(--text-xs); color: var(--text-primary); text-align: left;">
+          ⚠️ <strong>Combat Telemetry:</strong> Consecutive syntax deductions failed. The Mega-Boss restored its HP and overwhelmed your security defenses.
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: var(--space-3); flex-wrap: wrap;">
+        <button id="btn-boss-retry" class="btn-arcade btn-primary btn-md" type="button" style="background: linear-gradient(135deg, #ef4444, #b91c1c); border-color: #f87171; font-weight: 800;">
+          <span>↺ Retry Boss Battle</span>
+        </button>
+        <button id="btn-boss-defeat-hub" class="btn-arcade btn-neutral btn-md" type="button">
+          <span>🏠 Return to Hub</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Cyber Academy 3-Mistakes Study Recommendation Modal Dialog -->
   <div id="modal-academy-recommendation" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-academy-rec-title">
     <div class="modal-dialog" style="max-width: 480px; text-align: center; border-color: rgba(6, 182, 212, 0.4); box-shadow: 0 0 30px rgba(6, 182, 212, 0.25);">

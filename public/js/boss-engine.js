@@ -20,6 +20,8 @@ export const BossEngine = {
   damageDealtTotal: 0,
   isVictory: false,
   isDefeated: false,
+  isPlayerDefeated: false,
+  consecutivePlayerErrors: 0,
   activeGlitch: null,
   glitchTimeoutId: null,
 
@@ -38,6 +40,8 @@ export const BossEngine = {
     this.damageDealtTotal = 0;
     this.isVictory = false;
     this.isDefeated = false;
+    this.isPlayerDefeated = false;
+    this.consecutivePlayerErrors = 0;
     this.clearActiveGlitch();
 
     console.info(`[BossEngine] Initialized Boss Encounter: ${boss.name} (${this.maxHp} HP)`);
@@ -56,6 +60,8 @@ export const BossEngine = {
       phase: this.phase,
       isVictory: this.isVictory,
       isDefeated: this.isDefeated,
+      isPlayerDefeated: this.isPlayerDefeated || false,
+      consecutivePlayerErrors: this.consecutivePlayerErrors || 0,
       turnCount: this.turnCount,
       damageDealtTotal: this.damageDealtTotal
     };
@@ -110,6 +116,8 @@ export const BossEngine = {
         this.isDefeated = true;
       }
 
+      this.consecutivePlayerErrors = 0;
+
       return {
         isPlayerHit: true,
         isCorrect: true,
@@ -121,16 +129,32 @@ export const BossEngine = {
         status: this.getStatus()
       };
     } else {
-      // Player made a mistake -> Trigger Boss Signature Glitch Attack!
+      // Player made a mistake -> Boss regenerates HP and strikes back!
+      this.consecutivePlayerErrors = (this.consecutivePlayerErrors || 0) + 1;
+      const healAmount = Math.round(this.maxHp * 0.10);
+      const prevHp = this.currentHp;
+      this.currentHp = Math.min(this.maxHp, this.currentHp + healAmount);
+      const actualHealed = this.currentHp - prevHp;
+
+      // Check player wipe conditions: 3 consecutive mistakes or boss reaches full HP after battle started
+      if (this.consecutivePlayerErrors >= 3 || (this.currentHp >= this.maxHp && this.turnCount > 1)) {
+        this.isPlayerDefeated = true;
+      }
+
       const attackPayload = this.triggerBossAttack();
 
       return {
         isPlayerHit: false,
         isCorrect: false,
         damage: 0,
+        healed: actualHealed,
         isCritical: false,
         attack: attackPayload,
-        taunt: this.activeBoss?.taunts?.attack || 'Segmentation Fault!',
+        isPlayerDefeated: this.isPlayerDefeated,
+        consecutiveErrors: this.consecutivePlayerErrors,
+        taunt: this.isPlayerDefeated
+          ? (this.activeBoss?.taunts?.playerWipe || 'YOU CANNOT DEFEAT THE DAEMON! SYSTEM PURGED.')
+          : (this.activeBoss?.taunts?.attack || 'Segmentation Fault!'),
         status: this.getStatus()
       };
     }

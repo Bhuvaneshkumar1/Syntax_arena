@@ -12,13 +12,17 @@ import { QuestionValidator, ALLOWED_LANGUAGES, ALLOWED_DIFFICULTIES } from './qu
 export const LessonUploader = {
   currentPayload: null,
   validationResult: null,
+  _initialized: false,
 
   /**
    * Initialize drag & drop uploader within Admin Console
    */
   init() {
-    this.bindDropzone();
-    this.bindControls();
+    if (!this._initialized) {
+      this.bindDropzone();
+      this.bindControls();
+      this._initialized = true;
+    }
     this.renderCustomLessonsRoster();
   },
 
@@ -100,9 +104,23 @@ export const LessonUploader = {
     // Auto-update metadata when admin changes title/lang/diff
     const titleInput = Utils.qs('#lesson-upload-title');
     const langSelect = Utils.qs('#lesson-upload-lang');
+    const customLangWrap = Utils.qs('#custom-subject-input-wrap');
+    const customLangInput = Utils.qs('#lesson-upload-custom-lang');
     const diffSelect = Utils.qs('#lesson-upload-tier');
 
-    [titleInput, langSelect, diffSelect].forEach(input => {
+    if (langSelect) {
+      langSelect.addEventListener('change', () => {
+        if (langSelect.value === '__custom__') {
+          if (customLangWrap) customLangWrap.style.display = 'block';
+          if (customLangInput) customLangInput.focus();
+        } else {
+          if (customLangWrap) customLangWrap.style.display = 'none';
+        }
+        if (this.currentPayload) this.syncMetadataFromInputs();
+      });
+    }
+
+    [titleInput, customLangInput, diffSelect].forEach(input => {
       if (input) {
         input.addEventListener('input', () => {
           if (this.currentPayload) {
@@ -183,23 +201,33 @@ export const LessonUploader = {
       titleInput.value = academy.title;
     }
 
-    if (metadata && metadata.language && langSelect) {
-      langSelect.value = metadata.language;
-    } else if (questions.length > 0 && questions[0].language && langSelect) {
-      langSelect.value = questions[0].language;
+    const customLangWrap = Utils.qs('#custom-subject-input-wrap');
+    const customLangInput = Utils.qs('#lesson-upload-custom-lang');
+    const defaultLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html', 'asm'];
+    const detectedLang = (metadata && metadata.language) || (questions.length > 0 && questions[0].language) || (academy && academy.language);
+
+    if (detectedLang) {
+      if (defaultLangs.includes(detectedLang)) {
+        if (langSelect) langSelect.value = detectedLang;
+        if (customLangWrap) customLangWrap.style.display = 'none';
+      } else {
+        if (langSelect) langSelect.value = '__custom__';
+        if (customLangWrap) customLangWrap.style.display = 'block';
+        if (customLangInput) customLangInput.value = detectedLang;
+      }
     }
 
     if (metadata && metadata.difficulty && diffSelect) {
       diffSelect.value = metadata.difficulty;
     }
 
-    // 2. Validate Questions Schema via QuestionValidator
+    // 2. Validate Questions Schema via QuestionValidator (allow custom subjects)
     const validationErrors = [];
     const validationWarnings = [];
     let questionStats = { total: 0, byTier: { beginner: 0, intermediate: 0, expert: 0 } };
 
     if (questions.length > 0) {
-      const qRes = QuestionValidator.validateAll(questions, { checkExactInventory: false });
+      const qRes = QuestionValidator.validateAll(questions, { checkExactInventory: false, allowCustomLanguages: true });
       if (!qRes.valid) {
         validationErrors.push(...qRes.errors.map(err => `[Question Error] ${err.message || err.error}`));
       }
@@ -358,7 +386,12 @@ export const LessonUploader = {
    */
   syncMetadataFromInputs() {
     const title = Utils.qs('#lesson-upload-title')?.value.trim();
-    const lang = Utils.qs('#lesson-upload-lang')?.value;
+    const langSelect = Utils.qs('#lesson-upload-lang');
+    const customLangInput = Utils.qs('#lesson-upload-custom-lang');
+    let lang = langSelect?.value;
+    if (lang === '__custom__' && customLangInput?.value.trim()) {
+      lang = customLangInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    }
     const diff = Utils.qs('#lesson-upload-tier')?.value;
 
     if (!this.currentPayload) return;
@@ -386,26 +419,53 @@ export const LessonUploader = {
       return;
     }
 
+    const deployBtn = Utils.qs('#btn-deploy-lesson');
+    if (deployBtn) deployBtn.disabled = true;
+    this.validationResult.isValid = false;
+
     this.syncMetadataFromInputs();
 
     const titleInput = Utils.qs('#lesson-upload-title');
     const langSelect = Utils.qs('#lesson-upload-lang');
+    const customLangInput = Utils.qs('#lesson-upload-custom-lang');
     const diffSelect = Utils.qs('#lesson-upload-tier');
+    const actionSelect = Utils.qs('#lesson-upload-action');
 
     const title = titleInput?.value.trim() || this.currentPayload?.lessonMetadata?.title || 'Custom Community Lesson';
-    const lang = langSelect?.value || this.currentPayload?.lessonMetadata?.language || 'python';
-    const diff = diffSelect?.value || this.currentPayload?.lessonMetadata?.difficulty || 'intermediate';
+    let lang = langSelect?.value || 'python';
+    if (lang === '__custom__' && customLangInput?.value.trim()) {
+      lang = customLangInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    } else if (lang === '__custom__') {
+      lang = this.currentPayload?.lessonMetadata?.language || 'custom';
+    }
 
-    const lessonId = `cust-les-${lang}-${Date.now().toString(36)}`;
+    const diff = diffSelect?.value || this.currentPayload?.lessonMetadata?.difficulty || 'intermediate';
+    const action = actionSelect?.value || 'append';
+
+    // Calculate chapter numbering when appending
+    let chapterNum = 1;
+    try {
+      const existingChapters = (typeof AcademyLessons !== 'undefined' && AcademyLessons.getByLanguage) 
+        ? AcademyLessons.getByLanguage(lang) 
+        : [];
+      chapterNum = existingChapters.length + 1;
+    } catch (_) {}
+
+    const displayTitle = (action === 'append' && !title.toLowerCase().includes('chapter'))
+      ? `Chapter ${chapterNum}: ${title}`
+      : title;
+
+    const lessonId = `cust-les-${lang}-ch${chapterNum}-${Date.now().toString(36)}`;
 
     // Build finalized pack
     const finalizedPack = {
       id: lessonId,
       lessonMetadata: {
         id: lessonId,
-        title,
+        title: displayTitle,
         language: lang,
         difficulty: diff,
+        chapterNumber: chapterNum,
         estimatedMinutes: this.currentPayload?.lessonMetadata?.estimatedMinutes || 6,
         tagline: this.currentPayload?.lessonMetadata?.tagline || `Custom ${lang.toUpperCase()} lesson uploaded via Admin Studio.`
       },
@@ -414,7 +474,7 @@ export const LessonUploader = {
         id: lessonId,
         language: lang,
         difficulty: diff,
-        title: this.validationResult.academy.title || title
+        title: displayTitle
       } : null,
       questions: (this.validationResult.questions || []).map((q, idx) => ({
         ...q,

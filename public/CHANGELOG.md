@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.10.0] - 2026-11-11
+
+### Fixed & Enhanced (Critical Corrections & Curriculum Expansion)
+- **Arena Retry Countdown & Speed Ghost Unfreeze (`js/gameplay.js`):**
+  - Resolved a critical bug where clicking `↺ Retry Question` after an incorrect submission froze both the countdown timer and the Speed Ghost runner.
+  - In `retryCurrentQuestion()`, timer resume logic (`this._startTimer(resumeSeconds)`) is now invoked and `this.ghostDuel.questionStartTime` is dynamically reset to maintain smooth runner interpolation.
+- **Mega-Boss HP Regeneration & Overwhelmed Defeat Glitch (`js/boss-engine.js`, `game.html`, `js/gameplay.js`, `css/animations.css`):**
+  - Boss health now actively regenerates (+10% max HP) whenever the player submits an incorrect answer.
+  - When the player commits 3 consecutive errors or the boss heals back to full HP, the player is overwhelmed. Triggers a violent CRT screen glitch (`.boss-defeat-wipe-glitch`), audio dissonance, and presents the defeat modal: *"💀 YOU CANNOT DEFEAT THE DAEMON"* with `[ ↺ Retry Boss Battle ]` and `[ Return to Hub ]` buttons.
+- **Cyber Academy W3Schools Redesign & In-Lesson Runner Jump (`learn.html`, `css/components.css`, `js/learn.js`):**
+  - Re-architected the Cyber Academy layout into a W3Schools-style tutorial workspace with a 3-column responsive layout (`270px 1fr 250px`).
+  - Switched default view filter from `beginner` to `all` (`data-diff-filter="all"`), rendering full multi-chapter syllabi (`CH 01` to `CH 05+`) across all tiers with completion checks and difficulty chips.
+  - Added a sticky right-side outline & chapter directory panel (`#academy-right-panel`) with section TOC anchors and a *"⚡ Try It Yourself"* jump button that scrolls smoothly to and pulse-highlights `#slide-code-editor`.
+- **Flexible Custom Subject & Chapter Append Admin Uploader (`admin.html`, `js/lesson-uploader.js`, `js/question-validator.js`, `data/academy-lessons.js`):**
+  - Added support for uploading any custom programming language outside the 12 defaults (e.g., Kotlin, Swift, PHP, Ruby, Rust, Zig, Solidity).
+  - Added chapter appending mode (`➕ Add as Extra Chapter to Subject`) which computes the next chapter number (`existingChapters.length + 1`) and dynamically formats `Chapter N: ...`.
+  - Updated `QuestionValidator` with `{ allowCustomLanguages: true }` to support any valid language slug without rejecting non-standard question IDs.
+  - Hardened uploader event binding with an `_initialized` guard and disabled double-click deployment.
+- **HTML Script Redundancy Cleanup (`admin.html`, `learn.html`):**
+  - Removed duplicate `<script type="module">` tags that loaded scripts alongside `bundle.js`, preventing duplicate event listeners.
+- **Automated Verification:**
+  - 796/796 unit tests passing.
+  - 38/38 Admin Route & Stealth Gate Playwright E2E tests passing.
+  - 47/47 Enhancements Playwright E2E tests passing.
+  - 86/86 Responsive Viewport Pressure Playwright E2E tests passing.
+
+---
+
 ## [2.9.0] - 2026-11-10
 
 ### Added & Enhanced

@@ -19,8 +19,8 @@
 [![Offline Ready](https://img.shields.io/badge/Offline-100%25%20Ready-8b5cf6.svg?style=for-the-badge&logo=pwa&logoColor=white)](index.html)
 [![12 Curriculum Tracks](https://img.shields.io/badge/Curriculum-12%20Tracks-f59e0b.svg?style=for-the-badge&logo=codeforces&logoColor=white)](learn.html)
 [![Mega-Boss Incursions](https://img.shields.io/badge/Mega--Boss-Daemon%20Incursions-f43f5e.svg?style=for-the-badge&logo=target&logoColor=white)](game.html?mode=boss)
-[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-794%20%2F%20794%20Passed-10b981.svg?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/)
-[![Playwright E2E](https://img.shields.io/badge/Playwright%20E2E-177%20%2F%20177%20Passed-10b981.svg?style=for-the-badge&logo=playwright&logoColor=white)](tests/)
+[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-796%20%2F%20796%20Passed-10b981.svg?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/)
+[![Playwright E2E](https://img.shields.io/badge/Playwright%20E2E-171%20%2F%20171%20Passed-10b981.svg?style=for-the-badge&logo=playwright&logoColor=white)](tests/)
 [![Stealth Admin Vault](https://img.shields.io/badge/Admin%20Vault-Stealth%20%26%20SHA--256-blueviolet.svg?style=for-the-badge&logo=auth0&logoColor=white)](admin.html)
 
 [🚀 Quick Start](#-quick-start) • [✨ Key Features](#-features-overview) • [👾 Mega-Boss Battles](#-daemon-incursion-mega-boss-battles) • [🕹️ Arena & Ghost Duel](#-arcade-arena--asynchronous-ghost-racing) • [🔐 Stealth Admin & Curriculum Studio](#-stealth-admin-vault--curriculum-studio) • [📅 Daily Gauntlet](#-daily-hacker-gauntlet--7-day-punch-card) • [🔬 Visual Memory Inspector](#-visual-memory--pointer-inspector) • [💻 Multi-Language Sandbox](#-client-side-sandbox--repl) • [🎓 Cyber Academy](#-cyber-academy--graduation-diplomas) • [🧪 Testing](#-testing--quality-assurance)

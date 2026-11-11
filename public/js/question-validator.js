@@ -63,12 +63,15 @@ export const QuestionValidator = {
     };
 
     questions.forEach((q, idx) => {
-      const qErrors = this.validateQuestion(q, idx, seenIds);
+      const qErrors = this.validateQuestion(q, idx, seenIds, options);
       errors.push(...qErrors);
 
       // Collect counts
-      if (q && q.language && stats.byLanguage[q.language] !== undefined) {
-        stats.byLanguage[q.language]++;
+      if (q && q.language) {
+        stats.byLanguage[q.language] = (stats.byLanguage[q.language] || 0) + 1;
+        if (!stats.byTier[q.language]) {
+          stats.byTier[q.language] = { beginner: 0, intermediate: 0, expert: 0 };
+        }
         if (q.difficulty && stats.byTier[q.language][q.difficulty] !== undefined) {
           stats.byTier[q.language][q.difficulty]++;
         }
@@ -128,7 +131,7 @@ export const QuestionValidator = {
    * @param {Set} seenIds
    * @returns {Array} List of validation error objects
    */
-  validateQuestion(q, idx = 0, seenIds = new Set()) {
+  validateQuestion(q, idx = 0, seenIds = new Set(), options = {}) {
     const errs = [];
 
     if (!q || typeof q !== 'object') {
@@ -147,19 +150,33 @@ export const QuestionValidator = {
       }
       seenIds.add(q.id);
 
-      const idPattern = /^(?:cust-)?(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go|html|asm)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3,4}$/;
-      if (!idPattern.test(q.id)) {
-        errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' does not match standard pattern format.` });
+      if (options.allowCustomLanguages) {
+        if (!/^[a-zA-Z0-9_+.-]{3,60}$/.test(q.id)) {
+          errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' must be 3-60 alphanumeric characters/dashes.` });
+        }
+      } else {
+        const idPattern = /^(?:cust-)?(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go|html|asm)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3,4}$/;
+        if (!idPattern.test(q.id)) {
+          errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' does not match standard pattern format.` });
+        }
       }
     }
 
     // 2. Language & Difficulty
-    if (!ALLOWED_LANGUAGES.includes(q.language)) {
-      errs.push({ id: qId, field: 'language', message: `Invalid language '${q.language}'. Expected one of: ${ALLOWED_LANGUAGES.join(', ')}` });
+    if (options.allowCustomLanguages) {
+      if (!q.language || typeof q.language !== 'string' || !/^[a-zA-Z0-9_+.-]{2,30}$/.test(q.language)) {
+        errs.push({ id: qId, field: 'language', message: `Invalid custom language identifier '${q.language}'.` });
+      }
+    } else {
+      if (!ALLOWED_LANGUAGES.includes(q.language)) {
+        errs.push({ id: qId, field: 'language', message: `Invalid language '${q.language}'. Expected one of: ${ALLOWED_LANGUAGES.join(', ')}` });
+      }
     }
 
     if (!ALLOWED_DIFFICULTIES.includes(q.difficulty)) {
-      errs.push({ id: qId, field: 'difficulty', message: `Invalid difficulty '${q.difficulty}'. Expected one of: ${ALLOWED_DIFFICULTIES.join(', ')}` });
+      if (!options.allowCustomLanguages) {
+        errs.push({ id: qId, field: 'difficulty', message: `Invalid difficulty '${q.difficulty}'. Expected one of: ${ALLOWED_DIFFICULTIES.join(', ')}` });
+      }
     }
 
     // 3. Type

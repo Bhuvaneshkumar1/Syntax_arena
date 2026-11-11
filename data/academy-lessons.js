@@ -4517,8 +4517,12 @@ export const AcademyLessons = {
           if (Array.isArray(packs)) {
             const lessons = [];
             packs.forEach(p => {
-              if (p && p.cyberAcademy && typeof p.cyberAcademy === 'object') {
-                lessons.push(p.cyberAcademy);
+              if (p && p.cyberAcademy) {
+                if (Array.isArray(p.cyberAcademy)) {
+                  lessons.push(...p.cyberAcademy);
+                } else if (typeof p.cyberAcademy === 'object') {
+                  lessons.push(p.cyberAcademy);
+                }
               }
             });
             return lessons;

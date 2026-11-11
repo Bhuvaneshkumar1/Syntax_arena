@@ -94575,8 +94575,12 @@ var AcademyLessons = window.AcademyLessons = {
           if (Array.isArray(packs)) {
             const lessons = [];
             packs.forEach(p => {
-              if (p && p.cyberAcademy && typeof p.cyberAcademy === 'object') {
-                lessons.push(p.cyberAcademy);
+              if (p && p.cyberAcademy) {
+                if (Array.isArray(p.cyberAcademy)) {
+                  lessons.push(...p.cyberAcademy);
+                } else if (typeof p.cyberAcademy === 'object') {
+                  lessons.push(p.cyberAcademy);
+                }
               }
             });
             return lessons;
@@ -96999,12 +97003,15 @@ var QuestionValidator = window.QuestionValidator = {
     };
 
     questions.forEach((q, idx) => {
-      const qErrors = this.validateQuestion(q, idx, seenIds);
+      const qErrors = this.validateQuestion(q, idx, seenIds, options);
       errors.push(...qErrors);
 
       // Collect counts
-      if (q && q.language && stats.byLanguage[q.language] !== undefined) {
-        stats.byLanguage[q.language]++;
+      if (q && q.language) {
+        stats.byLanguage[q.language] = (stats.byLanguage[q.language] || 0) + 1;
+        if (!stats.byTier[q.language]) {
+          stats.byTier[q.language] = { beginner: 0, intermediate: 0, expert: 0 };
+        }
         if (q.difficulty && stats.byTier[q.language][q.difficulty] !== undefined) {
           stats.byTier[q.language][q.difficulty]++;
         }
@@ -97064,7 +97071,7 @@ var QuestionValidator = window.QuestionValidator = {
    * @param {Set} seenIds
    * @returns {Array} List of validation error objects
    */
-  validateQuestion(q, idx = 0, seenIds = new Set()) {
+  validateQuestion(q, idx = 0, seenIds = new Set(), options = {}) {
     const errs = [];
 
     if (!q || typeof q !== 'object') {
@@ -97083,19 +97090,33 @@ var QuestionValidator = window.QuestionValidator = {
       }
       seenIds.add(q.id);
 
-      const idPattern = /^(?:cust-)?(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go|html|asm)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3,4}$/;
-      if (!idPattern.test(q.id)) {
-        errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' does not match standard pattern format.` });
+      if (options.allowCustomLanguages) {
+        if (!/^[a-zA-Z0-9_+.-]{3,60}$/.test(q.id)) {
+          errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' must be 3-60 alphanumeric characters/dashes.` });
+        }
+      } else {
+        const idPattern = /^(?:cust-)?(py|c|cpp|java|python|cyber|js|javascript|rust|sql|ts|typescript|go|html|asm)-(beg|int|exp|beginner|intermediate|expert)-[0-9]{3,4}$/;
+        if (!idPattern.test(q.id)) {
+          errs.push({ id: q.id, field: 'id', message: `ID '${q.id}' does not match standard pattern format.` });
+        }
       }
     }
 
     // 2. Language & Difficulty
-    if (!ALLOWED_LANGUAGES.includes(q.language)) {
-      errs.push({ id: qId, field: 'language', message: `Invalid language '${q.language}'. Expected one of: ${ALLOWED_LANGUAGES.join(', ')}` });
+    if (options.allowCustomLanguages) {
+      if (!q.language || typeof q.language !== 'string' || !/^[a-zA-Z0-9_+.-]{2,30}$/.test(q.language)) {
+        errs.push({ id: qId, field: 'language', message: `Invalid custom language identifier '${q.language}'.` });
+      }
+    } else {
+      if (!ALLOWED_LANGUAGES.includes(q.language)) {
+        errs.push({ id: qId, field: 'language', message: `Invalid language '${q.language}'. Expected one of: ${ALLOWED_LANGUAGES.join(', ')}` });
+      }
     }
 
     if (!ALLOWED_DIFFICULTIES.includes(q.difficulty)) {
-      errs.push({ id: qId, field: 'difficulty', message: `Invalid difficulty '${q.difficulty}'. Expected one of: ${ALLOWED_DIFFICULTIES.join(', ')}` });
+      if (!options.allowCustomLanguages) {
+        errs.push({ id: qId, field: 'difficulty', message: `Invalid difficulty '${q.difficulty}'. Expected one of: ${ALLOWED_DIFFICULTIES.join(', ')}` });
+      }
     }
 
     // 3. Type
@@ -99542,6 +99563,8 @@ var BossEngine = window.BossEngine = {
   damageDealtTotal: 0,
   isVictory: false,
   isDefeated: false,
+  isPlayerDefeated: false,
+  consecutivePlayerErrors: 0,
   activeGlitch: null,
   glitchTimeoutId: null,
 
@@ -99560,6 +99583,8 @@ var BossEngine = window.BossEngine = {
     this.damageDealtTotal = 0;
     this.isVictory = false;
     this.isDefeated = false;
+    this.isPlayerDefeated = false;
+    this.consecutivePlayerErrors = 0;
     this.clearActiveGlitch();
 
     console.info(`[BossEngine] Initialized Boss Encounter: ${boss.name} (${this.maxHp} HP)`);
@@ -99578,6 +99603,8 @@ var BossEngine = window.BossEngine = {
       phase: this.phase,
       isVictory: this.isVictory,
       isDefeated: this.isDefeated,
+      isPlayerDefeated: this.isPlayerDefeated || false,
+      consecutivePlayerErrors: this.consecutivePlayerErrors || 0,
       turnCount: this.turnCount,
       damageDealtTotal: this.damageDealtTotal
     };
@@ -99632,6 +99659,8 @@ var BossEngine = window.BossEngine = {
         this.isDefeated = true;
       }
 
+      this.consecutivePlayerErrors = 0;
+
       return {
         isPlayerHit: true,
         isCorrect: true,
@@ -99643,16 +99672,32 @@ var BossEngine = window.BossEngine = {
         status: this.getStatus()
       };
     } else {
-      // Player made a mistake -> Trigger Boss Signature Glitch Attack!
+      // Player made a mistake -> Boss regenerates HP and strikes back!
+      this.consecutivePlayerErrors = (this.consecutivePlayerErrors || 0) + 1;
+      const healAmount = Math.round(this.maxHp * 0.10);
+      const prevHp = this.currentHp;
+      this.currentHp = Math.min(this.maxHp, this.currentHp + healAmount);
+      const actualHealed = this.currentHp - prevHp;
+
+      // Check player wipe conditions: 3 consecutive mistakes or boss reaches full HP after battle started
+      if (this.consecutivePlayerErrors >= 3 || (this.currentHp >= this.maxHp && this.turnCount > 1)) {
+        this.isPlayerDefeated = true;
+      }
+
       const attackPayload = this.triggerBossAttack();
 
       return {
         isPlayerHit: false,
         isCorrect: false,
         damage: 0,
+        healed: actualHealed,
         isCritical: false,
         attack: attackPayload,
-        taunt: this.activeBoss?.taunts?.attack || 'Segmentation Fault!',
+        isPlayerDefeated: this.isPlayerDefeated,
+        consecutiveErrors: this.consecutivePlayerErrors,
+        taunt: this.isPlayerDefeated
+          ? (this.activeBoss?.taunts?.playerWipe || 'YOU CANNOT DEFEAT THE DAEMON! SYSTEM PURGED.')
+          : (this.activeBoss?.taunts?.attack || 'Segmentation Fault!'),
         status: this.getStatus()
       };
     }
@@ -104086,7 +104131,7 @@ if (typeof window !== 'undefined') {
 
 var LearnController = window.LearnController = {
   activeLang: 'python',
-  activeDiff: 'beginner',
+  activeDiff: 'all',
   currentLesson: null,
   currentSlideIndex: 0,
   drillAnswered: false,
@@ -104249,6 +104294,23 @@ var LearnController = window.LearnController = {
       this.loadLessonList(this.currentLesson ? this.currentLesson.id : null);
       this.updateDiplomaButton();
     });
+
+    // Jump to interactive in-lesson live runner (W3Schools style)
+    const btnJumpRunner = Utils.qs('#btn-jump-to-runner');
+    if (btnJumpRunner) {
+      btnJumpRunner.addEventListener('click', () => {
+        const target = Utils.qs('#book-sec-sandbox') || Utils.qs('#slide-code-editor');
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const editor = Utils.qs('#slide-code-editor');
+          if (editor) {
+            editor.focus();
+            editor.classList.add('animate-pop');
+            setTimeout(() => editor.classList.remove('animate-pop'), 600);
+          }
+        }
+      });
+    }
   },
 
   /**
@@ -104272,6 +104334,18 @@ var LearnController = window.LearnController = {
       { id: 'sql', name: '🗄️ SQL' },
       { id: 'typescript', name: '📘 TypeScript' }
     ];
+
+    try {
+      const allLessons = (typeof AcademyLessons !== 'undefined' && AcademyLessons.getAll) ? AcademyLessons.getAll() : [];
+      const existingIds = new Set(langs.map(l => l.id));
+      allLessons.forEach(ls => {
+        if (ls.language && !existingIds.has(ls.language)) {
+          existingIds.add(ls.language);
+          const formatted = ls.language.charAt(0).toUpperCase() + ls.language.slice(1);
+          langs.push({ id: ls.language, name: `✨ ${formatted} (Custom)` });
+        }
+      });
+    } catch (_) {}
 
     langSelect.innerHTML = langs.map(l => `
       <option value="${l.id}" ${l.id === this.activeLang ? 'selected' : ''}>${l.name}</option>
@@ -104348,23 +104422,35 @@ var LearnController = window.LearnController = {
     this.currentLesson = selected;
     this.currentSlideIndex = 0;
 
-    // Render lesson tabs / list
-    container.innerHTML = lessons.map(lesson => {
+    // Update syllabus header count
+    const syllabusCountEl = Utils.qs('#academy-syllabus-count');
+    if (syllabusCountEl) {
+      syllabusCountEl.textContent = `${lessons.length} CHAPTERS`;
+    }
+
+    // Render left syllabus menu with chapter numbering and difficulty badges (W3Schools style)
+    container.innerHTML = lessons.map((lesson, idx) => {
       const isCompleted = Profile.isLessonCompleted(lesson.id);
       const isCurrent = lesson.id === selected.id;
+      const chNum = String(idx + 1).padStart(2, '0');
+      const diffBadge = lesson.difficulty === 'expert' ? 'badge-coral' : (lesson.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald');
       return `
         <button class="lesson-nav-btn ${isCurrent ? 'is-active' : ''} ${isCompleted ? 'is-completed' : ''}"
                 data-lesson-id="${lesson.id}">
           <span class="lesson-status-icon">${isCompleted ? '✓' : '●'}</span>
-          <div class="lesson-meta">
-            <span class="lesson-title">${Utils.escapeHtml(lesson.title)}</span>
-            <span class="lesson-sub">${Utils.escapeHtml(lesson.topic)} • ${lesson.estimatedMinutes}m</span>
+          <div class="lesson-meta" style="width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+              <span style="font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--color-primary);">CH ${chNum}</span>
+              <span class="badge ${diffBadge}" style="font-size: 9px; padding: 1px 5px;">${lesson.difficulty}</span>
+            </div>
+            <span class="lesson-title" style="font-weight: 700;">${Utils.escapeHtml(lesson.title)}</span>
+            <span class="lesson-sub">${Utils.escapeHtml(lesson.topic)} • ${lesson.estimatedMinutes || 5}m</span>
           </div>
         </button>
       `;
     }).join('');
 
-    // Bind click events on lesson menu
+    // Bind click events on left lesson menu
     Utils.qsa('.lesson-nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.dataset.lessonId;
@@ -104373,11 +104459,45 @@ var LearnController = window.LearnController = {
           this.currentLesson = target;
           this.currentSlideIndex = 0;
           Utils.qsa('.lesson-nav-btn').forEach(b => b.classList.remove('is-active'));
+          Utils.qsa('.academy-right-ch-item').forEach(b => b.classList.remove('is-active'));
           btn.classList.add('is-active');
+          const matchRight = Utils.qs(`.academy-right-ch-item[data-lesson-id="${id}"]`);
+          if (matchRight) matchRight.classList.add('is-active');
           this.renderCurrentLesson();
         }
       });
     });
+
+    // Populate Right Panel Chapter Directory (W3Schools sticky right drawer)
+    const rightList = Utils.qs('#academy-right-chapters-list');
+    const rightCount = Utils.qs('#academy-right-ch-count');
+    if (rightCount) rightCount.textContent = `${lessons.length} CHAPTERS`;
+
+    if (rightList) {
+      rightList.innerHTML = lessons.map((lesson, idx) => {
+        const isCurrent = lesson.id === selected.id;
+        const isCompleted = Profile.isLessonCompleted(lesson.id);
+        const diffBadge = lesson.difficulty === 'expert' ? 'badge-coral' : (lesson.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald');
+        return `
+          <button type="button" class="academy-right-ch-item ${isCurrent ? 'is-active' : ''}" data-lesson-id="${lesson.id}">
+            <span style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <span style="font-family: var(--font-mono); font-size: 10px; color: ${isCompleted ? 'var(--color-success)' : 'var(--text-muted)'}; font-weight: bold;">
+                ${isCompleted ? '✓' : String(idx + 1).padStart(2, '0')}
+              </span>
+              <span style="overflow: hidden; text-overflow: ellipsis; max-width: 130px;">${Utils.escapeHtml(lesson.title)}</span>
+            </span>
+            <span class="badge ${diffBadge}" style="font-size: 8px; padding: 1px 4px;">${lesson.difficulty.slice(0, 3)}</span>
+          </button>
+        `;
+      }).join('');
+
+      rightList.querySelectorAll('.academy-right-ch-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.lessonId;
+          this.selectLessonById(id);
+        });
+      });
+    }
 
     this.renderCurrentLesson();
     this.updateDiplomaButton();
@@ -104908,6 +105028,9 @@ var LearnController = window.LearnController = {
       this.currentLesson = target;
       this.currentSlideIndex = 0;
       Utils.qsa('.lesson-nav-btn').forEach(b => {
+        b.classList.toggle('is-active', b.dataset.lessonId === lessonId);
+      });
+      Utils.qsa('.academy-right-ch-item').forEach(b => {
         b.classList.toggle('is-active', b.dataset.lessonId === lessonId);
       });
       this.renderCurrentLesson();
@@ -108578,6 +108701,22 @@ var Gameplay = window.Gameplay = {
       fillInput.focus();
     }
 
+    // Resume countdown timer & ghost tracking so clock and ghost do not freeze on retry
+    if (this.sessionConfig && this.sessionConfig.timeLimit > 0) {
+      const resumeSeconds = (this.timer && this.timer.timeRemaining > 5)
+        ? this.timer.timeRemaining
+        : Math.min(20, this.sessionConfig.timeLimit);
+      this._startTimer(resumeSeconds);
+    }
+
+    if (this.ghostDuel) {
+      this.ghostDuel.questionStartTime = Date.now();
+    }
+
+    if (typeof AudioEngine !== 'undefined' && AudioEngine.playClick) {
+      AudioEngine.playClick();
+    }
+
     this._announceLive('Retrying question. Select an answer and click Submit Answer.');
   },
 
@@ -109097,6 +109236,23 @@ var Gameplay = window.Gameplay = {
       };
     }
 
+    // Mega-Boss Defeat Modal Buttons
+    const bossRetryBtn = Utils.qs('#btn-boss-retry');
+    if (bossRetryBtn) {
+      bossRetryBtn.onclick = () => {
+        UI.closeModal('modal-boss-defeat');
+        window.location.reload();
+      };
+    }
+
+    const bossDefeatHubBtn = Utils.qs('#btn-boss-defeat-hub');
+    if (bossDefeatHubBtn) {
+      bossDefeatHubBtn.onclick = () => {
+        UI.closeModal('modal-boss-defeat');
+        Router.navigateTo('index');
+      };
+    }
+
     // Keyboard Shortcuts (1-4, A-D, Enter, Escape)
     window.addEventListener('keydown', (e) => {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) {
@@ -109529,6 +109685,48 @@ var Gameplay = window.Gameplay = {
           setTimeout(() => card.classList.remove('is-glitched-option'), 2500);
         }
       });
+
+      // Show HP regeneration toast
+      if (bossTurn.healed > 0) {
+        UI.showToast(`⚠️ ${bossTurn.boss?.name || 'Boss'} regenerated +${bossTurn.healed} HP!`, 'warning');
+      }
+
+      // Check Boss Overwhelm Player Defeat
+      if (bossTurn.isPlayerDefeated) {
+        if (this._autoAdvanceTimer) {
+          clearTimeout(this._autoAdvanceTimer);
+          this._autoAdvanceTimer = null;
+        }
+        this._stopTimer();
+
+        // Heavy CRT Glitch & Screen Shake
+        document.body.classList.add('boss-defeat-wipe-glitch');
+        const arenaCard = Utils.qs('#arena-card');
+        if (arenaCard) arenaCard.classList.add('boss-defeat-wipe-glitch');
+        setTimeout(() => {
+          document.body.classList.remove('boss-defeat-wipe-glitch');
+          if (arenaCard) arenaCard.classList.remove('boss-defeat-wipe-glitch');
+        }, 1000);
+
+        if (typeof AudioEngine !== 'undefined' && AudioEngine.playBossGlitch) {
+          AudioEngine.playBossGlitch();
+        }
+
+        // Populate defeat modal
+        const defTaunt = Utils.qs('#boss-defeat-taunt');
+        if (defTaunt && bossTurn.taunt) {
+          defTaunt.textContent = `"${bossTurn.taunt}"`;
+        }
+        const defIcon = Utils.qs('#boss-defeat-icon');
+        if (defIcon && bossTurn.boss) {
+          defIcon.textContent = bossTurn.boss.icon || '💀';
+        }
+
+        setTimeout(() => {
+          UI.openModal('modal-boss-defeat');
+        }, 850);
+        return;
+      }
     }
 
     // Boss Defeat Victory Flow
@@ -109666,13 +109864,17 @@ if (typeof window !== 'undefined') {
 var LessonUploader = window.LessonUploader = {
   currentPayload: null,
   validationResult: null,
+  _initialized: false,
 
   /**
    * Initialize drag & drop uploader within Admin Console
    */
   init() {
-    this.bindDropzone();
-    this.bindControls();
+    if (!this._initialized) {
+      this.bindDropzone();
+      this.bindControls();
+      this._initialized = true;
+    }
     this.renderCustomLessonsRoster();
   },
 
@@ -109754,9 +109956,23 @@ var LessonUploader = window.LessonUploader = {
     // Auto-update metadata when admin changes title/lang/diff
     const titleInput = Utils.qs('#lesson-upload-title');
     const langSelect = Utils.qs('#lesson-upload-lang');
+    const customLangWrap = Utils.qs('#custom-subject-input-wrap');
+    const customLangInput = Utils.qs('#lesson-upload-custom-lang');
     const diffSelect = Utils.qs('#lesson-upload-tier');
 
-    [titleInput, langSelect, diffSelect].forEach(input => {
+    if (langSelect) {
+      langSelect.addEventListener('change', () => {
+        if (langSelect.value === '__custom__') {
+          if (customLangWrap) customLangWrap.style.display = 'block';
+          if (customLangInput) customLangInput.focus();
+        } else {
+          if (customLangWrap) customLangWrap.style.display = 'none';
+        }
+        if (this.currentPayload) this.syncMetadataFromInputs();
+      });
+    }
+
+    [titleInput, customLangInput, diffSelect].forEach(input => {
       if (input) {
         input.addEventListener('input', () => {
           if (this.currentPayload) {
@@ -109837,23 +110053,33 @@ var LessonUploader = window.LessonUploader = {
       titleInput.value = academy.title;
     }
 
-    if (metadata && metadata.language && langSelect) {
-      langSelect.value = metadata.language;
-    } else if (questions.length > 0 && questions[0].language && langSelect) {
-      langSelect.value = questions[0].language;
+    const customLangWrap = Utils.qs('#custom-subject-input-wrap');
+    const customLangInput = Utils.qs('#lesson-upload-custom-lang');
+    const defaultLangs = ['python', 'c', 'cpp', 'java', 'cyber', 'javascript', 'rust', 'sql', 'typescript', 'go', 'html', 'asm'];
+    const detectedLang = (metadata && metadata.language) || (questions.length > 0 && questions[0].language) || (academy && academy.language);
+
+    if (detectedLang) {
+      if (defaultLangs.includes(detectedLang)) {
+        if (langSelect) langSelect.value = detectedLang;
+        if (customLangWrap) customLangWrap.style.display = 'none';
+      } else {
+        if (langSelect) langSelect.value = '__custom__';
+        if (customLangWrap) customLangWrap.style.display = 'block';
+        if (customLangInput) customLangInput.value = detectedLang;
+      }
     }
 
     if (metadata && metadata.difficulty && diffSelect) {
       diffSelect.value = metadata.difficulty;
     }
 
-    // 2. Validate Questions Schema via QuestionValidator
+    // 2. Validate Questions Schema via QuestionValidator (allow custom subjects)
     const validationErrors = [];
     const validationWarnings = [];
     let questionStats = { total: 0, byTier: { beginner: 0, intermediate: 0, expert: 0 } };
 
     if (questions.length > 0) {
-      const qRes = QuestionValidator.validateAll(questions, { checkExactInventory: false });
+      const qRes = QuestionValidator.validateAll(questions, { checkExactInventory: false, allowCustomLanguages: true });
       if (!qRes.valid) {
         validationErrors.push(...qRes.errors.map(err => `[Question Error] ${err.message || err.error}`));
       }
@@ -110012,7 +110238,12 @@ var LessonUploader = window.LessonUploader = {
    */
   syncMetadataFromInputs() {
     const title = Utils.qs('#lesson-upload-title')?.value.trim();
-    const lang = Utils.qs('#lesson-upload-lang')?.value;
+    const langSelect = Utils.qs('#lesson-upload-lang');
+    const customLangInput = Utils.qs('#lesson-upload-custom-lang');
+    let lang = langSelect?.value;
+    if (lang === '__custom__' && customLangInput?.value.trim()) {
+      lang = customLangInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    }
     const diff = Utils.qs('#lesson-upload-tier')?.value;
 
     if (!this.currentPayload) return;
@@ -110040,26 +110271,53 @@ var LessonUploader = window.LessonUploader = {
       return;
     }
 
+    const deployBtn = Utils.qs('#btn-deploy-lesson');
+    if (deployBtn) deployBtn.disabled = true;
+    this.validationResult.isValid = false;
+
     this.syncMetadataFromInputs();
 
     const titleInput = Utils.qs('#lesson-upload-title');
     const langSelect = Utils.qs('#lesson-upload-lang');
+    const customLangInput = Utils.qs('#lesson-upload-custom-lang');
     const diffSelect = Utils.qs('#lesson-upload-tier');
+    const actionSelect = Utils.qs('#lesson-upload-action');
 
     const title = titleInput?.value.trim() || this.currentPayload?.lessonMetadata?.title || 'Custom Community Lesson';
-    const lang = langSelect?.value || this.currentPayload?.lessonMetadata?.language || 'python';
-    const diff = diffSelect?.value || this.currentPayload?.lessonMetadata?.difficulty || 'intermediate';
+    let lang = langSelect?.value || 'python';
+    if (lang === '__custom__' && customLangInput?.value.trim()) {
+      lang = customLangInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    } else if (lang === '__custom__') {
+      lang = this.currentPayload?.lessonMetadata?.language || 'custom';
+    }
 
-    const lessonId = `cust-les-${lang}-${Date.now().toString(36)}`;
+    const diff = diffSelect?.value || this.currentPayload?.lessonMetadata?.difficulty || 'intermediate';
+    const action = actionSelect?.value || 'append';
+
+    // Calculate chapter numbering when appending
+    let chapterNum = 1;
+    try {
+      const existingChapters = (typeof AcademyLessons !== 'undefined' && AcademyLessons.getByLanguage) 
+        ? AcademyLessons.getByLanguage(lang) 
+        : [];
+      chapterNum = existingChapters.length + 1;
+    } catch (_) {}
+
+    const displayTitle = (action === 'append' && !title.toLowerCase().includes('chapter'))
+      ? `Chapter ${chapterNum}: ${title}`
+      : title;
+
+    const lessonId = `cust-les-${lang}-ch${chapterNum}-${Date.now().toString(36)}`;
 
     // Build finalized pack
     const finalizedPack = {
       id: lessonId,
       lessonMetadata: {
         id: lessonId,
-        title,
+        title: displayTitle,
         language: lang,
         difficulty: diff,
+        chapterNumber: chapterNum,
         estimatedMinutes: this.currentPayload?.lessonMetadata?.estimatedMinutes || 6,
         tagline: this.currentPayload?.lessonMetadata?.tagline || `Custom ${lang.toUpperCase()} lesson uploaded via Admin Studio.`
       },
@@ -110068,7 +110326,7 @@ var LessonUploader = window.LessonUploader = {
         id: lessonId,
         language: lang,
         difficulty: diff,
-        title: this.validationResult.academy.title || title
+        title: displayTitle
       } : null,
       questions: (this.validationResult.questions || []).map((q, idx) => ({
         ...q,

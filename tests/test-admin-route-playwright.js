@@ -70,6 +70,13 @@ async function runAdminSecuritySuite() {
   }
 
   try {
+    // Clean any residual test state
+    await page.goto(`${BASE_URL}/index.html`);
+    await page.evaluate(() => {
+      localStorage.removeItem('syntaxarena_custom_lessons');
+      sessionStorage.clear();
+    });
+
     // -------------------------------------------------------------------------
     // 1. Stealth Navigation Integrity (Zero Admin Links in Normal UI)
     // -------------------------------------------------------------------------
@@ -172,10 +179,11 @@ async function runAdminSecuritySuite() {
     const lockoutNotice = await page.$('#admin-lockout-notice');
     check('Security lockout triggered after 5 failed attempts', await lockoutNotice.isVisible());
 
-    // Reset lockout in sessionStorage
+    // Reset lockout in sessionStorage and clean leftover custom lessons from previous test runs
     await page.evaluate(() => {
       sessionStorage.removeItem('syntaxarena_admin_lockout');
       sessionStorage.removeItem('syntaxarena_admin_failed');
+      localStorage.removeItem('syntaxarena_custom_lessons');
     });
     await page.reload();
     await page.waitForTimeout(400);

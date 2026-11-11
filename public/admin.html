@@ -454,7 +454,7 @@
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
                 <div>
                   <label for="lesson-upload-lang" style="display: block; font-size: var(--text-xs); font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">
-                    Target Track:
+                    Target Subject / Track:
                   </label>
                   <select id="lesson-upload-lang" class="form-select" style="font-size: var(--text-sm); padding: 8px 12px;">
                     <option value="python">🐍 Python</option>
@@ -469,7 +469,18 @@
                     <option value="go" selected>🐹 Go (Golang)</option>
                     <option value="html">🎨 HTML5 &amp; CSS</option>
                     <option value="asm">🧠 Assembly &amp; RE</option>
+                    <option value="__custom__">✨ + Add New Custom Subject (Kotlin, Swift, PHP, etc.)...</option>
                   </select>
+
+                  <div id="custom-subject-input-wrap" style="display: none; margin-top: 6px;">
+                    <input 
+                      type="text" 
+                      id="lesson-upload-custom-lang" 
+                      class="form-input" 
+                      placeholder="Enter custom language slug (e.g. kotlin, swift, php, ruby)"
+                      style="font-size: var(--text-xs); padding: 6px 10px; border-color: var(--color-cyan);"
+                    >
+                  </div>
                 </div>
 
                 <div>
@@ -477,11 +488,21 @@
                     Difficulty / Scope:
                   </label>
                   <select id="lesson-upload-tier" class="form-select" style="font-size: var(--text-sm); padding: 8px 12px;">
-                    <option value="all" selected>All Tiers (60 Qs Pack)</option>
-                    <option value="beginner">Beginner (20 Qs)</option>
-                    <option value="intermediate">Intermediate (20 Qs)</option>
-                    <option value="expert">Expert (20 Qs)</option>
+                    <option value="all" selected>All Tiers (Multi-Chapter Pack)</option>
+                    <option value="beginner">Beginner Chapter</option>
+                    <option value="intermediate">Intermediate Chapter</option>
+                    <option value="expert">Expert Chapter</option>
                   </select>
+
+                  <div style="margin-top: 6px;">
+                    <label for="lesson-upload-action" style="display: block; font-size: 11px; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px;">
+                      Ingestion Mode:
+                    </label>
+                    <select id="lesson-upload-action" class="form-select" style="font-size: 11px; padding: 4px 8px;">
+                      <option value="append" selected>➕ Add as Extra Chapter to Subject</option>
+                      <option value="create">📦 Create / Replace Subject Curriculum</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -641,7 +662,6 @@
 
   <!-- Scripts -->
   <script src="js/bundle.js"></script>
-  <script type="module" src="js/admin.js"></script>
 </body>
 </html>
 

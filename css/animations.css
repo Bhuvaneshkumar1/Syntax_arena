@@ -437,6 +437,25 @@
   }
 }
 
+/* Boss Defeat Wipe Heavy Screen Shake & CRT Glitch */
+@keyframes bossDefeatWipeGlitch {
+  0% { transform: translate(0, 0) scale(1); filter: contrast(100%) hue-rotate(0deg); }
+  10% { transform: translate(-14px, 10px) scale(1.02); filter: contrast(280%) hue-rotate(90deg) invert(25%); }
+  20% { transform: translate(16px, -12px) scale(0.97); filter: contrast(350%) hue-rotate(180deg); }
+  30% { transform: translate(-18px, -6px) scale(1.04); filter: contrast(220%) hue-rotate(270deg) invert(45%); }
+  40% { transform: translate(14px, 14px) skewX(5deg); filter: contrast(400%) hue-rotate(45deg); }
+  50% { transform: translate(-12px, -14px) skewX(-5deg); filter: contrast(450%) hue-rotate(180deg); }
+  60% { transform: translate(10px, 8px) scale(1.02); filter: contrast(280%) hue-rotate(300deg); }
+  70% { transform: translate(-8px, -10px) scale(0.98); filter: contrast(200%) hue-rotate(120deg); }
+  80% { transform: translate(6px, 6px); filter: contrast(150%) hue-rotate(60deg); }
+  90% { transform: translate(-2px, -2px); filter: contrast(110%); }
+  100% { transform: translate(0, 0) scale(1); filter: contrast(100%) hue-rotate(0deg); }
+}
+
+.boss-defeat-wipe-glitch {
+  animation: bossDefeatWipeGlitch 0.95s cubic-bezier(0.25, 0.46, 0.45, 0.94) both !important;
+}
+
 /* ==========================================================================
    ACCESSIBILITY: REDUCED MOTION SUPPORT
    Handles both OS preference AND user-toggled settings in Studio Settings

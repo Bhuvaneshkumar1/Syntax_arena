@@ -16,7 +16,7 @@ import { academyLessons, AcademyLessons } from '../data/academy-lessons.js';
 
 export const LearnController = {
   activeLang: 'python',
-  activeDiff: 'beginner',
+  activeDiff: 'all',
   currentLesson: null,
   currentSlideIndex: 0,
   drillAnswered: false,
@@ -179,6 +179,23 @@ export const LearnController = {
       this.loadLessonList(this.currentLesson ? this.currentLesson.id : null);
       this.updateDiplomaButton();
     });
+
+    // Jump to interactive in-lesson live runner (W3Schools style)
+    const btnJumpRunner = Utils.qs('#btn-jump-to-runner');
+    if (btnJumpRunner) {
+      btnJumpRunner.addEventListener('click', () => {
+        const target = Utils.qs('#book-sec-sandbox') || Utils.qs('#slide-code-editor');
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const editor = Utils.qs('#slide-code-editor');
+          if (editor) {
+            editor.focus();
+            editor.classList.add('animate-pop');
+            setTimeout(() => editor.classList.remove('animate-pop'), 600);
+          }
+        }
+      });
+    }
   },
 
   /**
@@ -202,6 +219,18 @@ export const LearnController = {
       { id: 'sql', name: '🗄️ SQL' },
       { id: 'typescript', name: '📘 TypeScript' }
     ];
+
+    try {
+      const allLessons = (typeof AcademyLessons !== 'undefined' && AcademyLessons.getAll) ? AcademyLessons.getAll() : [];
+      const existingIds = new Set(langs.map(l => l.id));
+      allLessons.forEach(ls => {
+        if (ls.language && !existingIds.has(ls.language)) {
+          existingIds.add(ls.language);
+          const formatted = ls.language.charAt(0).toUpperCase() + ls.language.slice(1);
+          langs.push({ id: ls.language, name: `✨ ${formatted} (Custom)` });
+        }
+      });
+    } catch (_) {}
 
     langSelect.innerHTML = langs.map(l => `
       <option value="${l.id}" ${l.id === this.activeLang ? 'selected' : ''}>${l.name}</option>
@@ -278,23 +307,35 @@ export const LearnController = {
     this.currentLesson = selected;
     this.currentSlideIndex = 0;
 
-    // Render lesson tabs / list
-    container.innerHTML = lessons.map(lesson => {
+    // Update syllabus header count
+    const syllabusCountEl = Utils.qs('#academy-syllabus-count');
+    if (syllabusCountEl) {
+      syllabusCountEl.textContent = `${lessons.length} CHAPTERS`;
+    }
+
+    // Render left syllabus menu with chapter numbering and difficulty badges (W3Schools style)
+    container.innerHTML = lessons.map((lesson, idx) => {
       const isCompleted = Profile.isLessonCompleted(lesson.id);
       const isCurrent = lesson.id === selected.id;
+      const chNum = String(idx + 1).padStart(2, '0');
+      const diffBadge = lesson.difficulty === 'expert' ? 'badge-coral' : (lesson.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald');
       return `
         <button class="lesson-nav-btn ${isCurrent ? 'is-active' : ''} ${isCompleted ? 'is-completed' : ''}"
                 data-lesson-id="${lesson.id}">
           <span class="lesson-status-icon">${isCompleted ? '✓' : '●'}</span>
-          <div class="lesson-meta">
-            <span class="lesson-title">${Utils.escapeHtml(lesson.title)}</span>
-            <span class="lesson-sub">${Utils.escapeHtml(lesson.topic)} • ${lesson.estimatedMinutes}m</span>
+          <div class="lesson-meta" style="width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+              <span style="font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--color-primary);">CH ${chNum}</span>
+              <span class="badge ${diffBadge}" style="font-size: 9px; padding: 1px 5px;">${lesson.difficulty}</span>
+            </div>
+            <span class="lesson-title" style="font-weight: 700;">${Utils.escapeHtml(lesson.title)}</span>
+            <span class="lesson-sub">${Utils.escapeHtml(lesson.topic)} • ${lesson.estimatedMinutes || 5}m</span>
           </div>
         </button>
       `;
     }).join('');
 
-    // Bind click events on lesson menu
+    // Bind click events on left lesson menu
     Utils.qsa('.lesson-nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.dataset.lessonId;
@@ -303,11 +344,45 @@ export const LearnController = {
           this.currentLesson = target;
           this.currentSlideIndex = 0;
           Utils.qsa('.lesson-nav-btn').forEach(b => b.classList.remove('is-active'));
+          Utils.qsa('.academy-right-ch-item').forEach(b => b.classList.remove('is-active'));
           btn.classList.add('is-active');
+          const matchRight = Utils.qs(`.academy-right-ch-item[data-lesson-id="${id}"]`);
+          if (matchRight) matchRight.classList.add('is-active');
           this.renderCurrentLesson();
         }
       });
     });
+
+    // Populate Right Panel Chapter Directory (W3Schools sticky right drawer)
+    const rightList = Utils.qs('#academy-right-chapters-list');
+    const rightCount = Utils.qs('#academy-right-ch-count');
+    if (rightCount) rightCount.textContent = `${lessons.length} CHAPTERS`;
+
+    if (rightList) {
+      rightList.innerHTML = lessons.map((lesson, idx) => {
+        const isCurrent = lesson.id === selected.id;
+        const isCompleted = Profile.isLessonCompleted(lesson.id);
+        const diffBadge = lesson.difficulty === 'expert' ? 'badge-coral' : (lesson.difficulty === 'intermediate' ? 'badge-amber' : 'badge-emerald');
+        return `
+          <button type="button" class="academy-right-ch-item ${isCurrent ? 'is-active' : ''}" data-lesson-id="${lesson.id}">
+            <span style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <span style="font-family: var(--font-mono); font-size: 10px; color: ${isCompleted ? 'var(--color-success)' : 'var(--text-muted)'}; font-weight: bold;">
+                ${isCompleted ? '✓' : String(idx + 1).padStart(2, '0')}
+              </span>
+              <span style="overflow: hidden; text-overflow: ellipsis; max-width: 130px;">${Utils.escapeHtml(lesson.title)}</span>
+            </span>
+            <span class="badge ${diffBadge}" style="font-size: 8px; padding: 1px 4px;">${lesson.difficulty.slice(0, 3)}</span>
+          </button>
+        `;
+      }).join('');
+
+      rightList.querySelectorAll('.academy-right-ch-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.lessonId;
+          this.selectLessonById(id);
+        });
+      });
+    }
 
     this.renderCurrentLesson();
     this.updateDiplomaButton();
@@ -838,6 +913,9 @@ export const LearnController = {
       this.currentLesson = target;
       this.currentSlideIndex = 0;
       Utils.qsa('.lesson-nav-btn').forEach(b => {
+        b.classList.toggle('is-active', b.dataset.lessonId === lessonId);
+      });
+      Utils.qsa('.academy-right-ch-item').forEach(b => {
         b.classList.toggle('is-active', b.dataset.lessonId === lessonId);
       });
       this.renderCurrentLesson();

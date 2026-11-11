@@ -1381,6 +1381,22 @@ export const Gameplay = {
       fillInput.focus();
     }
 
+    // Resume countdown timer & ghost tracking so clock and ghost do not freeze on retry
+    if (this.sessionConfig && this.sessionConfig.timeLimit > 0) {
+      const resumeSeconds = (this.timer && this.timer.timeRemaining > 5)
+        ? this.timer.timeRemaining
+        : Math.min(20, this.sessionConfig.timeLimit);
+      this._startTimer(resumeSeconds);
+    }
+
+    if (this.ghostDuel) {
+      this.ghostDuel.questionStartTime = Date.now();
+    }
+
+    if (typeof AudioEngine !== 'undefined' && AudioEngine.playClick) {
+      AudioEngine.playClick();
+    }
+
     this._announceLive('Retrying question. Select an answer and click Submit Answer.');
   },
 
@@ -1900,6 +1916,23 @@ export const Gameplay = {
       };
     }
 
+    // Mega-Boss Defeat Modal Buttons
+    const bossRetryBtn = Utils.qs('#btn-boss-retry');
+    if (bossRetryBtn) {
+      bossRetryBtn.onclick = () => {
+        UI.closeModal('modal-boss-defeat');
+        window.location.reload();
+      };
+    }
+
+    const bossDefeatHubBtn = Utils.qs('#btn-boss-defeat-hub');
+    if (bossDefeatHubBtn) {
+      bossDefeatHubBtn.onclick = () => {
+        UI.closeModal('modal-boss-defeat');
+        Router.navigateTo('index');
+      };
+    }
+
     // Keyboard Shortcuts (1-4, A-D, Enter, Escape)
     window.addEventListener('keydown', (e) => {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) {
@@ -2332,6 +2365,48 @@ export const Gameplay = {
           setTimeout(() => card.classList.remove('is-glitched-option'), 2500);
         }
       });
+
+      // Show HP regeneration toast
+      if (bossTurn.healed > 0) {
+        UI.showToast(`⚠️ ${bossTurn.boss?.name || 'Boss'} regenerated +${bossTurn.healed} HP!`, 'warning');
+      }
+
+      // Check Boss Overwhelm Player Defeat
+      if (bossTurn.isPlayerDefeated) {
+        if (this._autoAdvanceTimer) {
+          clearTimeout(this._autoAdvanceTimer);
+          this._autoAdvanceTimer = null;
+        }
+        this._stopTimer();
+
+        // Heavy CRT Glitch & Screen Shake
+        document.body.classList.add('boss-defeat-wipe-glitch');
+        const arenaCard = Utils.qs('#arena-card');
+        if (arenaCard) arenaCard.classList.add('boss-defeat-wipe-glitch');
+        setTimeout(() => {
+          document.body.classList.remove('boss-defeat-wipe-glitch');
+          if (arenaCard) arenaCard.classList.remove('boss-defeat-wipe-glitch');
+        }, 1000);
+
+        if (typeof AudioEngine !== 'undefined' && AudioEngine.playBossGlitch) {
+          AudioEngine.playBossGlitch();
+        }
+
+        // Populate defeat modal
+        const defTaunt = Utils.qs('#boss-defeat-taunt');
+        if (defTaunt && bossTurn.taunt) {
+          defTaunt.textContent = `"${bossTurn.taunt}"`;
+        }
+        const defIcon = Utils.qs('#boss-defeat-icon');
+        if (defIcon && bossTurn.boss) {
+          defIcon.textContent = bossTurn.boss.icon || '💀';
+        }
+
+        setTimeout(() => {
+          UI.openModal('modal-boss-defeat');
+        }, 850);
+        return;
+      }
     }
 
     // Boss Defeat Victory Flow

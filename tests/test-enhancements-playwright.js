@@ -289,6 +289,150 @@ async function runTests() {
     });
     assert(memInspectorSystems, 'Memory Tracer is visible for Systems (C/C++/Rust)');
 
+    // ------------------------------------------------------------------------
+    // SECTION 6: ARENA RETRY TIMER & SPEED GHOST FREEZE FIX (Correction 1)
+    // ------------------------------------------------------------------------
+    console.log('\n--- Test 6: Arena Retry Timer & Speed Ghost Unfreeze ---');
+    await page.goto(`${BASE_URL}/game.html?lang=python&diff=beginner`);
+    await page.waitForSelector('#btn-submit-answer');
+
+    // Simulate answering wrongly and then clicking Retry Question
+    const retryTestResult = await page.evaluate(async () => {
+      // Pick first answer choice according to interface
+      const card = document.querySelector('.option-card');
+      const pill = document.querySelector('.line-pill-btn');
+      const fillInput = document.querySelector('#fill-code-input');
+      if (card) {
+        card.click();
+      } else if (pill) {
+        pill.click();
+      } else if (fillInput) {
+        fillInput.value = 'wrong_val';
+        fillInput.dispatchEvent(new Event('input'));
+      }
+
+      const submitBtn = document.getElementById('btn-submit-answer');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.click();
+      }
+
+      // Check retry button visible
+      const retryBtn = document.getElementById('btn-retry-question');
+      const isRetryVisible = retryBtn && window.getComputedStyle(retryBtn).display !== 'none';
+
+      // Click retry
+      if (retryBtn) retryBtn.click();
+
+      // Check if timer is running and ghostDuel has questionStartTime
+      const isRunning = window.Gameplay && window.Gameplay.timer && window.Gameplay.timer.isRunning;
+      const intervalActive = window.Gameplay && window.Gameplay.timer && window.Gameplay.timer.intervalId !== null;
+      const ghostActive = window.Gameplay && window.Gameplay.ghostDuel && typeof window.Gameplay.ghostDuel.questionStartTime === 'number';
+
+      return { isRetryVisible, isRunning, intervalActive, ghostActive };
+    });
+
+    assert(retryTestResult.isRunning, 'Countdown timer resumes running upon clicking Retry Question');
+    assert(retryTestResult.intervalActive, 'Timer tick interval is active (not null) after retry');
+    assert(retryTestResult.ghostActive, 'Speed Ghost questionStartTime timestamp resets for live tracking on retry');
+
+    // ------------------------------------------------------------------------
+    // SECTION 7: BOSS HEALING & OVERWHELM DEFEAT GLITCH MODAL (Correction 2)
+    // ------------------------------------------------------------------------
+    console.log('\n--- Test 7: Boss HP Regeneration & Defeat Glitch Modal ---');
+    await page.goto(`${BASE_URL}/game.html?mode=boss&boss=null_leviathan`);
+    await page.waitForSelector('#hud-boss-battle-bar');
+
+    const bossDefeatModal = await page.$('#modal-boss-defeat');
+    assert(bossDefeatModal !== null, 'Mega-Boss defeat modal #modal-boss-defeat exists in DOM');
+
+    const bossDefeatButtons = await page.evaluate(() => {
+      const retry = document.getElementById('btn-boss-retry');
+      const hub = document.getElementById('btn-boss-defeat-hub');
+      return { hasRetry: retry !== null, hasHub: hub !== null };
+    });
+    assert(bossDefeatButtons.hasRetry && bossDefeatButtons.hasHub, 'Defeat modal contains Retry Boss Battle and Return to Hub buttons');
+
+    // Verify boss defeat wipe glitch animation class exists in stylesheet
+    const hasGlitchAnimation = await page.evaluate(() => {
+      const testEl = document.createElement('div');
+      testEl.className = 'boss-defeat-wipe-glitch';
+      document.body.appendChild(testEl);
+      const anim = window.getComputedStyle(testEl).animationName;
+      document.body.removeChild(testEl);
+      return anim.includes('bossDefeatWipeGlitch');
+    });
+    assert(hasGlitchAnimation, 'CSS .boss-defeat-wipe-glitch defines violent CRT screen glitch animation');
+
+    // ------------------------------------------------------------------------
+    // SECTION 8: CYBER ACADEMY W3SCHOOLS MULTI-CHAPTER REDESIGN (Correction 3)
+    // ------------------------------------------------------------------------
+    console.log('\n--- Test 8: Cyber Academy W3Schools Format & Right TOC Panel ---');
+    await page.goto(`${BASE_URL}/learn.html`);
+    await page.waitForSelector('.lesson-nav-btn');
+
+    // Verify default difficulty filter is "all"
+    const isAllActive = await page.evaluate(() => {
+      const allBtn = document.querySelector('[data-diff-filter="all"]');
+      return allBtn && allBtn.classList.contains('is-active');
+    });
+    assert(isAllActive, 'Cyber Academy defaults to "All Chapters" view mode');
+
+    // Verify all 5 chapters are visible in the left syllabus
+    const leftLessonCount = await page.evaluate(() => {
+      return document.querySelectorAll('#academy-lesson-menu .lesson-nav-btn').length;
+    });
+    assert(leftLessonCount >= 5, `Left syllabus displays all multi-tier chapters (Found: ${leftLessonCount} chapters >= 5)`);
+
+    // Verify right-side sticky panel exists and contains chapter directory
+    const rightPanel = await page.$('#academy-right-panel');
+    assert(rightPanel !== null, 'Right-side chapter outline & TOC drawer renders (#academy-right-panel)');
+
+    const rightChaptersCount = await page.evaluate(() => {
+      return document.querySelectorAll('#academy-right-chapters-list .academy-right-ch-item').length;
+    });
+    assert(rightChaptersCount >= 5, `Right-side chapter directory lists all chapters (Found: ${rightChaptersCount} >= 5)`);
+
+    // Verify live runner jump button exists
+    const jumpToRunnerBtn = await page.$('#btn-jump-to-runner');
+    assert(jumpToRunnerBtn !== null, 'Right panel features "▶ Jump to Live Runner" interactive action');
+
+    // ------------------------------------------------------------------------
+    // SECTION 9: FLEXIBLE ADMIN CUSTOM SUBJECT & APPEND MODE (Correction 4)
+    // ------------------------------------------------------------------------
+    console.log('\n--- Test 9: Flexible Admin Uploader (Custom Subjects & Chapters) ---');
+    await page.goto(`${BASE_URL}/admin.html`);
+
+    // Authenticate into Admin Console
+    await page.fill('#admin-input-username', 'admin');
+    await page.fill('#admin-input-password', 'Admin@123');
+    await page.click('#btn-admin-submit');
+    await page.waitForSelector('#admin-dashboard-view', { state: 'visible' });
+
+    // Verify custom subject option exists
+    const hasCustomSubjectOption = await page.evaluate(() => {
+      const select = document.getElementById('lesson-upload-lang');
+      if (!select) return false;
+      const opts = Array.from(select.options).map(o => o.value);
+      return opts.includes('__custom__');
+    });
+    assert(hasCustomSubjectOption, 'Admin target track dropdown includes "+ Add New Custom Subject" option');
+
+    // Verify selecting __custom__ reveals custom subject input
+    await page.selectOption('#lesson-upload-lang', '__custom__');
+    const isCustomInputVisible = await page.evaluate(() => {
+      const wrap = document.getElementById('custom-subject-input-wrap');
+      return wrap && window.getComputedStyle(wrap).display !== 'none';
+    });
+    assert(isCustomInputVisible, 'Selecting custom subject reveals #lesson-upload-custom-lang text field');
+
+    // Verify chapter append action mode exists
+    const hasAppendMode = await page.evaluate(() => {
+      const select = document.getElementById('lesson-upload-action');
+      return select && select.value === 'append';
+    });
+    assert(hasAppendMode, 'Admin provides "➕ Add as Extra Chapter to Subject" ingestion mode');
+
   } catch (err) {
     console.error('Test execution error:', err);
     failedCount++;
