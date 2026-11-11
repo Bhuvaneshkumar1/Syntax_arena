@@ -158,6 +158,58 @@ export async function runMemoryMinigameTests() {
     assert(engine.streak === 0, 'Streak reset on blunder');
     engine._stopRushTimer();
 
+    // --- 6. Independent Mode Scoring & Multi-Connection Topologies ---
+    console.log('\n--- 6. Independent Mode Scoring & Multi-Connection Topologies ---');
+    const isolatedEngine = new MemoryMinigameEngine();
+    
+    // Play cable connect
+    isolatedEngine.setMode('cable_connect');
+    isolatedEngine.loadCableLevel(0);
+    isolatedEngine.addConnection('stk_ptr', 'hp_val42');
+    isolatedEngine.validateCableWiring();
+    const cableScore = isolatedEngine.score;
+    assert(cableScore > 0, `Cable connect earned ${cableScore} points`);
+    assert(isolatedEngine.modeScores.cable_connect === cableScore, 'Cable modeScore matches isolated score');
+
+    // Switch to leak patrol and score
+    isolatedEngine.setMode('leak_patrol');
+    assert(isolatedEngine.score === 0, 'Leak patrol score starts at 0 (NOT mixed with cable connect)');
+    isolatedEngine.loadLeakLevel(0);
+    isolatedEngine.attemptReclaimBlock('hp_buf_leaked');
+    const leakScore = isolatedEngine.score;
+    assert(leakScore > 0, `Leak patrol earned ${leakScore} points`);
+    assert(isolatedEngine.modeScores.leak_patrol === leakScore, 'Leak modeScore matches isolated score');
+    assert(isolatedEngine.modeScores.cable_connect === cableScore, 'Cable connect score remained intact and isolated');
+
+    // Switch to dereference rush and score
+    isolatedEngine.setMode('dereference_rush');
+    isolatedEngine._stopRushTimer();
+    assert(isolatedEngine.score === 0, 'Dereference rush score starts at 0 (NOT mixed with previous games)');
+    isolatedEngine.submitRushAnswer('null_dereference');
+    const rushScore = isolatedEngine.score;
+    assert(rushScore > 0, `Dereference rush earned ${rushScore} points`);
+    assert(isolatedEngine.modeScores.dereference_rush === rushScore, 'Rush modeScore matches isolated score');
+
+    // Check Total Lab XP
+    const expectedTotal = cableScore + leakScore + rushScore;
+    assert(isolatedEngine.totalScore === expectedTotal, `Total Lab XP (${isolatedEngine.totalScore}) equals sum of all three isolated scores (${expectedTotal})`);
+
+    // Verify multi-branching in Level 5 (String Array char**)
+    isolatedEngine.setMode('cable_connect');
+    const lvl5 = isolatedEngine.loadCableLevel(4); // cc_05_string_array
+    assert(lvl5.id === 'cc_05_string_array', 'Loaded Level 5 (char** String Array)');
+    // Connect stk_tokens -> hp_tokens_arr
+    const conn1 = isolatedEngine.addConnection('stk_tokens', 'hp_tokens_arr');
+    // Connect hp_tokens_arr -> hp_str_get
+    const conn2 = isolatedEngine.addConnection('hp_tokens_arr', 'hp_str_get');
+    // Connect hp_tokens_arr -> hp_str_api (multi-branch from same node)
+    const conn3 = isolatedEngine.addConnection('hp_tokens_arr', 'hp_str_api');
+    assert(conn1 && conn2 && conn3, 'All 3 multi-card connections added successfully');
+    assert(isolatedEngine.userConnections.length === 3, 'userConnections contains all 3 links without dropping prior links');
+    const multiVal = isolatedEngine.validateCableWiring();
+    assert(multiVal.valid === true, 'Level 5 multi-branching cable network validated successfully');
+    isolatedEngine._stopRushTimer();
+
   } catch (err) {
     console.error('Test runner fatal error:', err);
     failed++;
@@ -176,3 +228,4 @@ if (typeof process !== 'undefined' && process.argv[1]?.includes('memory-minigame
     if (res.failed > 0) process.exit(1);
   });
 }
+

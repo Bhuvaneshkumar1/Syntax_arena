@@ -17,9 +17,23 @@ export class MemoryMinigameEngine {
 
     this.activeMode = 'cable_connect'; // 'cable_connect' | 'leak_patrol' | 'dereference_rush'
     this.currentLevelIndex = 0;
-    this.score = 0;
-    this.streak = 0;
-    this.maxStreak = 0;
+
+    // Independent score and streak tracking per minigame mode
+    this.modeScores = {
+      cable_connect: 0,
+      leak_patrol: 0,
+      dereference_rush: 0
+    };
+    this.modeStreaks = {
+      cable_connect: 0,
+      leak_patrol: 0,
+      dereference_rush: 0
+    };
+    this.modeMaxStreaks = {
+      cable_connect: 0,
+      leak_patrol: 0,
+      dereference_rush: 0
+    };
 
     // Cable connect state
     this.userConnections = []; // Array of { from: string, to: string }
@@ -33,11 +47,39 @@ export class MemoryMinigameEngine {
 
     // Dereference rush state
     this.rushIndex = 0;
-    this.rushTimer = 15;
+    this.rushTimer = 12;
     this._rushTimerInterval = null;
     this.rushStats = { correct: 0, wrong: 0, segfaults: 0 };
 
     this.listeners = new Map();
+  }
+
+  // Backwards-compatible accessors for active mode
+  get score() {
+    return this.modeScores[this.activeMode] || 0;
+  }
+  set score(val) {
+    this.modeScores[this.activeMode] = val;
+  }
+
+  get streak() {
+    return this.modeStreaks[this.activeMode] || 0;
+  }
+  set streak(val) {
+    this.modeStreaks[this.activeMode] = val;
+  }
+
+  get maxStreak() {
+    return this.modeMaxStreaks[this.activeMode] || 0;
+  }
+  set maxStreak(val) {
+    this.modeMaxStreaks[this.activeMode] = val;
+  }
+
+  get totalScore() {
+    return (this.modeScores.cable_connect || 0) +
+           (this.modeScores.leak_patrol || 0) +
+           (this.modeScores.dereference_rush || 0);
   }
 
   // ==========================================
@@ -77,7 +119,6 @@ export class MemoryMinigameEngine {
     }
     this.activeMode = mode;
     this.currentLevelIndex = 0;
-    this.streak = 0;
     this._stopRushTimer();
 
     if (mode === 'cable_connect') {
@@ -112,14 +153,22 @@ export class MemoryMinigameEngine {
   addConnection(fromId, toId) {
     if (!fromId || !toId || fromId === toId) return false;
 
-    // Check if duplicate
+    // Check if duplicate connection already exists
     const exists = this.userConnections.some(c => c.from === fromId && c.to === toId);
     if (exists) return false;
 
-    // A single output port should typically originate one cable (or allow multi if specified)
-    this.userConnections = this.userConnections.filter(c => c.from !== fromId);
-    this.userConnections.push({ from: fromId, to: toId });
+    // Check how many connections this level requires from this specific source
+    const level = this.getCurrentCableLevel();
+    const reqs = level ? (level.requiredConnections || []) : [];
+    const allowedFromCount = reqs.filter(r => r.from === fromId).length;
+    const currentFromCount = this.userConnections.filter(c => c.from === fromId).length;
 
+    // If source only allows 1 connection in this level (e.g. standard pointer), replace previous
+    if (allowedFromCount <= 1 && currentFromCount >= 1) {
+      this.userConnections = this.userConnections.filter(c => c.from !== fromId);
+    }
+
+    this.userConnections.push({ from: fromId, to: toId });
     this.emit('cableConnected', { from: fromId, to: toId, connections: [...this.userConnections] });
     return true;
   }
@@ -160,23 +209,25 @@ export class MemoryMinigameEngine {
     const isValid = correctCount === reqs.length && incorrectCount === 0;
 
     if (isValid) {
-      this.streak++;
-      if (this.streak > this.maxStreak) this.maxStreak = this.streak;
-      const pts = level.xpReward + (this.streak * 25);
-      this.score += pts;
+      this.modeStreaks.cable_connect++;
+      if (this.modeStreaks.cable_connect > this.modeMaxStreaks.cable_connect) {
+        this.modeMaxStreaks.cable_connect = this.modeStreaks.cable_connect;
+      }
+      const pts = level.xpReward + (this.modeStreaks.cable_connect * 25);
+      this.modeScores.cable_connect += pts;
       this._awardProfileXP(pts);
 
       const result = {
         valid: true,
         scoreAwarded: pts,
-        totalScore: this.score,
-        streak: this.streak,
+        totalScore: this.modeScores.cable_connect,
+        streak: this.modeStreaks.cable_connect,
         feedback: 'Pointer routing verified! All addresses match ground truth.'
       };
       this.emit('cableWiringValidated', result);
       return result;
     } else {
-      this.streak = 0;
+      this.modeStreaks.cable_connect = 0;
       let reason = 'Pointer wire configuration mismatch.';
       if (missingCount > 0 && incorrectCount > 0) {
         reason = `Missing ${missingCount} required wire(s) and detected ${incorrectCount} invalid route(s).`;
@@ -243,7 +294,7 @@ export class MemoryMinigameEngine {
       }
     }
 
-    // BFS
+    // BFS traversal
     while (queue.length > 0) {
       const curId = queue.shift();
       const block = blocksMap.get(curId);
@@ -282,14 +333,16 @@ export class MemoryMinigameEngine {
     if (block.isOrphaned) {
       this.reclaimedBlockIds.add(blockId);
       this.currentHeapBytes = Math.max(0, this.currentHeapBytes - block.sizeBytes);
-      this.streak++;
-      if (this.streak > this.maxStreak) this.maxStreak = this.streak;
+      this.modeStreaks.leak_patrol++;
+      if (this.modeStreaks.leak_patrol > this.modeMaxStreaks.leak_patrol) {
+        this.modeMaxStreaks.leak_patrol = this.modeStreaks.leak_patrol;
+      }
 
-      const pts = 150 + (this.streak * 20);
-      this.score += pts;
+      const pts = 150 + (this.modeStreaks.leak_patrol * 20);
+      this.modeScores.leak_patrol += pts;
       this._awardProfileXP(pts);
 
-      // Check if all orphans collected
+      // Check if all target orphans collected
       const remainingOrphans = (level.orphansToReclaim || []).filter(id => !this.reclaimedBlockIds.has(id));
       const levelComplete = remainingOrphans.length === 0;
 
@@ -300,8 +353,8 @@ export class MemoryMinigameEngine {
         currentHeapBytes: this.currentHeapBytes,
         maxHeapCapacity: this.maxHeapCapacity,
         scoreAwarded: pts,
-        totalScore: this.score,
-        streak: this.streak,
+        totalScore: this.modeScores.leak_patrol,
+        streak: this.modeStreaks.leak_patrol,
         remainingOrphansCount: remainingOrphans.length,
         levelComplete,
         feedback: `Reclaimed ${block.sizeBytes}B orphaned memory at ${block.address}. Heap capacity relieved!`
@@ -309,21 +362,21 @@ export class MemoryMinigameEngine {
 
       this.emit('blockReclaimed', result);
       if (levelComplete) {
-        this.emit('leakLevelCompleted', { level, score: this.score });
+        this.emit('leakLevelCompleted', { level, score: this.modeScores.leak_patrol });
       }
       return result;
     } else {
       // Use After Free!
       this.uafCount++;
-      this.streak = 0;
-      this.score = Math.max(0, this.score - 100);
+      this.modeStreaks.leak_patrol = 0;
+      this.modeScores.leak_patrol = Math.max(0, this.modeScores.leak_patrol - 100);
 
       const result = {
         success: false,
         useAfterFree: true,
         blockId,
         address: block.address,
-        totalScore: this.score,
+        totalScore: this.modeScores.leak_patrol,
         feedback: `🚨 CRITICAL USE-AFTER-FREE! Block at ${block.address} is still actively referenced by live code!`
       };
 
@@ -338,7 +391,7 @@ export class MemoryMinigameEngine {
   startDereferenceRush() {
     this.rushIndex = 0;
     this.rushStats = { correct: 0, wrong: 0, segfaults: 0 };
-    this.streak = 0;
+    this.modeStreaks.dereference_rush = 0;
     this._nextRushChallenge();
   }
 
@@ -347,8 +400,8 @@ export class MemoryMinigameEngine {
     if (this.rushIndex >= this.rushChallenges.length) {
       this.emit('dereferenceRushCompleted', {
         stats: { ...this.rushStats },
-        score: this.score,
-        maxStreak: this.maxStreak
+        score: this.modeScores.dereference_rush,
+        maxStreak: this.modeMaxStreaks.dereference_rush
       });
       return;
     }
@@ -385,18 +438,23 @@ export class MemoryMinigameEngine {
     const challenge = this.rushChallenges[this.rushIndex];
     if (!challenge) return null;
 
-    const isCorrect = chosenCategory === challenge.category;
+    // Flexible match: buffer overrun button matches both 'out_of_bounds' and 'wild_pointer'
+    const isCorrect = chosenCategory === challenge.category ||
+      (chosenCategory === 'out_of_bounds' && challenge.category === 'wild_pointer');
+
     let pts = 0;
 
     if (isCorrect) {
-      this.streak++;
-      if (this.streak > this.maxStreak) this.maxStreak = this.streak;
-      pts = 100 + (this.streak * 25);
-      this.score += pts;
+      this.modeStreaks.dereference_rush++;
+      if (this.modeStreaks.dereference_rush > this.modeMaxStreaks.dereference_rush) {
+        this.modeMaxStreaks.dereference_rush = this.modeStreaks.dereference_rush;
+      }
+      pts = 100 + (this.modeStreaks.dereference_rush * 25);
+      this.modeScores.dereference_rush += pts;
       this.rushStats.correct++;
       this._awardProfileXP(pts);
     } else {
-      this.streak = 0;
+      this.modeStreaks.dereference_rush = 0;
       this.rushStats.wrong++;
       if (chosenCategory === 'safe_dereference' && challenge.category !== 'safe_dereference') {
         this.rushStats.segfaults++;
@@ -409,8 +467,8 @@ export class MemoryMinigameEngine {
       correctCategory: challenge.category,
       explanation: challenge.explanation,
       scoreAwarded: pts,
-      totalScore: this.score,
-      streak: this.streak,
+      totalScore: this.modeScores.dereference_rush,
+      streak: this.modeStreaks.dereference_rush,
       stats: { ...this.rushStats }
     };
 

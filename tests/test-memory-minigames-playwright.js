@@ -159,7 +159,7 @@ async function runMemoryMinigamePlaywrightSuite() {
     assert(isStageVisible === true, 'Interactive stage canvas visible upon returning to cable_connect mode');
 
     // -------------------------------------------------------------
-    // 4. Cable Connect Interactive Ports & Wiring
+    // 4. Cable Connect Interactive Ports & Wiring (Click-to-Connect)
     // -------------------------------------------------------------
     console.log('\n--- 4. Cable Connect Interactive Ports & Wiring ---');
     const stackPorts = await page.$$('.mem-port.port-out');
@@ -168,14 +168,31 @@ async function runMemoryMinigamePlaywrightSuite() {
     const heapPorts = await page.$$('.mem-port.port-in');
     assert(heapPorts.length >= 2, `Found ${heapPorts.length} heap input port(s)`);
 
-    // Simulate connecting stk_ptr to hp_val42 directly via engine
-    await page.evaluate(() => {
-      window.MemoryMinigameController.engine.addConnection('stk_ptr', 'hp_val42');
+    // Click-to-Connect: Click the stack source port
+    const srcPort = await page.$('.mem-port[data-node-id="stk_ptr"]');
+    assert(srcPort !== null, 'Found stack source port for stk_ptr');
+    await srcPort.click();
+    await page.waitForTimeout(150);
+
+    // Verify source card is in connecting state
+    const isConnecting = await page.evaluate(() => {
+      const el = document.querySelector('[data-node-id="stk_ptr"]');
+      return el ? el.classList.contains('is-connecting') : false;
     });
-    await page.waitForTimeout(300);
+    assert(isConnecting === true, 'Source port acquired .is-connecting pulsing state');
+
+    // Click-to-Connect: Click target heap port
+    const tgtPort = await page.$('.mem-port[data-node-id="hp_val42"]');
+    assert(tgtPort !== null, 'Found heap target port for hp_val42');
+    await tgtPort.click();
+    await page.waitForTimeout(200);
 
     const svgPaths = await page.$$('#memory-cables-svg .cable-wire');
-    assert(svgPaths.length === 1, 'Rendered 1 active glowing bezier cable in SVG layer');
+    assert(svgPaths.length === 1, 'Rendered 1 active glowing bezier cable in SVG layer via Click-to-Connect');
+
+    // Verify cable hitbox for click-to-disconnect
+    const hitboxes = await page.$$('#memory-cables-svg .cable-hitbox');
+    assert(hitboxes.length === 1, 'Rendered cable hitbox for easy disconnect');
 
     // Click Check Wiring button
     const btnCheckWiring = await page.$('#btn-check-wiring');
@@ -187,16 +204,46 @@ async function runMemoryMinigamePlaywrightSuite() {
     const feedbackText = await feedbackBanner.textContent();
     assert(feedbackText.includes('Pointer routing verified'), 'Check Wiring passed successfully: ' + feedbackText);
 
+    // Verify Cable Connect score on HUD
+    const cableScoreVal = await page.$eval('#hud-mem-score', el => parseInt(el.textContent, 10));
+    assert(cableScoreVal > 0, `Cable Connect score updated to ${cableScoreVal} PTS`);
+    const totalXpVal1 = await page.$eval('#hud-total-lab-xp', el => parseInt(el.textContent, 10));
+    assert(totalXpVal1 === cableScoreVal, `Total Lab XP matches cable score (${totalXpVal1})`);
+
     const nextLevelBtn = await page.$('#btn-next-level');
     const isNextVisible = await nextLevelBtn.isVisible();
     assert(isNextVisible === true, 'Next Level button unlocked upon correct wiring');
 
+    // Advance to Level 2 (Pointer Aliasing)
+    await nextLevelBtn.click();
+    await page.waitForTimeout(300);
+    const level2Title = await page.$eval('#hud-level-title', el => el.textContent);
+    assert(level2Title.includes('Pointer Aliasing'), 'Successfully advanced to Level 2: ' + level2Title);
+
+    // Advance to Level 3 (Pointer to Pointer - bidirectional port-both test)
+    await page.evaluate(() => {
+      window.MemoryMinigameController.engine.loadCableLevel(2);
+    });
+    await page.waitForTimeout(200);
+    const inPortsLvl3 = await page.$$('.mem-port.port-in');
+    const outPortsLvl3 = await page.$$('.mem-port.port-out');
+    assert(inPortsLvl3.length >= 2 && outPortsLvl3.length >= 2, 'Level 3 mounts bidirectional ports for pointer-to-pointer routing');
+
     // -------------------------------------------------------------
-    // 5. Leak Patrol Mark-and-Sweep & Deallocation
+    // 5. Leak Patrol Mark-and-Sweep & Deallocation (Isolated Scoring)
     // -------------------------------------------------------------
     console.log('\n--- 5. Leak Patrol Mark-and-Sweep & Deallocation ---');
     await tabLeak.click();
     await page.waitForTimeout(300);
+
+    // Verify mode score is reset/isolated for leak patrol
+    const leakScoreVal0 = await page.$eval('#hud-mem-score', el => parseInt(el.textContent, 10));
+    assert(leakScoreVal0 === 0, 'Leak Patrol starts with isolated score of 0 (NOT mixed with Cable Connect)');
+    const scoreLabel = await page.$eval('#hud-score-label', el => el.textContent);
+    assert(scoreLabel.includes('HEAP HUNTER'), 'HUD score label updated to HEAP HUNTER SCORE');
+
+    const totalXpVal2 = await page.$eval('#hud-total-lab-xp', el => parseInt(el.textContent, 10));
+    assert(totalXpVal2 === cableScoreVal, 'Total Lab XP retains accumulated XP from Cable Connect');
 
     const freeBtns = await page.$$('.mem-free-btn');
     assert(freeBtns.length >= 2, `Found ${freeBtns.length} Free Block buttons`);
@@ -216,14 +263,24 @@ async function runMemoryMinigamePlaywrightSuite() {
       const feedback = await page.$('#mem-feedback');
       const text = await feedback.textContent();
       assert(text.includes('Reclaimed 128B orphaned memory'), 'Safely reclaimed orphaned memory block');
+
+      const leakScoreVal1 = await page.$eval('#hud-mem-score', el => parseInt(el.textContent, 10));
+      assert(leakScoreVal1 > 0, `Leak Patrol earned isolated score of ${leakScoreVal1} PTS`);
+      const totalXpVal3 = await page.$eval('#hud-total-lab-xp', el => parseInt(el.textContent, 10));
+      assert(totalXpVal3 === cableScoreVal + leakScoreVal1, `Total Lab XP (${totalXpVal3}) is exact sum of Cable + Leak scores`);
     }
 
     // -------------------------------------------------------------
-    // 6. Dereference Rush Speed Triage
+    // 6. Dereference Rush Speed Triage & Lockout Prevention
     // -------------------------------------------------------------
     console.log('\n--- 6. Dereference Rush Speed Triage ---');
     await tabRush.click();
     await page.waitForTimeout(400);
+
+    const rushScoreVal0 = await page.$eval('#hud-mem-score', el => parseInt(el.textContent, 10));
+    assert(rushScoreVal0 === 0, 'Dereference Rush starts with isolated score of 0');
+    const rushScoreLabel = await page.$eval('#hud-score-label', el => el.textContent);
+    assert(rushScoreLabel.includes('DEFUSER SCORE'), 'HUD score label updated to DEFUSER SCORE');
 
     const rushCode = await page.$('#rush-code-display');
     const codeContent = await rushCode.textContent();
@@ -234,8 +291,13 @@ async function runMemoryMinigamePlaywrightSuite() {
     assert(btnNull !== null, 'Null Pointer category slam button mounted');
     if (btnNull) {
       await btnNull.click();
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(100);
 
+      // Verify button lock during feedback transition
+      const isLocked = await page.evaluate(() => window.MemoryMinigameController.isRushLocked);
+      assert(isLocked === true, 'Rapid-fire buttons locked during 1.6s feedback window to prevent double-submits');
+
+      await page.waitForTimeout(200);
       const rushFeedback = await page.$('#mem-rush-feedback');
       const fText = await rushFeedback.textContent();
       assert(fText.includes('CORRECT!'), 'Rush answer evaluated as CORRECT: ' + fText);
