@@ -57,3 +57,6 @@ client_secret*.json
 
 # Local shell wrappers
 powershell.cmd
+
+# Agent Prompts & Build Instructions
+prompts/
