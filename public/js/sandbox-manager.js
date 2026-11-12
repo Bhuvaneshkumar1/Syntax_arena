@@ -650,15 +650,47 @@ export const SandboxManager = {
               content: ''
             };
           }
-          const editor = (typeof document !== 'undefined') ? document.getElementById('page-code-editor') : null;
+          const fileContent = this.vfs[targetPath].content || '';
+          const editor = (typeof document !== 'undefined') ? (document.getElementById('page-code-editor') || document.getElementById('code-editor-textarea')) : null;
           const fnEl = (typeof document !== 'undefined') ? document.getElementById('editor-filename') : null;
           if (editor) {
-            editor.value = this.vfs[targetPath].content || '';
+            editor.value = fileContent;
           }
           if (fnEl) {
             fnEl.textContent = filename;
           }
-          output = `[ GNU nano 7.2 ] File '${targetPath}' loaded into editor pane.`;
+          const numLines = fileContent ? fileContent.split('\n').length : 0;
+          output = `[ GNU nano 7.2 ] File: ${targetPath} (${numLines} lines)\n──────────────────────────────────────────────────\n${fileContent || '(empty file)'}\n──────────────────────────────────────────────────\n[ File loaded into editor. Edit above or run: echo "code" > ${filename} ]`;
+        }
+        break;
+      }
+
+      case 'bash':
+      case 'sh': {
+        let script = '';
+        if (args.includes('-c')) {
+          const cIdx = args.indexOf('-c');
+          script = args.slice(cIdx + 1).join(' ').replace(/^["']|["']$/g, '');
+        } else if (args[0] && !args[0].startsWith('-')) {
+          const target = this._normalizePath(args[0]);
+          if (!this.vfs[target] || this.vfs[target].type === 'dir') {
+            error = `${command}: ${args[0]}: No such file or directory`;
+            exitCode = 127;
+            break;
+          }
+          script = this.vfs[target].content || '';
+        } else if (stdInput) {
+          script = stdInput;
+        } else {
+          output = `GNU bash, version 5.2.15(1)-release (x86_64-pc-linux-gnu)\nType 'help' to see internally defined commands.`;
+          break;
+        }
+
+        const scriptRes = this.runBashScript(script);
+        output = scriptRes.output || '';
+        if (scriptRes.error) {
+          error = scriptRes.error;
+          exitCode = 1;
         }
         break;
       }

@@ -101,7 +101,7 @@ export const MemoryMinigameController = {
       });
     });
 
-    // Field Manual Modal (Item 23)
+    // Field Manual Modal (Item 24: Fix modal toggle by toggling .is-open and aria-hidden)
     const btnOpenManual = document.getElementById('btn-open-mem-manual');
     const modalManual = document.getElementById('modal-mem-manual');
     const btnCloseManual = document.getElementById('btn-close-mem-manual');
@@ -109,19 +109,27 @@ export const MemoryMinigameController = {
 
     if (btnOpenManual && modalManual) {
       btnOpenManual.addEventListener('click', () => {
+        modalManual.classList.add('is-open');
         modalManual.style.display = 'flex';
+        modalManual.setAttribute('aria-hidden', 'false');
         this._playClick();
       });
       [btnCloseManual, btnUnderstood].forEach(b => {
         if (b) {
           b.addEventListener('click', () => {
+            modalManual.classList.remove('is-open');
             modalManual.style.display = 'none';
+            modalManual.setAttribute('aria-hidden', 'true');
             this._playClick();
           });
         }
       });
       modalManual.addEventListener('click', (e) => {
-        if (e.target === modalManual) modalManual.style.display = 'none';
+        if (e.target === modalManual) {
+          modalManual.classList.remove('is-open');
+          modalManual.style.display = 'none';
+          modalManual.setAttribute('aria-hidden', 'true');
+        }
       });
 
       modalManual.querySelectorAll('.manual-tab-btn').forEach(btn => {
@@ -258,6 +266,8 @@ export const MemoryMinigameController = {
     });
 
     this.engine.on('leakLevelCompleted', () => {
+      const actionsBar = document.getElementById('mem-actions-bar');
+      if (actionsBar) actionsBar.style.display = 'flex';
       const nextBtn = document.getElementById('btn-next-level');
       if (nextBtn) nextBtn.style.display = 'inline-flex';
       const banner = document.getElementById('mem-feedback');
@@ -309,6 +319,29 @@ export const MemoryMinigameController = {
       }, 1600);
     });
 
+    this.engine.on('rushStageCompleted', (stageData) => {
+      const banner = document.getElementById('mem-rush-feedback');
+      if (banner) {
+        banner.style.display = 'block';
+        banner.className = 'mem-feedback-banner is-success';
+        banner.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <span>⭐ <strong>SECTOR ${stageData.stage} OF ${stageData.totalStages} CLEARED!</strong> (5 Hazards Defused)</span>
+            <button id="btn-resume-rush-stage" class="btn-arcade btn-primary btn-sm" style="font-size: 13px; padding: 6px 16px; box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);">
+              Launch Sector ${stageData.stage + 1} ➔
+            </button>
+          </div>
+        `;
+        const resumeBtn = banner.querySelector('#btn-resume-rush-stage');
+        if (resumeBtn) {
+          resumeBtn.onclick = () => {
+            banner.style.display = 'none';
+            this.engine.proceedToNextRushChallenge();
+          };
+        }
+      }
+    });
+
     this.engine.on('dereferenceRushCompleted', ({ stats, score, maxStreak }) => {
       this._renderRushCompletionScreen(stats, score, maxStreak);
       this._updateHUD();
@@ -347,8 +380,10 @@ export const MemoryMinigameController = {
       if (badgeEl && lvl) badgeEl.textContent = lvl.difficulty;
       if (scoreLabelEl) scoreLabelEl.textContent = 'HEAP HUNTER SCORE:';
     } else if (this.engine.activeMode === 'dereference_rush') {
-      if (titleEl) titleEl.textContent = `Segfault Defuser (Hazard ${this.engine.rushIndex + 1}/${this.engine.rushChallenges.length})`;
-      if (badgeEl) badgeEl.textContent = 'Arcade Rush';
+      const sectorNum = Math.min(3, Math.floor(this.engine.rushIndex / 5) + 1);
+      const hazardInSector = Math.min(5, (this.engine.rushIndex % 5) + 1);
+      if (titleEl) titleEl.textContent = `Segfault Defuser (Sector ${sectorNum}/3 — Hazard ${hazardInSector}/5)`;
+      if (badgeEl) badgeEl.textContent = `Sector ${sectorNum}`;
       if (scoreLabelEl) scoreLabelEl.textContent = 'DEFUSER SCORE:';
     }
   },
@@ -360,6 +395,8 @@ export const MemoryMinigameController = {
     const actionsBar = document.getElementById('mem-actions-bar');
     const nextBtn = document.getElementById('btn-next-level');
     const hintBtn = document.getElementById('btn-gc-hint');
+    const btnCheckWiring = document.getElementById('btn-check-wiring');
+    const btnClearCables = document.getElementById('btn-clear-cables');
 
     if (nextBtn) nextBtn.style.display = 'none';
     const feedback = document.getElementById('mem-feedback');
@@ -370,17 +407,24 @@ export const MemoryMinigameController = {
       if (leakMeter) leakMeter.style.display = 'none';
       if (rushCard) rushCard.style.display = 'none';
       if (actionsBar) actionsBar.style.display = 'flex';
+      if (btnCheckWiring) btnCheckWiring.style.display = 'inline-flex';
+      if (btnClearCables) btnClearCables.style.display = 'inline-flex';
       if (hintBtn) hintBtn.style.display = 'none';
     } else if (mode === 'leak_patrol') {
       if (stage) stage.style.display = 'grid';
       if (leakMeter) leakMeter.style.display = 'block';
       if (rushCard) rushCard.style.display = 'none';
-      if (actionsBar) actionsBar.style.display = 'flex';
-      if (hintBtn) hintBtn.style.display = 'inline-flex';
+      if (btnCheckWiring) btnCheckWiring.style.display = 'none';
+      if (btnClearCables) btnClearCables.style.display = 'none';
+      if (hintBtn) hintBtn.style.display = 'none'; // Item 10: removed giveaway hint
+      if (actionsBar) actionsBar.style.display = 'none';
     } else if (mode === 'dereference_rush') {
       if (stage) stage.style.display = 'none';
       if (leakMeter) leakMeter.style.display = 'none';
       if (rushCard) rushCard.style.display = 'block';
+      if (btnCheckWiring) btnCheckWiring.style.display = 'none';
+      if (btnClearCables) btnClearCables.style.display = 'none';
+      if (hintBtn) hintBtn.style.display = 'none';
       if (actionsBar) actionsBar.style.display = 'none';
     }
   },

@@ -153,19 +153,19 @@ export class MemoryMinigameEngine {
   addConnection(fromId, toId) {
     if (!fromId || !toId || fromId === toId) return false;
 
-    // Check if duplicate connection already exists
-    const exists = this.userConnections.some(c => c.from === fromId && c.to === toId);
+    // Check if duplicate connection already exists (Item 8: bidirectional check)
+    const exists = this.userConnections.some(c => (c.from === fromId && c.to === toId) || (c.from === toId && c.to === fromId));
     if (exists) return false;
 
     // Check how many connections this level requires from this specific source
     const level = this.getCurrentCableLevel();
     const reqs = level ? (level.requiredConnections || []) : [];
-    const allowedFromCount = reqs.filter(r => r.from === fromId).length;
-    const currentFromCount = this.userConnections.filter(c => c.from === fromId).length;
+    const allowedFromCount = reqs.filter(r => r.from === fromId || r.to === fromId).length;
+    const currentFromCount = this.userConnections.filter(c => c.from === fromId || c.to === fromId).length;
 
     // If source only allows 1 connection in this level (e.g. standard pointer), replace previous
     if (allowedFromCount <= 1 && currentFromCount >= 1) {
-      this.userConnections = this.userConnections.filter(c => c.from !== fromId);
+      this.userConnections = this.userConnections.filter(c => c.from !== fromId && c.to !== fromId);
     }
 
     this.userConnections.push({ from: fromId, to: toId });
@@ -197,7 +197,11 @@ export class MemoryMinigameEngine {
     let incorrectCount = 0;
 
     for (const userConn of this.userConnections) {
-      const match = reqs.some(r => r.from === userConn.from && r.to === userConn.to);
+      // Support bidirectional port routing (Item 8): from->to OR to->from
+      const match = reqs.some(r => 
+        (r.from === userConn.from && r.to === userConn.to) ||
+        (r.from === userConn.to && r.to === userConn.from)
+      );
       if (match) {
         correctCount++;
       } else {
@@ -479,6 +483,19 @@ export class MemoryMinigameEngine {
   }
 
   proceedToNextRushChallenge() {
+    // Item 11: Break 15 challenges into stages of 5 with sector intermission checkpoints
+    if (this.rushIndex > 0 && this.rushIndex % 5 === 0 && this.rushIndex < this.rushChallenges.length && !this._rushStageCheckpointAcknowledged) {
+      this._rushStageCheckpointAcknowledged = true;
+      this.emit('rushStageCompleted', {
+        stage: this.rushIndex / 5,
+        totalStages: Math.ceil(this.rushChallenges.length / 5),
+        nextIndex: this.rushIndex,
+        score: this.modeScores.dereference_rush,
+        stats: { ...this.rushStats }
+      });
+      return;
+    }
+    this._rushStageCheckpointAcknowledged = false;
     this._nextRushChallenge();
   }
 

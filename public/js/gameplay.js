@@ -1594,6 +1594,18 @@ export const Gameplay = {
     }
 
     if (advResult.advanced) {
+      const session = this.engine.getSession();
+      const nextIndex = session ? session.currentIndex : 0;
+      this._checkpointAcknowledged = this._checkpointAcknowledged || {};
+
+      // Item 7: Split 20 questions into stages of 5 with checkpoint intermission modals
+      if (session && session.totalQuestions >= 20 && [5, 10, 15].includes(nextIndex) && !this._checkpointAcknowledged[nextIndex]) {
+        this._checkpointAcknowledged[nextIndex] = true;
+        this._showStageCheckpointModal(advResult.question, nextIndex);
+        this.isAdvancing = false;
+        return;
+      }
+
       // Render next question
       this.renderQuestion(advResult.question);
       this._saveSessionSnapshot();
@@ -1608,6 +1620,60 @@ export const Gameplay = {
     }
 
     this.isAdvancing = false;
+  },
+
+  /**
+   * Display Stage Intermission Checkpoint modal at question boundaries (Item 7).
+   */
+  _showStageCheckpointModal(nextQuestion, nextIndex) {
+    this._stopTimer();
+    const modal = Utils.qs('#modal-stage-checkpoint');
+    if (!modal) {
+      this.renderQuestion(nextQuestion);
+      if (this.sessionConfig.timeLimit > 0) this._startTimer(this.sessionConfig.timeLimit);
+      return;
+    }
+
+    const session = this.engine.getSession();
+    const stageNum = Math.floor(nextIndex / 5);
+    const totalStages = Math.ceil((session?.totalQuestions || 20) / 5);
+    const tag = Utils.qs('#stage-checkpoint-tag');
+    const title = Utils.qs('#stage-checkpoint-title');
+    const desc = Utils.qs('#stage-checkpoint-desc');
+    const score = Utils.qs('#stage-checkpoint-score');
+    const streak = Utils.qs('#stage-checkpoint-streak');
+    const acc = Utils.qs('#stage-checkpoint-acc');
+    const continueBtn = Utils.qs('#btn-continue-stage');
+
+    if (tag) tag.textContent = `STAGE ${stageNum} OF ${totalStages} CLEARED`;
+    if (title) title.textContent = `Sector ${stageNum} Complete!`;
+    if (desc) desc.textContent = `Outstanding work! You solved 5 questions. Sector ${stageNum} cleared. Ready for Sector ${stageNum + 1}?`;
+    if (score) score.textContent = session?.totalScore || 0;
+    if (streak) streak.textContent = `${session?.currentStreak || 0}🔥`;
+    if (acc) {
+      const attempted = session?.questionsAttempted || 1;
+      const correct = session?.questionsCorrect || 0;
+      acc.textContent = `${Math.round((correct / attempted) * 100)}%`;
+    }
+
+    modal.classList.add('is-open');
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+    AudioEngine.playSuccess();
+
+    if (continueBtn) {
+      continueBtn.onclick = () => {
+        AudioEngine.playClick();
+        modal.classList.remove('is-open');
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        this.renderQuestion(nextQuestion);
+        this._saveSessionSnapshot();
+        if (this.sessionConfig.timeLimit > 0) {
+          this._startTimer(this.sessionConfig.timeLimit);
+        }
+      };
+    }
   },
 
   /**

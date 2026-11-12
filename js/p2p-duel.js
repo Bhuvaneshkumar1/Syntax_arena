@@ -262,21 +262,39 @@ export const DuelEngine = {
   },
 
   /**
-   * Construct 1-click shareable join URL
+   * Construct 1-click shareable join URL (Item 18: Full https:// link)
+   * Supports both getShareUrl() and getShareUrl(roomCode, seed, lang, diff, count).
    */
-  getShareUrl(baseUrl = '') {
-    let base = baseUrl;
-    if (!base && typeof window !== 'undefined' && window.location) {
-      base = window.location.origin + window.location.pathname;
+  getShareUrl(roomCodeOrBase = '', seed = null, lang = null, diff = null, count = null) {
+    let base = 'https://syntaxarena-phi.vercel.app/game.html';
+    if (typeof window !== 'undefined' && window.location && window.location.origin && window.location.origin.startsWith('http')) {
+      base = `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '')}/game.html`;
     }
-    if (!base) base = 'game.html';
+
+    let targetRoom = this.roomCode;
+    let targetSeed = this.seed;
+    let targetLang = this.language;
+    let targetDiff = this.difficulty;
+    let targetCount = this.questionCount;
+
+    if (typeof roomCodeOrBase === 'string' && (roomCodeOrBase.startsWith('http://') || roomCodeOrBase.startsWith('https://'))) {
+      base = roomCodeOrBase;
+    } else if (roomCodeOrBase) {
+      targetRoom = roomCodeOrBase;
+    }
+
+    if (seed !== null && seed !== undefined) targetSeed = seed;
+    if (lang) targetLang = lang;
+    if (diff) targetDiff = diff;
+    if (count) targetCount = count;
+
     const params = new URLSearchParams();
     params.set('mode', 'duel');
-    params.set('room', this.roomCode);
-    params.set('lang', this.language);
-    params.set('diff', this.difficulty);
-    params.set('count', String(this.questionCount));
-    params.set('seed', String(this.seed));
+    params.set('room', targetRoom);
+    params.set('lang', targetLang);
+    params.set('diff', targetDiff);
+    params.set('count', String(targetCount));
+    params.set('seed', String(targetSeed));
     return `${base}?${params.toString()}`;
   },
 

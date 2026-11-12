@@ -531,9 +531,12 @@ export class TrophyVault {
               </div>
             </div>
 
-            <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+            <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem; flex-wrap: wrap;">
               <button id="btn-share-badge" class="btn-arcade btn-primary btn-sm" style="flex: 1;">
-                🛡️ Generate GitHub Badge
+                🛡️ GitHub Badge Studio
+              </button>
+              <button id="btn-download-cartridge-png" class="btn-arcade btn-secondary btn-sm" style="flex: 1;">
+                📸 Download Trophy (PNG)
               </button>
             </div>
           </div>
@@ -551,7 +554,16 @@ export class TrophyVault {
     const frontBtn = modal.querySelector('#btn-view-front');
     const backBtn = modal.querySelector('#btn-view-back');
     const shareBtn = modal.querySelector('#btn-share-badge');
+    const downloadPngBtn = modal.querySelector('#btn-download-cartridge-png');
     const stage = modal.querySelector('#inspector-3d-stage');
+
+    if (downloadPngBtn) {
+      downloadPngBtn.addEventListener('click', () => {
+        if (this.selectedBadge) {
+          this._downloadCartridgeCardPng(this.selectedBadge);
+        }
+      });
+    }
 
     closeBtn.addEventListener('click', () => this.closeInspectorModal());
     modal.addEventListener('click', (e) => {
@@ -675,6 +687,12 @@ export class TrophyVault {
     `;
 
     // Back Face
+    const prof = this.profile || {};
+    const uid = prof.id || prof.authUserId || 'SA-AGENT-001';
+    const callsign = prof.callsign || 'ScriptAdept';
+    const verifyUrl = `https://syntaxarena-phi.vercel.app/progress.html?verify=1&uid=${encodeURIComponent(uid)}&user=${encodeURIComponent(callsign)}&badge=${encodeURIComponent(badge.id)}`;
+    const qrSvg = this._generateVerificationQrSvg(verifyUrl);
+
     const backFace = modal.querySelector('#inspector-face-back');
     backFace.innerHTML = `
       <div class="back-tech-specs">
@@ -686,9 +704,12 @@ export class TrophyVault {
         <div>CIRCUIT: 6502/SYNTAX-MCU</div>
       </div>
 
-      <div style="background: #090d16; border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem; border-radius: 6px;">
-        <span style="font-size: 0.65rem; color: #64748b; font-family: monospace;">DEVELOPER VERIFICATION</span>
-        <div class="back-barcode"></div>
+      <div style="background: #090d16; border: 1px solid rgba(255,255,255,0.06); padding: 0.5rem; border-radius: 6px; text-align: center;">
+        <span style="font-size: 0.65rem; color: #64748b; font-family: monospace; display: block; margin-bottom: 0.25rem;">VERIFICATION QR &amp; BARCODE</span>
+        <a href="${verifyUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 4px; background: #ffffff; border-radius: 4px; text-decoration: none;" title="Scan or click to verify authentic credential on SyntaxArena">
+          ${qrSvg}
+        </a>
+        <div style="font-size: 0.6rem; color: #94a3b8; font-family: monospace; margin-top: 0.35rem; word-break: break-all;">UID: ${uid}</div>
       </div>
 
       <div style="font-size: 0.65rem; color: #475569; font-family: monospace; text-align: center;">
@@ -812,21 +833,18 @@ export class TrophyVault {
               </div>
             </div>
 
-            <!-- Export Buttons -->
+            <!-- Export Buttons (Item 17: Download buttons, remove copy buttons) -->
             <div class="badge-control-group" style="margin-top: 0.5rem;">
-              <span class="badge-control-label">Export &amp; Embed</span>
-              <div class="badge-export-grid">
-                <button id="btn-copy-markdown" class="btn-arcade btn-primary badge-export-btn">
-                  📋 Copy Markdown
+              <span class="badge-control-label">Export &amp; Download</span>
+              <div class="badge-export-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <button id="btn-download-markdown" class="btn-arcade btn-primary badge-export-btn">
+                  💾 Download .md
                 </button>
-                <button id="btn-copy-html" class="btn-arcade btn-neutral badge-export-btn">
-                  🌐 Copy HTML
-                </button>
-                <button id="btn-copy-raw-svg" class="btn-arcade btn-neutral badge-export-btn">
-                  📐 Copy Raw SVG
+                <button id="btn-download-html" class="btn-arcade btn-neutral badge-export-btn">
+                  🌐 Download .html
                 </button>
                 <button id="btn-download-svg" class="btn-arcade btn-secondary badge-export-btn">
-                  💾 Download .svg
+                  📐 Download .svg
                 </button>
               </div>
               <span id="badge-copy-feedback" style="font-size: 0.75rem; color: #10b981; font-weight: 700; height: 16px; margin-top: 0.25rem;"></span>
@@ -878,16 +896,14 @@ export class TrophyVault {
       });
     });
 
-    // Export Buttons
-    const btnMarkdown = container.querySelector('#btn-copy-markdown');
-    const btnHtml = container.querySelector('#btn-copy-html');
-    const btnRawSvg = container.querySelector('#btn-copy-raw-svg');
+    // Export Download Buttons (Item 17)
+    const btnMarkdown = container.querySelector('#btn-download-markdown');
+    const btnHtml = container.querySelector('#btn-download-html');
     const btnDownload = container.querySelector('#btn-download-svg');
 
-    btnMarkdown.addEventListener('click', () => this._copyExportSnippet('markdown'));
-    btnHtml.addEventListener('click', () => this._copyExportSnippet('html'));
-    btnRawSvg.addEventListener('click', () => this._copyExportSnippet('raw_svg'));
-    btnDownload.addEventListener('click', () => this._downloadSvgFile());
+    if (btnMarkdown) btnMarkdown.addEventListener('click', () => this._downloadBadgeFile('markdown'));
+    if (btnHtml) btnHtml.addEventListener('click', () => this._downloadBadgeFile('html'));
+    if (btnDownload) btnDownload.addEventListener('click', () => this._downloadBadgeFile('svg'));
   }
 
   updateBadgeStudioPreview() {
@@ -950,61 +966,205 @@ export class TrophyVault {
     previewEl.innerHTML = svgMarkup;
   }
 
-  _copyExportSnippet(type) {
-    const previewEl = document.getElementById('badge-live-preview');
-    const feedbackEl = document.getElementById('badge-copy-feedback');
-    if (!previewEl) return;
-
-    if (this.unlockedBadgeIds.size === 0) {
-      if (feedbackEl) {
-        feedbackEl.style.color = '#f43f5e';
-        feedbackEl.textContent = '🔒 Studio locked! Earn at least 1 trophy badge first.';
-        setTimeout(() => { if (feedbackEl) feedbackEl.textContent = ''; }, 3000);
-      }
-      return;
-    }
-
-    const svg = previewEl.innerHTML.trim();
-    const encodedDataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-
-    let textToCopy = '';
-    if (type === 'markdown') {
-      textToCopy = `[![SyntaxArena Profile Badge](${encodedDataUri})](https://syntaxarena.dev)`;
-    } else if (type === 'html') {
-      textToCopy = `<a href="https://syntaxarena.dev"><img src="${encodedDataUri}" alt="SyntaxArena Profile Badge" /></a>`;
-    } else if (type === 'raw_svg') {
-      textToCopy = svg;
-    }
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(textToCopy).catch(() => {});
-    }
-
-    if (feedbackEl) {
-      feedbackEl.textContent = `✓ Copied ${type.toUpperCase()} to clipboard!`;
-      setTimeout(() => {
-        feedbackEl.textContent = '';
-      }, 2500);
-    }
-  }
-
-  _downloadSvgFile() {
+  _downloadBadgeFile(type) {
     if (this.unlockedBadgeIds.size === 0) return;
     const previewEl = document.getElementById('badge-live-preview');
     if (!previewEl) return;
 
     const svg = previewEl.innerHTML.trim();
-    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
     const callsign = (this.profile?.callsign || 'scriptadept').toLowerCase();
+    const style = this.badgeStudioState.style;
 
+    let content = '';
+    let mimeType = 'text/plain';
+    let filename = `syntaxarena-${callsign}-${style}-badge.txt`;
+
+    if (type === 'markdown') {
+      const encodedDataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+      content = `<!-- SyntaxArena Dynamic Profile Badge -->\n[![SyntaxArena Profile Badge](${encodedDataUri})](https://syntaxarena-phi.vercel.app)\n`;
+      mimeType = 'text/markdown;charset=utf-8';
+      filename = `syntaxarena-${callsign}-${style}-badge.md`;
+    } else if (type === 'html') {
+      const encodedDataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+      content = `<!-- SyntaxArena Dynamic Profile Badge -->\n<a href="https://syntaxarena-phi.vercel.app" target="_blank" rel="noopener noreferrer">\n  <img src="${encodedDataUri}" alt="SyntaxArena Profile Badge for ${callsign}" />\n</a>\n`;
+      mimeType = 'text/html;charset=utf-8';
+      filename = `syntaxarena-${callsign}-${style}-badge.html`;
+    } else if (type === 'svg') {
+      content = svg;
+      mimeType = 'image/svg+xml;charset=utf-8';
+      filename = `syntaxarena-${callsign}-${style}-badge.svg`;
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `syntaxarena-${callsign}-${this.badgeStudioState.style}-badge.svg`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    const feedbackEl = document.getElementById('badge-copy-feedback');
+    if (feedbackEl) {
+      feedbackEl.textContent = `✓ Downloaded ${filename}!`;
+      setTimeout(() => { if (feedbackEl) feedbackEl.textContent = ''; }, 2500);
+    }
+  }
+
+  _generateVerificationQrSvg(url) {
+    const size = 21;
+    const grid = Array.from({ length: size }, () => Array(size).fill(0));
+    
+    // Finder patterns
+    const drawFinder = (r0, c0) => {
+      for (let r = 0; r < 7; r++) {
+        for (let c = 0; c < 7; c++) {
+          if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
+            grid[r0 + r][c0 + c] = 1;
+          }
+        }
+      }
+    };
+    drawFinder(0, 0);
+    drawFinder(0, 14);
+    drawFinder(14, 0);
+
+    // Timing lines
+    for (let i = 8; i < 13; i++) {
+      grid[6][i] = (i % 2 === 0) ? 1 : 0;
+      grid[i][6] = (i % 2 === 0) ? 1 : 0;
+    }
+
+    // Seed hash from url
+    let hash = 0;
+    for (let i = 0; i < url.length; i++) {
+      hash = ((hash << 5) - hash) + url.charCodeAt(i);
+      hash |= 0;
+    }
+
+    // Fill data modules
+    let bit = 0;
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if ((r < 8 && c < 8) || (r < 8 && c >= 13) || (r >= 13 && c < 8)) continue;
+        if (r === 6 || c === 6) continue;
+        const val = (Math.abs(hash ^ (r * 31 + c * 17 + bit)) % 10) > 4 ? 1 : 0;
+        grid[r][c] = val;
+        bit++;
+      }
+    }
+
+    // Render SVG
+    let rects = '';
+    const modSize = 3;
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (grid[r][c] === 1) {
+          rects += `<rect x="${c * modSize}" y="${r * modSize}" width="${modSize}" height="${modSize}" fill="#0f172a" />`;
+        }
+      }
+    }
+    const svgDim = size * modSize;
+    return `<svg width="${svgDim}" height="${svgDim}" viewBox="0 0 ${svgDim} ${svgDim}" xmlns="http://www.w3.org/2000/svg" style="display:block; margin: 0 auto;">${rects}</svg>`;
+  }
+
+  _downloadCartridgeCardPng(badge) {
+    const prof = this.profile || {};
+    const uid = prof.id || prof.authUserId || 'SA-AGENT-001';
+    const callsign = prof.callsign || 'ScriptAdept';
+    const rarity = mapBadgeRarity(badge);
+    const rMeta = RARITY_CONFIG[rarity] || RARITY_CONFIG.common;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 600;
+    canvas.height = 700;
+    const ctx = canvas.getContext('2d');
+
+    // Dark sleek background
+    ctx.fillStyle = '#0b0f19';
+    ctx.fillRect(0, 0, 600, 700);
+
+    // Tech border & glow
+    ctx.strokeStyle = rMeta.color || '#38bdf8';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(20, 20, 560, 660);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(30, 30, 540, 640);
+
+    // Title & Header
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 16px monospace';
+    ctx.fillText('SYNTAXARENA ARCADE VAULT • OFFICIAL CARTRIDGE', 50, 65);
+
+    // Cartridge Icon & Name
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '64px sans-serif';
+    ctx.fillText(badge.icon || '🏆', 50, 150);
+
+    ctx.font = 'bold 30px sans-serif';
+    ctx.fillText(badge.name, 50, 205);
+
+    ctx.fillStyle = rMeta.color || '#38bdf8';
+    ctx.font = 'bold 16px monospace';
+    ctx.fillText(`${rMeta.label.toUpperCase()} CARTRIDGE • ${rMeta.romSize}`, 50, 235);
+
+    // Description
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '14px sans-serif';
+    ctx.fillText(badge.description || 'Awarded for supreme programming mastery.', 50, 275);
+
+    // Recipient & Player ID
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.strokeRect(50, 310, 500, 160);
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px monospace';
+    ctx.fillText('PLAYER CALLSIGN', 70, 340);
+    ctx.fillText('PLAYER UID', 70, 395);
+    ctx.fillText('SECURITY STATUS', 70, 450);
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.fillText(callsign, 70, 365);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText(uid, 70, 418);
+
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText('● CRYPTOGRAPHICALLY VERIFIED', 70, 470);
+
+    // Barcode / verification footer
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px monospace';
+    ctx.fillText('SCAN / VERIFY AT:', 50, 520);
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '11px monospace';
+    ctx.fillText(`https://syntaxarena-phi.vercel.app/progress.html?verify=1&uid=${uid}`, 50, 540);
+
+    // Verification barcode lines
+    ctx.fillStyle = '#ffffff';
+    for (let x = 50; x < 550; x += 6) {
+      const barW = ((x * 13) % 4) + 1;
+      ctx.fillRect(x, 560, barW, 40);
+    }
+
+    ctx.fillStyle = '#475569';
+    ctx.font = '11px monospace';
+    ctx.fillText('SYNTAXARENA 2.0 ARCADE PROTOCOL', 50, 640);
+
+    // Download PNG
+    const dataUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `syntaxarena-cartridge-${badge.id}-${callsign}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 }
 

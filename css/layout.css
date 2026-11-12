@@ -496,7 +496,7 @@
   font-size: 12px;
 }
 
-/* Quick Toggle Buttons */
+/* Quick Toggle Buttons (Item 14: Never squish on mobile) */
 .btn-icon-toggle {
   width: 38px;
   height: 38px;
@@ -509,12 +509,82 @@
   justify-content: center;
   cursor: pointer;
   transition: all var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .btn-icon-toggle:hover {
   color: var(--text-primary);
   border-color: var(--color-primary);
   transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   THEME OVERRIDES FOR APP SHELL (LIGHT THEME FIDELITY - Items 9 & 21)
+   ========================================================================== */
+[data-theme="light"] .app-sidebar {
+  background: #FFFFFF;
+  border-right: 1px solid #E2E8F0;
+}
+[data-theme="light"] .sidebar-brand-text {
+  color: #0F172A;
+}
+[data-theme="light"] .sidebar-link {
+  color: #475569;
+}
+[data-theme="light"] .sidebar-link:hover {
+  color: #0F172A;
+  background: #F1F5F9;
+}
+[data-theme="light"] .sidebar-link[aria-current="page"] {
+  color: #0284C7;
+  background: rgba(2, 132, 199, 0.1);
+  border-color: rgba(2, 132, 199, 0.3);
+  box-shadow: 0 0 10px rgba(2, 132, 199, 0.15);
+}
+[data-theme="light"] .sidebar-footer {
+  background: #F8FAFC;
+  border-top: 1px solid #E2E8F0;
+}
+[data-theme="light"] .sidebar-auth-card {
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+}
+[data-theme="light"] .sidebar-auth-name {
+  color: #0F172A;
+}
+[data-theme="light"] .sidebar-auth-status {
+  color: #64748B;
+}
+[data-theme="light"] .app-topbar {
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid #E2E8F0;
+}
+[data-theme="light"] .btn-sidebar-toggle {
+  color: #475569;
+}
+[data-theme="light"] .btn-sidebar-toggle:hover {
+  background: #F1F5F9;
+  color: #0284C7;
+}
+
+/* Ensure code in terminal/editor is always visible in light theme (Item 21) */
+[data-theme="light"] pre,
+[data-theme="light"] .sandbox-code-editor,
+[data-theme="light"] #code-editor-textarea,
+[data-theme="light"] #terminal-body {
+  color: #38bdf8 !important;
+}
+
+/* Mobile Sidebar & Double Hamburger Fix (Item 2 / Item 12) */
+@media (min-width: 769px) {
+  #btn-sidebar-mobile-toggle {
+    display: none !important;
+  }
+}
+@media (max-width: 768px) {
+  #btn-sidebar-mobile-toggle {
+    display: flex !important;
+  }
 }
 
 /* ==========================================================================

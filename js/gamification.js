@@ -918,7 +918,10 @@ export const Gamification = {
 
     const totalLifetimeXP = initialLifetimeXP + earnedXP;
     const totalSpendableXP = initialSpendableXP + earnedXP;
-    const totalScore = (profile.totalScore || 0) + (summary.totalScore || 0);
+    // Scale session spendable career points (Item 13):
+    // Prevents a single 20-question run (~5,500 raw points) from instantly unlocking the entire vault.
+    const sessionSpendablePoints = summary.totalScore ? Math.max(15, Math.round(summary.totalScore * 0.05)) : 0;
+    const totalScore = (profile.totalScore || 0) + sessionSpendablePoints;
 
     // 3. Derive Rank & Level based on LIFETIME XP (never decreases when points are spent on badges/avatars!)
     const prevLevelData = this.getLevelData(initialLifetimeXP);

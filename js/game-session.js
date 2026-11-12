@@ -39,12 +39,39 @@ export class GameSession {
     this.endTime = null;
     this.isCompleted = false;
 
-    // Clone question pool to prevent mutating source data
-    const pool = config.questions.map(q => ({ ...q }));
-
-    // Apply deterministic/seeded shuffling if requested (Practice mode)
+    // Apply deterministic/seeded shuffling if requested (or default in gameplay)
     const randomFn = typeof config.randomSource === 'function' ? config.randomSource : Math.random;
-    if (config.randomizeOrder) {
+    const shouldShuffle = Boolean(config.randomizeOrder);
+
+    // Clone question pool to prevent mutating source data and shuffle options (Item 5)
+    const pool = config.questions.map(q => {
+      const qClone = { ...q };
+      if (shouldShuffle && Array.isArray(qClone.options) && qClone.options.length > 1) {
+        let correctValue = qClone.correctAnswer;
+        if (typeof qClone.correctAnswer === 'number' && Number.isInteger(qClone.correctAnswer) && qClone.correctAnswer >= 0 && qClone.correctAnswer < qClone.options.length) {
+          correctValue = qClone.options[qClone.correctAnswer];
+        }
+        const opts = [...qClone.options];
+        for (let m = opts.length - 1; m > 0; m--) {
+          const n = Math.floor(randomFn() * (m + 1));
+          [opts[m], opts[n]] = [opts[n], opts[m]];
+        }
+        qClone.options = opts;
+        if (typeof qClone.correctAnswer === 'number') {
+          const newIdx = opts.findIndex(opt => {
+            const optStr = typeof opt === 'object' && opt !== null ? (opt.text || opt.id) : String(opt);
+            const valStr = typeof correctValue === 'object' && correctValue !== null ? (correctValue.text || correctValue.id) : String(correctValue);
+            return optStr === valStr;
+          });
+          if (newIdx !== -1) {
+            qClone.correctAnswer = newIdx;
+          }
+        }
+      }
+      return qClone;
+    });
+
+    if (shouldShuffle) {
       for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(randomFn() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -149,19 +176,19 @@ export class GameSession {
         this.highestStreak = this.currentStreak;
       }
     }
-    const multiplier = Math.min(1.0 + (this.currentStreak * 0.25), 3.0);
+    const multiplier = Math.min(1.0 + (this.currentStreak * 0.05), 1.5);
 
     // Retry modifier (A): 1.0 on first try; 0.5 on retry
     const A = isRetry ? 0.5 : 1.0;
 
     // Hint penalty (H)
-    const H = usedHint ? (HINT_PENALTIES[diff] || 25) : 0;
+    const H = usedHint ? (HINT_PENALTIES[diff] || 5) : 0;
 
     // Speed bonus (B_speed): Awarded for rapid deduction proportional to remaining time
     let speedBonus = 0;
     if (!isRetry && !usedHint && this.timeLimit > 0 && timeRemaining > 0) {
       const speedRatio = Math.min(1.0, timeRemaining / this.timeLimit);
-      speedBonus = Math.floor(0.5 * basePts * speedRatio);
+      speedBonus = Math.floor(0.25 * basePts * speedRatio);
     }
 
     // Master Points

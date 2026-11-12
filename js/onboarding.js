@@ -47,24 +47,42 @@ export const Onboarding = {
     if (!grid) return;
 
     grid.innerHTML = '';
+    // Item 1: In first-time onboarding, only starter avatar 'cyber_fox' is unlocked
+    const unlockedStarterAvatars = ['cyber_fox'];
+
     AVATAR_CATALOG.forEach(avatar => {
+      const isUnlocked = unlockedStarterAvatars.includes(avatar.id);
+      const isSelected = avatar.id === this._state.avatarId;
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = `avatar-option-btn ${avatar.id === this._state.avatarId ? 'is-selected' : ''}`;
+      btn.className = `avatar-option-btn ${isSelected ? 'is-selected' : ''} ${!isUnlocked ? 'is-locked' : ''}`;
       btn.setAttribute('data-avatar-id', avatar.id);
       btn.setAttribute('role', 'radio');
-      btn.setAttribute('aria-checked', avatar.id === this._state.avatarId ? 'true' : 'false');
-      btn.setAttribute('aria-label', `Choose avatar ${avatar.name}: ${avatar.description}`);
+      btn.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+      btn.setAttribute('aria-label', `${isUnlocked ? '' : 'Locked: '}${avatar.name} - ${avatar.description}`);
+      if (!isUnlocked) {
+        btn.setAttribute('aria-disabled', 'true');
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+      }
 
       btn.innerHTML = `
-        <div class="avatar-preview-lg">
-          <img src="assets/images/${avatar.id}.svg" width="36" height="36" alt="" aria-hidden="true">
+        <div class="avatar-preview-lg" style="position: relative;">
+          <img src="assets/images/${avatar.id}.svg" width="36" height="36" alt="" aria-hidden="true" style="${!isUnlocked ? 'filter: grayscale(80%);' : ''}">
+          ${!isUnlocked ? '<span style="position: absolute; bottom: -4px; right: -4px; font-size: 13px;" title="Locked: Unlock in Settings Shop">🔒</span>' : ''}
         </div>
         <span style="font-family: var(--font-display); font-weight: 700; font-size: var(--text-xs);">${avatar.name}</span>
-        <span style="font-size: 11px; color: var(--text-muted); line-height: 1.2;">${avatar.description}</span>
+        <span style="font-size: 10px; color: ${isUnlocked ? 'var(--text-muted)' : 'var(--color-warning, #f59e0b)'}; line-height: 1.2;">
+          ${isUnlocked ? avatar.description : 'Locked — Unlock in Settings'}
+        </span>
       `;
 
       btn.addEventListener('click', () => {
+        if (!isUnlocked) {
+          AudioEngine.playError();
+          UI.showToast(`🔒 ${avatar.name} is locked! Reach higher levels to unlock in Settings.`, 'warning');
+          return;
+        }
         AudioEngine.playClick();
         this._selectAvatar(avatar.id);
       });
@@ -217,6 +235,32 @@ export const Onboarding = {
       btnConfirmSave.addEventListener('click', () => {
         AudioEngine.playSuccess();
         this._confirm(false);
+      });
+    }
+
+    // Item 2: Onboarding Auth Gateway Buttons
+    const btnOnboardEmail = Utils.qs('#btn-onboarding-email');
+    if (btnOnboardEmail) {
+      btnOnboardEmail.addEventListener('click', () => {
+        AudioEngine.playClick();
+        this.close();
+        const authModal = document.getElementById('modal-auth');
+        if (authModal) {
+          authModal.style.display = 'flex';
+          authModal.setAttribute('aria-hidden', 'false');
+        }
+      });
+    }
+
+    const btnOnboardGuest = Utils.qs('#btn-onboarding-guest');
+    if (btnOnboardGuest) {
+      btnOnboardGuest.addEventListener('click', () => {
+        AudioEngine.playClick();
+        const userInp = Utils.qs('#onboarding-username');
+        if (userInp) {
+          userInp.focus();
+          UI.showToast('Playing as Guest. Enter your call-sign below!', 'info');
+        }
       });
     }
 

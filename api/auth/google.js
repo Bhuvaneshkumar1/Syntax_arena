@@ -98,11 +98,13 @@ export default async function handler(req, res) {
     });
     const userData = await userResponse.json();
 
+    const derivedUsername = (userData.email ? userData.email.split('@')[0] : (userData.name || 'coder')).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 16);
     const payload = {
       provider: 'google',
       providerUserId: String(userData.sub),
       email: userData.email,
-      displayName: userData.name || userData.email.split('@')[0],
+      displayName: userData.name || derivedUsername,
+      username: derivedUsername,
       avatarUrl: userData.picture,
       token: tokenData.access_token
     };

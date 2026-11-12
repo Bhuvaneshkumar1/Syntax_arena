@@ -166,19 +166,17 @@ async function runSideNavAndAuthPlaywrightSuite() {
     assert(updatedPillText.includes('Synced as'), 'Google OAuth connects and updates cloud sync pill to Synced status');
 
     // -------------------------------------------------------------
-    // 5. Mobile Responsiveness & Bottom Dock (< 768px)
+    // 5. Mobile Responsiveness & Sidebar Navigation (Item 12: Routes moved to Sidebar)
     // -------------------------------------------------------------
-    console.log('\n--- 5. Mobile Responsiveness & Bottom Dock ---');
+    console.log('\n--- 5. Mobile Responsiveness & Sidebar Navigation (Item 12) ---');
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(300);
 
     const bottomDock = await page.$('.mobile-bottom-dock');
-    assert(bottomDock !== null, 'Mobile bottom dock mounted');
-    const isDockVisible = await bottomDock.isVisible();
-    assert(isDockVisible === true, 'Mobile bottom navigation dock visible on mobile viewport (390px)');
+    assert(bottomDock === null, 'Mobile bottom dock removed per Item 12 (all routes in left sidebar)');
 
-    const dockLinks = await page.$$('.mobile-dock-link');
-    assert(dockLinks.length === 5, 'Found 5 thumb-friendly routes in mobile dock');
+    const sidebarRoutes = await page.$$('.sidebar-link');
+    assert(sidebarRoutes.length >= 6, 'Found all major routes directly in the side navigation bar');
 
     // -------------------------------------------------------------
     // 6. Mobile Sidebar Drawer: Open, Item Select Close, & Backdrop (Issue 1)

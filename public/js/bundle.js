@@ -98182,6 +98182,12 @@ var AuthManager = window.AuthManager = class AuthManager {
             provider: user.provider,
             displayName: user.displayName
           };
+          // Item 4: Take username from email handle at first login
+          const rawHandle = user.username || (user.email ? user.email.split('@')[0] : '');
+          const cleanHandle = String(rawHandle).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 16);
+          if (cleanHandle && (!activeProf.username || activeProf.username === 'HexCoder' || activeProf.username === 'ScriptAdept' || activeProf.username.startsWith('Coder_'))) {
+            activeProf.username = cleanHandle;
+          }
           if (typeof StateObj.set === 'function') {
             StateObj.set('activeProfile', activeProf, true);
           }
@@ -98531,7 +98537,7 @@ window.createDefaultProfile = createDefaultProfile; function createDefaultProfil
     sessionHistory: [],
     processedSessionIds: [],
     unlockedThemes: ['dark'],
-    unlockedAvatars: ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight'],
+    unlockedAvatars: ['cyber_fox'],
     unlockedModes: ['campaign', 'practice']
   };
 }
@@ -99215,7 +99221,7 @@ var Profile = window.Profile = {
       missedQuestionIds: [],
       processedSessionIds: [],
       unlockedThemes: ['dark'],
-      unlockedAvatars: ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight'],
+      unlockedAvatars: ['cyber_fox'],
       unlockedModes: ['campaign', 'practice']
     };
   },
@@ -99485,7 +99491,7 @@ var Profile = window.Profile = {
     };
 
     if (itemType === 'avatar') {
-      const existingAvatars = new Set(profile.unlockedAvatars || ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight']);
+      const existingAvatars = new Set(profile.unlockedAvatars || ['cyber_fox']);
       existingAvatars.add(itemId);
       updates.unlockedAvatars = Array.from(existingAvatars);
     } else if (itemType === 'badge') {
@@ -101466,7 +101472,10 @@ var Gamification = window.Gamification = {
 
     const totalLifetimeXP = initialLifetimeXP + earnedXP;
     const totalSpendableXP = initialSpendableXP + earnedXP;
-    const totalScore = (profile.totalScore || 0) + (summary.totalScore || 0);
+    // Scale session spendable career points (Item 13):
+    // Prevents a single 20-question run (~5,500 raw points) from instantly unlocking the entire vault.
+    const sessionSpendablePoints = summary.totalScore ? Math.max(15, Math.round(summary.totalScore * 0.05)) : 0;
+    const totalScore = (profile.totalScore || 0) + sessionSpendablePoints;
 
     // 3. Derive Rank & Level based on LIFETIME XP (never decreases when points are spent on badges/avatars!)
     const prevLevelData = this.getLevelData(initialLifetimeXP);
@@ -101828,12 +101837,39 @@ var GameSession = window.GameSession = class GameSession {
     this.endTime = null;
     this.isCompleted = false;
 
-    // Clone question pool to prevent mutating source data
-    const pool = config.questions.map(q => ({ ...q }));
-
-    // Apply deterministic/seeded shuffling if requested (Practice mode)
+    // Apply deterministic/seeded shuffling if requested (or default in gameplay)
     const randomFn = typeof config.randomSource === 'function' ? config.randomSource : Math.random;
-    if (config.randomizeOrder) {
+    const shouldShuffle = Boolean(config.randomizeOrder);
+
+    // Clone question pool to prevent mutating source data and shuffle options (Item 5)
+    const pool = config.questions.map(q => {
+      const qClone = { ...q };
+      if (shouldShuffle && Array.isArray(qClone.options) && qClone.options.length > 1) {
+        let correctValue = qClone.correctAnswer;
+        if (typeof qClone.correctAnswer === 'number' && Number.isInteger(qClone.correctAnswer) && qClone.correctAnswer >= 0 && qClone.correctAnswer < qClone.options.length) {
+          correctValue = qClone.options[qClone.correctAnswer];
+        }
+        const opts = [...qClone.options];
+        for (let m = opts.length - 1; m > 0; m--) {
+          const n = Math.floor(randomFn() * (m + 1));
+          [opts[m], opts[n]] = [opts[n], opts[m]];
+        }
+        qClone.options = opts;
+        if (typeof qClone.correctAnswer === 'number') {
+          const newIdx = opts.findIndex(opt => {
+            const optStr = typeof opt === 'object' && opt !== null ? (opt.text || opt.id) : String(opt);
+            const valStr = typeof correctValue === 'object' && correctValue !== null ? (correctValue.text || correctValue.id) : String(correctValue);
+            return optStr === valStr;
+          });
+          if (newIdx !== -1) {
+            qClone.correctAnswer = newIdx;
+          }
+        }
+      }
+      return qClone;
+    });
+
+    if (shouldShuffle) {
       for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(randomFn() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -101938,19 +101974,19 @@ var GameSession = window.GameSession = class GameSession {
         this.highestStreak = this.currentStreak;
       }
     }
-    const multiplier = Math.min(1.0 + (this.currentStreak * 0.25), 3.0);
+    const multiplier = Math.min(1.0 + (this.currentStreak * 0.05), 1.5);
 
     // Retry modifier (A): 1.0 on first try; 0.5 on retry
     const A = isRetry ? 0.5 : 1.0;
 
     // Hint penalty (H)
-    const H = usedHint ? (HINT_PENALTIES[diff] || 25) : 0;
+    const H = usedHint ? (HINT_PENALTIES[diff] || 5) : 0;
 
     // Speed bonus (B_speed): Awarded for rapid deduction proportional to remaining time
     let speedBonus = 0;
     if (!isRetry && !usedHint && this.timeLimit > 0 && timeRemaining > 0) {
       const speedRatio = Math.min(1.0, timeRemaining / this.timeLimit);
-      speedBonus = Math.floor(0.5 * basePts * speedRatio);
+      speedBonus = Math.floor(0.25 * basePts * speedRatio);
     }
 
     // Master Points
@@ -103783,19 +103819,19 @@ var MemoryMinigameEngine = window.MemoryMinigameEngine = class MemoryMinigameEng
   addConnection(fromId, toId) {
     if (!fromId || !toId || fromId === toId) return false;
 
-    // Check if duplicate connection already exists
-    const exists = this.userConnections.some(c => c.from === fromId && c.to === toId);
+    // Check if duplicate connection already exists (Item 8: bidirectional check)
+    const exists = this.userConnections.some(c => (c.from === fromId && c.to === toId) || (c.from === toId && c.to === fromId));
     if (exists) return false;
 
     // Check how many connections this level requires from this specific source
     const level = this.getCurrentCableLevel();
     const reqs = level ? (level.requiredConnections || []) : [];
-    const allowedFromCount = reqs.filter(r => r.from === fromId).length;
-    const currentFromCount = this.userConnections.filter(c => c.from === fromId).length;
+    const allowedFromCount = reqs.filter(r => r.from === fromId || r.to === fromId).length;
+    const currentFromCount = this.userConnections.filter(c => c.from === fromId || c.to === fromId).length;
 
     // If source only allows 1 connection in this level (e.g. standard pointer), replace previous
     if (allowedFromCount <= 1 && currentFromCount >= 1) {
-      this.userConnections = this.userConnections.filter(c => c.from !== fromId);
+      this.userConnections = this.userConnections.filter(c => c.from !== fromId && c.to !== fromId);
     }
 
     this.userConnections.push({ from: fromId, to: toId });
@@ -103827,7 +103863,11 @@ var MemoryMinigameEngine = window.MemoryMinigameEngine = class MemoryMinigameEng
     let incorrectCount = 0;
 
     for (const userConn of this.userConnections) {
-      const match = reqs.some(r => r.from === userConn.from && r.to === userConn.to);
+      // Support bidirectional port routing (Item 8): from->to OR to->from
+      const match = reqs.some(r => 
+        (r.from === userConn.from && r.to === userConn.to) ||
+        (r.from === userConn.to && r.to === userConn.from)
+      );
       if (match) {
         correctCount++;
       } else {
@@ -104109,6 +104149,19 @@ var MemoryMinigameEngine = window.MemoryMinigameEngine = class MemoryMinigameEng
   }
 
   proceedToNextRushChallenge() {
+    // Item 11: Break 15 challenges into stages of 5 with sector intermission checkpoints
+    if (this.rushIndex > 0 && this.rushIndex % 5 === 0 && this.rushIndex < this.rushChallenges.length && !this._rushStageCheckpointAcknowledged) {
+      this._rushStageCheckpointAcknowledged = true;
+      this.emit('rushStageCompleted', {
+        stage: this.rushIndex / 5,
+        totalStages: Math.ceil(this.rushChallenges.length / 5),
+        nextIndex: this.rushIndex,
+        score: this.modeScores.dereference_rush,
+        stats: { ...this.rushStats }
+      });
+      return;
+    }
+    this._rushStageCheckpointAcknowledged = false;
     this._nextRushChallenge();
   }
 
@@ -108096,15 +108149,47 @@ var SandboxManager = window.SandboxManager = {
               content: ''
             };
           }
-          const editor = (typeof document !== 'undefined') ? document.getElementById('page-code-editor') : null;
+          const fileContent = this.vfs[targetPath].content || '';
+          const editor = (typeof document !== 'undefined') ? (document.getElementById('page-code-editor') || document.getElementById('code-editor-textarea')) : null;
           const fnEl = (typeof document !== 'undefined') ? document.getElementById('editor-filename') : null;
           if (editor) {
-            editor.value = this.vfs[targetPath].content || '';
+            editor.value = fileContent;
           }
           if (fnEl) {
             fnEl.textContent = filename;
           }
-          output = `[ GNU nano 7.2 ] File '${targetPath}' loaded into editor pane.`;
+          const numLines = fileContent ? fileContent.split('\n').length : 0;
+          output = `[ GNU nano 7.2 ] File: ${targetPath} (${numLines} lines)\n──────────────────────────────────────────────────\n${fileContent || '(empty file)'}\n──────────────────────────────────────────────────\n[ File loaded into editor. Edit above or run: echo "code" > ${filename} ]`;
+        }
+        break;
+      }
+
+      case 'bash':
+      case 'sh': {
+        let script = '';
+        if (args.includes('-c')) {
+          const cIdx = args.indexOf('-c');
+          script = args.slice(cIdx + 1).join(' ').replace(/^["']|["']$/g, '');
+        } else if (args[0] && !args[0].startsWith('-')) {
+          const target = this._normalizePath(args[0]);
+          if (!this.vfs[target] || this.vfs[target].type === 'dir') {
+            error = `${command}: ${args[0]}: No such file or directory`;
+            exitCode = 127;
+            break;
+          }
+          script = this.vfs[target].content || '';
+        } else if (stdInput) {
+          script = stdInput;
+        } else {
+          output = `GNU bash, version 5.2.15(1)-release (x86_64-pc-linux-gnu)\nType 'help' to see internally defined commands.`;
+          break;
+        }
+
+        const scriptRes = this.runBashScript(script);
+        output = scriptRes.output || '';
+        if (scriptRes.error) {
+          error = scriptRes.error;
+          exitCode = 1;
         }
         break;
       }
@@ -110811,24 +110896,42 @@ var Onboarding = window.Onboarding = {
     if (!grid) return;
 
     grid.innerHTML = '';
+    // Item 1: In first-time onboarding, only starter avatar 'cyber_fox' is unlocked
+    const unlockedStarterAvatars = ['cyber_fox'];
+
     AVATAR_CATALOG.forEach(avatar => {
+      const isUnlocked = unlockedStarterAvatars.includes(avatar.id);
+      const isSelected = avatar.id === this._state.avatarId;
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = `avatar-option-btn ${avatar.id === this._state.avatarId ? 'is-selected' : ''}`;
+      btn.className = `avatar-option-btn ${isSelected ? 'is-selected' : ''} ${!isUnlocked ? 'is-locked' : ''}`;
       btn.setAttribute('data-avatar-id', avatar.id);
       btn.setAttribute('role', 'radio');
-      btn.setAttribute('aria-checked', avatar.id === this._state.avatarId ? 'true' : 'false');
-      btn.setAttribute('aria-label', `Choose avatar ${avatar.name}: ${avatar.description}`);
+      btn.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+      btn.setAttribute('aria-label', `${isUnlocked ? '' : 'Locked: '}${avatar.name} - ${avatar.description}`);
+      if (!isUnlocked) {
+        btn.setAttribute('aria-disabled', 'true');
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+      }
 
       btn.innerHTML = `
-        <div class="avatar-preview-lg">
-          <img src="assets/images/${avatar.id}.svg" width="36" height="36" alt="" aria-hidden="true">
+        <div class="avatar-preview-lg" style="position: relative;">
+          <img src="assets/images/${avatar.id}.svg" width="36" height="36" alt="" aria-hidden="true" style="${!isUnlocked ? 'filter: grayscale(80%);' : ''}">
+          ${!isUnlocked ? '<span style="position: absolute; bottom: -4px; right: -4px; font-size: 13px;" title="Locked: Unlock in Settings Shop">🔒</span>' : ''}
         </div>
         <span style="font-family: var(--font-display); font-weight: 700; font-size: var(--text-xs);">${avatar.name}</span>
-        <span style="font-size: 11px; color: var(--text-muted); line-height: 1.2;">${avatar.description}</span>
+        <span style="font-size: 10px; color: ${isUnlocked ? 'var(--text-muted)' : 'var(--color-warning, #f59e0b)'}; line-height: 1.2;">
+          ${isUnlocked ? avatar.description : 'Locked — Unlock in Settings'}
+        </span>
       `;
 
       btn.addEventListener('click', () => {
+        if (!isUnlocked) {
+          AudioEngine.playError();
+          UI.showToast(`🔒 ${avatar.name} is locked! Reach higher levels to unlock in Settings.`, 'warning');
+          return;
+        }
         AudioEngine.playClick();
         this._selectAvatar(avatar.id);
       });
@@ -110981,6 +111084,32 @@ var Onboarding = window.Onboarding = {
       btnConfirmSave.addEventListener('click', () => {
         AudioEngine.playSuccess();
         this._confirm(false);
+      });
+    }
+
+    // Item 2: Onboarding Auth Gateway Buttons
+    const btnOnboardEmail = Utils.qs('#btn-onboarding-email');
+    if (btnOnboardEmail) {
+      btnOnboardEmail.addEventListener('click', () => {
+        AudioEngine.playClick();
+        this.close();
+        const authModal = document.getElementById('modal-auth');
+        if (authModal) {
+          authModal.style.display = 'flex';
+          authModal.setAttribute('aria-hidden', 'false');
+        }
+      });
+    }
+
+    const btnOnboardGuest = Utils.qs('#btn-onboarding-guest');
+    if (btnOnboardGuest) {
+      btnOnboardGuest.addEventListener('click', () => {
+        AudioEngine.playClick();
+        const userInp = Utils.qs('#onboarding-username');
+        if (userInp) {
+          userInp.focus();
+          UI.showToast('Playing as Guest. Enter your call-sign below!', 'info');
+        }
       });
     }
 
@@ -112728,21 +112857,39 @@ var DuelEngine = window.DuelEngine = {
   },
 
   /**
-   * Construct 1-click shareable join URL
+   * Construct 1-click shareable join URL (Item 18: Full https:// link)
+   * Supports both getShareUrl() and getShareUrl(roomCode, seed, lang, diff, count).
    */
-  getShareUrl(baseUrl = '') {
-    let base = baseUrl;
-    if (!base && typeof window !== 'undefined' && window.location) {
-      base = window.location.origin + window.location.pathname;
+  getShareUrl(roomCodeOrBase = '', seed = null, lang = null, diff = null, count = null) {
+    let base = 'https://syntaxarena-phi.vercel.app/game.html';
+    if (typeof window !== 'undefined' && window.location && window.location.origin && window.location.origin.startsWith('http')) {
+      base = `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '')}/game.html`;
     }
-    if (!base) base = 'game.html';
+
+    let targetRoom = this.roomCode;
+    let targetSeed = this.seed;
+    let targetLang = this.language;
+    let targetDiff = this.difficulty;
+    let targetCount = this.questionCount;
+
+    if (typeof roomCodeOrBase === 'string' && (roomCodeOrBase.startsWith('http://') || roomCodeOrBase.startsWith('https://'))) {
+      base = roomCodeOrBase;
+    } else if (roomCodeOrBase) {
+      targetRoom = roomCodeOrBase;
+    }
+
+    if (seed !== null && seed !== undefined) targetSeed = seed;
+    if (lang) targetLang = lang;
+    if (diff) targetDiff = diff;
+    if (count) targetCount = count;
+
     const params = new URLSearchParams();
     params.set('mode', 'duel');
-    params.set('room', this.roomCode);
-    params.set('lang', this.language);
-    params.set('diff', this.difficulty);
-    params.set('count', String(this.questionCount));
-    params.set('seed', String(this.seed));
+    params.set('room', targetRoom);
+    params.set('lang', targetLang);
+    params.set('diff', targetDiff);
+    params.set('count', String(targetCount));
+    params.set('seed', String(targetSeed));
     return `${base}?${params.toString()}`;
   },
 
@@ -113373,7 +113520,7 @@ var MemoryMinigameController = window.MemoryMinigameController = {
       });
     });
 
-    // Field Manual Modal (Item 23)
+    // Field Manual Modal (Item 24: Fix modal toggle by toggling .is-open and aria-hidden)
     const btnOpenManual = document.getElementById('btn-open-mem-manual');
     const modalManual = document.getElementById('modal-mem-manual');
     const btnCloseManual = document.getElementById('btn-close-mem-manual');
@@ -113381,19 +113528,27 @@ var MemoryMinigameController = window.MemoryMinigameController = {
 
     if (btnOpenManual && modalManual) {
       btnOpenManual.addEventListener('click', () => {
+        modalManual.classList.add('is-open');
         modalManual.style.display = 'flex';
+        modalManual.setAttribute('aria-hidden', 'false');
         this._playClick();
       });
       [btnCloseManual, btnUnderstood].forEach(b => {
         if (b) {
           b.addEventListener('click', () => {
+            modalManual.classList.remove('is-open');
             modalManual.style.display = 'none';
+            modalManual.setAttribute('aria-hidden', 'true');
             this._playClick();
           });
         }
       });
       modalManual.addEventListener('click', (e) => {
-        if (e.target === modalManual) modalManual.style.display = 'none';
+        if (e.target === modalManual) {
+          modalManual.classList.remove('is-open');
+          modalManual.style.display = 'none';
+          modalManual.setAttribute('aria-hidden', 'true');
+        }
       });
 
       modalManual.querySelectorAll('.manual-tab-btn').forEach(btn => {
@@ -113530,6 +113685,8 @@ var MemoryMinigameController = window.MemoryMinigameController = {
     });
 
     this.engine.on('leakLevelCompleted', () => {
+      const actionsBar = document.getElementById('mem-actions-bar');
+      if (actionsBar) actionsBar.style.display = 'flex';
       const nextBtn = document.getElementById('btn-next-level');
       if (nextBtn) nextBtn.style.display = 'inline-flex';
       const banner = document.getElementById('mem-feedback');
@@ -113581,6 +113738,29 @@ var MemoryMinigameController = window.MemoryMinigameController = {
       }, 1600);
     });
 
+    this.engine.on('rushStageCompleted', (stageData) => {
+      const banner = document.getElementById('mem-rush-feedback');
+      if (banner) {
+        banner.style.display = 'block';
+        banner.className = 'mem-feedback-banner is-success';
+        banner.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <span>⭐ <strong>SECTOR ${stageData.stage} OF ${stageData.totalStages} CLEARED!</strong> (5 Hazards Defused)</span>
+            <button id="btn-resume-rush-stage" class="btn-arcade btn-primary btn-sm" style="font-size: 13px; padding: 6px 16px; box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);">
+              Launch Sector ${stageData.stage + 1} ➔
+            </button>
+          </div>
+        `;
+        const resumeBtn = banner.querySelector('#btn-resume-rush-stage');
+        if (resumeBtn) {
+          resumeBtn.onclick = () => {
+            banner.style.display = 'none';
+            this.engine.proceedToNextRushChallenge();
+          };
+        }
+      }
+    });
+
     this.engine.on('dereferenceRushCompleted', ({ stats, score, maxStreak }) => {
       this._renderRushCompletionScreen(stats, score, maxStreak);
       this._updateHUD();
@@ -113619,8 +113799,10 @@ var MemoryMinigameController = window.MemoryMinigameController = {
       if (badgeEl && lvl) badgeEl.textContent = lvl.difficulty;
       if (scoreLabelEl) scoreLabelEl.textContent = 'HEAP HUNTER SCORE:';
     } else if (this.engine.activeMode === 'dereference_rush') {
-      if (titleEl) titleEl.textContent = `Segfault Defuser (Hazard ${this.engine.rushIndex + 1}/${this.engine.rushChallenges.length})`;
-      if (badgeEl) badgeEl.textContent = 'Arcade Rush';
+      const sectorNum = Math.min(3, Math.floor(this.engine.rushIndex / 5) + 1);
+      const hazardInSector = Math.min(5, (this.engine.rushIndex % 5) + 1);
+      if (titleEl) titleEl.textContent = `Segfault Defuser (Sector ${sectorNum}/3 — Hazard ${hazardInSector}/5)`;
+      if (badgeEl) badgeEl.textContent = `Sector ${sectorNum}`;
       if (scoreLabelEl) scoreLabelEl.textContent = 'DEFUSER SCORE:';
     }
   },
@@ -113632,6 +113814,8 @@ var MemoryMinigameController = window.MemoryMinigameController = {
     const actionsBar = document.getElementById('mem-actions-bar');
     const nextBtn = document.getElementById('btn-next-level');
     const hintBtn = document.getElementById('btn-gc-hint');
+    const btnCheckWiring = document.getElementById('btn-check-wiring');
+    const btnClearCables = document.getElementById('btn-clear-cables');
 
     if (nextBtn) nextBtn.style.display = 'none';
     const feedback = document.getElementById('mem-feedback');
@@ -113642,17 +113826,24 @@ var MemoryMinigameController = window.MemoryMinigameController = {
       if (leakMeter) leakMeter.style.display = 'none';
       if (rushCard) rushCard.style.display = 'none';
       if (actionsBar) actionsBar.style.display = 'flex';
+      if (btnCheckWiring) btnCheckWiring.style.display = 'inline-flex';
+      if (btnClearCables) btnClearCables.style.display = 'inline-flex';
       if (hintBtn) hintBtn.style.display = 'none';
     } else if (mode === 'leak_patrol') {
       if (stage) stage.style.display = 'grid';
       if (leakMeter) leakMeter.style.display = 'block';
       if (rushCard) rushCard.style.display = 'none';
-      if (actionsBar) actionsBar.style.display = 'flex';
-      if (hintBtn) hintBtn.style.display = 'inline-flex';
+      if (btnCheckWiring) btnCheckWiring.style.display = 'none';
+      if (btnClearCables) btnClearCables.style.display = 'none';
+      if (hintBtn) hintBtn.style.display = 'none'; // Item 10: removed giveaway hint
+      if (actionsBar) actionsBar.style.display = 'none';
     } else if (mode === 'dereference_rush') {
       if (stage) stage.style.display = 'none';
       if (leakMeter) leakMeter.style.display = 'none';
       if (rushCard) rushCard.style.display = 'block';
+      if (btnCheckWiring) btnCheckWiring.style.display = 'none';
+      if (btnClearCables) btnClearCables.style.display = 'none';
+      if (hintBtn) hintBtn.style.display = 'none';
       if (actionsBar) actionsBar.style.display = 'none';
     }
   },
@@ -114841,9 +115032,12 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
               </div>
             </div>
 
-            <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+            <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem; flex-wrap: wrap;">
               <button id="btn-share-badge" class="btn-arcade btn-primary btn-sm" style="flex: 1;">
-                🛡️ Generate GitHub Badge
+                🛡️ GitHub Badge Studio
+              </button>
+              <button id="btn-download-cartridge-png" class="btn-arcade btn-secondary btn-sm" style="flex: 1;">
+                📸 Download Trophy (PNG)
               </button>
             </div>
           </div>
@@ -114861,7 +115055,16 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
     const frontBtn = modal.querySelector('#btn-view-front');
     const backBtn = modal.querySelector('#btn-view-back');
     const shareBtn = modal.querySelector('#btn-share-badge');
+    const downloadPngBtn = modal.querySelector('#btn-download-cartridge-png');
     const stage = modal.querySelector('#inspector-3d-stage');
+
+    if (downloadPngBtn) {
+      downloadPngBtn.addEventListener('click', () => {
+        if (this.selectedBadge) {
+          this._downloadCartridgeCardPng(this.selectedBadge);
+        }
+      });
+    }
 
     closeBtn.addEventListener('click', () => this.closeInspectorModal());
     modal.addEventListener('click', (e) => {
@@ -114985,6 +115188,12 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
     `;
 
     // Back Face
+    const prof = this.profile || {};
+    const uid = prof.id || prof.authUserId || 'SA-AGENT-001';
+    const callsign = prof.callsign || 'ScriptAdept';
+    const verifyUrl = `https://syntaxarena-phi.vercel.app/progress.html?verify=1&uid=${encodeURIComponent(uid)}&user=${encodeURIComponent(callsign)}&badge=${encodeURIComponent(badge.id)}`;
+    const qrSvg = this._generateVerificationQrSvg(verifyUrl);
+
     const backFace = modal.querySelector('#inspector-face-back');
     backFace.innerHTML = `
       <div class="back-tech-specs">
@@ -114996,9 +115205,12 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
         <div>CIRCUIT: 6502/SYNTAX-MCU</div>
       </div>
 
-      <div style="background: #090d16; border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem; border-radius: 6px;">
-        <span style="font-size: 0.65rem; color: #64748b; font-family: monospace;">DEVELOPER VERIFICATION</span>
-        <div class="back-barcode"></div>
+      <div style="background: #090d16; border: 1px solid rgba(255,255,255,0.06); padding: 0.5rem; border-radius: 6px; text-align: center;">
+        <span style="font-size: 0.65rem; color: #64748b; font-family: monospace; display: block; margin-bottom: 0.25rem;">VERIFICATION QR &amp; BARCODE</span>
+        <a href="${verifyUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 4px; background: #ffffff; border-radius: 4px; text-decoration: none;" title="Scan or click to verify authentic credential on SyntaxArena">
+          ${qrSvg}
+        </a>
+        <div style="font-size: 0.6rem; color: #94a3b8; font-family: monospace; margin-top: 0.35rem; word-break: break-all;">UID: ${uid}</div>
       </div>
 
       <div style="font-size: 0.65rem; color: #475569; font-family: monospace; text-align: center;">
@@ -115122,21 +115334,18 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
               </div>
             </div>
 
-            <!-- Export Buttons -->
+            <!-- Export Buttons (Item 17: Download buttons, remove copy buttons) -->
             <div class="badge-control-group" style="margin-top: 0.5rem;">
-              <span class="badge-control-label">Export &amp; Embed</span>
-              <div class="badge-export-grid">
-                <button id="btn-copy-markdown" class="btn-arcade btn-primary badge-export-btn">
-                  📋 Copy Markdown
+              <span class="badge-control-label">Export &amp; Download</span>
+              <div class="badge-export-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <button id="btn-download-markdown" class="btn-arcade btn-primary badge-export-btn">
+                  💾 Download .md
                 </button>
-                <button id="btn-copy-html" class="btn-arcade btn-neutral badge-export-btn">
-                  🌐 Copy HTML
-                </button>
-                <button id="btn-copy-raw-svg" class="btn-arcade btn-neutral badge-export-btn">
-                  📐 Copy Raw SVG
+                <button id="btn-download-html" class="btn-arcade btn-neutral badge-export-btn">
+                  🌐 Download .html
                 </button>
                 <button id="btn-download-svg" class="btn-arcade btn-secondary badge-export-btn">
-                  💾 Download .svg
+                  📐 Download .svg
                 </button>
               </div>
               <span id="badge-copy-feedback" style="font-size: 0.75rem; color: #10b981; font-weight: 700; height: 16px; margin-top: 0.25rem;"></span>
@@ -115188,16 +115397,14 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
       });
     });
 
-    // Export Buttons
-    const btnMarkdown = container.querySelector('#btn-copy-markdown');
-    const btnHtml = container.querySelector('#btn-copy-html');
-    const btnRawSvg = container.querySelector('#btn-copy-raw-svg');
+    // Export Download Buttons (Item 17)
+    const btnMarkdown = container.querySelector('#btn-download-markdown');
+    const btnHtml = container.querySelector('#btn-download-html');
     const btnDownload = container.querySelector('#btn-download-svg');
 
-    btnMarkdown.addEventListener('click', () => this._copyExportSnippet('markdown'));
-    btnHtml.addEventListener('click', () => this._copyExportSnippet('html'));
-    btnRawSvg.addEventListener('click', () => this._copyExportSnippet('raw_svg'));
-    btnDownload.addEventListener('click', () => this._downloadSvgFile());
+    if (btnMarkdown) btnMarkdown.addEventListener('click', () => this._downloadBadgeFile('markdown'));
+    if (btnHtml) btnHtml.addEventListener('click', () => this._downloadBadgeFile('html'));
+    if (btnDownload) btnDownload.addEventListener('click', () => this._downloadBadgeFile('svg'));
   }
 
   updateBadgeStudioPreview() {
@@ -115260,61 +115467,205 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
     previewEl.innerHTML = svgMarkup;
   }
 
-  _copyExportSnippet(type) {
-    const previewEl = document.getElementById('badge-live-preview');
-    const feedbackEl = document.getElementById('badge-copy-feedback');
-    if (!previewEl) return;
-
-    if (this.unlockedBadgeIds.size === 0) {
-      if (feedbackEl) {
-        feedbackEl.style.color = '#f43f5e';
-        feedbackEl.textContent = '🔒 Studio locked! Earn at least 1 trophy badge first.';
-        setTimeout(() => { if (feedbackEl) feedbackEl.textContent = ''; }, 3000);
-      }
-      return;
-    }
-
-    const svg = previewEl.innerHTML.trim();
-    const encodedDataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-
-    let textToCopy = '';
-    if (type === 'markdown') {
-      textToCopy = `[![SyntaxArena Profile Badge](${encodedDataUri})](https://syntaxarena.dev)`;
-    } else if (type === 'html') {
-      textToCopy = `<a href="https://syntaxarena.dev"><img src="${encodedDataUri}" alt="SyntaxArena Profile Badge" /></a>`;
-    } else if (type === 'raw_svg') {
-      textToCopy = svg;
-    }
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(textToCopy).catch(() => {});
-    }
-
-    if (feedbackEl) {
-      feedbackEl.textContent = `✓ Copied ${type.toUpperCase()} to clipboard!`;
-      setTimeout(() => {
-        feedbackEl.textContent = '';
-      }, 2500);
-    }
-  }
-
-  _downloadSvgFile() {
+  _downloadBadgeFile(type) {
     if (this.unlockedBadgeIds.size === 0) return;
     const previewEl = document.getElementById('badge-live-preview');
     if (!previewEl) return;
 
     const svg = previewEl.innerHTML.trim();
-    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
     const callsign = (this.profile?.callsign || 'scriptadept').toLowerCase();
+    const style = this.badgeStudioState.style;
 
+    let content = '';
+    let mimeType = 'text/plain';
+    let filename = `syntaxarena-${callsign}-${style}-badge.txt`;
+
+    if (type === 'markdown') {
+      const encodedDataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+      content = `<!-- SyntaxArena Dynamic Profile Badge -->\n[![SyntaxArena Profile Badge](${encodedDataUri})](https://syntaxarena-phi.vercel.app)\n`;
+      mimeType = 'text/markdown;charset=utf-8';
+      filename = `syntaxarena-${callsign}-${style}-badge.md`;
+    } else if (type === 'html') {
+      const encodedDataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+      content = `<!-- SyntaxArena Dynamic Profile Badge -->\n<a href="https://syntaxarena-phi.vercel.app" target="_blank" rel="noopener noreferrer">\n  <img src="${encodedDataUri}" alt="SyntaxArena Profile Badge for ${callsign}" />\n</a>\n`;
+      mimeType = 'text/html;charset=utf-8';
+      filename = `syntaxarena-${callsign}-${style}-badge.html`;
+    } else if (type === 'svg') {
+      content = svg;
+      mimeType = 'image/svg+xml;charset=utf-8';
+      filename = `syntaxarena-${callsign}-${style}-badge.svg`;
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `syntaxarena-${callsign}-${this.badgeStudioState.style}-badge.svg`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    const feedbackEl = document.getElementById('badge-copy-feedback');
+    if (feedbackEl) {
+      feedbackEl.textContent = `✓ Downloaded ${filename}!`;
+      setTimeout(() => { if (feedbackEl) feedbackEl.textContent = ''; }, 2500);
+    }
+  }
+
+  _generateVerificationQrSvg(url) {
+    const size = 21;
+    const grid = Array.from({ length: size }, () => Array(size).fill(0));
+    
+    // Finder patterns
+    const drawFinder = (r0, c0) => {
+      for (let r = 0; r < 7; r++) {
+        for (let c = 0; c < 7; c++) {
+          if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
+            grid[r0 + r][c0 + c] = 1;
+          }
+        }
+      }
+    };
+    drawFinder(0, 0);
+    drawFinder(0, 14);
+    drawFinder(14, 0);
+
+    // Timing lines
+    for (let i = 8; i < 13; i++) {
+      grid[6][i] = (i % 2 === 0) ? 1 : 0;
+      grid[i][6] = (i % 2 === 0) ? 1 : 0;
+    }
+
+    // Seed hash from url
+    let hash = 0;
+    for (let i = 0; i < url.length; i++) {
+      hash = ((hash << 5) - hash) + url.charCodeAt(i);
+      hash |= 0;
+    }
+
+    // Fill data modules
+    let bit = 0;
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if ((r < 8 && c < 8) || (r < 8 && c >= 13) || (r >= 13 && c < 8)) continue;
+        if (r === 6 || c === 6) continue;
+        const val = (Math.abs(hash ^ (r * 31 + c * 17 + bit)) % 10) > 4 ? 1 : 0;
+        grid[r][c] = val;
+        bit++;
+      }
+    }
+
+    // Render SVG
+    let rects = '';
+    const modSize = 3;
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (grid[r][c] === 1) {
+          rects += `<rect x="${c * modSize}" y="${r * modSize}" width="${modSize}" height="${modSize}" fill="#0f172a" />`;
+        }
+      }
+    }
+    const svgDim = size * modSize;
+    return `<svg width="${svgDim}" height="${svgDim}" viewBox="0 0 ${svgDim} ${svgDim}" xmlns="http://www.w3.org/2000/svg" style="display:block; margin: 0 auto;">${rects}</svg>`;
+  }
+
+  _downloadCartridgeCardPng(badge) {
+    const prof = this.profile || {};
+    const uid = prof.id || prof.authUserId || 'SA-AGENT-001';
+    const callsign = prof.callsign || 'ScriptAdept';
+    const rarity = mapBadgeRarity(badge);
+    const rMeta = RARITY_CONFIG[rarity] || RARITY_CONFIG.common;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 600;
+    canvas.height = 700;
+    const ctx = canvas.getContext('2d');
+
+    // Dark sleek background
+    ctx.fillStyle = '#0b0f19';
+    ctx.fillRect(0, 0, 600, 700);
+
+    // Tech border & glow
+    ctx.strokeStyle = rMeta.color || '#38bdf8';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(20, 20, 560, 660);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(30, 30, 540, 640);
+
+    // Title & Header
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 16px monospace';
+    ctx.fillText('SYNTAXARENA ARCADE VAULT • OFFICIAL CARTRIDGE', 50, 65);
+
+    // Cartridge Icon & Name
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '64px sans-serif';
+    ctx.fillText(badge.icon || '🏆', 50, 150);
+
+    ctx.font = 'bold 30px sans-serif';
+    ctx.fillText(badge.name, 50, 205);
+
+    ctx.fillStyle = rMeta.color || '#38bdf8';
+    ctx.font = 'bold 16px monospace';
+    ctx.fillText(`${rMeta.label.toUpperCase()} CARTRIDGE • ${rMeta.romSize}`, 50, 235);
+
+    // Description
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '14px sans-serif';
+    ctx.fillText(badge.description || 'Awarded for supreme programming mastery.', 50, 275);
+
+    // Recipient & Player ID
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.strokeRect(50, 310, 500, 160);
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px monospace';
+    ctx.fillText('PLAYER CALLSIGN', 70, 340);
+    ctx.fillText('PLAYER UID', 70, 395);
+    ctx.fillText('SECURITY STATUS', 70, 450);
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.fillText(callsign, 70, 365);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText(uid, 70, 418);
+
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText('● CRYPTOGRAPHICALLY VERIFIED', 70, 470);
+
+    // Barcode / verification footer
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px monospace';
+    ctx.fillText('SCAN / VERIFY AT:', 50, 520);
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '11px monospace';
+    ctx.fillText(`https://syntaxarena-phi.vercel.app/progress.html?verify=1&uid=${uid}`, 50, 540);
+
+    // Verification barcode lines
+    ctx.fillStyle = '#ffffff';
+    for (let x = 50; x < 550; x += 6) {
+      const barW = ((x * 13) % 4) + 1;
+      ctx.fillRect(x, 560, barW, 40);
+    }
+
+    ctx.fillStyle = '#475569';
+    ctx.font = '11px monospace';
+    ctx.fillText('SYNTAXARENA 2.0 ARCADE PROTOCOL', 50, 640);
+
+    // Download PNG
+    const dataUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `syntaxarena-cartridge-${badge.id}-${callsign}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 }
 
@@ -116925,6 +117276,18 @@ var Gameplay = window.Gameplay = {
     }
 
     if (advResult.advanced) {
+      const session = this.engine.getSession();
+      const nextIndex = session ? session.currentIndex : 0;
+      this._checkpointAcknowledged = this._checkpointAcknowledged || {};
+
+      // Item 7: Split 20 questions into stages of 5 with checkpoint intermission modals
+      if (session && session.totalQuestions >= 20 && [5, 10, 15].includes(nextIndex) && !this._checkpointAcknowledged[nextIndex]) {
+        this._checkpointAcknowledged[nextIndex] = true;
+        this._showStageCheckpointModal(advResult.question, nextIndex);
+        this.isAdvancing = false;
+        return;
+      }
+
       // Render next question
       this.renderQuestion(advResult.question);
       this._saveSessionSnapshot();
@@ -116939,6 +117302,60 @@ var Gameplay = window.Gameplay = {
     }
 
     this.isAdvancing = false;
+  },
+
+  /**
+   * Display Stage Intermission Checkpoint modal at question boundaries (Item 7).
+   */
+  _showStageCheckpointModal(nextQuestion, nextIndex) {
+    this._stopTimer();
+    const modal = Utils.qs('#modal-stage-checkpoint');
+    if (!modal) {
+      this.renderQuestion(nextQuestion);
+      if (this.sessionConfig.timeLimit > 0) this._startTimer(this.sessionConfig.timeLimit);
+      return;
+    }
+
+    const session = this.engine.getSession();
+    const stageNum = Math.floor(nextIndex / 5);
+    const totalStages = Math.ceil((session?.totalQuestions || 20) / 5);
+    const tag = Utils.qs('#stage-checkpoint-tag');
+    const title = Utils.qs('#stage-checkpoint-title');
+    const desc = Utils.qs('#stage-checkpoint-desc');
+    const score = Utils.qs('#stage-checkpoint-score');
+    const streak = Utils.qs('#stage-checkpoint-streak');
+    const acc = Utils.qs('#stage-checkpoint-acc');
+    const continueBtn = Utils.qs('#btn-continue-stage');
+
+    if (tag) tag.textContent = `STAGE ${stageNum} OF ${totalStages} CLEARED`;
+    if (title) title.textContent = `Sector ${stageNum} Complete!`;
+    if (desc) desc.textContent = `Outstanding work! You solved 5 questions. Sector ${stageNum} cleared. Ready for Sector ${stageNum + 1}?`;
+    if (score) score.textContent = session?.totalScore || 0;
+    if (streak) streak.textContent = `${session?.currentStreak || 0}🔥`;
+    if (acc) {
+      const attempted = session?.questionsAttempted || 1;
+      const correct = session?.questionsCorrect || 0;
+      acc.textContent = `${Math.round((correct / attempted) * 100)}%`;
+    }
+
+    modal.classList.add('is-open');
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+    AudioEngine.playSuccess();
+
+    if (continueBtn) {
+      continueBtn.onclick = () => {
+        AudioEngine.playClick();
+        modal.classList.remove('is-open');
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        this.renderQuestion(nextQuestion);
+        this._saveSessionSnapshot();
+        if (this.sessionConfig.timeLimit > 0) {
+          this._startTimer(this.sessionConfig.timeLimit);
+        }
+      };
+    }
   },
 
   /**

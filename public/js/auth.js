@@ -322,6 +322,12 @@ export class AuthManager {
             provider: user.provider,
             displayName: user.displayName
           };
+          // Item 4: Take username from email handle at first login
+          const rawHandle = user.username || (user.email ? user.email.split('@')[0] : '');
+          const cleanHandle = String(rawHandle).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 16);
+          if (cleanHandle && (!activeProf.username || activeProf.username === 'HexCoder' || activeProf.username === 'ScriptAdept' || activeProf.username.startsWith('Coder_'))) {
+            activeProf.username = cleanHandle;
+          }
           if (typeof StateObj.set === 'function') {
             StateObj.set('activeProfile', activeProf, true);
           }

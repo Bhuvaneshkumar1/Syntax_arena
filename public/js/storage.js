@@ -67,7 +67,7 @@ export function createDefaultProfile(id = 'prof-default01', username = 'ScriptAd
     sessionHistory: [],
     processedSessionIds: [],
     unlockedThemes: ['dark'],
-    unlockedAvatars: ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight'],
+    unlockedAvatars: ['cyber_fox'],
     unlockedModes: ['campaign', 'practice']
   };
 }

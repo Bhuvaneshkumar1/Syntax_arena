@@ -123,7 +123,7 @@ export const Profile = {
       missedQuestionIds: [],
       processedSessionIds: [],
       unlockedThemes: ['dark'],
-      unlockedAvatars: ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight'],
+      unlockedAvatars: ['cyber_fox'],
       unlockedModes: ['campaign', 'practice']
     };
   },
@@ -393,7 +393,7 @@ export const Profile = {
     };
 
     if (itemType === 'avatar') {
-      const existingAvatars = new Set(profile.unlockedAvatars || ['cyber_fox', 'terminal_owl', 'matrix_cat', 'bit_knight']);
+      const existingAvatars = new Set(profile.unlockedAvatars || ['cyber_fox']);
       existingAvatars.add(itemId);
       updates.unlockedAvatars = Array.from(existingAvatars);
     } else if (itemType === 'badge') {

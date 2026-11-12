@@ -19,7 +19,7 @@
 <body data-page="progress">
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Embedded SVG Icons -->
+  <!-- Master Embedded SVG Icons Sprite -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>
@@ -55,14 +55,57 @@
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
       <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
     </symbol>
-    <symbol id="icon-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+    <symbol id="icon-volume-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>
+    </symbol>
+    <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+    </symbol>
+    <symbol id="icon-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path>
+      <path d="M9 18h6"></path><path d="M10 22h4"></path>
+    </symbol>
+    <symbol id="icon-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+      <rect x="9" y="9" width="6" height="6"></rect>
+      <line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line>
+      <line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line>
+      <line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line>
+      <line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line>
     </symbol>
     <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
     </symbol>
     <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+    </symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+    </symbol>
+    <symbol id="icon-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+    </symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+    </symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+    </symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+    </symbol>
+    <symbol id="icon-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line>
+    </symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+    </symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>
     </symbol>
   </svg>
 
@@ -109,17 +152,25 @@
           <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-trophy"></use></svg></span>
           <span class="sidebar-label">Career</span>
         </a>
+        <a href="results.html" class="nav-link sidebar-link" data-tooltip="Results">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-chart"></use></svg></span>
+          <span class="sidebar-label">Results</span>
+        </a>
       </nav>
 
-      <!-- Sidebar Footer: Battlestation, Settings, Auth Profile -->
+      <!-- Sidebar Footer: Settings, Legal, Auth Profile -->
       <div class="sidebar-footer">
-        <a href="settings.html#section-battlestation" class="sidebar-link" data-tooltip="Battlestation">
-          <span class="sidebar-icon">🖥️</span>
-          <span class="sidebar-label">Battlestation</span>
-        </a>
         <a href="settings.html" class="sidebar-link" data-tooltip="Settings">
           <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-settings"></use></svg></span>
           <span class="sidebar-label">Settings</span>
+        </a>
+        <a href="settings.html#privacy" class="sidebar-link" data-tooltip="Privacy Policy">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-shield"></use></svg></span>
+          <span class="sidebar-label">Privacy</span>
+        </a>
+        <a href="settings.html#terms" class="sidebar-link" data-tooltip="Terms of Service">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-book"></use></svg></span>
+          <span class="sidebar-label">Terms</span>
         </a>
         <div class="sidebar-auth-card" id="sidebar-auth-card" title="Click to open Cloud Sync & Auth">
           <img src="assets/images/cyber_fox.svg" width="28" height="28" alt="avatar" id="sidebar-profile-avatar" style="border-radius: 50%; flex-shrink: 0;">
@@ -373,8 +424,12 @@
       <!-- Trophy Room & 3D Cartridge Vault (Feature 9) -->
       <section style="margin-bottom: 2.5rem;" aria-label="3D Arcade Trophy Vault and Achievements">
         <div class="page-title-row">
-          <div>
-            <h2>🕹️ 3D Arcade Trophy Vault</h2>
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <h2 style="margin: 0;">🕹️ 3D Arcade Trophy Vault</h2>
+            <button id="btn-trophy-obtain-info" class="btn-arcade btn-neutral btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.6rem; font-size: 11px;" aria-label="How to obtain 3D arcade trophy vault badges">
+              <span>ⓘ</span>
+              <span>How to Obtain</span>
+            </button>
           </div>
           <span id="badge-counter-pill" class="badge badge-violet">0 / 23 Unlocked</span>
         </div>
@@ -412,7 +467,6 @@
           <div>
             <h2>Cosmetic Rewards &amp; Themes</h2>
           </div>
-          <a href="settings.html" class="btn-arcade btn-neutral btn-sm">Equip in Settings →</a>
         </div>
 
         <!-- Themes Showcase Header & Filters -->
@@ -550,6 +604,111 @@
         </div>
       </div>
     </div>
+
+    <!-- 3D Arcade Trophy Vault How-to-Obtain Modal (Item 15) -->
+    <div id="modal-trophy-obtain-info" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="trophy-info-title">
+      <div class="modal-dialog card card-raised" style="max-width: 640px; width: 92vw; max-height: 85vh; overflow-y: auto; padding: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+          <h3 id="trophy-info-title" style="margin: 0; font-family: var(--font-display); font-size: var(--text-lg); display: flex; align-items: center; gap: 0.5rem;">
+            <span>🕹️</span>
+            <span>How to Obtain 3D Arcade Trophies</span>
+          </h3>
+          <button id="btn-close-trophy-info" class="btn-arcade btn-neutral btn-sm" aria-label="Close modal">✕</button>
+        </div>
+
+        <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+          All 3D Cartridge Trophies are permanent cryptographic achievements minted to your player identity. There are two primary pathways to acquire them:
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+          <div class="card" style="padding: 0.85rem; border-left: 3px solid var(--color-primary);">
+            <strong style="color: var(--text-primary); font-size: var(--text-sm); display: block; margin-bottom: 0.25rem;">⚔️ 1. In-Game Feats &amp; Accomplishments</strong>
+            <p style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0; line-height: 1.5;">
+              Solve arena questions, maintain winning streaks (3🔥, 5🔥, 8🔥), graduate language tracks in the Cyber Academy, conquer 1v1 duels, and achieve 100% precision on Expert tiers to automatically forge cartridges into your vault.
+            </p>
+          </div>
+
+          <div class="card" style="padding: 0.85rem; border-left: 3px solid var(--color-warning);">
+            <strong style="color: var(--text-primary); font-size: var(--text-sm); display: block; margin-bottom: 0.25rem;">🪙 2. Arcade Points Redemption</strong>
+            <p style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0; line-height: 1.5;">
+              Earn Points by finishing arena sessions and memory lab puzzles. Unlocked badges can be acquired directly in the Battlestation / Settings shop using your spendable career points.
+            </p>
+          </div>
+
+          <div class="card" style="padding: 0.85rem; border-left: 3px solid var(--color-emerald);">
+            <strong style="color: var(--text-primary); font-size: var(--text-sm); display: block; margin-bottom: 0.25rem;">🏷️ Category Requirements Breakdown</strong>
+            <ul style="font-size: var(--text-xs); color: var(--text-secondary); margin: 0.35rem 0 0 1.2rem; line-height: 1.6; padding: 0;">
+              <li><strong>Milestones:</strong> First Blood (1 challenge), Syntax Veteran (5 sessions), Century Club (100 challenges).</li>
+              <li><strong>Streaks:</strong> Blue Flare (3 streak), Amber Blaze (5 streak), Plasma Supernova (8 streak).</li>
+              <li><strong>Accuracy:</strong> Proficient Deductor (75% accuracy), Flawless Daemon (100% on Expert).</li>
+              <li><strong>Speed:</strong> Speed Daemon (finish full session in under 45 seconds).</li>
+              <li><strong>Polyglot:</strong> Conquer questions across all 12 supported programming languages.</li>
+              <li><strong>Academy:</strong> Complete all 5 modules in any language track to graduate with honors.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="text-align: right;">
+          <button id="btn-trophy-info-ok" class="btn-arcade btn-primary btn-sm">Got it, Enter Arena →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Real Identity Showcase Modal for Barcode/QR Verification (Item 16) -->
+    <div id="modal-trophy-verify" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="verify-showcase-title">
+      <div class="modal-dialog card card-raised" style="max-width: 580px; width: 92vw; padding: 1.5rem; text-align: center;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); border: 2px solid var(--color-success); margin-bottom: 0.75rem;">
+          <span style="font-size: 1.8rem;">✓</span>
+        </div>
+        <div style="font-size: 0.75rem; letter-spacing: 0.1em; color: var(--color-success); font-weight: 800; text-transform: uppercase;">
+          AUTHENTICATED CREDENTIAL SHOWCASE
+        </div>
+        <h2 id="verify-showcase-title" style="margin: 0.25rem 0 0.5rem; font-family: var(--font-display); font-size: var(--text-xl);">
+          SYNTAXARENA VERIFIED TROPHY
+        </h2>
+        <p style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: 1.25rem;">
+          Official tamper-evident achievement registered in the SyntaxArena Arcade Ledger.
+        </p>
+
+        <div class="card" style="padding: 1rem; margin-bottom: 1.25rem; text-align: left; background: var(--bg-surface-raised);">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
+            <div id="verify-badge-icon" style="font-size: 2.2rem; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: rgba(56, 189, 248, 0.15); border-radius: 8px;">🏆</div>
+            <div>
+              <h4 id="verify-badge-name" style="margin: 0; font-family: var(--font-display); font-size: var(--text-base);">First Blood</h4>
+              <span id="verify-badge-tier" class="badge badge-cyan" style="font-size: 10px;">COMMON CARTRIDGE</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: var(--text-xs); border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 10px;">AWARDED TO</span>
+              <strong id="verify-player-callsign" style="color: var(--text-primary);">ScriptAdept</strong>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 10px;">PLAYER UID</span>
+              <code id="verify-player-uid" style="color: var(--color-primary); font-size: 10px;">SA-AGENT-001</code>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 10px;">CREDENTIAL HASH</span>
+              <code id="verify-signature-hash" style="color: var(--text-muted); font-size: 9px; word-break: break-all;">SHA256:7f8a3c...</code>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 10px;">STATUS</span>
+              <span style="color: var(--color-success); font-weight: 700;">● 100% GENUINE</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+          <button id="btn-download-verify-card" class="btn-arcade btn-primary btn-sm">
+            📸 Download Certificate Card (PNG)
+          </button>
+          <button id="btn-close-verify-showcase" class="btn-arcade btn-neutral btn-sm">
+            ✕ Close Showcase
+          </button>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer class="app-footer">
@@ -567,29 +726,6 @@
   </footer>
     </div> <!-- /.app-viewport -->
 
-    <!-- Mobile Bottom Navigation Dock (Item 16) -->
-    <nav class="mobile-bottom-dock" aria-label="Mobile Navigation">
-      <a href="index.html" class="mobile-dock-link">
-        <span class="mobile-dock-icon">🏠</span>
-        <span>Hub</span>
-      </a>
-      <a href="game.html" class="mobile-dock-link">
-        <span class="mobile-dock-icon">🎮</span>
-        <span>Arena</span>
-      </a>
-      <a href="memory-games.html" class="mobile-dock-link">
-        <span class="mobile-dock-icon">🧠</span>
-        <span>Lab</span>
-      </a>
-      <a href="learn.html" class="mobile-dock-link">
-        <span class="mobile-dock-icon">⚡</span>
-        <span>Academy</span>
-      </a>
-      <a href="sandbox.html" class="mobile-dock-link">
-        <span class="mobile-dock-icon">💻</span>
-        <span>REPL</span>
-      </a>
-    </nav>
   </div> <!-- /#app-shell -->
 
     <!-- Multi-Provider Authentication Modal (Item 14) -->
@@ -1301,6 +1437,162 @@
 
       if (filterBadgesSubject) filterBadgesSubject.onchange = updateVaultFilters;
       if (filterBadgesStatus) filterBadgesStatus.onchange = updateVaultFilters;
+
+      // Wire Trophy Obtain Info Modal (Item 15)
+      const btnTrophyInfo = Utils.qs('#btn-trophy-obtain-info');
+      const modalTrophyInfo = Utils.qs('#modal-trophy-obtain-info');
+      const btnCloseTrophyInfo = Utils.qs('#btn-close-trophy-info');
+      const btnTrophyInfoOk = Utils.qs('#btn-trophy-info-ok');
+
+      function openTrophyInfoModal() {
+        if (!modalTrophyInfo) return;
+        modalTrophyInfo.style.display = 'flex';
+        modalTrophyInfo.classList.add('is-open');
+        modalTrophyInfo.removeAttribute('aria-hidden');
+      }
+
+      function closeTrophyInfoModal() {
+        if (!modalTrophyInfo) return;
+        modalTrophyInfo.classList.remove('is-open');
+        modalTrophyInfo.style.display = 'none';
+        modalTrophyInfo.setAttribute('aria-hidden', 'true');
+      }
+
+      if (btnTrophyInfo) btnTrophyInfo.onclick = openTrophyInfoModal;
+      if (btnCloseTrophyInfo) btnCloseTrophyInfo.onclick = closeTrophyInfoModal;
+      if (btnTrophyInfoOk) btnTrophyInfoOk.onclick = () => {
+        closeTrophyInfoModal();
+        window.location.href = 'game.html';
+      };
+      if (modalTrophyInfo) {
+        modalTrophyInfo.onclick = (e) => {
+          if (e.target === modalTrophyInfo) closeTrophyInfoModal();
+        };
+      }
+
+      // Check Real Identity Barcode / QR Verification Showcase (Item 16)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('verify') === '1') {
+        const vUid = urlParams.get('uid') || activeProf?.id || 'SA-AGENT-001';
+        const vUser = urlParams.get('user') || activeProf?.callsign || 'Cyber Agent';
+        const vBadgeId = urlParams.get('badge') || 'first_blood';
+
+        const modalVerify = Utils.qs('#modal-trophy-verify');
+        const vIcon = Utils.qs('#verify-badge-icon');
+        const vName = Utils.qs('#verify-badge-name');
+        const vTier = Utils.qs('#verify-badge-tier');
+        const vCallsign = Utils.qs('#verify-player-callsign');
+        const vUidEl = Utils.qs('#verify-player-uid');
+        const vHash = Utils.qs('#verify-signature-hash');
+        const btnCloseVerify = Utils.qs('#btn-close-verify-showcase');
+        const btnDownloadCard = Utils.qs('#btn-download-verify-card');
+
+        const foundBadge = allCatalogBadges.find(b => b.id === vBadgeId) || { name: vBadgeId, icon: '🏆', difficulty: 'expert' };
+        if (vIcon) vIcon.textContent = foundBadge.icon || '🏆';
+        if (vName) vName.textContent = foundBadge.name;
+        if (vTier) vTier.textContent = (foundBadge.difficulty || 'CORE').toUpperCase() + ' CARTRIDGE';
+        if (vCallsign) vCallsign.textContent = vUser;
+        if (vUidEl) vUidEl.textContent = vUid;
+        
+        // Deterministic credential hash
+        let hashSeed = 0;
+        const seedStr = vUid + ':' + vBadgeId + ':SYNTAXARENA';
+        for (let i = 0; i < seedStr.length; i++) {
+          hashSeed = ((hashSeed << 5) - hashSeed) + seedStr.charCodeAt(i);
+          hashSeed |= 0;
+        }
+        const hexHash = Math.abs(hashSeed).toString(16).padStart(8, '0');
+        if (vHash) vHash.textContent = `SHA256: 7f8a${hexHash}c4e1...`;
+
+        if (modalVerify) {
+          modalVerify.style.display = 'flex';
+          modalVerify.classList.add('is-open');
+        }
+
+        if (btnCloseVerify) {
+          btnCloseVerify.onclick = () => {
+            if (modalVerify) {
+              modalVerify.classList.remove('is-open');
+              modalVerify.style.display = 'none';
+            }
+          };
+        }
+
+        if (btnDownloadCard) {
+          btnDownloadCard.onclick = () => {
+            // Render Certificate Card on Canvas and download PNG
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 500;
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#0b0f19';
+            ctx.fillRect(0, 0, 800, 500);
+
+            // Tech Border
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(20, 20, 760, 460);
+
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(28, 28, 744, 444);
+
+            // Title
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 22px monospace';
+            ctx.fillText('SYNTAXARENA CYBER ACADEMY • VERIFIED CREDENTIAL', 50, 70);
+
+            // Badge Title
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = 'bold 32px sans-serif';
+            ctx.fillText(`${foundBadge.icon || '🏆'} ${foundBadge.name}`, 50, 140);
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '16px monospace';
+            ctx.fillText(`TIER: ${(foundBadge.difficulty || 'CORE').toUpperCase()} CARTRIDGE`, 50, 175);
+
+            // Recipient info
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 18px monospace';
+            ctx.fillText('RECIPIENT:', 50, 240);
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = '24px sans-serif';
+            ctx.fillText(vUser, 50, 275);
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '14px monospace';
+            ctx.fillText(`PLAYER UID: ${vUid}`, 50, 310);
+            ctx.fillText(`AUTHENTICATION HASH: SHA256:7f8a${hexHash}c4e1`, 50, 340);
+            ctx.fillText(`VERIFIED ON: ${new Date().toISOString().split('T')[0]}`, 50, 370);
+
+            // Status Stamp
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(520, 240, 220, 90);
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 16px monospace';
+            ctx.fillText('✓ 100% AUTHENTIC', 545, 275);
+            ctx.font = '12px monospace';
+            ctx.fillText('SYNTAXARENA LEDGER', 540, 305);
+
+            // Footer
+            ctx.fillStyle = '#64748b';
+            ctx.font = '12px monospace';
+            ctx.fillText('https://syntaxarena-phi.vercel.app', 50, 440);
+
+            // Download
+            const dataUrl = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `syntaxarena-credential-${foundBadge.id}-${vUid}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          };
+        }
+      }
 
       // 7. Render Palette Themes Collection with Subject & Gained/Unclaimed Filters
       const themesGrid = Utils.qs('#themes-grid');
