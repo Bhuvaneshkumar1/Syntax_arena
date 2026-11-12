@@ -6,6 +6,7 @@
 
 import { MemoryMinigameEngine } from './memory-minigame.js';
 import { CABLE_CONNECT_LEVELS, LEAK_PATROL_LEVELS, DEREFERENCE_RUSH_CHALLENGES } from '../data/memory-levels.js';
+import { AudioEngine } from './audio.js';
 
 export const MemoryMinigameController = {
   engine: null,
@@ -25,6 +26,13 @@ export const MemoryMinigameController = {
 
     // Default to Cable Connect level 0
     this.engine.setMode('cable_connect');
+
+    // Start meditative memory music mode (Item 4)
+    try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.startMusic === 'function') {
+        AudioEngine.startMusic('memory');
+      }
+    } catch (_) {}
   },
 
   _bindDOMEvents() {
@@ -93,6 +101,44 @@ export const MemoryMinigameController = {
       });
     });
 
+    // Field Manual Modal (Item 23)
+    const btnOpenManual = document.getElementById('btn-open-mem-manual');
+    const modalManual = document.getElementById('modal-mem-manual');
+    const btnCloseManual = document.getElementById('btn-close-mem-manual');
+    const btnUnderstood = document.getElementById('btn-understood-mem-manual');
+
+    if (btnOpenManual && modalManual) {
+      btnOpenManual.addEventListener('click', () => {
+        modalManual.style.display = 'flex';
+        this._playClick();
+      });
+      [btnCloseManual, btnUnderstood].forEach(b => {
+        if (b) {
+          b.addEventListener('click', () => {
+            modalManual.style.display = 'none';
+            this._playClick();
+          });
+        }
+      });
+      modalManual.addEventListener('click', (e) => {
+        if (e.target === modalManual) modalManual.style.display = 'none';
+      });
+
+      modalManual.querySelectorAll('.manual-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          modalManual.querySelectorAll('.manual-tab-btn').forEach(b => {
+            b.classList.remove('is-active');
+            b.className = 'btn-arcade btn-neutral btn-sm manual-tab-btn';
+          });
+          modalManual.querySelectorAll('.manual-tab-pane').forEach(p => p.style.display = 'none');
+          btn.className = 'btn-arcade btn-primary btn-sm manual-tab-btn is-active';
+          const pane = document.getElementById(btn.dataset.tab);
+          if (pane) pane.style.display = 'block';
+          this._playClick();
+        });
+      });
+    }
+
     // Pointer move / up for drag wiring and window resize observers
     window.addEventListener('mousemove', (e) => this._onPointerMove(e));
     window.addEventListener('mouseup', (e) => this._onPointerUp(e));
@@ -118,11 +164,26 @@ export const MemoryMinigameController = {
     this.engine.on('cableConnected', () => {
       this._renderCables();
       this._playSnap();
+
+      // Auto-validate when required connection count is reached for zero-friction gameplay
+      const level = this.engine.getCurrentCableLevel();
+      const reqCount = (level?.requiredConnections || []).length;
+      if (this.engine.userConnections.length >= reqCount) {
+        this.engine.validateCableWiring();
+      } else {
+        const remaining = reqCount - this.engine.userConnections.length;
+        this._showWireHelper(`⚡ Cable plugged in! Connect ${remaining} more route(s) to verify topology.`);
+      }
     });
 
     this.engine.on('cableRemoved', () => {
       this._renderCables();
       this._playClick();
+      const banner = document.getElementById('mem-feedback');
+      if (banner) banner.style.display = 'none';
+      const nextBtn = document.getElementById('btn-next-level');
+      if (nextBtn) nextBtn.style.display = 'none';
+      this._highlightValidCables(false);
     });
 
     this.engine.on('cableWiringValidated', (result) => {
@@ -130,14 +191,33 @@ export const MemoryMinigameController = {
       const nextBtn = document.getElementById('btn-next-level');
 
       if (result.valid) {
-        banner.className = 'mem-feedback-banner is-success';
-        banner.textContent = `⚡ ${result.feedback} (+${result.scoreAwarded} PTS)`;
+        if (banner) {
+          banner.style.display = 'block';
+          banner.className = 'mem-feedback-banner is-success';
+          banner.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+              <span>🎉 <strong>POINTER ROUTING VERIFIED!</strong> (+${result.scoreAwarded} PTS) — All memory addresses match ground truth.</span>
+              <button id="btn-banner-next-level" class="btn-arcade btn-primary btn-sm" style="font-size: 13px; padding: 6px 16px; box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);">
+                Advance to Next Level ➔
+              </button>
+            </div>
+          `;
+          const bannerNext = banner.querySelector('#btn-banner-next-level');
+          if (bannerNext) {
+            bannerNext.onclick = () => {
+              if (nextBtn) nextBtn.click();
+            };
+          }
+        }
         if (nextBtn) nextBtn.style.display = 'inline-flex';
         this._highlightValidCables(true);
         this._playChime();
       } else {
-        banner.className = 'mem-feedback-banner is-error';
-        banner.textContent = `❌ ${result.feedback}`;
+        if (banner) {
+          banner.style.display = 'block';
+          banner.className = 'mem-feedback-banner is-error';
+          banner.textContent = `❌ ${result.feedback} — Click the cable to disconnect and try another port.`;
+        }
         if (nextBtn) nextBtn.style.display = 'none';
         this._highlightValidCables(false);
         this._playBuzzer();
@@ -309,6 +389,16 @@ export const MemoryMinigameController = {
   // RENDER CABLE CONNECT LEVEL
   // ==========================================
   _renderCableLevel(level) {
+    this._clearPortSelection();
+    const banner = document.getElementById('mem-feedback');
+    if (banner) {
+      banner.style.display = 'none';
+      banner.innerHTML = '';
+      banner.className = 'mem-feedback-banner';
+    }
+    const nextBtn = document.getElementById('btn-next-level');
+    if (nextBtn) nextBtn.style.display = 'none';
+
     const codePre = document.getElementById('mem-code-pre');
     if (codePre) codePre.textContent = level.codeSnippet;
 
@@ -851,6 +941,10 @@ export const MemoryMinigameController = {
 
   _playClick() {
     try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.playClick === 'function') {
+        AudioEngine.playClick('memory');
+        return;
+      }
       const ctx = this._getContext();
       if (!ctx) return;
       const osc = ctx.createOscillator();
@@ -925,9 +1019,16 @@ export const MemoryMinigameController = {
 
 if (typeof window !== 'undefined') {
   window.MemoryMinigameController = MemoryMinigameController;
-  document.addEventListener('DOMContentLoaded', () => {
-    if (document.body.dataset.page === 'memory-games') {
-      MemoryMinigameController.init();
+  const bootMemoryController = () => {
+    if (document.body && document.body.dataset.page === 'memory-games') {
+      if (!MemoryMinigameController.engine) {
+        MemoryMinigameController.init();
+      }
     }
-  });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootMemoryController);
+  } else {
+    bootMemoryController();
+  }
 }

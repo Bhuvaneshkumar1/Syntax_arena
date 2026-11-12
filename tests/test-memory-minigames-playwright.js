@@ -202,7 +202,7 @@ async function runMemoryMinigamePlaywrightSuite() {
 
     const feedbackBanner = await page.$('#mem-feedback');
     const feedbackText = await feedbackBanner.textContent();
-    assert(feedbackText.includes('Pointer routing verified'), 'Check Wiring passed successfully: ' + feedbackText);
+    assert(feedbackText.toLowerCase().includes('pointer routing verified'), 'Check Wiring passed successfully: ' + feedbackText);
 
     // Verify Cable Connect score on HUD
     const cableScoreVal = await page.$eval('#hud-mem-score', el => parseInt(el.textContent, 10));

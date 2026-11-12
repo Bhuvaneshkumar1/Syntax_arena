@@ -41,8 +41,20 @@ export const App = {
         }
       } catch (_) {}
 
-      // 4. Update UI Shell (Header navigation & profile pill)
+      // Initialize Authentication & Cloud Sync Service (Item 14)
+      try {
+        const authService = (typeof window !== 'undefined' && window.Auth)
+          ? window.Auth
+          : (await import('./auth.js')).Auth;
+        if (authService && typeof authService.init === 'function') {
+          await authService.init();
+        }
+      } catch (_) {}
+
+      // 4. Update UI Shell (Sidebar navigation, Auth modal & profile pills)
       UI.updateActiveNav(currentPage);
+      UI.initSidebar();
+      UI.initAuthModal();
       UI.updateHeaderProfile();
 
       // 5. Bind global UI controls & sound
@@ -89,6 +101,9 @@ export const App = {
 
       // 9. Page-specific controllers
       if (currentPage === 'index') {
+        if (typeof UI !== 'undefined' && typeof UI.initDailyProtocol === 'function') {
+          UI.initDailyProtocol();
+        }
         const controller = (typeof window !== 'undefined' && window.LandingPage)
           ? window.LandingPage
           : (await import('./landing.js')).LandingPage;
@@ -108,6 +123,15 @@ export const App = {
           : (await import('./learn.js')).LearnController;
         if (controller && typeof controller.init === 'function') {
           controller.init();
+        }
+      } else if (currentPage === 'memory-games') {
+        const controller = (typeof window !== 'undefined' && window.MemoryMinigameController)
+          ? window.MemoryMinigameController
+          : (await import('./memory-controller.js')).MemoryMinigameController;
+        if (controller && typeof controller.init === 'function') {
+          if (!controller.engine) {
+            controller.init();
+          }
         }
       }
 

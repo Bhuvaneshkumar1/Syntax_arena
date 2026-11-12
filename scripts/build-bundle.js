@@ -29,6 +29,7 @@ const files = [
   'data/memory-levels.js',
   'js/data/index.js',
   'js/utils.js',
+  'js/auth.js',
   'js/storage.js',
   'js/profile.js',
   'js/question-validator.js',
@@ -76,8 +77,8 @@ for (const relPath of files) {
   // Convert "export const X" -> "var X = window.X ="
   content = content.replace(/export\s+const\s+([a-zA-Z0-9_]+)\s*=/g, 'var $1 = window.$1 =');
 
-  // Convert "export function X" -> "function X" and attach to window
-  content = content.replace(/export\s+function\s+([a-zA-Z0-9_]+)/g, 'window.$1 = $1; function $1');
+  // Convert "export (async )?function X" -> "window.$2 = $2; $1function $2"
+  content = content.replace(/export\s+(async\s+)?function\s+([a-zA-Z0-9_]+)/g, 'window.$2 = $2; $1function $2');
 
   // Convert "export class X" -> "var X = window.X = class X"
   content = content.replace(/export\s+class\s+([a-zA-Z0-9_]+)/g, 'var $1 = window.$1 = class $1');
@@ -107,11 +108,14 @@ const staticEntries = [
   'index.html',
   'game.html',
   'learn.html',
+  'memory-games.html',
   'sandbox.html',
   'results.html',
   'progress.html',
   'settings.html',
   'admin.html',
+  'privacy.html',
+  'terms.html',
   'favicon.ico',
   'favicon.svg',
   'LICENSE',

@@ -170,3 +170,94 @@
   }
 }
 
+/* ==========================================================================
+   DAILY PROTOCOL & PROGRESS GRID RESPONSIVENESS
+   ========================================================================== */
+@media (max-width: 768px) {
+  .daily-days-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+  .career-metrics-row {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .daily-days-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .career-metrics-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  #header-user-level-badge .header-xp-rem {
+    display: none; /* Keep compact level pill only on very narrow mobile */
+  }
+}
+
+/* ==========================================================================
+   SIDEBAR & MOBILE BOTTOM DOCK RESPONSIVENESS (Item 16)
+   ========================================================================== */
+@media (max-width: 768px) {
+  #btn-sidebar-mobile-toggle {
+    display: flex !important;
+  }
+
+  .app-sidebar {
+    transform: translateX(-100%);
+    width: var(--sidebar-expanded-width) !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.8);
+    transition: transform 0.25s ease;
+  }
+
+  .app-sidebar.is-mobile-open {
+    transform: translateX(0);
+  }
+
+  .app-viewport {
+    margin-left: 0 !important;
+    margin-bottom: 60px; /* Space for bottom dock */
+  }
+
+  .mobile-bottom-dock {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: #090d16;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 95;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 4px;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.6);
+  }
+
+  .mobile-dock-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 700;
+    gap: 3px;
+    flex: 1;
+    height: 100%;
+    transition: color 0.15s ease;
+  }
+
+  .mobile-dock-link:hover,
+  .mobile-dock-link[aria-current="page"] {
+    color: #38bdf8;
+    text-decoration: none;
+  }
+
+  .mobile-dock-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+}
+

@@ -159,7 +159,10 @@ class StorageManager {
 
       let parsed;
       try {
-        parsed = JSON.parse(raw);
+        parsed = (Utils && typeof Utils.safeJsonParse === 'function')
+          ? Utils.safeJsonParse(raw)
+          : JSON.parse(raw);
+        if (!parsed) throw new Error('Invalid JSON');
       } catch (parseErr) {
         console.warn('[StorageManager] Malformed JSON in localStorage. Initiating corruption salvage.', parseErr);
         this._quarantineCorrupted(raw);
@@ -284,7 +287,9 @@ class StorageManager {
     }
 
     try {
-      const parsed = JSON.parse(jsonStr);
+      const parsed = (Utils && typeof Utils.safeJsonParse === 'function')
+        ? Utils.safeJsonParse(jsonStr)
+        : JSON.parse(jsonStr);
 
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
         return { success: false, message: 'Invalid backup root structure.' };

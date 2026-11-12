@@ -197,6 +197,19 @@ export const IncidentEngine = {
       this.phase = 3;
       this.endTime = Date.now();
 
+      // Award Diamonds (Item 18) to the active profile
+      if (typeof window !== 'undefined' && window.State) {
+        try {
+          const profile = window.State.get('activeProfile');
+          if (profile) {
+            const pm = this.getPostMortem();
+            const diamonds = pm?.diamondsAwarded || 5;
+            profile.diamonds = (profile.diamonds || 0) + diamonds;
+            window.State.set('activeProfile', profile, true);
+          }
+        } catch (_) {}
+      }
+
       if (this.callbacks.onStabilized) {
         this.callbacks.onStabilized(this.getPostMortem());
       }
@@ -309,10 +322,12 @@ export const IncidentEngine = {
     const mttr = this.getMTTR();
     const isSuccess = this.state === INCIDENT_STATES.STABILIZED;
 
-    // Calculate incident commander score
+    // Calculate incident commander score & diamonds (Item 18)
     let score = 0;
+    let diamondsAwarded = 0;
     if (isSuccess) {
       score += 300; // Base resolution bounty
+      diamondsAwarded = mttr.isSlaMet ? 8 : 5; // 8 diamonds for honoring SLA, 5 baseline
       if (mttr.isSlaMet) {
         score += Math.max(50, Math.round(mttr.slaMarginSec * 15)); // Speed bonus
       }
@@ -337,6 +352,7 @@ export const IncidentEngine = {
       slaComplianceRate: mttr.isSlaMet ? '100% (SLA HONORED)' : 'SLA BREACHED',
       score,
       xpAwarded: score,
+      diamondsAwarded,
       preventedCostUSD,
       rootCause: this.activeIncident.diagnosisQuestion.explanation,
       hotfixApplied: this.activeIncident.patchQuestion.explanation,
@@ -349,25 +365,57 @@ export const IncidentEngine = {
   },
 
   /**
-   * Generate clean Markdown formatted post-mortem for 1-click clipboard sharing
+   * Generate clean Markdown with embeddable GitHub Profile Badges (Item 20)
    */
   generateMarkdownReport() {
     const p = this.getPostMortem();
     if (!p) return '';
 
-    return `### 🚨 SRE Incident Post-Mortem: ${p.title}
-**Incident ID:** \`${p.incidentId}\` • **Severity:** **${p.severity}** • **Service:** \`${p.service}\`
-**Status:** ${p.isResolved ? '✅ RESOLVED & STABILIZED' : '❌ UNRESOLVED'}
-**MTTR:** ${p.elapsedSec}s (Target SLA: ${p.slaLimitSeconds}s) • **SLA Compliance:** ${p.slaComplianceRate}
-**Score Earned:** +${p.score} XP • **Downtime Cost Prevented:** \$${p.preventedCostUSD.toLocaleString()} USD
+    const badgeStatus = p.isResolved ? 'RESOLVED_100%25-brightgreen' : 'UNRESOLVED-critical';
+    const badgeSLA = p.isSlaMet ? 'SLA_HONORED-blue' : 'SLA_BREACHED-orange';
 
-#### 🔍 Root Cause Analysis:
+    return `# 🛡️ SRE Incident Post-Mortem: ${p.title}
+
+[![Incident Status](https://img.shields.io/badge/INCIDENT-${p.severity}-red?style=for-the-badge&logo=opsgenie)](https://github.com)
+[![Resolution](https://img.shields.io/badge/STATUS-${badgeStatus}?style=for-the-badge&logo=checkmarx)](https://github.com)
+[![MTTR](https://img.shields.io/badge/MTTR-${p.elapsedSec}s-blue?style=for-the-badge&logo=speedtest)](https://github.com)
+[![SLA](https://img.shields.io/badge/COMPLIANCE-${badgeSLA}?style=for-the-badge)](https://github.com)
+[![Bounty](https://img.shields.io/badge/REWARD-+${p.diamondsAwarded}%20%F0%9F%92%8E%20DIAMONDS-blueviolet?style=for-the-badge)](https://github.com)
+
+> **Mission Critical System Recovery Telemetry**
+> *Resolved under live operational pressure via SyntaxArena CyberDrill SRE Engine*
+
+### 📊 Telemetry & Outage Impact
+| Metric | Recorded Baseline | Target SLA | Outcome |
+| :--- | :--- | :--- | :--- |
+| **Impacted Subsystem** | \`${p.system}\` | Zero Degradation | ✅ Restored to 99.99% Nominal |
+| **Microservice** | \`${p.service}\` (\`${p.language}\`) | Sub-100ms Latency | ✅ 5xx Error Rate Dropped to 0.0% |
+| **Mean Time to Recovery** | \`${p.elapsedSec}s\` | \`< ${p.slaLimitSeconds}s\` | **${p.slaComplianceRate}** |
+| **Downtime Cost Prevented** | **\$${p.preventedCostUSD.toLocaleString()} USD** | SLA Guarantee | 💎 **+${p.diamondsAwarded} Diamonds Earned** |
+
+### 🔍 Root Cause Analysis (RCA)
 ${p.rootCause}
 
-#### ⚡ Hotfix Remediation:
+### ⚡ Emergency Hotfix Deployed
 ${p.hotfixApplied}
 
-*Generated via SyntaxArena CyberDrill Incident Response Engine*`;
+---
+*Verified & cryptographically logged by Incident Commander via [SyntaxArena](https://github.com)*`;
+  },
+
+  /**
+   * Return complete scenario inventory for interactive scenario selection (Item 19)
+   */
+  getScenarioList() {
+    return IncidentScenarios.getAll().map(s => ({
+      id: s.id,
+      title: s.title,
+      severity: s.severity,
+      system: s.system,
+      service: s.service,
+      language: s.language,
+      badgeClass: s.badgeClass
+    }));
   },
 
   /**

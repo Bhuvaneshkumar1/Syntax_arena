@@ -9,6 +9,7 @@
  */
 
 import { Utils } from './utils.js';
+import { AudioEngine } from './audio.js';
 
 export const DuelEngine = {
   active: false,
@@ -170,6 +171,11 @@ export const DuelEngine = {
 
     this.active = true;
     this._initTransport();
+    try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.startMusic === 'function') {
+        AudioEngine.startMusic('duel');
+      }
+    } catch (_) {}
     return this.getRoomConfig();
   },
 
@@ -202,6 +208,12 @@ export const DuelEngine = {
       }
     });
 
+    try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.startMusic === 'function') {
+        AudioEngine.startMusic('duel');
+      }
+    } catch (_) {}
+
     return this.getRoomConfig();
   },
 
@@ -225,6 +237,11 @@ export const DuelEngine = {
     this.opponentPlayer.connected = true;
 
     this.active = true;
+    try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.startMusic === 'function') {
+        AudioEngine.startMusic('duel');
+      }
+    } catch (_) {}
     return this.getRoomConfig();
   },
 

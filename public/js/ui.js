@@ -9,6 +9,7 @@ import { Utils } from './utils.js';
 import { State } from './state.js';
 import { Profile } from './profile.js';
 import { AudioEngine } from './audio.js';
+import { Gamification } from './gamification.js';
 
 export const UI = {
   /**
@@ -168,6 +169,43 @@ export const UI = {
       const avatarMeta = Profile.getAvatarMeta(profile.avatarId);
       avatarEl.innerHTML = `<img src="assets/images/${profile.avatarId || 'cyber_fox'}.svg" width="22" height="22" alt="avatar" style="border-radius: 50%;">`;
       avatarEl.setAttribute('title', `${avatarMeta.name} (Level ${profile.level})`);
+    }
+
+    // Dynamic Level & Remaining Points/XP near logo (Item 7)
+    const levelPill = Utils.qs('#header-user-level-badge');
+    if (levelPill) {
+      if (profile) {
+        const lvlData = Gamification.getLevelData(profile.lifetimeXP || profile.xp || 0);
+        const remText = lvlData.isMaxLevel ? 'MAX RANK' : `${lvlData.xpNeededForNext.toLocaleString()} XP to Lv.${lvlData.level + 1}`;
+        levelPill.innerHTML = `<span class="header-level-tag">Lv.${lvlData.level}</span> <span class="header-xp-rem">${remText}</span>`;
+        levelPill.setAttribute('title', `Rank: ${lvlData.title} • Current XP: ${lvlData.currentXP.toLocaleString()}`);
+        levelPill.style.display = 'inline-flex';
+      } else {
+        levelPill.style.display = 'none';
+      }
+    }
+
+    // Sidebar Profile & Cloud Sync Status (Item 14 & 16)
+    const sideAvatar = Utils.qs('#sidebar-profile-avatar');
+    const sideName = Utils.qs('#sidebar-profile-name');
+    const sideRank = Utils.qs('#sidebar-profile-rank');
+    if (profile && sideAvatar) {
+      sideAvatar.src = `assets/images/${profile.avatarId || 'cyber_fox'}.svg`;
+    }
+    if (profile && sideName) {
+      sideName.textContent = profile.username;
+    }
+    if (profile && sideRank) {
+      const lvlData = Gamification.getLevelData(profile.lifetimeXP || profile.xp || 0);
+      sideRank.textContent = `Lv.${lvlData.level} • ${lvlData.title}`;
+    }
+
+    const syncPills = Utils.qsa('.cloud-sync-pill');
+    if (typeof Auth !== 'undefined') {
+      const details = Auth.getSyncDetails();
+      syncPills.forEach(pill => {
+        pill.innerHTML = `<span class="cloud-sync-dot ${details.dotClass}"></span> <span>${details.label}</span>`;
+      });
     }
   },
 
@@ -427,5 +465,416 @@ export const UI = {
     }
 
     requestAnimationFrame(render);
+  },
+
+  /**
+   * Initialize 7-Day Protocol Daily Habit Calendar & Bounty Claims (Item 17).
+   */
+  initDailyProtocol() {
+    const container = Utils.qs('#daily-protocol-container');
+    if (!container) return;
+
+    const grid = Utils.qs('#daily-days-grid');
+    const claimBtn = Utils.qs('#btn-claim-daily-bounty');
+    const streakBadge = Utils.qs('#daily-streak-badge');
+    if (!grid || !claimBtn) return;
+
+    const profile = (typeof Profile !== 'undefined' ? Profile.getActiveProfile() : null) || State.get('activeProfile');
+    if (!profile) return;
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const lastClaim = profile.lastDailyClaimDate || null;
+    const isClaimedToday = (lastClaim === todayStr);
+    const currentStreak = profile.dayStreak || 1;
+    const currentDay = ((currentStreak - 1) % 7) + 1;
+
+    const REWARDS = [
+      { day: 1, xp: 50,  diamonds: 0, label: '+50 XP' },
+      { day: 2, xp: 75,  diamonds: 0, label: '+75 XP' },
+      { day: 3, xp: 100, diamonds: 1, label: '+100 XP + 1 💎' },
+      { day: 4, xp: 125, diamonds: 0, label: '+125 XP' },
+      { day: 5, xp: 150, diamonds: 2, label: '+150 XP + 2 💎' },
+      { day: 6, xp: 200, diamonds: 0, label: '+200 XP' },
+      { day: 7, xp: 350, diamonds: 5, label: '+350 XP + 5 💎 + 🏆' }
+    ];
+
+    if (streakBadge) {
+      streakBadge.textContent = `${currentStreak}-Day Streak 🔥`;
+    }
+
+    // Render 7-day calendar cards
+    grid.innerHTML = REWARDS.map(r => {
+      let statusClass = '';
+      let statusBadge = '';
+      let borderStyle = '1px solid rgba(255,255,255,0.08)';
+      let bgStyle = 'rgba(15, 23, 42, 0.7)';
+
+      if (r.day < currentDay || (r.day === currentDay && isClaimedToday)) {
+        statusClass = 'is-claimed';
+        statusBadge = '<span style="color: #10b981; font-size: 10px; font-weight: 700;">✓ CLAIMED</span>';
+        borderStyle = '1px solid rgba(16, 185, 129, 0.4)';
+        bgStyle = 'rgba(16, 185, 129, 0.08)';
+      } else if (r.day === currentDay && !isClaimedToday) {
+        statusClass = 'is-active-today';
+        statusBadge = '<span class="badge badge-emerald" style="font-size: 9px; padding: 1px 4px;">TODAY</span>';
+        borderStyle = '2px solid #10b981';
+        bgStyle = 'rgba(16, 185, 129, 0.18)';
+      } else {
+        statusClass = 'is-locked';
+        statusBadge = '<span style="color: #64748b; font-size: 10px;">🔒 Day ' + r.day + '</span>';
+      }
+
+      return `
+        <div class="daily-day-card ${statusClass}" style="background: ${bgStyle}; border: ${borderStyle}; border-radius: 8px; padding: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; min-height: 84px;">
+          <div style="font-size: 11px; font-weight: 800; color: #94a3b8; font-family: var(--font-display);">DAY ${r.day}</div>
+          <div style="font-size: 12px; font-weight: 700; color: #fff; margin: 4px 0;">${r.label}</div>
+          <div>${statusBadge}</div>
+        </div>
+      `;
+    }).join('');
+
+    // Update claim button
+    if (isClaimedToday) {
+      claimBtn.disabled = true;
+      claimBtn.className = 'btn-arcade btn-neutral btn-sm';
+      claimBtn.innerHTML = '<span>✓ Protocol Claimed Today</span>';
+    } else {
+      const reward = REWARDS[currentDay - 1];
+      claimBtn.disabled = false;
+      claimBtn.className = 'btn-arcade btn-primary btn-sm';
+      claimBtn.innerHTML = `<span>🎁 Claim Day ${currentDay} (${reward.label})</span>`;
+
+      claimBtn.onclick = () => {
+        profile.lastDailyClaimDate = todayStr;
+        profile.xp = (profile.xp || 0) + reward.xp;
+        profile.lifetimeXP = (profile.lifetimeXP || 0) + reward.xp;
+        if (reward.diamonds > 0) {
+          profile.diamonds = (profile.diamonds || 0) + reward.diamonds;
+        }
+        if (currentDay === 7) {
+          profile.unlockedAchievements = profile.unlockedAchievements || [];
+          if (!profile.unlockedAchievements.includes('ach_habit_titan')) {
+            profile.unlockedAchievements.push('ach_habit_titan');
+          }
+        }
+        if (typeof Profile !== 'undefined') {
+          Profile.updateProfile(profile.id, profile);
+        } else {
+          State.set('activeProfile', profile, true);
+        }
+
+        UI.showToast(`🎉 Claimed Day ${currentDay} Protocol Reward: ${reward.label}!`, 'success');
+        UI.triggerConfetti();
+        if (typeof AudioEngine !== 'undefined') AudioEngine.playSuccess();
+        this.updateHeaderProfile();
+        this.initDailyProtocol();
+      };
+    }
+
+    this.initProgressionGuide();
+  },
+
+  /**
+   * Initialize Progression & XP Guide Modal (Item 12).
+   */
+  initProgressionGuide() {
+    const btn = document.getElementById('btn-open-progression-guide');
+    const modal = document.getElementById('modal-progression-guide');
+    const closeBtn = document.getElementById('btn-close-progression-guide');
+    const dismissBtn = document.getElementById('btn-dismiss-progression-guide');
+
+    if (!modal) return;
+
+    const open = (e) => {
+      if (e) e.preventDefault();
+      modal.style.display = 'flex';
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    const close = (e) => {
+      if (e) e.preventDefault();
+      modal.classList.remove('is-open');
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    if (btn) btn.onclick = open;
+    const guideBtns = document.querySelectorAll('.btn-open-xp-guide');
+    guideBtns.forEach(b => b.onclick = open);
+
+    if (closeBtn) closeBtn.onclick = close;
+    if (dismissBtn) dismissBtn.onclick = close;
+    modal.onclick = (e) => {
+      if (e.target === modal) close();
+    };
+  },
+
+  /**
+   * Initialize Collapsible Sidebar Activity Rail (Item 16).
+   */
+  initSidebar() {
+    const sidebar = document.getElementById('app-sidebar');
+    const toggleBtn = document.getElementById('btn-sidebar-toggle');
+    const mobileToggle = document.getElementById('btn-sidebar-mobile-toggle');
+
+    if (!sidebar) return;
+
+    // Restore saved collapse preference (defaults to collapsed 68px on desktop for clean IDE look)
+    const savedState = localStorage.getItem('syntaxarena_sidebar_collapsed');
+    if (savedState === 'false') {
+      sidebar.classList.remove('is-collapsed');
+    } else {
+      sidebar.classList.add('is-collapsed');
+    }
+
+    const toggle = (e) => {
+      if (e) e.preventDefault();
+      const isCollapsed = sidebar.classList.toggle('is-collapsed');
+      localStorage.setItem('syntaxarena_sidebar_collapsed', String(isCollapsed));
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    if (toggleBtn) {
+      toggleBtn.onclick = toggle;
+    }
+
+    if (mobileToggle) {
+      mobileToggle.onclick = (e) => {
+        if (e) e.preventDefault();
+        sidebar.classList.toggle('is-mobile-open');
+        if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+      };
+    }
+
+    // Keyboard shortcut: Ctrl + B or Cmd + B to toggle sidebar
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        if (activeTag !== 'input' && activeTag !== 'textarea') {
+          e.preventDefault();
+          toggle();
+        }
+      }
+    });
+
+    // Close mobile sidebar on route click or outside click
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', () => {
+        sidebar.classList.remove('is-mobile-open');
+      });
+    });
+  },
+
+  /**
+   * Initialize Multi-Provider Authentication Modal & Cloud Sync (Item 14).
+   */
+  initAuthModal() {
+    const modal = document.getElementById('modal-auth');
+    if (!modal) return;
+
+    let activeTab = 'signin';
+
+    const open = (e) => {
+      if (e) e.preventDefault();
+      modal.style.display = 'flex';
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    const close = (e) => {
+      if (e) e.preventDefault();
+      modal.classList.remove('is-open');
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    // Open triggers
+    document.querySelectorAll('.cloud-sync-pill, #btn-open-auth, #sidebar-auth-card, #btn-link-account').forEach(el => {
+      el.addEventListener('click', open);
+    });
+
+    // Close triggers
+    const closeBtn = document.getElementById('btn-close-auth');
+    if (closeBtn) closeBtn.onclick = close;
+    modal.onclick = (e) => {
+      if (e.target === modal) close();
+    };
+
+    // Tabs
+    const tabSignIn = document.getElementById('tab-auth-signin');
+    const tabSignUp = document.getElementById('tab-auth-signup');
+    const nameField = document.getElementById('auth-field-name');
+    const submitBtn = document.getElementById('btn-auth-submit');
+    const alertBox = document.getElementById('auth-alert');
+
+    const showAlert = (msg, isSuccess = false) => {
+      if (!alertBox) return;
+      alertBox.textContent = msg;
+      alertBox.className = isSuccess ? 'auth-alert-banner is-success' : 'auth-alert-banner is-error';
+    };
+    const hideAlert = () => {
+      if (!alertBox) return;
+      alertBox.className = 'auth-alert-banner';
+    };
+
+    const setTab = (tab) => {
+      activeTab = tab;
+      hideAlert();
+      if (tab === 'signin') {
+        if (tabSignIn) tabSignIn.classList.add('is-active');
+        if (tabSignUp) tabSignUp.classList.remove('is-active');
+        if (nameField) nameField.style.display = 'none';
+        if (submitBtn) submitBtn.textContent = 'Sign In to SyntaxArena';
+      } else {
+        if (tabSignIn) tabSignIn.classList.remove('is-active');
+        if (tabSignUp) tabSignUp.classList.add('is-active');
+        if (nameField) nameField.style.display = 'block';
+        if (submitBtn) submitBtn.textContent = 'Create Free Account';
+      }
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    if (tabSignIn) tabSignIn.onclick = () => setTab('signin');
+    if (tabSignUp) tabSignUp.onclick = () => setTab('signup');
+
+    // OAuth Social Providers (Real Serverless OAuth on Vercel deployment with local/test fallback)
+    const handleOAuth = async (provider) => {
+      hideAlert();
+
+      // Real serverless OAuth runs on production Vercel deployment or when explicitly enabled
+      const isRealOAuthHost = typeof window !== 'undefined' && (
+        window.location.hostname.includes('vercel.app') ||
+        window.location.hostname.includes('syntaxarena') ||
+        window.SYNTAXARENA_REAL_OAUTH === true
+      );
+      const authEndpoint = `/api/auth/${provider}?action=login`;
+
+      if (isRealOAuthHost && (provider === 'google' || provider === 'github')) {
+        showAlert(`Connecting to ${provider === 'github' ? 'GitHub' : 'Google'} OAuth... Please authorize in the window.`);
+        const width = 600;
+        const height = 700;
+        const left = (window.innerWidth - width) / 2 + window.screenX;
+        const top = (window.innerHeight - height) / 2 + window.screenY;
+        const popup = window.open(
+          authEndpoint,
+          `oauth_${provider}`,
+          `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes`
+        );
+
+        if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+          window.location.href = authEndpoint;
+          return;
+        }
+
+        const messageHandler = async (e) => {
+          if (e.data && e.data.type === 'SYNTAXARENA_AUTH_SUCCESS' && e.data.payload) {
+            window.removeEventListener('message', messageHandler);
+            try {
+              const u = await Auth.signInWithProvider(provider, e.data.payload);
+              showAlert(`✓ Authenticated as ${u.displayName} (${u.email})!`, true);
+              UI.showToast(`🎉 Welcome, ${u.displayName}!`, 'success');
+              if (typeof AudioEngine !== 'undefined') AudioEngine.playSuccess();
+              this.updateHeaderProfile();
+              setTimeout(() => close(), 900);
+            } catch (err) {
+              showAlert(err.message || 'OAuth authentication failed.');
+            }
+          }
+        };
+        window.addEventListener('message', messageHandler);
+        return;
+      }
+
+      // Offline file:/// or Local Playwright Test Environment Fallback
+      try {
+        if (typeof Auth !== 'undefined') {
+          const u = await Auth.signInWithProvider(provider);
+          showAlert(`✓ Successfully connected via ${provider.toUpperCase()} as ${u.displayName}!`, true);
+          UI.showToast(`🎉 Connected via ${provider.toUpperCase()}!`, 'success');
+          if (typeof AudioEngine !== 'undefined') AudioEngine.playSuccess();
+          this.updateHeaderProfile();
+          setTimeout(() => close(), 900);
+        }
+      } catch (err) {
+        showAlert(err.message || 'OAuth authentication failed.');
+      }
+    };
+
+    const btnGoogle = document.getElementById('btn-oauth-google');
+    const btnGitHub = document.getElementById('btn-oauth-github');
+    const btnApple = document.getElementById('btn-oauth-apple');
+
+    if (btnGoogle) btnGoogle.onclick = () => handleOAuth('google');
+    if (btnGitHub) btnGitHub.onclick = () => handleOAuth('github');
+    if (btnApple) btnApple.onclick = () => handleOAuth('apple');
+
+    // Email/Password Form Submit
+    const authForm = document.getElementById('auth-form');
+    if (authForm) {
+      authForm.onsubmit = async (e) => {
+        e.preventDefault();
+        hideAlert();
+        const email = document.getElementById('auth-email')?.value || '';
+        const password = document.getElementById('auth-password')?.value || '';
+        const displayName = document.getElementById('auth-name')?.value || '';
+
+        try {
+          if (typeof Auth !== 'undefined') {
+            if (activeTab === 'signup') {
+              const u = await Auth.signUpWithEmail(email, password, displayName);
+              showAlert(`✓ Account created! Welcome, ${u.displayName}.`, true);
+              UI.showToast(`Welcome to SyntaxArena, ${u.displayName}!`, 'celebrate');
+              UI.triggerConfetti();
+            } else {
+              const u = await Auth.signInWithEmail(email, password);
+              showAlert(`✓ Welcome back, ${u.displayName}!`, true);
+              UI.showToast(`Welcome back, ${u.displayName}!`, 'success');
+            }
+            if (typeof AudioEngine !== 'undefined') AudioEngine.playSuccess();
+            this.updateHeaderProfile();
+            setTimeout(() => close(), 900);
+          }
+        } catch (err) {
+          showAlert(err.message || 'Authentication error.');
+          if (typeof AudioEngine !== 'undefined') AudioEngine.playError();
+        }
+      };
+    }
+
+    // Password Visibility Toggle
+    const eyeBtn = document.getElementById('btn-auth-toggle-pwd');
+    const pwdInput = document.getElementById('auth-password');
+    if (eyeBtn && pwdInput) {
+      eyeBtn.onclick = () => {
+        const isText = pwdInput.type === 'text';
+        pwdInput.type = isText ? 'password' : 'text';
+        eyeBtn.textContent = isText ? '👁️' : '🙈';
+      };
+    }
+
+    // Sign Out Button
+    const signOutBtn = document.getElementById('btn-auth-signout');
+    if (signOutBtn) {
+      signOutBtn.onclick = () => {
+        if (typeof Auth !== 'undefined') {
+          Auth.signOut();
+          UI.showToast('Signed out. Switched to Guest Mode.', 'info');
+          this.updateHeaderProfile();
+          close();
+        }
+      };
+    }
+
+    // Subscribe to Auth changes
+    if (typeof Auth !== 'undefined') {
+      Auth.on('auth:changed', () => {
+        this.updateHeaderProfile();
+      });
+    }
   }
 };

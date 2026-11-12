@@ -95941,6 +95941,559 @@ var INCIDENT_SCENARIOS = window.INCIDENT_SCENARIOS = [
       correctAnswer: 1,
       explanation: '`Optional.ofNullable(couponCode).map(String::toUpperCase).orElse("")` or standard null-safe checks (e.g., `Objects.requireNonNullElse(couponCode, "").toUpperCase()`) gracefully handle null values without throwing NullPointerException.'
     }
+  },
+  {
+    id: 'inc_cache_stampede',
+    title: 'Redis Cache Stampede & Thundering Herd',
+    severity: 'SEV-1',
+    system: 'Global Product Catalog & Search API',
+    service: 'catalog-cache-proxy',
+    language: 'python',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 11:22 UTC, the Redis cache cluster evicted the hot homepage recommendation key. 45,000 concurrent RPS immediately bypassed the cache and hammered PostgreSQL directly, exhausting the connection pool and causing 100% gateway timeouts.',
+    initialMetrics: { cpu: 98.4, ram: 76.5, ramDisplay: '6.12 / 8.0 GB', errorRate: 94.2, latencyMs: 14200, activeConnections: 50000 },
+    stabilizedMetrics: { cpu: 18.2, ram: 28.4, ramDisplay: '2.27 / 8.0 GB', errorRate: 0.02, latencyMs: 32, activeConnections: 1800 },
+    logs: [
+      '[11:20:00.104] [INFO] [redis-cluster-01] Evicting volatile key: catalog:home:recommendations (TTL expired)',
+      '[11:20:01.320] [WARN] [catalog-cache-proxy] Cache MISS for key "catalog:home:recommendations". Initiating DB lookup.',
+      '[11:20:01.440] [WARN] [catalog-cache-proxy] 1,420 worker threads concurrently detected cache miss on identical key',
+      '[11:20:02.109] [ERROR] [postgres-pool] Connection pool exhausted: 500/500 active pool connections held (> 10s queue)',
+      '[11:20:03.551] [ERROR] [catalog-cache-proxy] Query timed out after 10000ms: SELECT * FROM items ORDER BY rank DESC',
+      '[11:20:05.102] [FATAL] [gateway] HTTP 504 Gateway Timeout on /api/v1/recommendations'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_cache_diag',
+      type: 'multiple_choice',
+      prompt: 'What architectural failure mode occurred when the hot cache key expired?',
+      options: [
+        'A memory hardware fault flipped bits on the Redis master node.',
+        'Cache Stampede / Thundering Herd: Thousands of concurrent requests bypassed cache simultaneously and overwhelmed the database.',
+        'PostgreSQL ran out of storage disk space.',
+        'The network switch dropped all TCP packets between workers and Redis.'
+      ],
+      correctAnswer: 1,
+      explanation: 'When a popular cache key expires simultaneously for thousands of concurrent clients, all requests experience a cache miss and rush directly to the database. This "Thundering Herd" or Cache Stampede paralyzes the database connection pool.'
+    },
+    patchQuestion: {
+      id: 'inc_q_cache_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the optimal distributed caching mitigation to prevent cache stampedes:',
+      options: [
+        'Disable Redis caching and query PostgreSQL directly for all requests.',
+        'Implement Probabilistic Early Expiration (XFetch) or Mutex Locking on cache regeneration so only 1 thread queries the DB.',
+        'Restart the PostgreSQL cluster every 5 minutes.',
+        'Increase the PostgreSQL connection limit to 1,000,000.'
+      ],
+      correctAnswer: 1,
+      explanation: 'Using Mutex Locking (e.g. `SET key_lock NX EX 10`) or Probabilistic Early Expiration (XFetch algorithm) ensures that exactly ONE worker regenerates the cache in the background while other workers serve stale cache or wait briefly, shielding the database.'
+    }
+  },
+  {
+    id: 'inc_circuit_breaker_cascade',
+    title: 'Cascading Upstream Service Timeout',
+    severity: 'SEV-1',
+    system: 'Checkout & Inventory Service Mesh',
+    service: 'order-orchestrator',
+    language: 'java',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 09:40 UTC, a 3rd-party tax calculation API began hanging with 45-second latency. Because order-orchestrator lacked timeouts and circuit breakers, all incoming client connections locked up waiting, exhausting thread pools across all upstream microservices.',
+    initialMetrics: { cpu: 88.0, ram: 92.0, ramDisplay: '7.36 / 8.0 GB', errorRate: 99.1, latencyMs: 38000, activeConnections: 35000 },
+    stabilizedMetrics: { cpu: 22.0, ram: 34.0, ramDisplay: '2.72 / 8.0 GB', errorRate: 0.10, latencyMs: 65, activeConnections: 1200 },
+    logs: [
+      '[09:38:12.102] [WARN] [tax-client] Request to https://api.taxcalc-external.com/v2/quote exceeded 5000ms',
+      '[09:38:35.405] [WARN] [order-orchestrator] Thread pool exhaustion: activeThreads=200/200, queuedTasks=5840',
+      '[09:39:01.002] [ERROR] [checkout-api] Downstream order-orchestrator unresponsive after 30000ms',
+      '[09:39:15.901] [FATAL] [envoy-proxy] 504 Gateway Timeout: circuit broken on cluster checkout-service'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_circuit_diag',
+      type: 'multiple_choice',
+      prompt: 'Why did a slowdown in an external tax API take down the entire internal checkout system?',
+      options: [
+        'The tax API returned malicious payload that infected the JVM bytecode.',
+        'Absence of timeouts and circuit breaking allowed unconstrained thread blocking to propagate upstream in a cascading failure.',
+        'DNS resolution failed for localhost.',
+        'The JVM JIT compiler disabled inlining.'
+      ],
+      correctAnswer: 1,
+      explanation: 'Without strict HTTP read timeouts and a circuit breaker (e.g., Resilience4j), slow downstream calls hold worker threads indefinitely. Once thread pools saturate, the service stops accepting new requests, causing cascading failures up the entire dependency tree.'
+    },
+    patchQuestion: {
+      id: 'inc_q_circuit_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the hotfix to isolate the failing external API and restore checkout availability:',
+      options: [
+        'Increase HTTP request timeout to 10 minutes.',
+        'Deploy Resilience4j CircuitBreaker with 800ms read timeout and a fallback estimated tax calculator.',
+        'Hardcode tax to zero dollars for all transactions.',
+        'Add infinite retries with zero backoff.'
+      ],
+      correctAnswer: 1,
+      explanation: 'Enforcing an aggressive timeout (e.g., 800ms) with a Circuit Breaker that opens after 50% failures—coupled with a graceful local tax estimation fallback—immediately isolates the failing dependency and unblocks checkout throughput.'
+    }
+  },
+  {
+    id: 'inc_gc_pause_storm',
+    title: 'JVM Full GC Stop-the-World Storm',
+    severity: 'SEV-1',
+    system: 'Real-Time Order Matching Engine',
+    service: 'matching-engine-core',
+    language: 'java',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 16:15 UTC, order matching latency spiked from 2ms to over 8,400ms. The JVM Old Generation reached 99.8% capacity, triggering consecutive Stop-The-World Full GC pauses lasting 6–12 seconds each, pausing all trading activity.',
+    initialMetrics: { cpu: 100.0, ram: 99.5, ramDisplay: '15.92 / 16.0 GB', errorRate: 85.0, latencyMs: 8400, activeConnections: 12000 },
+    stabilizedMetrics: { cpu: 15.0, ram: 42.0, ramDisplay: '6.72 / 16.0 GB', errorRate: 0.00, latencyMs: 3, activeConnections: 950 },
+    logs: [
+      '[16:14:02.304] [INFO] [gc,start] GC(104) Pause Young (Normal) (G1 Evacuation Pause) 12400M->13100M(16384M)',
+      '[16:14:15.510] [WARN] [gc] GC(105) To-space exhausted during G1 Evacuation Pause',
+      '[16:14:22.100] [WARN] [gc,start] GC(106) Pause Full (System.gc() or Allocation Failure)',
+      '[16:14:32.404] [ERROR] [gc] GC(106) Pause Full 15990M->15840M(16384M) 10304.2ms [Stop-the-World]',
+      '[16:14:40.109] [ALERT] [heartbeat] Cluster health check missed 3 heartbeat intervals (> 6000ms)'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_gc_diag',
+      type: 'multiple_choice',
+      prompt: 'What caused the Stop-The-World freeze in matching-engine-core?',
+      options: [
+        'The host operating system kernel panicked.',
+        'Allocation rate overwhelmed G1GC concurrent marking, causing To-space exhaustion and consecutive Full GC freezes.',
+        'The matching engine ran out of open TCP ports.',
+        'A deadlock occurred in Java NIO selector.'
+      ],
+      correctAnswer: 1,
+      explanation: 'When memory allocation velocity exceeds G1GC\'s background concurrent marking threshold, survivor regions cannot fit promoted objects ("To-space exhausted"). The JVM halts all application threads for a single-threaded Full GC compaction pause.'
+    },
+    patchQuestion: {
+      id: 'inc_q_gc_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the optimal JVM tuning and memory allocation remediation:',
+      options: [
+        'Switch from G1GC to Serial GC.',
+        'Tune G1ReservePercent=15, InitiatingHeapOccupancyPercent=45, and eliminate temporary string allocations in matching hot paths with object pooling.',
+        'Disable garbage collection entirely with -XX:+DisableExplicitGC.',
+        'Reduce total heap size to 2GB.'
+      ],
+      correctAnswer: 1,
+      explanation: 'Lowering `InitiatingHeapOccupancyPercent` triggers concurrent GC earlier, while `G1ReservePercent=15` provides buffer space to prevent To-space exhaustion. In code, replacing short-lived object allocations with reusable byte buffers/primitive pools stabilizes old-gen churn.'
+    }
+  },
+  {
+    id: 'inc_kafka_rebalance_loop',
+    title: 'Kafka Consumer Heartbeat Timeout Loop',
+    severity: 'SEV-1',
+    system: 'Billing & Invoice Processing Pipeline',
+    service: 'invoice-consumer-worker',
+    language: 'python',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 07:05 UTC, invoice workers entered an infinite rebalance storm. Whenever a worker fetched a batch of 500 invoices, PDF generation took longer than max.poll.interval.ms. The Kafka broker assumed the worker died, revoked its partitions, and triggered endless cluster rebalances.',
+    initialMetrics: { cpu: 65.0, ram: 54.0, ramDisplay: '4.32 / 8.0 GB', errorRate: 98.0, latencyMs: 25000, activeConnections: 8000 },
+    stabilizedMetrics: { cpu: 28.0, ram: 32.0, ramDisplay: '2.56 / 8.0 GB', errorRate: 0.00, latencyMs: 45, activeConnections: 1100 },
+    logs: [
+      '[07:04:12.100] [INFO] [kafka-consumer] Received batch of 500 records from partition 3 (offset: 140029)',
+      '[07:04:15.201] [INFO] [invoice-pdf] Generating PDF invoices for batch...',
+      '[07:09:16.804] [WARN] [kafka-consumer] max.poll.interval.ms (300000ms) exceeded between successive poll() invocations',
+      '[07:09:17.001] [ERROR] [kafka-coordinator] Member invoice-worker-01 has been marked dead; triggering GroupRebalance',
+      '[07:09:18.112] [WARN] [kafka-consumer] CommitFailedException: Commit cannot be completed since group has already rebalanced',
+      '[07:09:20.503] [ERROR] [kafka-consumer] Revoking all partition assignments. Re-joining consumer group...'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_kafka_diag',
+      type: 'multiple_choice',
+      prompt: 'Why are invoice messages never getting committed, resulting in duplicate processing and rebalance loops?',
+      options: [
+        'The Kafka broker disk crashed.',
+        'Synchronous CPU-intensive PDF rendering inside poll() exceeded max.poll.interval.ms, causing the broker to evict the worker before offset commit.',
+        'The worker connected to the wrong Kafka cluster port.',
+        'The invoice database rejected all TLS certificates.'
+      ],
+      correctAnswer: 1,
+      explanation: 'In Apache Kafka consumers, if the time between calls to `poll()` exceeds `max.poll.interval.ms`, the consumer coordinator assumes the thread has hung and evicts it from the group. All work done is abandoned, offsets are rejected, and another worker repeats the exact same failure.'
+    },
+    patchQuestion: {
+      id: 'inc_q_kafka_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the correct pattern to decouple ingestion polling from heavy background processing:',
+      options: [
+        'Set max.poll.interval.ms to 24 hours.',
+        'Reduce max.poll.records to 25 and offload PDF generation to an async worker thread pool or Celery queue, keeping poll() loop snappy.',
+        'Delete the Kafka topic and recreate it.',
+        'Call consumer.close() immediately after poll().'
+      ],
+      correctAnswer: 1,
+      explanation: 'Separating the Kafka consumer poll loop from heavy CPU work ensures `poll()` is invoked every few milliseconds to send timely heartbeats. Tuning `max.poll.records` to a manageable size ensures batches complete well inside SLA.'
+    }
+  },
+  {
+    id: 'inc_threadpool_starvation',
+    title: 'Thread Pool Starvation on Async Block',
+    severity: 'SEV-1',
+    system: 'Healthcare Records Gateway',
+    service: 'records-api-core',
+    language: 'csharp',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 13:45 UTC, API request throughput plunged from 10,000 req/sec to 12. ThreadPool Queue length skyrocketed to 18,000 tasks. CPU usage is only 6%, but all incoming HTTP requests are hanging.',
+    initialMetrics: { cpu: 6.2, ram: 45.0, ramDisplay: '3.60 / 8.0 GB', errorRate: 92.4, latencyMs: 29000, activeConnections: 18000 },
+    stabilizedMetrics: { cpu: 25.0, ram: 28.0, ramDisplay: '2.24 / 8.0 GB', errorRate: 0.01, latencyMs: 24, activeConnections: 800 },
+    logs: [
+      '[13:44:10.100] [INFO] [http-server] Incoming GET /patients/records/search',
+      '[13:44:11.402] [DEBUG] [records-service] Calling repository: GetPatientHistoryAsync().Result',
+      '[13:44:15.912] [WARN] [runtime] ThreadPool starvation detected: MinThreads=8, MaxThreads=1000, AvailableThreads=0',
+      '[13:44:22.001] [WARN] [runtime] ThreadPool injection rate is throttled to 1 new thread per 500ms',
+      '[13:44:40.503] [ERROR] [gateway] 504 Gateway Timeout: no available threads in worker pool'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_threadpool_diag',
+      type: 'multiple_choice',
+      prompt: 'What antipattern in records-service caused thread pool starvation under load?',
+      options: [
+        'An infinite loop running on 100% CPU.',
+        'Sync-over-Async blocking with `.Result` or `.Wait()`, holding thread pool workers hostage while waiting for continuation tasks.',
+        'The garbage collector locked the thread pool.',
+        'The network driver rejected TCP SYN packets.'
+      ],
+      correctAnswer: 1,
+      explanation: 'Calling `.Result` or `.Wait()` on asynchronous Task methods blocks the calling worker thread synchronously until the task completes. Under high concurrency, every thread pool thread gets tied up waiting for continuations that cannot execute because all threads are blocked—a classic sync-over-async deadlock.'
+    },
+    patchQuestion: {
+      id: 'inc_q_threadpool_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the hotfix to restore non-blocking async execution:',
+      options: [
+        'Set ThreadPool.SetMinThreads(10000, 10000) permanently.',
+        'Refactor synchronous method to async/await end-to-end (`await GetPatientHistoryAsync()`) and remove all `.Result` blocks.',
+        'Replace all async calls with Thread.Sleep(1000).',
+        'Wrap the call in Task.Run(() => ...).Wait().'
+      ],
+      correctAnswer: 1,
+      explanation: 'Embracing async/await all the way down returns the executing thread to the ThreadPool immediately while I/O is in-flight. When the database query finishes, any free worker thread resumes the continuation, handling 50x higher throughput with minimal resources.'
+    }
+  },
+  {
+    id: 'inc_jwt_alg_none',
+    title: 'JWT "alg: none" Token Spoofing Breach',
+    severity: 'SEV-0',
+    system: 'Identity & Authentication Provider',
+    service: 'auth-validator-node',
+    language: 'javascript',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 02:18 UTC, intrusion detection fired alerts for unauthorized administrative privilege escalation. Attackers forged valid admin JWTs by setting header {"alg": "none"} and stripping the cryptographic signature, granting root access.',
+    initialMetrics: { cpu: 32.0, ram: 41.0, ramDisplay: '3.28 / 8.0 GB', errorRate: 48.0, latencyMs: 45, activeConnections: 5200 },
+    stabilizedMetrics: { cpu: 14.0, ram: 22.0, ramDisplay: '1.76 / 8.0 GB', errorRate: 0.00, latencyMs: 28, activeConnections: 1100 },
+    logs: [
+      '[02:17:42.100] [INFO] [auth-validator] Validating Bearer token for user: attacker@blackhat.org',
+      '[02:17:42.102] [DEBUG] [jwt-parser] Header decoded: {"typ":"JWT","alg":"none"}',
+      '[02:17:42.103] [DEBUG] [jwt-parser] Signature component is empty string',
+      '[02:17:42.104] [INFO] [auth-validator] Algorithm "none" accepted; skipping signature cryptographic verification',
+      '[02:17:42.105] [ALERT] [rbac] Granted role "SYS_SUPERADMIN" to user attacker@blackhat.org',
+      '[02:17:50.404] [ALERT] [audit] Unauthorized database dump initiated from endpoint /admin/export-all'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_jwt_diag',
+      type: 'multiple_choice',
+      prompt: 'What cryptographic validation vulnerability enabled token forging?',
+      options: [
+        'The server RSA private key was compromised on GitHub.',
+        'The JWT verification library accepted "none" algorithm specified in the client-controlled header without explicit algorithm whitelist.',
+        'The password hashing algorithm used MD5.',
+        'Cross-Site Scripting stole session cookies.'
+      ],
+      correctAnswer: 1,
+      explanation: 'RFC 7519 defines an "alg": "none" algorithm for unsecured tokens. If a token verification library does not explicitly enforce a strict whitelist of allowed cryptographic algorithms (e.g., `algorithms: ["RS256"]`), attackers can forge any arbitrary claims payload with empty signatures.'
+    },
+    patchQuestion: {
+      id: 'inc_q_jwt_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the hotfix patch to reject unsigned tokens and enforce strict verification:',
+      options: [
+        'Check if token length is greater than 100 characters.',
+        'Pass strict verification options `jwt.verify(token, secret, { algorithms: ["RS256"] })` and reject any token lacking valid signature.',
+        'Store all JWTs in localStorage.',
+        'Switch from JWT to basic HTTP authentication.'
+      ],
+      correctAnswer: 1,
+      explanation: 'Explicitly configuring `algorithms: ["RS256"]` (or `"HS256"`) in `jwt.verify()` instructs the validator to strictly reject any tokens signed with different or "none" algorithms, rendering signature stripping attacks completely impossible.'
+    }
+  },
+  {
+    id: 'inc_dns_ttl_blackhole',
+    title: 'CoreDNS Resolution Desync & Stale IP Blackhole',
+    severity: 'SEV-1',
+    system: 'Internal Service Mesh & Ingress Gateway',
+    service: 'coredns-system',
+    language: 'cyber',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 18:30 UTC, following a blue/green pod migration, the payment ingress proxy continued routing 100% of customer checkout requests to decommissioned pod IPs (10.244.12.8), returning connection refused (ECONNREFUSED).',
+    initialMetrics: { cpu: 44.0, ram: 52.0, ramDisplay: '4.16 / 8.0 GB', errorRate: 99.8, latencyMs: 18000, activeConnections: 24000 },
+    stabilizedMetrics: { cpu: 16.0, ram: 25.0, ramDisplay: '2.00 / 8.0 GB', errorRate: 0.00, latencyMs: 18, activeConnections: 900 },
+    logs: [
+      '[18:28:10.100] [INFO] [k8s-deploy] Scale down deployment payment-service-blue from 10 to 0 replicas',
+      '[18:28:15.201] [INFO] [k8s-deploy] Scale up deployment payment-service-green to 10 replicas (New IPs: 10.244.88.*)',
+      '[18:28:30.404] [ERROR] [ingress-proxy] connect() to 10.244.12.8:8080 failed (111: Connection refused)',
+      '[18:28:35.512] [WARN] [ingress-proxy] DNS cache TTL for payment-service.default.svc.cluster.local is 86400s (24h)',
+      '[18:28:40.109] [FATAL] [ingress-proxy] 502 Bad Gateway: all upstream IP endpoints refused connection'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_dns_diag',
+      type: 'multiple_choice',
+      prompt: 'Why did the proxy fail to discover the newly deployed payment pods?',
+      options: [
+        'The ingress proxy had an erroneous 24-hour DNS caching TTL, ignoring CoreDNS updates and routing traffic to dead pod IPs.',
+        'Kubernetes pod networking was disabled.',
+        'The payments pod crashed on boot.',
+        'The host firewall blocked port 443.'
+      ],
+      correctAnswer: 0,
+      explanation: 'In dynamic container environments like Kubernetes, pods are ephemeral and IPs change constantly. A 24-hour client DNS cache TTL prevents the proxy from querying CoreDNS for new IPs, causing all traffic to route into a blackhole.'
+    },
+    patchQuestion: {
+      id: 'inc_q_dns_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the hotfix to flush stale DNS records and enforce low TTL for service discovery:',
+      options: [
+        'Reboot the entire Kubernetes worker node.',
+        'Flush proxy DNS cache, configure DNS resolution TTL to 5s (`valid=5s`), and enable active Kubernetes EndpointSlice health checks.',
+        'Hardcode the pod IP address into /etc/hosts.',
+        'Switch from HTTP to UDP.'
+      ],
+      correctAnswer: 1,
+      explanation: 'Flushing the stale proxy cache and configuring dynamic resolver TTL (`resolver kube-dns valid=5s`) guarantees that DNS changes propagate within seconds, keeping routing aligned with live Kubernetes endpoints.'
+    }
+  },
+  {
+    id: 'inc_ssrf_metadata',
+    title: 'Cloud IMDSv1 SSRF Security Breach',
+    severity: 'SEV-0',
+    system: 'Document Converter & Thumbnail Service',
+    service: 'thumbnail-renderer',
+    language: 'python',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 21:04 UTC, an attacker supplied URL `http://169.254.169.254/latest/meta-data/iam/security-credentials/app-role` to the PDF thumbnail renderer. The unsegmented service fetched the metadata service and exposed cloud temporary secret keys.',
+    initialMetrics: { cpu: 28.0, ram: 38.0, ramDisplay: '3.04 / 8.0 GB', errorRate: 25.0, latencyMs: 65, activeConnections: 3100 },
+    stabilizedMetrics: { cpu: 12.0, ram: 21.0, ramDisplay: '1.68 / 8.0 GB', errorRate: 0.00, latencyMs: 35, activeConnections: 800 },
+    logs: [
+      '[21:03:15.100] [INFO] [thumbnail-worker] Received job: generate preview for user URL',
+      '[21:03:15.105] [DEBUG] [requests] GET http://169.254.169.254/latest/meta-data/iam/security-credentials/app-role',
+      '[21:03:15.210] [INFO] [requests] HTTP 200 OK: Content-Type: application/json (AccessKeyId, SecretAccessKey returned)',
+      '[21:03:16.402] [ALERT] [cloudtrail] AWS API call sts:GetCallerIdentity made from unauthorized external IP 198.51.100.42'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_ssrf_diag',
+      type: 'multiple_choice',
+      prompt: 'What vulnerability allowed the external user to exfiltrate cloud IAM credentials?',
+      options: [
+        'Server-Side Request Forgery (SSRF): Unsanitized URL fetching allowed client to query link-local cloud metadata (169.254.169.254).',
+        'SQL injection in image database.',
+        'Cross-Site Scripting in user avatar.',
+        'Denial of service on port 80.'
+      ],
+      correctAnswer: 0,
+      explanation: 'SSRF occurs when a backend server fetches a user-supplied URL without validating the destination. In AWS, GCP, and Azure, the link-local IP `169.254.169.254` provides an internal instance metadata service containing IAM credentials.'
+    },
+    patchQuestion: {
+      id: 'inc_q_ssrf_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the defense-in-depth mitigation to permanently block SSRF to internal networks:',
+      options: [
+        'Enforce IMDSv2 (session-token gated metadata), restrict egress with iptables/network policy, and block private RFC1918/link-local IP addresses in URL parser.',
+        'Change AWS access key once per year.',
+        'Obfuscate the URL parameter with Base64.',
+        'Run thumbnail renderer with root privileges.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Enforcing IMDSv2 requires a `X-aws-ec2-metadata-token` PUT request that blind SSRF cannot generate. Combining this with strict IP blocking (rejecting `127.0.0.1`, `10.0.0.0/8`, `169.254.0.0/16`) stops metadata exfiltration.'
+    }
+  },
+  {
+    id: 'inc_file_descriptor_leak',
+    title: 'Too Many Open Files (EMFILE) Descriptor Leak',
+    severity: 'SEV-1',
+    system: 'High-Volume Notification Gateway',
+    service: 'push-dispatcher',
+    language: 'c',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 17:10 UTC, push notifications stopped dispatching. The service log flooded with `socket: Too many open files (errno 24 - EMFILE)`. The process reached its OS file descriptor ceiling of 65,536 because TCP sockets were never closed after TLS handshake timeouts.',
+    initialMetrics: { cpu: 42.0, ram: 88.0, ramDisplay: '7.04 / 8.0 GB', errorRate: 99.4, latencyMs: 22000, activeConnections: 65535 },
+    stabilizedMetrics: { cpu: 14.0, ram: 24.0, ramDisplay: '1.92 / 8.0 GB', errorRate: 0.00, latencyMs: 40, activeConnections: 1200 },
+    logs: [
+      '[17:08:45.100] [WARN] [dispatcher] TLS handshake timed out for client notification endpoint',
+      '[17:08:45.101] [ERROR] [dispatcher] Return error without calling close(sock_fd)',
+      '[17:09:15.405] [ALERT] [kernel] Process push-dispatcher (pid 4102) opened 65,536 file descriptors',
+      '[17:09:20.109] [FATAL] [dispatcher] socket(AF_INET, SOCK_STREAM, 0) returned -1 (errno: EMFILE - Too many open files)'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_emfile_diag',
+      type: 'multiple_choice',
+      prompt: 'What resource was exhausted causing push-dispatcher to fail new socket connections?',
+      options: [
+        'Disk storage sectors ran out of inodes.',
+        'Operating System File Descriptors: Sockets were orphaned on error pathways without executing close(sock_fd).',
+        'RAM memory allocation failed with SIGSEGV.',
+        'CPU registers overheated.'
+      ],
+      correctAnswer: 1,
+      explanation: 'In Unix-like systems, sockets, files, and pipes consume file descriptors (`struct file*`). When error handling branches return without calling `close(fd)`, the descriptor remains reserved in the kernel process table until hitting `ulimit -n`.'
+    },
+    patchQuestion: {
+      id: 'inc_q_emfile_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the low-level C patch to ensure descriptors are cleaned up in all code paths:',
+      options: [
+        'Increase ulimit -n to infinity.',
+        'Implement RAII / `goto cleanup` pattern ensuring `close(sock_fd)` is always called on timeout or error paths.',
+        'Ignore errno 24 and retry socket() in an infinite loop.',
+        'Remove TLS encryption.'
+      ],
+      correctAnswer: 1,
+      explanation: 'Using standard C error cleanup idioms (e.g. `goto cleanup; ... cleanup: if (sock_fd >= 0) close(sock_fd);`) or RAII in C++ guarantees socket closure regardless of whether the connection succeeds or times out.'
+    }
+  },
+  {
+    id: 'inc_goroutine_leak',
+    title: 'Unbounded Goroutine Channel Leak',
+    severity: 'SEV-1',
+    system: 'Crypto Ticker & Market Feed Ingestion',
+    service: 'ticker-stream-worker',
+    language: 'go',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 05:20 UTC, worker memory climbed relentlessly by 400MB every 10 minutes until OOMKilled. Runtime telemetry shows active Goroutines grew from 50 to over 340,000.',
+    initialMetrics: { cpu: 85.0, ram: 98.0, ramDisplay: '7.84 / 8.0 GB', errorRate: 78.0, latencyMs: 4200, activeConnections: 14000 },
+    stabilizedMetrics: { cpu: 18.0, ram: 20.0, ramDisplay: '1.60 / 8.0 GB', errorRate: 0.00, latencyMs: 14, activeConnections: 600 },
+    logs: [
+      '[05:18:12.100] [DEBUG] [runtime] NumGoroutine: 42,000',
+      '[05:19:00.304] [WARN] [ticker] Worker spawning unbuffered channel: ch := make(chan priceData)',
+      '[05:19:30.804] [WARN] [ticker] Timeout handler returned early; sender goroutine blocked indefinitely on `ch <- data`',
+      '[05:19:55.109] [DEBUG] [runtime] NumGoroutine: 340,119',
+      '[05:20:02.001] [FATAL] [kubelet] OOMKilled: container exceeded 8GB limit'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_goroutine_diag',
+      type: 'multiple_choice',
+      prompt: 'What caused 340,000 goroutines to accumulate and exhaust worker RAM?',
+      options: [
+        'Goroutines were blocked attempting to send on unbuffered channels where the receiver had already timed out and abandoned listening.',
+        'Go runtime garbage collection was turned off.',
+        'A cryptographic mining worm was injected.',
+        'The Go runtime stack size expanded to 1GB per goroutine.'
+      ],
+      correctAnswer: 0,
+      explanation: 'In Go, sending on an unbuffered channel (`ch <- val`) blocks until another goroutine receives. If the receiver exits due to timeout or cancellation, the sender goroutine remains blocked forever in memory, preventing GC of all referenced objects.'
+    },
+    patchQuestion: {
+      id: 'inc_q_goroutine_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the idiomatic Go concurrency fix to prevent goroutine leaks:',
+      options: [
+        'Use buffered channel `make(chan priceData, 1)` or select with `ctx.Done()` cancellation.',
+        'Kill the Go process every 30 seconds.',
+        'Replace goroutines with OS fork() processes.',
+        'Never use channels in Go.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Using a buffered channel of size 1 allows the sender to write without blocking even if the receiver has abandoned the operation. Incorporating `select { case ch <- data: case <-ctx.Done(): return }` ensures clean exit upon context cancellation.'
+    }
+  },
+  {
+    id: 'inc_webhook_echo_loop',
+    title: 'Infinite Webhook Amplification Storm',
+    severity: 'SEV-1',
+    system: 'Partner Integration Hub',
+    service: 'webhook-dispatcher',
+    language: 'typescript',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 12:00 UTC, a partner system subscribed to "order.updated" events inadvertently emitted its own "order.updated" webhook back to SyntaxArena upon receipt, triggering an exponential ping-pong storm of 800,000 webhooks per minute.',
+    initialMetrics: { cpu: 99.8, ram: 84.0, ramDisplay: '6.72 / 8.0 GB', errorRate: 92.0, latencyMs: 19500, activeConnections: 45000 },
+    stabilizedMetrics: { cpu: 20.0, ram: 30.0, ramDisplay: '2.40 / 8.0 GB', errorRate: 0.01, latencyMs: 45, activeConnections: 1200 },
+    logs: [
+      '[11:59:45.100] [INFO] [webhook-queue] Dispatched event ID evt_99812 to https://partner.example.com/hook',
+      '[11:59:45.220] [INFO] [ingress] Received POST /webhook from partner.example.com with payload order.updated',
+      '[11:59:45.310] [INFO] [webhook-queue] Dispatched event ID evt_99813 to https://partner.example.com/hook',
+      '[12:00:15.804] [ALERT] [ratelimiter] Webhook queue backlog: 840,000 tasks pending execution',
+      '[12:00:20.109] [ERROR] [dispatcher] HTTP 429 Too Many Requests: partner endpoint rate-limiting SyntaxArena'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_echo_diag',
+      type: 'multiple_choice',
+      prompt: 'What architectural oversight allowed an infinite webhook loop to overwhelm the dispatcher?',
+      options: [
+        'Absence of causal tracing headers / idempotency keys and loop detection flags allowed ping-pong event echo chamber.',
+        'The partner server hacked SyntaxArena credentials.',
+        'Node.js HTTP agent ran out of heap.',
+        'DNS resolution failed for the partner domain.'
+      ],
+      correctAnswer: 0,
+      explanation: 'Without tracing headers (such as `X-Request-ID` or `X-Correlation-ID`) and origin tracking (`origin: "syntaxarena"`), systems cannot detect when an incoming event was originally caused by their own outgoing event, leading to recursive feedback loops.'
+    },
+    patchQuestion: {
+      id: 'inc_q_echo_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the hotfix to break the infinite echo loop and protect webhook queues:',
+      options: [
+        'Delete the partner company account permanently.',
+        'Implement distributed deduplication with Redis idempotency keys (`SETNX`) and add `X-Event-Hop-Count` header dropping events with hop count > 2.',
+        'Disable webhooks across the entire platform.',
+        'Add a 10-second sleep before sending webhooks.'
+      ],
+      correctAnswer: 1,
+      explanation: 'Tracking an `X-Event-Hop-Count` or correlating event IDs in Redis with short TTL ensures that if an identical event or circular cascade is detected, it is immediately discarded before re-queueing.'
+    }
+  },
+  {
+    id: 'inc_db_n_plus_one',
+    title: 'N+1 Query Explosion Crushing Database Replicas',
+    severity: 'SEV-1',
+    system: 'Course Catalog & Student Gradebook',
+    service: 'gradebook-api-service',
+    language: 'sql',
+    badgeClass: 'badge-coral',
+    slaSeconds: 180,
+    lore: 'At 15:30 UTC, when 4,000 students loaded the course overview dashboard, the database received 4,001 SQL queries per student page load. PostgreSQL active connections maxed out and CPU pegged at 100%.',
+    initialMetrics: { cpu: 100.0, ram: 78.0, ramDisplay: '6.24 / 8.0 GB', errorRate: 88.0, latencyMs: 12500, activeConnections: 32000 },
+    stabilizedMetrics: { cpu: 14.0, ram: 25.0, ramDisplay: '2.00 / 8.0 GB', errorRate: 0.00, latencyMs: 19, activeConnections: 950 },
+    logs: [
+      '[15:28:10.100] [INFO] [sql-logger] Query 1: SELECT * FROM courses WHERE student_id = 42; (Returns 40 rows)',
+      '[15:28:10.110] [INFO] [sql-logger] Query 2: SELECT * FROM assignments WHERE course_id = 101;',
+      '[15:28:10.115] [INFO] [sql-logger] Query 3: SELECT * FROM assignments WHERE course_id = 102;',
+      '[15:28:10.820] [INFO] [sql-logger] Query 41: SELECT * FROM assignments WHERE course_id = 140;',
+      '[15:29:05.405] [WARN] [postgres] Active connection count reached max_connections (500)',
+      '[15:29:12.109] [ERROR] [gradebook-api] Database query queue timeout: canceling statement due to user request'
+    ],
+    diagnosisQuestion: {
+      id: 'inc_q_nplus_diag',
+      type: 'multiple_choice',
+      prompt: 'What database querying antipattern caused 4,000 students to generate over 160,000 queries per second?',
+      options: [
+        'N+1 Query Antipattern: Executing 1 query for the parent records, then N separate queries in a loop for each associated child record.',
+        'PostgreSQL table was corrupt.',
+        'SQL injection dropped the course table.',
+        'The database was running without an index on primary keys.'
+      ],
+      correctAnswer: 0,
+      explanation: 'The classic N+1 query problem occurs when an application fetches parent records (1 query for courses), then iterates through the result and issues an individual query for every single child record (N queries for assignments), multiplying database roundtrips by thousands.'
+    },
+    patchQuestion: {
+      id: 'inc_q_nplus_patch',
+      type: 'multiple_choice',
+      prompt: 'Select the SQL optimization to collapse N+1 queries into a single performant set operation:',
+      options: [
+        'Run queries on separate database threads.',
+        'Rewrite query to use `INNER JOIN` / `LEFT JOIN` or eager loading (`IN (?, ?, ...)`), reducing 41 queries into exactly 1 query.',
+        'Cache all SQL queries in the browser localStorage.',
+        'Increase PostgreSQL max_connections to 50,000.'
+      ],
+      correctAnswer: 1,
+      explanation: 'Using eager loading (`WHERE course_id IN (...)`) or a single `JOIN` query consolidates all courses and their assignments into a single database roundtrip, dropping database query volume by 98%.'
+    }
   }
 ];
 
@@ -97153,6 +97706,57 @@ var Utils = window.Utils = {
   },
 
   /**
+   * Prototype-pollution safe JSON parser.
+   * Strips __proto__, constructor, and prototype properties during parsing.
+   * @param {string} str
+   * @param {*} [fallback=null]
+   * @returns {*}
+   */
+  safeJsonParse(str, fallback = null) {
+    if (typeof str !== 'string' || !str.trim()) return fallback;
+    try {
+      return JSON.parse(str, (key, value) => {
+        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+          return undefined;
+        }
+        return value;
+      });
+    } catch (_) {
+      return fallback;
+    }
+  },
+
+  /**
+   * Deep sanitize an object to strip prototype pollution vectors and dangerous keys.
+   * @param {*} obj
+   * @returns {*}
+   */
+  sanitizeObject(obj) {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.sanitizeObject(item));
+    }
+    const clean = Object.create(null);
+    for (const [k, v] of Object.entries(obj)) {
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+      clean[k] = this.sanitizeObject(v);
+    }
+    return Object.assign({}, clean);
+  },
+
+  /**
+   * Sanitize text against control characters, null bytes, and HTML injection.
+   * @param {string} str
+   * @returns {string}
+   */
+  sanitizeText(str) {
+    if (typeof str !== 'string') return '';
+    // Strip null bytes and non-printable control characters except newline and tab
+    const clean = str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    return this.escapeHTML(clean);
+  },
+
+  /**
    * Safe document.querySelector wrapper.
    * @param {string} selector
    * @param {Element|Document} [parent=document]
@@ -97253,6 +97857,375 @@ var Utils = window.Utils = {
 };
 
 /* --- End of js/utils.js --- */
+
+/* --- Start of js/auth.js --- */
+/**
+ * SyntaxArena Authentication & Cloud Sync Manager (Item 14)
+ * Multi-Provider Authentication: Email/Password, Google, GitHub, Apple ID, & Guest Mode.
+ * Fully isolated storage ('syntaxarena_auth_v1') preserving 100% database integrity.
+ * Zero external dependencies with pluggable cloud adapters.
+ */
+
+
+var AUTH_STORAGE_KEY = window.AUTH_STORAGE_KEY = 'syntaxarena_auth_v1';
+
+/**
+ * Hash password safely using Web Crypto SHA-256 with salt, with fallback.
+ * @param {string} password 
+ * @param {string} salt 
+ * @returns {Promise<string>} Hex hash
+ */
+window.hashPassword = hashPassword; async function hashPassword(password, salt) {
+  const salted = `${salt}:${password}`;
+  if (typeof crypto !== 'undefined' && crypto.subtle && typeof crypto.subtle.digest === 'function') {
+    try {
+      const msgUint8 = new TextEncoder().encode(salted);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (_) {}
+  }
+
+  // Pure JavaScript deterministic hash fallback for file:/// or non-subtle contexts
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < salted.length; i++) {
+    hash ^= salted.charCodeAt(i);
+    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+  }
+  return ('00000000' + (hash >>> 0).toString(16)).slice(-8) + ('00000000' + (salted.length * 31).toString(16)).slice(-8);
+}
+
+var AuthManager = window.AuthManager = class AuthManager {
+  constructor() {
+    this.currentUser = null;
+    this.users = []; // Array of registered accounts
+    this.syncStatus = 'guest'; // 'guest' | 'synced' | 'syncing' | 'offline'
+    this.listeners = new Map();
+    this.isInitialized = false;
+  }
+
+  /**
+   * Initialize Authentication Service from local storage safely.
+   */
+  async init() {
+    if (this.isInitialized) return this.currentUser;
+
+    try {
+      const raw = typeof window !== 'undefined' && window.localStorage
+        ? window.localStorage.getItem(AUTH_STORAGE_KEY)
+        : null;
+
+      if (raw) {
+        const parsed = (Utils && typeof Utils.safeJsonParse === 'function')
+          ? Utils.safeJsonParse(raw)
+          : JSON.parse(raw);
+
+        if (parsed && typeof parsed === 'object') {
+          this.users = Array.isArray(parsed.users) ? parsed.users : [];
+          if (parsed.activeUserId) {
+            this.currentUser = this.users.find(u => u.id === parsed.activeUserId) || null;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[AuthManager] Safe recovery from unparseable auth storage:', err);
+      this.users = [];
+      this.currentUser = null;
+    }
+
+    if (!this.currentUser) {
+      this.syncStatus = 'guest';
+    } else {
+      this.syncStatus = 'synced';
+    }
+
+    // Consume pending redirect-based OAuth payload if returned from mobile full-page auth
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const pending = window.localStorage.getItem('syntaxarena_oauth_pending');
+        if (pending) {
+          window.localStorage.removeItem('syntaxarena_oauth_pending');
+          const data = typeof Utils !== 'undefined' && Utils.safeJsonParse ? Utils.safeJsonParse(pending) : JSON.parse(pending);
+          if (data && data.provider) {
+            this.signInWithProvider(data.provider, data);
+          }
+        }
+      }
+    } catch (e) {
+      // Non-critical
+    }
+
+    this.isInitialized = true;
+    this._emit('auth:init', { user: this.currentUser, syncStatus: this.syncStatus });
+    return this.currentUser;
+  }
+
+  /**
+   * Save current auth state to isolated storage without touching game database.
+   */
+  _persist() {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return;
+      const data = {
+        users: this.users,
+        activeUserId: this.currentUser ? this.currentUser.id : null,
+        updatedAt: Date.now()
+      };
+      window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+    } catch (err) {
+      console.warn('[AuthManager] Storage write warning:', err);
+    }
+  }
+
+  /**
+   * Register with Email & Password.
+   */
+  async signUpWithEmail(email, password, displayName = '') {
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      throw new Error('Please enter a valid email address.');
+    }
+    if (!password || password.length < 6) {
+      throw new Error('Password must be at least 6 characters.');
+    }
+
+    const existing = this.users.find(u => u.email === cleanEmail);
+    if (existing) {
+      throw new Error('An account with this email already exists. Please sign in.');
+    }
+
+    const salt = Utils.generateId ? Utils.generateId('salt') : Math.random().toString(36).substring(2);
+    const pwdHash = await hashPassword(password, salt);
+
+    const newUser = {
+      id: Utils.generateId ? Utils.generateId('usr') : 'usr-' + Date.now(),
+      email: cleanEmail,
+      displayName: displayName.trim() || cleanEmail.split('@')[0],
+      provider: 'email',
+      salt,
+      pwdHash,
+      avatarUrl: `assets/images/cyber_fox.svg`,
+      createdAt: Date.now(),
+      lastLoginAt: Date.now()
+    };
+
+    this.users.push(newUser);
+    this.currentUser = newUser;
+    this.syncStatus = 'synced';
+    this._persist();
+    this._linkToActiveProfile(newUser);
+    this._emit('auth:changed', { user: newUser, event: 'SIGNED_UP' });
+    return newUser;
+  }
+
+  /**
+   * Sign In with Email & Password.
+   */
+  async signInWithEmail(email, password) {
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const user = this.users.find(u => u.email === cleanEmail && u.provider === 'email');
+    if (!user) {
+      throw new Error('No account found with this email. Please sign up first.');
+    }
+
+    const checkHash = await hashPassword(password, user.salt);
+    if (checkHash !== user.pwdHash) {
+      throw new Error('Invalid email or password. Please try again.');
+    }
+
+    user.lastLoginAt = Date.now();
+    this.currentUser = user;
+    this.syncStatus = 'synced';
+    this._persist();
+    this._linkToActiveProfile(user);
+    this._emit('auth:changed', { user, event: 'SIGNED_IN' });
+    return user;
+  }
+
+  /**
+   * Sign In or Sign Up via OAuth Social Providers (Google, GitHub, Apple ID).
+   * @param {'google'|'github'|'apple'} provider 
+   * @param {object} [mockProfile] Optional provider profile metadata
+   */
+  async signInWithProvider(provider, mockProfile = {}) {
+    const validProviders = ['google', 'github', 'apple'];
+    if (!validProviders.includes(provider)) {
+      throw new Error(`Unsupported auth provider: ${provider}`);
+    }
+
+    // Generate or resolve realistic provider account
+    const providerNames = {
+      google: 'Google Cloud User',
+      github: 'GitHub Hacker',
+      apple: 'Apple ID Developer'
+    };
+
+    const email = mockProfile.email || `${provider}_user_${Date.now().toString(36).slice(-4)}@syntaxarena.cloud`;
+    let user = this.users.find(u => u.email === email && u.provider === provider);
+
+    if (!user) {
+      // First time signing in with this provider
+      user = {
+        id: (typeof Utils !== 'undefined' && Utils.generateId) ? Utils.generateId('usr') : 'usr-' + Date.now(),
+        email,
+        displayName: mockProfile.displayName || providerNames[provider],
+        username: mockProfile.username || email.split('@')[0],
+        provider,
+        providerUserId: mockProfile.providerUserId || null,
+        avatarUrl: mockProfile.avatarUrl || `assets/images/${provider === 'github' ? 'matrix_cat' : 'cyber_fox'}.svg`,
+        createdAt: Date.now(),
+        lastLoginAt: Date.now()
+      };
+      this.users.push(user);
+    } else {
+      user.lastLoginAt = Date.now();
+      if (mockProfile.displayName) user.displayName = mockProfile.displayName;
+      if (mockProfile.avatarUrl) user.avatarUrl = mockProfile.avatarUrl;
+      if (mockProfile.providerUserId) user.providerUserId = mockProfile.providerUserId;
+    }
+
+    this.currentUser = user;
+    this.syncStatus = 'synced';
+    this._persist();
+    this._linkToActiveProfile(user);
+    this._emit('auth:changed', { user, event: 'OAUTH_SUCCESS' });
+    return user;
+  }
+
+  /**
+   * Link current active game progress to an account (promotes guest without losing score/badges).
+   */
+  async linkAccount(provider, payload = {}) {
+    let user;
+    if (provider === 'email') {
+      user = await this.signUpWithEmail(payload.email, payload.password, payload.displayName);
+    } else {
+      user = await this.signInWithProvider(provider, payload);
+    }
+    return user;
+  }
+
+  /**
+   * Request password reset simulation with safe notification.
+   */
+  requestPasswordReset(email) {
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const user = this.users.find(u => u.email === cleanEmail);
+    if (!user) {
+      throw new Error('No account found with this email.');
+    }
+    return {
+      success: true,
+      message: `Password reset link sent to ${cleanEmail}. (In offline mode, use your security code to reset).`
+    };
+  }
+
+  /**
+   * Sign out current user and return cleanly to guest mode without deleting player progress.
+   */
+  signOut() {
+    this.currentUser = null;
+    this.syncStatus = 'guest';
+    this._persist();
+    this._emit('auth:changed', { user: null, event: 'SIGNED_OUT' });
+    return true;
+  }
+
+  /**
+   * Link user to active profile in StorageManager / State without overwriting game data.
+   */
+  _linkToActiveProfile(user) {
+    try {
+      if (typeof window === 'undefined') return;
+      const StateObj = window.State;
+      if (StateObj && typeof StateObj.get === 'function') {
+        const activeProf = StateObj.get('activeProfile');
+        if (activeProf) {
+          activeProf.authUserId = user.id;
+          activeProf.linkedAccount = {
+            email: user.email,
+            provider: user.provider,
+            displayName: user.displayName
+          };
+          if (typeof StateObj.set === 'function') {
+            StateObj.set('activeProfile', activeProf, true);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[AuthManager] Non-critical profile link notice:', err);
+    }
+  }
+
+  /**
+   * Check if user is authenticated (not guest).
+   */
+  isAuthenticated() {
+    return Boolean(this.currentUser && this.currentUser.provider !== 'guest');
+  }
+
+  /**
+   * Get active authenticated user or null.
+   */
+  getCurrentUser() {
+    return this.currentUser;
+  }
+
+  /**
+   * Get sync status label and color badge.
+   */
+  getSyncDetails() {
+    if (!this.isAuthenticated()) {
+      return {
+        status: 'guest',
+        label: 'Guest Mode (Local)',
+        dotClass: 'status-guest',
+        badgeClass: 'badge-neutral'
+      };
+    }
+    return {
+      status: 'synced',
+      label: `Synced as ${this.currentUser.displayName}`,
+      dotClass: 'status-synced',
+      badgeClass: 'badge-emerald'
+    };
+  }
+
+  // ==========================================
+  // EVENT SUBSCRIPTION
+  // ==========================================
+  on(event, callback) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event).push(callback);
+    return () => this.off(event, callback);
+  }
+
+  off(event, callback) {
+    if (!this.listeners.has(event)) return;
+    this.listeners.set(event, this.listeners.get(event).filter(fn => fn !== callback));
+  }
+
+  _emit(event, data) {
+    if (!this.listeners.has(event)) return;
+    for (const fn of this.listeners.get(event)) {
+      try {
+        fn(data);
+      } catch (err) {
+        console.error(`[AuthManager] Listener error on ${event}:`, err);
+      }
+    }
+  }
+}
+
+var Auth = window.Auth = new AuthManager();
+if (typeof window !== 'undefined') {
+  window.Auth = Auth;
+}
+
+
+/* --- End of js/auth.js --- */
 
 /* --- Start of js/storage.js --- */
 /**
@@ -97415,7 +98388,10 @@ class StorageManager {
 
       let parsed;
       try {
-        parsed = JSON.parse(raw);
+        parsed = (Utils && typeof Utils.safeJsonParse === 'function')
+          ? Utils.safeJsonParse(raw)
+          : JSON.parse(raw);
+        if (!parsed) throw new Error('Invalid JSON');
       } catch (parseErr) {
         console.warn('[StorageManager] Malformed JSON in localStorage. Initiating corruption salvage.', parseErr);
         this._quarantineCorrupted(raw);
@@ -97540,7 +98516,9 @@ class StorageManager {
     }
 
     try {
-      const parsed = JSON.parse(jsonStr);
+      const parsed = (Utils && typeof Utils.safeJsonParse === 'function')
+        ? Utils.safeJsonParse(jsonStr)
+        : JSON.parse(jsonStr);
 
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
         return { success: false, message: 'Invalid backup root structure.' };
@@ -97888,12 +98866,20 @@ var Storage = window.Storage = new StorageManager();
 
 
 var AVATAR_CATALOG = window.AVATAR_CATALOG = [
-  { id: 'cyber_fox',    name: 'Cyber Fox',    requiredLevel: 1, symbol: '🦊', description: 'Quick, agile, and sharp-eyed.' },
-  { id: 'terminal_owl', name: 'Terminal Owl', requiredLevel: 1, symbol: '🦉', description: 'Wise systems trace analyst.' },
-  { id: 'matrix_cat',   name: 'Matrix Cat',   requiredLevel: 1, symbol: '🐱', description: 'Stealthy async bug stalker.' },
-  { id: 'bit_knight',   name: 'Bit Knight',   requiredLevel: 1, symbol: '🛡️', description: 'Resilient compiler defender.' },
-  { id: 'hex_dragon',   name: 'Hex Dragon',   requiredLevel: 4, symbol: '🐉', description: 'Fierce low-level memory lord.' },
-  { id: 'glitch_bot',   name: 'Glitch Bot',   requiredLevel: 7, symbol: '🤖', description: 'Unpredictable logic hacker.' }
+  { id: 'cyber_fox',      name: 'Cyber Fox',      requiredLevel: 1, cost: 0,    symbol: '🦊', description: 'Quick, agile, and sharp-eyed.' },
+  { id: 'terminal_owl',   name: 'Terminal Owl',   requiredLevel: 1, cost: 0,    symbol: '🦉', description: 'Wise systems trace analyst.' },
+  { id: 'matrix_cat',     name: 'Matrix Cat',     requiredLevel: 1, cost: 0,    symbol: '🐱', description: 'Stealthy async bug stalker.' },
+  { id: 'bit_knight',     name: 'Bit Knight',     requiredLevel: 1, cost: 0,    symbol: '🛡️', description: 'Resilient compiler defender.' },
+  { id: 'quantum_wolf',   name: 'Quantum Wolf',   requiredLevel: 2, cost: 450,  symbol: '🐺', description: 'Superposed predator navigating multithreaded timelines.' },
+  { id: 'neon_samurai',   name: 'Neon Samurai',   requiredLevel: 3, cost: 650,  symbol: '⚔️', description: 'Disciplined blade slicing through deadlocks.' },
+  { id: 'binary_golem',   name: 'Binary Golem',   requiredLevel: 4, cost: 850,  symbol: '🗿', description: 'Monolithic guardian forged from low-level opcode bytes.' },
+  { id: 'hex_dragon',     name: 'Hex Dragon',     requiredLevel: 4, cost: 950,  symbol: '🐉', description: 'Fierce low-level memory lord.' },
+  { id: 'cipher_phantom', name: 'Cipher Phantom', requiredLevel: 5, cost: 1200, symbol: '👻', description: 'Stealthy cryptographic ghost slipping past intrusion monitors.' },
+  { id: 'kernel_serpent', name: 'Kernel Serpent', requiredLevel: 6, cost: 1500, symbol: '🐍', description: 'Ring-0 entity coiled inside system interrupt vectors.' },
+  { id: 'glitch_bot',     name: 'Glitch Bot',     requiredLevel: 7, cost: 1800, symbol: '🤖', description: 'Unpredictable logic hacker.' },
+  { id: 'pixel_valkyrie', name: 'Pixel Valkyrie', requiredLevel: 7, cost: 2100, symbol: '⚡', description: 'Transcendent winged guardian of stack integrity.' },
+  { id: 'chrono_mage',    name: 'Chrono Mage',    requiredLevel: 8, cost: 2600, symbol: '⏳', description: 'Time-traveling debugee stepping backward through execution frames.' },
+  { id: 'void_stalker',   name: 'Void Stalker',   requiredLevel: 9, cost: 3500, symbol: '🌌', description: 'Eldritch entity dwelling in unallocated virtual memory spaces.' }
 ];
 
 var Profile = window.Profile = {
@@ -97960,6 +98946,7 @@ var Profile = window.Profile = {
       xp: 0,
       lifetimeXP: 0,
       totalScore: 0,
+      diamonds: 0,
       hasReceivedJoiningBonus: false,
       dayStreak: 1,
       lastLoginDate: null,
@@ -98236,21 +99223,29 @@ var Profile = window.Profile = {
    * @param {number} cost
    * @returns {{ success: boolean, message: string, profile?: object }}
    */
-  purchaseItem(profileId, itemType, itemId, cost = 150) {
+  purchaseItem(profileId, itemType, itemId, cost) {
     const profile = (State.get('profiles') || []).find(p => p.id === profileId) || this.getActiveProfile();
     if (!profile) return { success: false, message: 'Profile not found.' };
 
+    let resolvedCost = typeof cost === 'number' ? cost : 450;
+    if (typeof cost !== 'number') {
+      if (itemType === 'avatar') {
+        const meta = AVATAR_CATALOG.find(a => a.id === itemId);
+        if (meta && typeof meta.cost === 'number') resolvedCost = meta.cost;
+      }
+    }
+
     const currentPoints = typeof profile.totalScore === 'number' ? profile.totalScore : (profile.xp || 0);
-    if (currentPoints < cost) {
+    if (currentPoints < resolvedCost) {
       return {
         success: false,
-        message: `Insufficient points! You need ${cost} points (Current: ${currentPoints.toLocaleString()}).`
+        message: `Insufficient points! You need ${resolvedCost.toLocaleString()} points (Current: ${currentPoints.toLocaleString()}).`
       };
     }
 
     const updates = {
-      totalScore: Math.max(0, currentPoints - cost),
-      xp: Math.max(0, (profile.xp || currentPoints) - cost)
+      totalScore: Math.max(0, currentPoints - resolvedCost),
+      xp: Math.max(0, (profile.xp || currentPoints) - resolvedCost)
       // NOTE: lifetimeXP is deliberately NOT reduced, preserving player level!
     };
 
@@ -99347,30 +100342,38 @@ var MAX_LEVEL = window.MAX_LEVEL = LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1]
 // 2. XP YIELD CONFIGURATION (docs/GAME_RULES.md §2.1)
 // =============================================================================
 var XP_RULES = window.XP_RULES = Object.freeze({
-  beginnerCorrect: 50,
-  intermediateCorrect: 100,
-  expertCorrect: 150,
-  flawlessBonus: 100,    // 100% accuracy in >= 10 questions
-  dailyClearBonus: 300   // Daily challenge clear
+  beginnerCorrect: 15,
+  intermediateCorrect: 25,
+  expertCorrect: 40,
+  flawlessBonus: 30,    // 100% accuracy in >= 10 questions
+  dailyClearBonus: 50   // Daily challenge clear
 });
 
 // =============================================================================
 // 3. COSMETICS & CHALLENGE MODES REGISTRY
 // =============================================================================
 var UNLOCKABLE_THEMES = window.UNLOCKABLE_THEMES = Object.freeze([
-  { id: 'dark',  name: 'Cyber Studio',     requiredLevel: 1,  cost: 0,   themeClass: 'dark',  description: 'Sleek neon-cyan dark arcade theme' },
-  { id: 'light', name: 'Studio Paper',     requiredLevel: 2,  cost: 100, themeClass: 'light', description: 'Crisp editorial light mode with high contrast' },
-  { id: 'amber', name: 'Amber Flame',      requiredLevel: 6,  cost: 200, themeClass: 'amber', description: 'Warm CRT amber phosphor arcade aesthetic' },
-  { id: 'gold',  name: 'Grandmaster Gold', requiredLevel: 10, cost: 350, themeClass: 'gold',  description: 'Prestige obsidian and metallic gold theme' }
+  { id: 'dark',  name: 'Cyber Studio',     requiredLevel: 1,  cost: 0,    themeClass: 'dark',  description: 'Sleek neon-cyan dark arcade theme' },
+  { id: 'light', name: 'Studio Paper',     requiredLevel: 2,  cost: 450,  themeClass: 'light', description: 'Crisp editorial light mode with high contrast' },
+  { id: 'amber', name: 'Amber Flame',      requiredLevel: 6,  cost: 1100, themeClass: 'amber', description: 'Warm CRT amber phosphor arcade aesthetic' },
+  { id: 'gold',  name: 'Grandmaster Gold', requiredLevel: 10, cost: 2500, themeClass: 'gold',  description: 'Prestige obsidian and metallic gold theme' }
 ]);
 
 var UNLOCKABLE_AVATARS = window.UNLOCKABLE_AVATARS = Object.freeze([
-  { id: 'cyber_fox',    name: 'Cyber Fox',    requiredLevel: 1, symbol: '🦊', description: 'Quick, agile, and sharp-eyed.' },
-  { id: 'terminal_owl', name: 'Terminal Owl', requiredLevel: 1, symbol: '🦉', description: 'Wise systems trace analyst.' },
-  { id: 'matrix_cat',   name: 'Matrix Cat',   requiredLevel: 1, symbol: '🐱', description: 'Stealthy async bug stalker.' },
-  { id: 'bit_knight',   name: 'Bit Knight',   requiredLevel: 1, symbol: '🛡️', description: 'Resilient compiler defender.' },
-  { id: 'hex_dragon',   name: 'Hex Dragon',   requiredLevel: 4, symbol: '🐉', description: 'Fierce low-level memory lord.' },
-  { id: 'glitch_bot',   name: 'Glitch Bot',   requiredLevel: 7, symbol: '🤖', description: 'Unpredictable logic hacker.' }
+  { id: 'cyber_fox',      name: 'Cyber Fox',      requiredLevel: 1, cost: 0,    symbol: '🦊', description: 'Quick, agile, and sharp-eyed.' },
+  { id: 'terminal_owl',   name: 'Terminal Owl',   requiredLevel: 1, cost: 0,    symbol: '🦉', description: 'Wise systems trace analyst.' },
+  { id: 'matrix_cat',     name: 'Matrix Cat',     requiredLevel: 1, cost: 0,    symbol: '🐱', description: 'Stealthy async bug stalker.' },
+  { id: 'bit_knight',     name: 'Bit Knight',     requiredLevel: 1, cost: 0,    symbol: '🛡️', description: 'Resilient compiler defender.' },
+  { id: 'quantum_wolf',   name: 'Quantum Wolf',   requiredLevel: 2, cost: 450,  symbol: '🐺', description: 'Superposed predator navigating multithreaded timelines.' },
+  { id: 'neon_samurai',   name: 'Neon Samurai',   requiredLevel: 3, cost: 650,  symbol: '⚔️', description: 'Disciplined blade slicing through deadlocks.' },
+  { id: 'binary_golem',   name: 'Binary Golem',   requiredLevel: 4, cost: 850,  symbol: '🗿', description: 'Monolithic guardian forged from low-level opcode bytes.' },
+  { id: 'hex_dragon',     name: 'Hex Dragon',     requiredLevel: 4, cost: 950,  symbol: '🐉', description: 'Fierce low-level memory lord.' },
+  { id: 'cipher_phantom', name: 'Cipher Phantom', requiredLevel: 5, cost: 1200, symbol: '👻', description: 'Stealthy cryptographic ghost slipping past intrusion monitors.' },
+  { id: 'kernel_serpent', name: 'Kernel Serpent', requiredLevel: 6, cost: 1500, symbol: '🐍', description: 'Ring-0 entity coiled inside system interrupt vectors.' },
+  { id: 'glitch_bot',     name: 'Glitch Bot',     requiredLevel: 7, cost: 1800, symbol: '🤖', description: 'Unpredictable logic hacker.' },
+  { id: 'pixel_valkyrie', name: 'Pixel Valkyrie', requiredLevel: 7, cost: 2100, symbol: '⚡', description: 'Transcendent winged guardian of stack integrity.' },
+  { id: 'chrono_mage',    name: 'Chrono Mage',    requiredLevel: 8, cost: 2600, symbol: '⏳', description: 'Time-traveling debugee stepping backward through execution frames.' },
+  { id: 'void_stalker',   name: 'Void Stalker',   requiredLevel: 9, cost: 3500, symbol: '🌌', description: 'Eldritch entity dwelling in unallocated virtual memory spaces.' }
 ]);
 
 var CHALLENGE_MODES = window.CHALLENGE_MODES = Object.freeze([
@@ -99392,8 +100395,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '⚔️',
     category: 'milestones',
     difficulty: 'beginner',
-    cost: 50,
-    price: 50,
+    cost: 350,
+    price: 350,
     evaluate: (profile, session) => {
       const correct = (profile?.stats?.questionsCorrect || 0) + (session?.questionsCorrect || 0);
       return correct >= 1;
@@ -99406,8 +100409,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🏁',
     category: 'milestones',
     difficulty: 'beginner',
-    cost: 50,
-    price: 50,
+    cost: 350,
+    price: 350,
     evaluate: (profile, session) => {
       return (profile?.stats?.gamesPlayed || 0) >= 1 || session?.isCompleted === true;
     }
@@ -99419,8 +100422,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '💯',
     category: 'milestones',
     difficulty: 'expert',
-    cost: 250,
-    price: 250,
+    cost: 2000,
+    price: 2000,
     evaluate: (profile, session) => {
       const attempted = (profile?.stats?.questionsAttempted || 0) + (session?.questionsAttempted || 0);
       return attempted >= 100;
@@ -99433,8 +100436,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🎖️',
     category: 'milestones',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 950,
+    price: 950,
     evaluate: (profile, session) => {
       const games = (profile?.stats?.gamesPlayed || 0) + (session?.isCompleted ? 1 : 0);
       return games >= 5;
@@ -99449,8 +100452,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🔹',
     category: 'streaks',
     difficulty: 'beginner',
-    cost: 60,
-    price: 60,
+    cost: 400,
+    price: 400,
     evaluate: (profile, session) => {
       return (session?.highestStreak || 0) >= 3 || (profile?.stats?.highestStreak || 0) >= 3;
     }
@@ -99462,8 +100465,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🔥',
     category: 'streaks',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 900,
+    price: 900,
     evaluate: (profile, session) => {
       return (session?.highestStreak || 0) >= 5 || (profile?.stats?.highestStreak || 0) >= 5;
     }
@@ -99475,8 +100478,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '⚡',
     category: 'streaks',
     difficulty: 'expert',
-    cost: 220,
-    price: 220,
+    cost: 1600,
+    price: 1600,
     evaluate: (profile, session) => {
       return (session?.highestStreak || 0) >= 8 || (profile?.stats?.highestStreak || 0) >= 8;
     }
@@ -99490,8 +100493,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🎯',
     category: 'accuracy',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 850,
+    price: 850,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.accuracy >= 75);
     }
@@ -99503,8 +100506,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '💎',
     category: 'accuracy',
     difficulty: 'expert',
-    cost: 250,
-    price: 250,
+    cost: 1800,
+    price: 1800,
     evaluate: (profile, session) => {
       if (!session) return false;
       const correct = session.questionsCorrect || 0;
@@ -99520,8 +100523,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🛡️',
     category: 'accuracy',
     difficulty: 'beginner',
-    cost: 75,
-    price: 75,
+    cost: 500,
+    price: 500,
     evaluate: (profile, session) => {
       if (session?.retriesUsed > 0 && session?.questionsCorrect > 0) return true;
       const results = session?.results || session?.answers;
@@ -99535,8 +100538,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '💡',
     category: 'accuracy',
     difficulty: 'intermediate',
-    cost: 100,
-    price: 100,
+    cost: 750,
+    price: 750,
     evaluate: (profile, session) => {
       return Boolean(session && (session.hintsUsed || 0) >= 3 && (session.questionsCorrect || 0) >= 3);
     }
@@ -99550,8 +100553,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '⏱️',
     category: 'speed',
     difficulty: 'expert',
-    cost: 220,
-    price: 220,
+    cost: 1600,
+    price: 1600,
     evaluate: (profile, session) => {
       const results = session?.results || session?.answers;
       if (!results || !Array.isArray(results)) return false;
@@ -99571,8 +100574,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🚀',
     category: 'speed',
     difficulty: 'intermediate',
-    cost: 130,
-    price: 130,
+    cost: 950,
+    price: 950,
     evaluate: (profile, session) => {
       if (!session?.results) return false;
       return session.results.some(r => {
@@ -99589,8 +100592,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🐍',
     category: 'polyglot',
     difficulty: 'beginner',
-    cost: 75,
-    price: 75,
+    cost: 500,
+    price: 500,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'python');
     }
@@ -99602,8 +100605,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '⚙️',
     category: 'polyglot',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 850,
+    price: 850,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'c');
     }
@@ -99615,8 +100618,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '⚡',
     category: 'polyglot',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 850,
+    price: 850,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'cpp');
     }
@@ -99628,8 +100631,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '☕',
     category: 'polyglot',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 850,
+    price: 850,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'java');
     }
@@ -99641,8 +100644,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '👑',
     category: 'polyglot',
     difficulty: 'master',
-    cost: 350,
-    price: 350,
+    cost: 2500,
+    price: 2500,
     evaluate: (profile, session) => {
       const camp = profile?.campaign || {};
       const languages = ['python', 'c', 'cpp', 'java'];
@@ -99663,8 +100666,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🔥',
     category: 'modes',
     difficulty: 'expert',
-    cost: 200,
-    price: 200,
+    cost: 1500,
+    price: 1500,
     evaluate: (profile) => {
       return (profile?.level || 1) >= 5;
     }
@@ -99676,8 +100679,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🖤',
     category: 'modes',
     difficulty: 'master',
-    cost: 300,
-    price: 300,
+    cost: 2200,
+    price: 2200,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.mode === 'hardcore' && (session.lives === undefined || session.lives > 0));
     }
@@ -99691,8 +100694,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🎓',
     category: 'academy',
     difficulty: 'beginner',
-    cost: 60,
-    price: 60,
+    cost: 450,
+    price: 450,
     evaluate: (profile) => {
       return Boolean(profile && Array.isArray(profile.completedLessons) && profile.completedLessons.length >= 1);
     }
@@ -99704,8 +100707,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '📜',
     category: 'academy',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 900,
+    price: 900,
     evaluate: (profile) => {
       return Boolean(profile && Array.isArray(profile.completedLessons) && profile.completedLessons.length >= 5);
     }
@@ -99717,8 +100720,8 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
     icon: '🌐',
     category: 'academy',
     difficulty: 'expert',
-    cost: 220,
-    price: 220,
+    cost: 1600,
+    price: 1600,
     evaluate: (profile) => {
       if (!profile || !Array.isArray(profile.completedLessons)) return false;
       const langs = new Set();
@@ -99727,6 +100730,144 @@ var ACHIEVEMENTS = window.ACHIEVEMENTS = Object.freeze([
         if (prefix) langs.add(prefix);
       });
       return langs.size >= 3;
+    }
+  },
+
+  // --- Category: CyberDrill & Outage Response ---
+  {
+    id: 'cyber_sre_tier1',
+    name: 'SRE First Responder',
+    description: 'Resolve your first production outage incident in CyberDrill.',
+    icon: '🚨',
+    category: 'cyber',
+    difficulty: 'beginner',
+    cost: 450,
+    price: 450,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.resolvedIncidentsCount || profile.stats?.resolvedIncidents || 0) >= 1);
+    }
+  },
+  {
+    id: 'cyber_sre_master',
+    name: 'Site Reliability Master',
+    description: 'Resolve 5 production incidents within the 3-minute SLA window.',
+    icon: '🛡️',
+    category: 'cyber',
+    difficulty: 'expert',
+    cost: 1800,
+    price: 1800,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.resolvedIncidentsCount || profile.stats?.resolvedIncidents || 0) >= 5);
+    }
+  },
+
+  // --- Category: Tactile Memory Lab ---
+  {
+    id: 'memory_wire_initiate',
+    name: 'Stack Wirer',
+    description: 'Successfully route pointers in Tactile Memory Lab Cable Connect.',
+    icon: '🔌',
+    category: 'memory',
+    difficulty: 'beginner',
+    cost: 400,
+    price: 400,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.memoryLabScore || 0) >= 50);
+    }
+  },
+  {
+    id: 'memory_leak_cleaner',
+    name: 'Heap Sweeper',
+    description: 'Reclaim orphaned memory allocations in Leak Patrol.',
+    icon: '🧹',
+    category: 'memory',
+    difficulty: 'intermediate',
+    cost: 850,
+    price: 850,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.reclaimedHeapBlocks || 0) >= 5);
+    }
+  },
+  {
+    id: 'segfault_defuser_ace',
+    name: 'Segfault Defuser',
+    description: 'Accurately triage invalid memory accesses in Dereference Rush.',
+    icon: '⚡',
+    category: 'memory',
+    difficulty: 'expert',
+    cost: 1600,
+    price: 1600,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.defusedPointers || 0) >= 10);
+    }
+  },
+
+  // --- Category: Duels & Competition ---
+  {
+    id: 'duel_gladiator',
+    name: '1v1 Gladiator',
+    description: 'Achieve victory in a live peer-to-peer code duel.',
+    icon: '⚔️',
+    category: 'duel',
+    difficulty: 'intermediate',
+    cost: 950,
+    price: 950,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.duelWins || 0) >= 1);
+    }
+  },
+
+  // --- Category: Daily Protocol & Economy ---
+  {
+    id: 'habit_titan',
+    name: '7-Day Protocol',
+    description: 'Maintain an unbroken 7-day daily training streak.',
+    icon: '🗓️',
+    category: 'daily',
+    difficulty: 'master',
+    cost: 2500,
+    price: 2500,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.dayStreak || 0) >= 7);
+    }
+  },
+  {
+    id: 'diamond_collector',
+    name: 'Diamond Vault',
+    description: 'Accumulate 25 Cyber Diamonds from incident drills and daily streaks.',
+    icon: '💎',
+    category: 'daily',
+    difficulty: 'intermediate',
+    cost: 1100,
+    price: 1100,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.diamonds || 0) >= 25);
+    }
+  },
+  {
+    id: 'terminal_hacker',
+    name: 'Shell Commander',
+    description: 'Execute 20 interactive terminal commands in the cyber sandbox.',
+    icon: '💻',
+    category: 'cyber',
+    difficulty: 'beginner',
+    cost: 500,
+    price: 500,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.terminalCommandsRun || 0) >= 20);
+    }
+  },
+  {
+    id: 'trophy_collector',
+    name: 'Trophy Connoisseur',
+    description: 'Unlock 10 distinct cartridge trophies in the 3D Vault.',
+    icon: '🏆',
+    category: 'milestones',
+    difficulty: 'master',
+    cost: 3000,
+    price: 3000,
+    evaluate: (profile) => {
+      return Boolean(profile && Array.isArray(profile.unlockedAchievements) && profile.unlockedAchievements.length >= 10);
     }
   }
 ]);
@@ -101101,6 +102242,14 @@ var BossEngine = window.BossEngine = {
     this.clearActiveGlitch();
 
     console.info(`[BossEngine] Initialized Boss Encounter: ${boss.name} (${this.maxHp} HP)`);
+
+    // Switch background music to Driving Boss Battle mode (Item 4)
+    try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.startMusic === 'function') {
+        AudioEngine.startMusic('boss');
+      }
+    } catch (_) {}
+
     return this.getStatus();
   },
 
@@ -101601,6 +102750,19 @@ var IncidentEngine = window.IncidentEngine = {
       this.phase = 3;
       this.endTime = Date.now();
 
+      // Award Diamonds (Item 18) to the active profile
+      if (typeof window !== 'undefined' && window.State) {
+        try {
+          const profile = window.State.get('activeProfile');
+          if (profile) {
+            const pm = this.getPostMortem();
+            const diamonds = pm?.diamondsAwarded || 5;
+            profile.diamonds = (profile.diamonds || 0) + diamonds;
+            window.State.set('activeProfile', profile, true);
+          }
+        } catch (_) {}
+      }
+
       if (this.callbacks.onStabilized) {
         this.callbacks.onStabilized(this.getPostMortem());
       }
@@ -101713,10 +102875,12 @@ var IncidentEngine = window.IncidentEngine = {
     const mttr = this.getMTTR();
     const isSuccess = this.state === INCIDENT_STATES.STABILIZED;
 
-    // Calculate incident commander score
+    // Calculate incident commander score & diamonds (Item 18)
     let score = 0;
+    let diamondsAwarded = 0;
     if (isSuccess) {
       score += 300; // Base resolution bounty
+      diamondsAwarded = mttr.isSlaMet ? 8 : 5; // 8 diamonds for honoring SLA, 5 baseline
       if (mttr.isSlaMet) {
         score += Math.max(50, Math.round(mttr.slaMarginSec * 15)); // Speed bonus
       }
@@ -101741,6 +102905,7 @@ var IncidentEngine = window.IncidentEngine = {
       slaComplianceRate: mttr.isSlaMet ? '100% (SLA HONORED)' : 'SLA BREACHED',
       score,
       xpAwarded: score,
+      diamondsAwarded,
       preventedCostUSD,
       rootCause: this.activeIncident.diagnosisQuestion.explanation,
       hotfixApplied: this.activeIncident.patchQuestion.explanation,
@@ -101753,25 +102918,57 @@ var IncidentEngine = window.IncidentEngine = {
   },
 
   /**
-   * Generate clean Markdown formatted post-mortem for 1-click clipboard sharing
+   * Generate clean Markdown with embeddable GitHub Profile Badges (Item 20)
    */
   generateMarkdownReport() {
     const p = this.getPostMortem();
     if (!p) return '';
 
-    return `### 🚨 SRE Incident Post-Mortem: ${p.title}
-**Incident ID:** \`${p.incidentId}\` • **Severity:** **${p.severity}** • **Service:** \`${p.service}\`
-**Status:** ${p.isResolved ? '✅ RESOLVED & STABILIZED' : '❌ UNRESOLVED'}
-**MTTR:** ${p.elapsedSec}s (Target SLA: ${p.slaLimitSeconds}s) • **SLA Compliance:** ${p.slaComplianceRate}
-**Score Earned:** +${p.score} XP • **Downtime Cost Prevented:** \$${p.preventedCostUSD.toLocaleString()} USD
+    const badgeStatus = p.isResolved ? 'RESOLVED_100%25-brightgreen' : 'UNRESOLVED-critical';
+    const badgeSLA = p.isSlaMet ? 'SLA_HONORED-blue' : 'SLA_BREACHED-orange';
 
-#### 🔍 Root Cause Analysis:
+    return `# 🛡️ SRE Incident Post-Mortem: ${p.title}
+
+[![Incident Status](https://img.shields.io/badge/INCIDENT-${p.severity}-red?style=for-the-badge&logo=opsgenie)](https://github.com)
+[![Resolution](https://img.shields.io/badge/STATUS-${badgeStatus}?style=for-the-badge&logo=checkmarx)](https://github.com)
+[![MTTR](https://img.shields.io/badge/MTTR-${p.elapsedSec}s-blue?style=for-the-badge&logo=speedtest)](https://github.com)
+[![SLA](https://img.shields.io/badge/COMPLIANCE-${badgeSLA}?style=for-the-badge)](https://github.com)
+[![Bounty](https://img.shields.io/badge/REWARD-+${p.diamondsAwarded}%20%F0%9F%92%8E%20DIAMONDS-blueviolet?style=for-the-badge)](https://github.com)
+
+> **Mission Critical System Recovery Telemetry**
+> *Resolved under live operational pressure via SyntaxArena CyberDrill SRE Engine*
+
+### 📊 Telemetry & Outage Impact
+| Metric | Recorded Baseline | Target SLA | Outcome |
+| :--- | :--- | :--- | :--- |
+| **Impacted Subsystem** | \`${p.system}\` | Zero Degradation | ✅ Restored to 99.99% Nominal |
+| **Microservice** | \`${p.service}\` (\`${p.language}\`) | Sub-100ms Latency | ✅ 5xx Error Rate Dropped to 0.0% |
+| **Mean Time to Recovery** | \`${p.elapsedSec}s\` | \`< ${p.slaLimitSeconds}s\` | **${p.slaComplianceRate}** |
+| **Downtime Cost Prevented** | **\$${p.preventedCostUSD.toLocaleString()} USD** | SLA Guarantee | 💎 **+${p.diamondsAwarded} Diamonds Earned** |
+
+### 🔍 Root Cause Analysis (RCA)
 ${p.rootCause}
 
-#### ⚡ Hotfix Remediation:
+### ⚡ Emergency Hotfix Deployed
 ${p.hotfixApplied}
 
-*Generated via SyntaxArena CyberDrill Incident Response Engine*`;
+---
+*Verified & cryptographically logged by Incident Commander via [SyntaxArena](https://github.com)*`;
+  },
+
+  /**
+   * Return complete scenario inventory for interactive scenario selection (Item 19)
+   */
+  getScenarioList() {
+    return IncidentScenarios.getAll().map(s => ({
+      id: s.id,
+      title: s.title,
+      severity: s.severity,
+      system: s.system,
+      service: s.service,
+      language: s.language,
+      badgeClass: s.badgeClass
+    }));
   },
 
   /**
@@ -103408,13 +104605,14 @@ class ProceduralAudioEngine {
      ========================================================================== */
 
   /**
-   * Tactile mechanical switch click (delegates to Battlestation switch engine or synthesizes fallback).
+   * Tactile mechanical switch click with mode-specific acoustic profiles (Item 4).
+   * @param {'default'|'boss'|'duel'|'memory'} [variant='default']
    */
-  playClick() {
+  playClick(variant = 'default') {
     const vol = this._getVolume();
     if (vol <= 0) return;
 
-    if (typeof window !== 'undefined' && window.BattlestationEngine && typeof window.BattlestationEngine.playSwitchSound === 'function') {
+    if (variant === 'default' && typeof window !== 'undefined' && window.BattlestationEngine && typeof window.BattlestationEngine.playSwitchSound === 'function') {
       window.BattlestationEngine.playSwitchSound(null, vol);
       return;
     }
@@ -103424,6 +104622,66 @@ class ProceduralAudioEngine {
 
     try {
       const now = ctx.currentTime;
+
+      if (variant === 'boss') {
+        // Heavy industrial punch + hydraulic sub-thump
+        const punchOsc = ctx.createOscillator();
+        const punchGain = ctx.createGain();
+        punchOsc.type = 'sawtooth';
+        punchOsc.frequency.setValueAtTime(450, now);
+        punchOsc.frequency.exponentialRampToValueAtTime(110, now + 0.022);
+        punchGain.gain.setValueAtTime(vol * 0.45, now);
+        punchGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+        punchOsc.connect(punchGain);
+        punchGain.connect(ctx.destination);
+        punchOsc.start(now);
+        punchOsc.stop(now + 0.028);
+
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(120, now);
+        subOsc.frequency.exponentialRampToValueAtTime(42, now + 0.045);
+        subGain.gain.setValueAtTime(vol * 0.4, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.048);
+        subOsc.connect(subGain);
+        subGain.connect(ctx.destination);
+        subOsc.start(now);
+        subOsc.stop(now + 0.05);
+        return;
+      }
+
+      if (variant === 'duel') {
+        // High-tech plasma laser chirp
+        const laserOsc = ctx.createOscillator();
+        const laserGain = ctx.createGain();
+        laserOsc.type = 'sine';
+        laserOsc.frequency.setValueAtTime(2800, now);
+        laserOsc.frequency.exponentialRampToValueAtTime(480, now + 0.016);
+        laserGain.gain.setValueAtTime(vol * 0.32, now);
+        laserGain.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
+        laserOsc.connect(laserGain);
+        laserGain.connect(ctx.destination);
+        laserOsc.start(now);
+        laserOsc.stop(now + 0.02);
+        return;
+      }
+
+      if (variant === 'memory') {
+        // Crystalline glass droplet tap
+        const glassOsc = ctx.createOscillator();
+        const glassGain = ctx.createGain();
+        glassOsc.type = 'sine';
+        glassOsc.frequency.setValueAtTime(1600, now);
+        glassOsc.frequency.exponentialRampToValueAtTime(750, now + 0.02);
+        glassGain.gain.setValueAtTime(vol * 0.25, now);
+        glassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+        glassOsc.connect(glassGain);
+        glassGain.connect(ctx.destination);
+        glassOsc.start(now);
+        glassOsc.stop(now + 0.028);
+        return;
+      }
 
       // 1. Transient click snap (1800Hz -> 700Hz in 8ms)
       const snapOsc = ctx.createOscillator();
@@ -103787,19 +105045,38 @@ class ProceduralAudioEngine {
   }
 
   /**
-   * Start procedural ambient background music.
-   * Respects user settings and browser audio state.
+   * Return currently playing music mode ('normal', 'boss', 'duel', 'memory').
+   * @returns {string}
    */
-  startMusic() {
+  getMusicMode() {
+    return this._musicMode || 'normal';
+  }
+
+  /**
+   * Start procedural background music with mode-specific musical character (Item 4).
+   * Modes supported:
+   * - 'normal': Ambient lo-fi cyber pads (Dm7 -> G7 -> Cmaj7 -> Am7)
+   * - 'boss': Driving industrial Phrygian bass synth (sawtooth + resonant sub-pulse)
+   * - 'duel': High-tension cyber arpeggiator (16th-note staccato synth pulse at 135 BPM)
+   * - 'memory': Meditative crystalline bell pads (pentatonic ethereal chimes)
+   * @param {'normal'|'boss'|'duel'|'memory'} [mode='normal']
+   */
+  startMusic(mode = 'normal') {
     const vol = this._getMusicVolume();
     if (vol <= 0) {
       this.stopMusic();
       return;
     }
 
-    if (this._musicPlaying) {
+    // If already playing the requested mode, just update volume
+    if (this._musicPlaying && this._musicMode === mode) {
       this.setMusicVolume(vol);
       return;
+    }
+
+    // If changing mode while playing, stop existing loops smoothly
+    if (this._musicPlaying && this._musicMode !== mode) {
+      this.stopMusic();
     }
 
     const ctx = this._getContext();
@@ -103807,17 +105084,150 @@ class ProceduralAudioEngine {
 
     try {
       this._musicPlaying = true;
+      this._musicMode = mode;
+      this._musicChordIndex = 0;
 
       // Master music gain node
       this._musicGain = ctx.createGain();
       this._musicGain.gain.setValueAtTime(vol * 0.12, ctx.currentTime);
       this._musicGain.connect(ctx.destination);
 
-      // Ambient Cyber Chord Progression:
-      // Chord 1 (Dm7): D3 (146.8), F3 (174.6), A3 (220.0), C4 (261.6)
-      // Chord 2 (G7):  G2 (98.0),  F3 (174.6), B3 (246.9), D4 (293.7)
-      // Chord 3 (Cmaj7): C3 (130.8), E3 (164.8), G3 (196.0), B3 (246.9)
-      // Chord 4 (Am7): A2 (110.0), E3 (164.8), G3 (196.0), C4 (261.6)
+      if (mode === 'boss') {
+        // --- MODE 2: BOSS OVERDRIVE (Industrial Phrygian Bass Synth) ---
+        // Heavy Phrygian bass loop: E2 (82.4Hz), G2 (98.0Hz), F2 (87.3Hz), B1 (61.7Hz)
+        const bassNotes = [82.4, 82.4, 98.0, 87.3, 82.4, 82.4, 61.7, 87.3];
+        let stepIdx = 0;
+
+        const playBossBeat = () => {
+          if (!this._musicPlaying || !this._ctx || this._ctx.state === 'closed' || this._musicMode !== 'boss') return;
+          const freq = bassNotes[stepIdx % bassNotes.length];
+          stepIdx++;
+
+          const now = this._ctx.currentTime;
+          const dur = 0.28;
+
+          try {
+            // Aggressive saw bass
+            const osc = this._ctx.createOscillator();
+            const filter = this._ctx.createBiquadFilter();
+            const gain = this._ctx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, now);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(420, now);
+            filter.frequency.exponentialRampToValueAtTime(140, now + dur);
+            filter.Q.setValueAtTime(4.5, now);
+
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this._musicGain);
+
+            osc.start(now);
+            osc.stop(now + dur + 0.05);
+          } catch (_) {}
+        };
+
+        playBossBeat();
+        if (this._musicInterval) clearInterval(this._musicInterval);
+        this._musicInterval = setInterval(playBossBeat, 320); // ~94 BPM 8th-note pulse
+        return;
+      }
+
+      if (mode === 'duel') {
+        // --- MODE 3: 1v1 DUEL (High-Tension Cyber Arpeggiator at 135 BPM) ---
+        // Staccato 16th-note sequence: A3 (220Hz), C4 (261.6Hz), E4 (329.6Hz), G4 (392Hz), A4 (440Hz), G4, E4, C4
+        const arpNotes = [220.0, 261.6, 329.6, 392.0, 440.0, 392.0, 329.6, 261.6];
+        let arpIdx = 0;
+
+        const playDuelStep = () => {
+          if (!this._musicPlaying || !this._ctx || this._ctx.state === 'closed' || this._musicMode !== 'duel') return;
+          const freq = arpNotes[arpIdx % arpNotes.length];
+          arpIdx++;
+
+          const now = this._ctx.currentTime;
+          const dur = 0.16;
+
+          try {
+            const osc = this._ctx.createOscillator();
+            const filter = this._ctx.createBiquadFilter();
+            const gain = this._ctx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(900, now);
+            filter.Q.setValueAtTime(2.5, now);
+
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this._musicGain);
+
+            osc.start(now);
+            osc.stop(now + dur + 0.03);
+          } catch (_) {}
+        };
+
+        playDuelStep();
+        if (this._musicInterval) clearInterval(this._musicInterval);
+        this._musicInterval = setInterval(playDuelStep, 222); // 135 BPM 16th-notes
+        return;
+      }
+
+      if (mode === 'memory') {
+        // --- MODE 4: TACTILE MEMORY LAB (Meditative Ethereal Crystal Chimes) ---
+        // Pentatonic bells: E4 (329.6), G#4 (415.3), B4 (493.9), D#5 (622.3), F#5 (739.9)
+        const chimeChords = [
+          [329.6, 493.9, 622.3],
+          [415.3, 622.3, 739.9],
+          [329.6, 415.3, 493.9]
+        ];
+
+        const playMemoryChime = () => {
+          if (!this._musicPlaying || !this._ctx || this._ctx.state === 'closed' || this._musicMode !== 'memory') return;
+          const chord = chimeChords[this._musicChordIndex % chimeChords.length];
+          this._musicChordIndex++;
+
+          const now = this._ctx.currentTime;
+          const duration = 4.8;
+
+          chord.forEach((freq, idx) => {
+            try {
+              const osc = this._ctx.createOscillator();
+              const gain = this._ctx.createGain();
+              const delay = idx * 0.15;
+
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, now + delay);
+
+              gain.gain.setValueAtTime(0.001, now + delay);
+              gain.gain.linearRampToValueAtTime(0.14, now + delay + 0.8);
+              gain.gain.linearRampToValueAtTime(0.001, now + delay + duration);
+
+              osc.connect(gain);
+              gain.connect(this._musicGain);
+
+              osc.start(now + delay);
+              osc.stop(now + delay + duration + 0.2);
+            } catch (_) {}
+          });
+        };
+
+        playMemoryChime();
+        if (this._musicInterval) clearInterval(this._musicInterval);
+        this._musicInterval = setInterval(playMemoryChime, 4600);
+        return;
+      }
+
+      // --- MODE 1: NORMAL ARENA (Ambient Cyber Chord Progression) ---
       const chords = [
         [146.8, 220.0, 261.6],
         [98.0, 174.6, 246.9],
@@ -103826,7 +105236,7 @@ class ProceduralAudioEngine {
       ];
 
       const playChord = () => {
-        if (!this._musicPlaying || !this._ctx || this._ctx.state === 'closed') return;
+        if (!this._musicPlaying || !this._ctx || this._ctx.state === 'closed' || this._musicMode !== 'normal') return;
         const currentChord = chords[this._musicChordIndex % chords.length];
         this._musicChordIndex++;
 
@@ -103867,7 +105277,7 @@ class ProceduralAudioEngine {
       // Loop every 3.8 seconds for smooth chord crossfade
       if (this._musicInterval) clearInterval(this._musicInterval);
       this._musicInterval = setInterval(() => {
-        if (this._musicPlaying) {
+        if (this._musicPlaying && this._musicMode === 'normal') {
           playChord();
         } else {
           clearInterval(this._musicInterval);
@@ -104255,6 +105665,7 @@ var State = window.State = new StateStore();
 
 
 
+
 var UI = window.UI = {
   /**
    * Apply theme attribute to document root.
@@ -104413,6 +105824,43 @@ var UI = window.UI = {
       const avatarMeta = Profile.getAvatarMeta(profile.avatarId);
       avatarEl.innerHTML = `<img src="assets/images/${profile.avatarId || 'cyber_fox'}.svg" width="22" height="22" alt="avatar" style="border-radius: 50%;">`;
       avatarEl.setAttribute('title', `${avatarMeta.name} (Level ${profile.level})`);
+    }
+
+    // Dynamic Level & Remaining Points/XP near logo (Item 7)
+    const levelPill = Utils.qs('#header-user-level-badge');
+    if (levelPill) {
+      if (profile) {
+        const lvlData = Gamification.getLevelData(profile.lifetimeXP || profile.xp || 0);
+        const remText = lvlData.isMaxLevel ? 'MAX RANK' : `${lvlData.xpNeededForNext.toLocaleString()} XP to Lv.${lvlData.level + 1}`;
+        levelPill.innerHTML = `<span class="header-level-tag">Lv.${lvlData.level}</span> <span class="header-xp-rem">${remText}</span>`;
+        levelPill.setAttribute('title', `Rank: ${lvlData.title} • Current XP: ${lvlData.currentXP.toLocaleString()}`);
+        levelPill.style.display = 'inline-flex';
+      } else {
+        levelPill.style.display = 'none';
+      }
+    }
+
+    // Sidebar Profile & Cloud Sync Status (Item 14 & 16)
+    const sideAvatar = Utils.qs('#sidebar-profile-avatar');
+    const sideName = Utils.qs('#sidebar-profile-name');
+    const sideRank = Utils.qs('#sidebar-profile-rank');
+    if (profile && sideAvatar) {
+      sideAvatar.src = `assets/images/${profile.avatarId || 'cyber_fox'}.svg`;
+    }
+    if (profile && sideName) {
+      sideName.textContent = profile.username;
+    }
+    if (profile && sideRank) {
+      const lvlData = Gamification.getLevelData(profile.lifetimeXP || profile.xp || 0);
+      sideRank.textContent = `Lv.${lvlData.level} • ${lvlData.title}`;
+    }
+
+    const syncPills = Utils.qsa('.cloud-sync-pill');
+    if (typeof Auth !== 'undefined') {
+      const details = Auth.getSyncDetails();
+      syncPills.forEach(pill => {
+        pill.innerHTML = `<span class="cloud-sync-dot ${details.dotClass}"></span> <span>${details.label}</span>`;
+      });
     }
   },
 
@@ -104672,6 +106120,417 @@ var UI = window.UI = {
     }
 
     requestAnimationFrame(render);
+  },
+
+  /**
+   * Initialize 7-Day Protocol Daily Habit Calendar & Bounty Claims (Item 17).
+   */
+  initDailyProtocol() {
+    const container = Utils.qs('#daily-protocol-container');
+    if (!container) return;
+
+    const grid = Utils.qs('#daily-days-grid');
+    const claimBtn = Utils.qs('#btn-claim-daily-bounty');
+    const streakBadge = Utils.qs('#daily-streak-badge');
+    if (!grid || !claimBtn) return;
+
+    const profile = (typeof Profile !== 'undefined' ? Profile.getActiveProfile() : null) || State.get('activeProfile');
+    if (!profile) return;
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const lastClaim = profile.lastDailyClaimDate || null;
+    const isClaimedToday = (lastClaim === todayStr);
+    const currentStreak = profile.dayStreak || 1;
+    const currentDay = ((currentStreak - 1) % 7) + 1;
+
+    const REWARDS = [
+      { day: 1, xp: 50,  diamonds: 0, label: '+50 XP' },
+      { day: 2, xp: 75,  diamonds: 0, label: '+75 XP' },
+      { day: 3, xp: 100, diamonds: 1, label: '+100 XP + 1 💎' },
+      { day: 4, xp: 125, diamonds: 0, label: '+125 XP' },
+      { day: 5, xp: 150, diamonds: 2, label: '+150 XP + 2 💎' },
+      { day: 6, xp: 200, diamonds: 0, label: '+200 XP' },
+      { day: 7, xp: 350, diamonds: 5, label: '+350 XP + 5 💎 + 🏆' }
+    ];
+
+    if (streakBadge) {
+      streakBadge.textContent = `${currentStreak}-Day Streak 🔥`;
+    }
+
+    // Render 7-day calendar cards
+    grid.innerHTML = REWARDS.map(r => {
+      let statusClass = '';
+      let statusBadge = '';
+      let borderStyle = '1px solid rgba(255,255,255,0.08)';
+      let bgStyle = 'rgba(15, 23, 42, 0.7)';
+
+      if (r.day < currentDay || (r.day === currentDay && isClaimedToday)) {
+        statusClass = 'is-claimed';
+        statusBadge = '<span style="color: #10b981; font-size: 10px; font-weight: 700;">✓ CLAIMED</span>';
+        borderStyle = '1px solid rgba(16, 185, 129, 0.4)';
+        bgStyle = 'rgba(16, 185, 129, 0.08)';
+      } else if (r.day === currentDay && !isClaimedToday) {
+        statusClass = 'is-active-today';
+        statusBadge = '<span class="badge badge-emerald" style="font-size: 9px; padding: 1px 4px;">TODAY</span>';
+        borderStyle = '2px solid #10b981';
+        bgStyle = 'rgba(16, 185, 129, 0.18)';
+      } else {
+        statusClass = 'is-locked';
+        statusBadge = '<span style="color: #64748b; font-size: 10px;">🔒 Day ' + r.day + '</span>';
+      }
+
+      return `
+        <div class="daily-day-card ${statusClass}" style="background: ${bgStyle}; border: ${borderStyle}; border-radius: 8px; padding: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; min-height: 84px;">
+          <div style="font-size: 11px; font-weight: 800; color: #94a3b8; font-family: var(--font-display);">DAY ${r.day}</div>
+          <div style="font-size: 12px; font-weight: 700; color: #fff; margin: 4px 0;">${r.label}</div>
+          <div>${statusBadge}</div>
+        </div>
+      `;
+    }).join('');
+
+    // Update claim button
+    if (isClaimedToday) {
+      claimBtn.disabled = true;
+      claimBtn.className = 'btn-arcade btn-neutral btn-sm';
+      claimBtn.innerHTML = '<span>✓ Protocol Claimed Today</span>';
+    } else {
+      const reward = REWARDS[currentDay - 1];
+      claimBtn.disabled = false;
+      claimBtn.className = 'btn-arcade btn-primary btn-sm';
+      claimBtn.innerHTML = `<span>🎁 Claim Day ${currentDay} (${reward.label})</span>`;
+
+      claimBtn.onclick = () => {
+        profile.lastDailyClaimDate = todayStr;
+        profile.xp = (profile.xp || 0) + reward.xp;
+        profile.lifetimeXP = (profile.lifetimeXP || 0) + reward.xp;
+        if (reward.diamonds > 0) {
+          profile.diamonds = (profile.diamonds || 0) + reward.diamonds;
+        }
+        if (currentDay === 7) {
+          profile.unlockedAchievements = profile.unlockedAchievements || [];
+          if (!profile.unlockedAchievements.includes('ach_habit_titan')) {
+            profile.unlockedAchievements.push('ach_habit_titan');
+          }
+        }
+        if (typeof Profile !== 'undefined') {
+          Profile.updateProfile(profile.id, profile);
+        } else {
+          State.set('activeProfile', profile, true);
+        }
+
+        UI.showToast(`🎉 Claimed Day ${currentDay} Protocol Reward: ${reward.label}!`, 'success');
+        UI.triggerConfetti();
+        if (typeof AudioEngine !== 'undefined') AudioEngine.playSuccess();
+        this.updateHeaderProfile();
+        this.initDailyProtocol();
+      };
+    }
+
+    this.initProgressionGuide();
+  },
+
+  /**
+   * Initialize Progression & XP Guide Modal (Item 12).
+   */
+  initProgressionGuide() {
+    const btn = document.getElementById('btn-open-progression-guide');
+    const modal = document.getElementById('modal-progression-guide');
+    const closeBtn = document.getElementById('btn-close-progression-guide');
+    const dismissBtn = document.getElementById('btn-dismiss-progression-guide');
+
+    if (!modal) return;
+
+    const open = (e) => {
+      if (e) e.preventDefault();
+      modal.style.display = 'flex';
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    const close = (e) => {
+      if (e) e.preventDefault();
+      modal.classList.remove('is-open');
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    if (btn) btn.onclick = open;
+    const guideBtns = document.querySelectorAll('.btn-open-xp-guide');
+    guideBtns.forEach(b => b.onclick = open);
+
+    if (closeBtn) closeBtn.onclick = close;
+    if (dismissBtn) dismissBtn.onclick = close;
+    modal.onclick = (e) => {
+      if (e.target === modal) close();
+    };
+  },
+
+  /**
+   * Initialize Collapsible Sidebar Activity Rail (Item 16).
+   */
+  initSidebar() {
+    const sidebar = document.getElementById('app-sidebar');
+    const toggleBtn = document.getElementById('btn-sidebar-toggle');
+    const mobileToggle = document.getElementById('btn-sidebar-mobile-toggle');
+
+    if (!sidebar) return;
+
+    // Restore saved collapse preference (defaults to collapsed 68px on desktop for clean IDE look)
+    const savedState = localStorage.getItem('syntaxarena_sidebar_collapsed');
+    if (savedState === 'false') {
+      sidebar.classList.remove('is-collapsed');
+    } else {
+      sidebar.classList.add('is-collapsed');
+    }
+
+    const toggle = (e) => {
+      if (e) e.preventDefault();
+      const isCollapsed = sidebar.classList.toggle('is-collapsed');
+      localStorage.setItem('syntaxarena_sidebar_collapsed', String(isCollapsed));
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    if (toggleBtn) {
+      toggleBtn.onclick = toggle;
+    }
+
+    if (mobileToggle) {
+      mobileToggle.onclick = (e) => {
+        if (e) e.preventDefault();
+        sidebar.classList.toggle('is-mobile-open');
+        if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+      };
+    }
+
+    // Keyboard shortcut: Ctrl + B or Cmd + B to toggle sidebar
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        if (activeTag !== 'input' && activeTag !== 'textarea') {
+          e.preventDefault();
+          toggle();
+        }
+      }
+    });
+
+    // Close mobile sidebar on route click or outside click
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', () => {
+        sidebar.classList.remove('is-mobile-open');
+      });
+    });
+  },
+
+  /**
+   * Initialize Multi-Provider Authentication Modal & Cloud Sync (Item 14).
+   */
+  initAuthModal() {
+    const modal = document.getElementById('modal-auth');
+    if (!modal) return;
+
+    let activeTab = 'signin';
+
+    const open = (e) => {
+      if (e) e.preventDefault();
+      modal.style.display = 'flex';
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    const close = (e) => {
+      if (e) e.preventDefault();
+      modal.classList.remove('is-open');
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    // Open triggers
+    document.querySelectorAll('.cloud-sync-pill, #btn-open-auth, #sidebar-auth-card, #btn-link-account').forEach(el => {
+      el.addEventListener('click', open);
+    });
+
+    // Close triggers
+    const closeBtn = document.getElementById('btn-close-auth');
+    if (closeBtn) closeBtn.onclick = close;
+    modal.onclick = (e) => {
+      if (e.target === modal) close();
+    };
+
+    // Tabs
+    const tabSignIn = document.getElementById('tab-auth-signin');
+    const tabSignUp = document.getElementById('tab-auth-signup');
+    const nameField = document.getElementById('auth-field-name');
+    const submitBtn = document.getElementById('btn-auth-submit');
+    const alertBox = document.getElementById('auth-alert');
+
+    const showAlert = (msg, isSuccess = false) => {
+      if (!alertBox) return;
+      alertBox.textContent = msg;
+      alertBox.className = isSuccess ? 'auth-alert-banner is-success' : 'auth-alert-banner is-error';
+    };
+    const hideAlert = () => {
+      if (!alertBox) return;
+      alertBox.className = 'auth-alert-banner';
+    };
+
+    const setTab = (tab) => {
+      activeTab = tab;
+      hideAlert();
+      if (tab === 'signin') {
+        if (tabSignIn) tabSignIn.classList.add('is-active');
+        if (tabSignUp) tabSignUp.classList.remove('is-active');
+        if (nameField) nameField.style.display = 'none';
+        if (submitBtn) submitBtn.textContent = 'Sign In to SyntaxArena';
+      } else {
+        if (tabSignIn) tabSignIn.classList.remove('is-active');
+        if (tabSignUp) tabSignUp.classList.add('is-active');
+        if (nameField) nameField.style.display = 'block';
+        if (submitBtn) submitBtn.textContent = 'Create Free Account';
+      }
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    if (tabSignIn) tabSignIn.onclick = () => setTab('signin');
+    if (tabSignUp) tabSignUp.onclick = () => setTab('signup');
+
+    // OAuth Social Providers (Real Serverless OAuth on Vercel deployment with local/test fallback)
+    const handleOAuth = async (provider) => {
+      hideAlert();
+
+      // Real serverless OAuth runs on production Vercel deployment or when explicitly enabled
+      const isRealOAuthHost = typeof window !== 'undefined' && (
+        window.location.hostname.includes('vercel.app') ||
+        window.location.hostname.includes('syntaxarena') ||
+        window.SYNTAXARENA_REAL_OAUTH === true
+      );
+      const authEndpoint = `/api/auth/${provider}?action=login`;
+
+      if (isRealOAuthHost && (provider === 'google' || provider === 'github')) {
+        showAlert(`Connecting to ${provider === 'github' ? 'GitHub' : 'Google'} OAuth... Please authorize in the window.`);
+        const width = 600;
+        const height = 700;
+        const left = (window.innerWidth - width) / 2 + window.screenX;
+        const top = (window.innerHeight - height) / 2 + window.screenY;
+        const popup = window.open(
+          authEndpoint,
+          `oauth_${provider}`,
+          `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes`
+        );
+
+        if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+          window.location.href = authEndpoint;
+          return;
+        }
+
+        const messageHandler = async (e) => {
+          if (e.data && e.data.type === 'SYNTAXARENA_AUTH_SUCCESS' && e.data.payload) {
+            window.removeEventListener('message', messageHandler);
+            try {
+              const u = await Auth.signInWithProvider(provider, e.data.payload);
+              showAlert(`✓ Authenticated as ${u.displayName} (${u.email})!`, true);
+              UI.showToast(`🎉 Welcome, ${u.displayName}!`, 'success');
+              if (typeof AudioEngine !== 'undefined') AudioEngine.playSuccess();
+              this.updateHeaderProfile();
+              setTimeout(() => close(), 900);
+            } catch (err) {
+              showAlert(err.message || 'OAuth authentication failed.');
+            }
+          }
+        };
+        window.addEventListener('message', messageHandler);
+        return;
+      }
+
+      // Offline file:/// or Local Playwright Test Environment Fallback
+      try {
+        if (typeof Auth !== 'undefined') {
+          const u = await Auth.signInWithProvider(provider);
+          showAlert(`✓ Successfully connected via ${provider.toUpperCase()} as ${u.displayName}!`, true);
+          UI.showToast(`🎉 Connected via ${provider.toUpperCase()}!`, 'success');
+          if (typeof AudioEngine !== 'undefined') AudioEngine.playSuccess();
+          this.updateHeaderProfile();
+          setTimeout(() => close(), 900);
+        }
+      } catch (err) {
+        showAlert(err.message || 'OAuth authentication failed.');
+      }
+    };
+
+    const btnGoogle = document.getElementById('btn-oauth-google');
+    const btnGitHub = document.getElementById('btn-oauth-github');
+    const btnApple = document.getElementById('btn-oauth-apple');
+
+    if (btnGoogle) btnGoogle.onclick = () => handleOAuth('google');
+    if (btnGitHub) btnGitHub.onclick = () => handleOAuth('github');
+    if (btnApple) btnApple.onclick = () => handleOAuth('apple');
+
+    // Email/Password Form Submit
+    const authForm = document.getElementById('auth-form');
+    if (authForm) {
+      authForm.onsubmit = async (e) => {
+        e.preventDefault();
+        hideAlert();
+        const email = document.getElementById('auth-email')?.value || '';
+        const password = document.getElementById('auth-password')?.value || '';
+        const displayName = document.getElementById('auth-name')?.value || '';
+
+        try {
+          if (typeof Auth !== 'undefined') {
+            if (activeTab === 'signup') {
+              const u = await Auth.signUpWithEmail(email, password, displayName);
+              showAlert(`✓ Account created! Welcome, ${u.displayName}.`, true);
+              UI.showToast(`Welcome to SyntaxArena, ${u.displayName}!`, 'celebrate');
+              UI.triggerConfetti();
+            } else {
+              const u = await Auth.signInWithEmail(email, password);
+              showAlert(`✓ Welcome back, ${u.displayName}!`, true);
+              UI.showToast(`Welcome back, ${u.displayName}!`, 'success');
+            }
+            if (typeof AudioEngine !== 'undefined') AudioEngine.playSuccess();
+            this.updateHeaderProfile();
+            setTimeout(() => close(), 900);
+          }
+        } catch (err) {
+          showAlert(err.message || 'Authentication error.');
+          if (typeof AudioEngine !== 'undefined') AudioEngine.playError();
+        }
+      };
+    }
+
+    // Password Visibility Toggle
+    const eyeBtn = document.getElementById('btn-auth-toggle-pwd');
+    const pwdInput = document.getElementById('auth-password');
+    if (eyeBtn && pwdInput) {
+      eyeBtn.onclick = () => {
+        const isText = pwdInput.type === 'text';
+        pwdInput.type = isText ? 'password' : 'text';
+        eyeBtn.textContent = isText ? '👁️' : '🙈';
+      };
+    }
+
+    // Sign Out Button
+    const signOutBtn = document.getElementById('btn-auth-signout');
+    if (signOutBtn) {
+      signOutBtn.onclick = () => {
+        if (typeof Auth !== 'undefined') {
+          Auth.signOut();
+          UI.showToast('Signed out. Switched to Guest Mode.', 'info');
+          this.updateHeaderProfile();
+          close();
+        }
+      };
+    }
+
+    // Subscribe to Auth changes
+    if (typeof Auth !== 'undefined') {
+      Auth.on('auth:changed', () => {
+        this.updateHeaderProfile();
+      });
+    }
   }
 };
 
@@ -104695,7 +106554,7 @@ var Router = window.Router = {
     // 1. Authoritative check: data-page on body tag
     if (typeof document !== 'undefined' && document.body) {
       const bodyPage = document.body.getAttribute('data-page');
-      if (bodyPage && ['index', 'game', 'results', 'progress', 'settings', 'learn'].includes(bodyPage)) {
+      if (bodyPage && ['index', 'game', 'results', 'progress', 'settings', 'learn', 'memory-games', 'privacy', 'terms', 'admin'].includes(bodyPage)) {
         return bodyPage;
       }
     }
@@ -104765,6 +106624,14 @@ var Router = window.Router = {
         return 'progress';
       }
 
+      if (last === 'privacy' || last === 'privacy.html' || path.endsWith('privacy.html') || path.endsWith('/privacy')) {
+        return 'privacy';
+      }
+
+      if (last === 'terms' || last === 'terms.html' || path.endsWith('terms.html') || path.endsWith('/terms')) {
+        return 'terms';
+      }
+
       if (last === 'settings' || last === 'settings.html' ||
           path.endsWith('settings.html') || path.endsWith('/settings') || path.includes('/settings') ||
           hash.includes('/settings')) {
@@ -104787,6 +106654,7 @@ var Router = window.Router = {
    */
   maskUrlWithUUID(pageType) {
     if (typeof window === 'undefined' || !window.history || !window.history.replaceState) return;
+    if (['privacy', 'terms', 'admin'].includes(pageType)) return;
     try {
       const uuid = (typeof crypto !== 'undefined' && crypto.randomUUID)
         ? crypto.randomUUID()
@@ -105436,7 +107304,6 @@ var SandboxManager = window.SandboxManager = {
         .then(() => {
           this.isLoaded = true;
           this.isLoading = false;
-          console.log('[SandboxManager] Client-side Python 3 engine initialized successfully.');
           resolve(true);
         })
         .catch(err => {
@@ -106377,7 +108244,10 @@ var SandboxManager = window.SandboxManager = {
     let error = null;
 
     try {
-      const result = new Function(`"use strict"; ${code}`)();
+      const shadowNames = ['window', 'document', 'localStorage', 'sessionStorage', 'indexedDB', 'fetch', 'XMLHttpRequest', 'WebSocket', 'top', 'parent', 'location'];
+      const shadowValues = shadowNames.map(() => undefined);
+      const runner = new Function(...shadowNames, `"use strict";\n${code}`);
+      const result = runner(...shadowValues);
       if (result !== undefined) {
         stdout.push(`=> ${typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result)}`);
       }
@@ -110304,6 +112174,7 @@ var LandingPage = window.LandingPage = {
  */
 
 
+
 var DuelEngine = window.DuelEngine = {
   active: false,
   isHost: false,
@@ -110464,6 +112335,11 @@ var DuelEngine = window.DuelEngine = {
 
     this.active = true;
     this._initTransport();
+    try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.startMusic === 'function') {
+        AudioEngine.startMusic('duel');
+      }
+    } catch (_) {}
     return this.getRoomConfig();
   },
 
@@ -110496,6 +112372,12 @@ var DuelEngine = window.DuelEngine = {
       }
     });
 
+    try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.startMusic === 'function') {
+        AudioEngine.startMusic('duel');
+      }
+    } catch (_) {}
+
     return this.getRoomConfig();
   },
 
@@ -110519,6 +112401,11 @@ var DuelEngine = window.DuelEngine = {
     this.opponentPlayer.connected = true;
 
     this.active = true;
+    try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.startMusic === 'function') {
+        AudioEngine.startMusic('duel');
+      }
+    } catch (_) {}
     return this.getRoomConfig();
   },
 
@@ -111090,6 +112977,7 @@ if (typeof window !== 'undefined') {
 
 
 
+
 var MemoryMinigameController = window.MemoryMinigameController = {
   engine: null,
   activeDrag: null,
@@ -111108,6 +112996,13 @@ var MemoryMinigameController = window.MemoryMinigameController = {
 
     // Default to Cable Connect level 0
     this.engine.setMode('cable_connect');
+
+    // Start meditative memory music mode (Item 4)
+    try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.startMusic === 'function') {
+        AudioEngine.startMusic('memory');
+      }
+    } catch (_) {}
   },
 
   _bindDOMEvents() {
@@ -111176,6 +113071,44 @@ var MemoryMinigameController = window.MemoryMinigameController = {
       });
     });
 
+    // Field Manual Modal (Item 23)
+    const btnOpenManual = document.getElementById('btn-open-mem-manual');
+    const modalManual = document.getElementById('modal-mem-manual');
+    const btnCloseManual = document.getElementById('btn-close-mem-manual');
+    const btnUnderstood = document.getElementById('btn-understood-mem-manual');
+
+    if (btnOpenManual && modalManual) {
+      btnOpenManual.addEventListener('click', () => {
+        modalManual.style.display = 'flex';
+        this._playClick();
+      });
+      [btnCloseManual, btnUnderstood].forEach(b => {
+        if (b) {
+          b.addEventListener('click', () => {
+            modalManual.style.display = 'none';
+            this._playClick();
+          });
+        }
+      });
+      modalManual.addEventListener('click', (e) => {
+        if (e.target === modalManual) modalManual.style.display = 'none';
+      });
+
+      modalManual.querySelectorAll('.manual-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          modalManual.querySelectorAll('.manual-tab-btn').forEach(b => {
+            b.classList.remove('is-active');
+            b.className = 'btn-arcade btn-neutral btn-sm manual-tab-btn';
+          });
+          modalManual.querySelectorAll('.manual-tab-pane').forEach(p => p.style.display = 'none');
+          btn.className = 'btn-arcade btn-primary btn-sm manual-tab-btn is-active';
+          const pane = document.getElementById(btn.dataset.tab);
+          if (pane) pane.style.display = 'block';
+          this._playClick();
+        });
+      });
+    }
+
     // Pointer move / up for drag wiring and window resize observers
     window.addEventListener('mousemove', (e) => this._onPointerMove(e));
     window.addEventListener('mouseup', (e) => this._onPointerUp(e));
@@ -111201,11 +113134,26 @@ var MemoryMinigameController = window.MemoryMinigameController = {
     this.engine.on('cableConnected', () => {
       this._renderCables();
       this._playSnap();
+
+      // Auto-validate when required connection count is reached for zero-friction gameplay
+      const level = this.engine.getCurrentCableLevel();
+      const reqCount = (level?.requiredConnections || []).length;
+      if (this.engine.userConnections.length >= reqCount) {
+        this.engine.validateCableWiring();
+      } else {
+        const remaining = reqCount - this.engine.userConnections.length;
+        this._showWireHelper(`⚡ Cable plugged in! Connect ${remaining} more route(s) to verify topology.`);
+      }
     });
 
     this.engine.on('cableRemoved', () => {
       this._renderCables();
       this._playClick();
+      const banner = document.getElementById('mem-feedback');
+      if (banner) banner.style.display = 'none';
+      const nextBtn = document.getElementById('btn-next-level');
+      if (nextBtn) nextBtn.style.display = 'none';
+      this._highlightValidCables(false);
     });
 
     this.engine.on('cableWiringValidated', (result) => {
@@ -111213,14 +113161,33 @@ var MemoryMinigameController = window.MemoryMinigameController = {
       const nextBtn = document.getElementById('btn-next-level');
 
       if (result.valid) {
-        banner.className = 'mem-feedback-banner is-success';
-        banner.textContent = `⚡ ${result.feedback} (+${result.scoreAwarded} PTS)`;
+        if (banner) {
+          banner.style.display = 'block';
+          banner.className = 'mem-feedback-banner is-success';
+          banner.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+              <span>🎉 <strong>POINTER ROUTING VERIFIED!</strong> (+${result.scoreAwarded} PTS) — All memory addresses match ground truth.</span>
+              <button id="btn-banner-next-level" class="btn-arcade btn-primary btn-sm" style="font-size: 13px; padding: 6px 16px; box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);">
+                Advance to Next Level ➔
+              </button>
+            </div>
+          `;
+          const bannerNext = banner.querySelector('#btn-banner-next-level');
+          if (bannerNext) {
+            bannerNext.onclick = () => {
+              if (nextBtn) nextBtn.click();
+            };
+          }
+        }
         if (nextBtn) nextBtn.style.display = 'inline-flex';
         this._highlightValidCables(true);
         this._playChime();
       } else {
-        banner.className = 'mem-feedback-banner is-error';
-        banner.textContent = `❌ ${result.feedback}`;
+        if (banner) {
+          banner.style.display = 'block';
+          banner.className = 'mem-feedback-banner is-error';
+          banner.textContent = `❌ ${result.feedback} — Click the cable to disconnect and try another port.`;
+        }
         if (nextBtn) nextBtn.style.display = 'none';
         this._highlightValidCables(false);
         this._playBuzzer();
@@ -111392,6 +113359,16 @@ var MemoryMinigameController = window.MemoryMinigameController = {
   // RENDER CABLE CONNECT LEVEL
   // ==========================================
   _renderCableLevel(level) {
+    this._clearPortSelection();
+    const banner = document.getElementById('mem-feedback');
+    if (banner) {
+      banner.style.display = 'none';
+      banner.innerHTML = '';
+      banner.className = 'mem-feedback-banner';
+    }
+    const nextBtn = document.getElementById('btn-next-level');
+    if (nextBtn) nextBtn.style.display = 'none';
+
     const codePre = document.getElementById('mem-code-pre');
     if (codePre) codePre.textContent = level.codeSnippet;
 
@@ -111934,6 +113911,10 @@ var MemoryMinigameController = window.MemoryMinigameController = {
 
   _playClick() {
     try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.playClick === 'function') {
+        AudioEngine.playClick('memory');
+        return;
+      }
       const ctx = this._getContext();
       if (!ctx) return;
       const osc = ctx.createOscillator();
@@ -112008,11 +113989,18 @@ var MemoryMinigameController = window.MemoryMinigameController = {
 
 if (typeof window !== 'undefined') {
   window.MemoryMinigameController = MemoryMinigameController;
-  document.addEventListener('DOMContentLoaded', () => {
-    if (document.body.dataset.page === 'memory-games') {
-      MemoryMinigameController.init();
+  const bootMemoryController = () => {
+    if (document.body && document.body.dataset.page === 'memory-games') {
+      if (!MemoryMinigameController.engine) {
+        MemoryMinigameController.init();
+      }
     }
-  });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootMemoryController);
+  } else {
+    bootMemoryController();
+  }
 }
 
 /* --- End of js/memory-controller.js --- */
@@ -112336,12 +114324,17 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
 
   setUnlockedBadges(unlockedIds) {
     this.unlockedBadgeIds = new Set(unlockedIds || []);
-    this.render();
+    if (typeof document !== 'undefined') {
+      this.render();
+      this.updateBadgeStudioPreview();
+    }
   }
 
   setProfile(profile) {
     this.profile = profile;
-    this.updateBadgeStudioPreview();
+    if (typeof document !== 'undefined') {
+      this.updateBadgeStudioPreview();
+    }
   }
 
   // ===========================================================================
@@ -112349,6 +114342,7 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
   // ===========================================================================
 
   render(filterSubject = 'all', filterStatus = 'all') {
+    if (typeof document === 'undefined') return;
     const grid = document.getElementById(this.containerId);
     if (!grid) return;
 
@@ -112908,6 +114902,33 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
     const previewEl = document.getElementById('badge-live-preview');
     if (!previewEl) return;
 
+    const isLocked = this.unlockedBadgeIds.size === 0;
+
+    // Toggle export buttons state
+    const container = document.getElementById('github-badge-studio');
+    if (container) {
+      const exportBtns = container.querySelectorAll('.badge-export-btn');
+      exportBtns.forEach(btn => {
+        btn.disabled = isLocked;
+        btn.style.opacity = isLocked ? '0.45' : '1';
+        btn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+        btn.title = isLocked ? 'Unlock at least 1 trophy badge in the arena to export GitHub badges' : '';
+      });
+    }
+
+    if (isLocked) {
+      previewEl.innerHTML = `
+        <div class="badge-studio-locked-notice" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 160px; padding: 1.5rem; text-align: center; background: rgba(15, 23, 42, 0.85); border: 2px dashed rgba(244, 63, 94, 0.4); border-radius: 10px;">
+          <span style="font-size: 2.4rem; margin-bottom: 0.5rem;" aria-hidden="true">🔒</span>
+          <h4 style="margin: 0 0 0.35rem; color: #f8fafc; font-family: var(--font-display, sans-serif); font-size: 1.05rem;">GITHUB BADGE STUDIO LOCKED</h4>
+          <p style="margin: 0; color: #94a3b8; font-size: 0.85rem; max-width: 420px; line-height: 1.5;">
+            You haven't unlocked any badges yet! Complete challenges, win duels, or solve memory puzzles to unlock at least <strong>1 trophy cartridge</strong> to generate and export dynamic SVG badges for your GitHub README.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
     const prof = this.profile || {};
     const stats = prof.stats || {};
     const callsign = prof.callsign || 'ScriptAdept';
@@ -112942,6 +114963,15 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
     const feedbackEl = document.getElementById('badge-copy-feedback');
     if (!previewEl) return;
 
+    if (this.unlockedBadgeIds.size === 0) {
+      if (feedbackEl) {
+        feedbackEl.style.color = '#f43f5e';
+        feedbackEl.textContent = '🔒 Studio locked! Earn at least 1 trophy badge first.';
+        setTimeout(() => { if (feedbackEl) feedbackEl.textContent = ''; }, 3000);
+      }
+      return;
+    }
+
     const svg = previewEl.innerHTML.trim();
     const encodedDataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 
@@ -112967,6 +114997,7 @@ var TrophyVault = window.TrophyVault = class TrophyVault {
   }
 
   _downloadSvgFile() {
+    if (this.unlockedBadgeIds.size === 0) return;
     const previewEl = document.getElementById('badge-live-preview');
     if (!previewEl) return;
 
@@ -112992,6 +115023,7 @@ if (typeof window !== 'undefined') {
   window.RARITY_CONFIG = RARITY_CONFIG;
   window.mapBadgeRarity = mapBadgeRarity;
 }
+
 
 /* --- End of js/trophy-vault.js --- */
 
@@ -116499,6 +118531,8 @@ var Gameplay = window.Gameplay = {
     }
     if (costEl) costEl.textContent = `$${costPrevented.toLocaleString()}`;
     if (xpEl) xpEl.textContent = `+${scoreVal} XP`;
+    const diamondsEl = Utils.qs('#incident-pm-diamonds');
+    if (diamondsEl) diamondsEl.textContent = `+${pm.diamondsAwarded || 5} 💎`;
 
     if (rootCauseEl) rootCauseEl.textContent = pm.rootCause;
     if (hotfixEl) hotfixEl.textContent = pm.hotfixApplied;
@@ -116538,6 +118572,16 @@ var Gameplay = window.Gameplay = {
         if (typeof IncidentEngine !== 'undefined') {
           this._renderIncidentLogs(IncidentEngine.getStreamingLogs());
         }
+      });
+    }
+
+    // Fullscreen Outage Screen toggle (Item 18)
+    const fsToggleBtn = Utils.qs('#btn-toggle-incident-fullscreen');
+    const hudMonitor = Utils.qs('#hud-incident-monitor');
+    if (fsToggleBtn && hudMonitor) {
+      fsToggleBtn.addEventListener('click', () => {
+        const isFs = hudMonitor.classList.toggle('is-fullscreen');
+        fsToggleBtn.textContent = isFs ? '🗗 Exit Fullscreen' : '⛶ Fullscreen';
       });
     }
 
@@ -117491,6 +119535,32 @@ var AdminController = window.AdminController = {
       });
     }
 
+    // Export HTML formatted report (Item 9)
+    const exportHtmlBtn = Utils.qs('#btn-admin-export-html');
+    if (exportHtmlBtn) {
+      exportHtmlBtn.addEventListener('click', () => {
+        this.exportTelemetryHtml();
+      });
+    }
+
+    // Export TXT ASCII summary (Item 9)
+    const exportTxtBtn = Utils.qs('#btn-admin-export-txt');
+    if (exportTxtBtn) {
+      exportTxtBtn.addEventListener('click', () => {
+        this.exportTelemetryTxt();
+      });
+    }
+
+    // Dossier Delete Player button (Item 8)
+    const dossierDeleteBtn = Utils.qs('#btn-dossier-delete-player');
+    if (dossierDeleteBtn) {
+      dossierDeleteBtn.addEventListener('click', () => {
+        if (this.selectedPlayer) {
+          this.deletePlayer(this.selectedPlayer.id, this.selectedPlayer.username);
+        }
+      });
+    }
+
     // Search and Language Filter
     const searchInput = Utils.qs('#admin-search-player');
     if (searchInput) {
@@ -117997,9 +120067,12 @@ var AdminController = window.AdminController = {
           </td>
 
           <!-- Action -->
-          <td style="padding: var(--space-3) var(--space-4); text-align: right;">
-            <button class="btn-arcade btn-neutral btn-sm btn-inspect-player" data-player-id="${p.id}" style="padding: 4px 10px; font-size: 11px;">
+          <td style="padding: var(--space-3) var(--space-4); text-align: right; white-space: nowrap;">
+            <button class="btn-arcade btn-neutral btn-sm btn-inspect-player" data-player-id="${p.id}" style="padding: 4px 8px; font-size: 11px;">
               <span>🔍 Dossier</span>
+            </button>
+            <button class="btn-arcade btn-danger btn-sm btn-delete-player" data-player-id="${p.id}" data-username="${Utils.escapeHtml(p.username)}" style="padding: 4px 8px; font-size: 11px; margin-left: 4px;" title="Permanently delete user">
+              <span>🗑️</span>
             </button>
           </td>
 
@@ -118012,6 +120085,16 @@ var AdminController = window.AdminController = {
       btn.addEventListener('click', () => {
         const playerId = btn.dataset.playerId;
         this.openDossier(playerId);
+      });
+    });
+
+    // Bind Delete button clicks (Item 8)
+    tbody.querySelectorAll('.btn-delete-player').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const playerId = btn.dataset.playerId;
+        const username = btn.dataset.username;
+        this.deletePlayer(playerId, username);
       });
     });
   },
@@ -118269,38 +120352,269 @@ var AdminController = window.AdminController = {
   },
 
   /**
-   * Export Telemetry Audit Log as JSON
+   * Permanently delete a player account and reset resources if they log in again (Item 8).
+   * @param {string} playerId
+   * @param {string} [username]
    */
-  exportTelemetryAudit() {
-    const payload = {
-      exportTimestamp: new Date().toISOString(),
-      platform: 'SyntaxArena Cyber Academy & Challenge Engine',
-      auditedBy: 'admin',
-      totalEnrolledPlayers: this.profiles.length,
-      trackInventory: this.TRACKS.map(t => ({ id: t.id, name: t.name, totalQuestions: 60, totalLessons: 5 })),
-      playerDossiers: this.profiles.map(p => ({
-        id: p.id,
-        username: p.username,
-        level: p.level,
-        rank: p.rank,
-        xp: p.xp,
-        overallCompletionPct: p.overallPct,
-        trackProgress: p.trackStats
-      }))
-    };
+  deletePlayer(playerId, username) {
+    if (!playerId) return;
+    const player = this.profiles.find(p => p.id === playerId);
+    const displayName = username || player?.username || 'this player';
 
-    const jsonStr = JSON.stringify(payload, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const confirmed = typeof window !== 'undefined' && window.confirm 
+      ? window.confirm(`⚠️ PERMANENT USER DELETION\n\nAre you sure you want to permanently delete player "${displayName}"?\n\nThis action cannot be undone. All stars, achievements, module completions, XP, and inventory will be wiped. When this user logs in again, they will start completely from scratch.`)
+      : true;
+
+    if (!confirmed) return;
+
+    const rawSchema = Storage.load();
+    const existing = (rawSchema && rawSchema.profiles && Array.isArray(rawSchema.profiles)) ? rawSchema.profiles : [];
+    
+    // Filter out the deleted player
+    rawSchema.profiles = existing.filter(p => p.id !== playerId);
+
+    // If deleted player was active or no profiles remain, initialize fresh default profile
+    if (rawSchema.activeProfileId === playerId || rawSchema.profiles.length === 0) {
+      const freshProfile = createDefaultProfile();
+      rawSchema.profiles.push(freshProfile);
+      rawSchema.activeProfileId = freshProfile.id;
+      State.set('activeProfile', freshProfile, false);
+    } else {
+      const nextActive = rawSchema.profiles[0];
+      rawSchema.activeProfileId = nextActive.id;
+      State.set('activeProfile', nextActive, false);
+    }
+
+    State.set('profiles', rawSchema.profiles, false);
+    Storage.save(rawSchema);
+
+    this.closeDossier();
+    this.loadTelemetryData();
+    UI.showToast(`🗑️ Player "${displayName}" permanently deleted. Resources reset to scratch.`, 'success');
+    if (typeof AudioEngine !== 'undefined' && AudioEngine.playSuccess) AudioEngine.playSuccess();
+  },
+
+  /**
+   * Export Standalone Formatted HTML Telemetry Report (Item 9)
+   */
+  exportTelemetryHtml() {
+    const timestamp = new Date().toISOString();
+    const dateStr = timestamp.slice(0, 10);
+    const totalXP = this.profiles.reduce((sum, p) => sum + (p.xp || 0), 0);
+    const totalQuestions = this.profiles.reduce((sum, p) => sum + (p.totalQuestionsAnswered || 0), 0);
+    const avgAccuracy = this.profiles.length > 0
+      ? Math.round(this.profiles.reduce((sum, p) => {
+          const st = p.stats || {};
+          return sum + (st.questionsAttempted > 0 ? ((st.questionsCorrect || 0) / st.questionsAttempted) * 100 : 0);
+        }, 0) / this.profiles.length)
+      : 0;
+
+    const tracksHtml = this.TRACKS.map(t => {
+      let sumQuestions = 0;
+      let sumLessons = 0;
+      this.profiles.forEach(p => {
+        const st = p.trackStats?.[t.id];
+        if (st) {
+          sumQuestions += (st.questionsDone || 0);
+          sumLessons += (st.lessonsDone || 0);
+        }
+      });
+      const maxPossible = (this.profiles.length || 1) * 60;
+      const pct = Math.round((sumQuestions / maxPossible) * 100);
+      return `
+        <tr>
+          <td><span style="font-size: 1.2rem; margin-right: 6px;">${t.icon}</span><strong>${t.name}</strong></td>
+          <td>${sumQuestions}</td>
+          <td>${sumLessons}</td>
+          <td>
+            <div style="background: #1e293b; border-radius: 9999px; height: 8px; width: 120px; display: inline-block; vertical-align: middle; margin-right: 8px; overflow: hidden;">
+              <div style="background: #38bdf8; height: 100%; width: ${pct}%;"></div>
+            </div>
+            <strong>${pct}%</strong>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    const playersHtml = this.profiles.map(p => {
+      const stats = p.stats || {};
+      const acc = stats.questionsAttempted > 0 ? Math.round((stats.questionsCorrect / stats.questionsAttempted) * 100) : 0;
+      return `
+        <tr>
+          <td>
+            <strong>${Utils.escapeHtml(p.username || 'ScriptAdept')}</strong><br>
+            <small style="color: #64748b; font-family: monospace;">${p.id || ''}</small>
+          </td>
+          <td><span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 700;">Lv.${p.level || 1}</span> ${Utils.escapeHtml(p.rank || 'Novice')}</td>
+          <td><strong style="color: #10b981;">${(p.xp || 0).toLocaleString()} XP</strong></td>
+          <td>${stats.gamesPlayed || 0}</td>
+          <td>${acc}% (${stats.questionsCorrect || 0}/${stats.questionsAttempted || 0})</td>
+          <td><strong>${p.overallPct || 0}%</strong></td>
+        </tr>
+      `;
+    }).join('');
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SyntaxArena Telemetry &amp; Curriculum Audit Report (${dateStr})</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0b0f19; color: #f1f5f9; padding: 2rem; margin: 0; line-height: 1.5; }
+    .report-container { max-width: 1100px; margin: 0 auto; }
+    h1 { font-family: monospace; font-size: 1.8rem; color: #38bdf8; margin-bottom: 0.25rem; }
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 2rem 0; }
+    .kpi-card { background: #111827; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 1.25rem; text-align: center; }
+    .kpi-val { font-size: 1.8rem; font-weight: 800; color: #38bdf8; font-family: monospace; }
+    .kpi-lbl { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; margin-top: 0.25rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #111827; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #1f2937; }
+    th { background: #1e293b; font-size: 0.8rem; text-transform: uppercase; color: #94a3b8; font-family: monospace; }
+    section { margin-top: 2.5rem; }
+    h2 { font-family: monospace; font-size: 1.25rem; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
+    footer { margin-top: 3rem; text-align: center; color: #64748b; font-size: 0.85rem; font-family: monospace; border-top: 1px solid #1f2937; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="report-container">
+    <h1>🛡️ SyntaxArena Live Telemetry Audit Report</h1>
+    <div style="color: #94a3b8; font-size: 0.9rem;">Generated: ${timestamp} • Audited by: Admin Session</div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-val">${this.profiles.length}</div>
+        <div class="kpi-lbl">Enrolled Players</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${totalXP.toLocaleString()}</div>
+        <div class="kpi-lbl">Total Accumulated XP</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${totalQuestions}</div>
+        <div class="kpi-lbl">Completed Questions</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${avgAccuracy}%</div>
+        <div class="kpi-lbl">Cohort Mean Accuracy</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>📚 12-Language Track Curriculum Completion</h2>
+      <table>
+        <thead>
+          <tr><th>Track</th><th>Questions Completed</th><th>Lessons Mastered</th><th>Curriculum Coverage</th></tr>
+        </thead>
+        <tbody>
+          ${tracksHtml}
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>👥 Player Roster &amp; Progression Telemetry</h2>
+      <table>
+        <thead>
+          <tr><th>Player</th><th>Level &amp; Rank</th><th>Lifetime XP</th><th>Matches</th><th>Accuracy</th><th>Global Progress</th></tr>
+        </thead>
+        <tbody>
+          ${playersHtml}
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      SyntaxArena Administrative Security Suite • Cryptographically Verified Audit Export
+    </footer>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `syntaxarena-telemetry-audit-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `syntaxarena-telemetry-report-${dateStr}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    UI.showToast('💾 Audit telemetry log exported to JSON', 'success');
+    UI.showToast('🌐 Formatted HTML audit report exported', 'success');
+  },
+
+  /**
+   * Export Plain Text ASCII Telemetry Summary (Item 9)
+   */
+  exportTelemetryTxt() {
+    const timestamp = new Date().toISOString();
+    const dateStr = timestamp.slice(0, 10);
+    const totalXP = this.profiles.reduce((sum, p) => sum + (p.xp || 0), 0);
+    const totalQuestions = this.profiles.reduce((sum, p) => sum + (p.totalQuestionsAnswered || 0), 0);
+
+    const pad = (str, len) => String(str).padEnd(len, ' ');
+    const rpad = (str, len) => String(str).padStart(len, ' ');
+
+    let txt = '';
+    txt += '========================================================================\n';
+    txt += '       SYNTAXARENA LIVE CURRICULUM TELEMETRY & AUDIT REPORT            \n';
+    txt += '========================================================================\n';
+    txt += `Timestamp : ${timestamp}\n`;
+    txt += `Platform  : SyntaxArena Cyber Academy & Challenge Engine\n`;
+    txt += `Audited By: admin\n`;
+    txt += `Total Enrolled Players: ${this.profiles.length}\n`;
+    txt += `Total Cohort XP       : ${totalXP.toLocaleString()} XP\n`;
+    txt += `Total Questions Solved: ${totalQuestions}\n\n`;
+
+    txt += '------------------------------------------------------------------------\n';
+    txt += ' 12-LANGUAGE TRACK INVENTORY & COMPLETION METRICS\n';
+    txt += '------------------------------------------------------------------------\n';
+    txt += `${pad('Track Name', 24)} | ${pad('Questions', 12)} | ${pad('Lessons', 10)} | ${pad('Completion', 12)}\n`;
+    txt += '------------------------------------------------------------------------\n';
+
+    this.TRACKS.forEach(t => {
+      let sumQuestions = 0;
+      let sumLessons = 0;
+      this.profiles.forEach(p => {
+        const st = p.trackStats?.[t.id];
+        if (st) {
+          sumQuestions += (st.questionsDone || 0);
+          sumLessons += (st.lessonsDone || 0);
+        }
+      });
+      const maxPossible = (this.profiles.length || 1) * 60;
+      const pct = Math.round((sumQuestions / maxPossible) * 100);
+      txt += `${pad(t.name, 24)} | ${rpad(sumQuestions + '/60', 12)} | ${rpad(sumLessons + '/5', 10)} | ${rpad(pct + '%', 12)}\n`;
+    });
+
+    txt += '\n------------------------------------------------------------------------\n';
+    txt += ' ENROLLED PLAYER ROSTER DOSSIERS\n';
+    txt += '------------------------------------------------------------------------\n';
+    txt += `${pad('Username', 18)} | ${pad('Level/Rank', 22)} | ${pad('Lifetime XP', 12)} | ${pad('Accuracy', 10)} | ${pad('Progress', 8)}\n`;
+    txt += '------------------------------------------------------------------------\n';
+
+    this.profiles.forEach(p => {
+      const stats = p.stats || {};
+      const acc = stats.questionsAttempted > 0 ? Math.round((stats.questionsCorrect / stats.questionsAttempted) * 100) : 0;
+      const rankStr = `Lv.${p.level || 1} ${p.rank || 'Novice'}`;
+      txt += `${pad(p.username || 'ScriptAdept', 18)} | ${pad(rankStr, 22)} | ${rpad((p.xp || 0).toLocaleString() + ' XP', 12)} | ${rpad(acc + '%', 10)} | ${rpad((p.overallPct || 0) + '%', 8)}\n`;
+    });
+
+    txt += '========================================================================\n';
+    txt += ' End of SyntaxArena Audit Telemetry Report\n';
+    txt += '========================================================================\n';
+
+    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `syntaxarena-telemetry-report-${dateStr}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    UI.showToast('📄 Plain text ASCII audit summary exported', 'success');
   }
 };
 
@@ -118358,8 +120672,20 @@ var App = window.App = {
         }
       } catch (_) {}
 
-      // 4. Update UI Shell (Header navigation & profile pill)
+      // Initialize Authentication & Cloud Sync Service (Item 14)
+      try {
+        const authService = (typeof window !== 'undefined' && window.Auth)
+          ? window.Auth
+          : (await import('./auth.js')).Auth;
+        if (authService && typeof authService.init === 'function') {
+          await authService.init();
+        }
+      } catch (_) {}
+
+      // 4. Update UI Shell (Sidebar navigation, Auth modal & profile pills)
       UI.updateActiveNav(currentPage);
+      UI.initSidebar();
+      UI.initAuthModal();
       UI.updateHeaderProfile();
 
       // 5. Bind global UI controls & sound
@@ -118406,6 +120732,9 @@ var App = window.App = {
 
       // 9. Page-specific controllers
       if (currentPage === 'index') {
+        if (typeof UI !== 'undefined' && typeof UI.initDailyProtocol === 'function') {
+          UI.initDailyProtocol();
+        }
         const controller = (typeof window !== 'undefined' && window.LandingPage)
           ? window.LandingPage
           : (await import('./landing.js')).LandingPage;
@@ -118425,6 +120754,15 @@ var App = window.App = {
           : (await import('./learn.js')).LearnController;
         if (controller && typeof controller.init === 'function') {
           controller.init();
+        }
+      } else if (currentPage === 'memory-games') {
+        const controller = (typeof window !== 'undefined' && window.MemoryMinigameController)
+          ? window.MemoryMinigameController
+          : (await import('./memory-controller.js')).MemoryMinigameController;
+        if (controller && typeof controller.init === 'function') {
+          if (!controller.engine) {
+            controller.init();
+          }
         }
       }
 

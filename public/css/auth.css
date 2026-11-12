@@ -1,0 +1,325 @@
+/**
+ * SyntaxArena Authentication & Cloud Sync Styles (Item 14)
+ * Modern, eye-friendly, responsive multi-provider modal
+ */
+
+/* ==========================================================================
+   CLOUD SYNC STATUS PILL (Header & Sidebar)
+   ========================================================================== */
+.cloud-sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.cloud-sync-pill:hover {
+  border-color: rgba(56, 189, 248, 0.6);
+  background: rgba(30, 41, 59, 0.85);
+  transform: translateY(-1px);
+}
+
+.cloud-sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cloud-sync-dot.status-synced {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+}
+
+.cloud-sync-dot.status-guest {
+  background: #94a3b8;
+}
+
+.cloud-sync-dot.status-syncing {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+  animation: pulse-sync 1s infinite alternate;
+}
+
+@keyframes pulse-sync {
+  from { opacity: 0.4; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1.15); }
+}
+
+/* ==========================================================================
+   AUTHENTICATION MODAL DIALOG
+   ========================================================================== */
+#modal-auth .modal-dialog {
+  max-width: 440px;
+  width: 92%;
+  background: #0e131d;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.12);
+  border-radius: 14px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.auth-modal-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.auth-modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-family: var(--font-display, inherit);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.auth-modal-body {
+  padding: 1.5rem;
+}
+
+/* Auth Mode Tabs (Sign In / Create Account) */
+.auth-tabs-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.auth-tab-btn {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-tab-btn.is-active {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Social OAuth Buttons */
+.auth-oauth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.btn-oauth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-oauth-google {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #f8fafc;
+}
+.btn-oauth-google:hover {
+  background: #283548;
+  border-color: #4285f4;
+  box-shadow: 0 0 14px rgba(66, 133, 244, 0.25);
+}
+
+.btn-oauth-github {
+  background: #24292f;
+  border: 1px solid #444c56;
+  color: #ffffff;
+}
+.btn-oauth-github:hover {
+  background: #2f363d;
+  border-color: #8b949e;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.15);
+}
+
+.btn-oauth-apple {
+  display: none; /* Skipped for now per configuration */
+  background: #000000;
+  border: 1px solid #333333;
+  color: #ffffff;
+}
+.btn-oauth-apple:hover {
+  background: #111111;
+  border-color: #666666;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.12);
+}
+
+/* Divider with text */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.25rem 0;
+  color: #64748b;
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  text-transform: uppercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.auth-divider span {
+  padding: 0 10px;
+}
+
+/* Form inputs & controls */
+.auth-field {
+  margin-bottom: 1rem;
+}
+
+.auth-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 0.35rem;
+}
+
+.auth-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: #050811;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.auth-input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.auth-eye-btn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+}
+
+.auth-eye-btn:hover {
+  color: #38bdf8;
+}
+
+/* Password Strength Indicator */
+.pwd-strength-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+  display: flex;
+  gap: 3px;
+}
+
+.pwd-strength-bar {
+  flex: 1;
+  height: 100%;
+  background: transparent;
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+
+.pwd-strength-bar.is-weak { background: #f43f5e; }
+.pwd-strength-bar.is-fair { background: #f59e0b; }
+.pwd-strength-bar.is-good { background: #38bdf8; }
+.pwd-strength-bar.is-strong { background: #10b981; }
+
+.pwd-strength-label {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Error/Feedback Banners */
+.auth-alert-banner {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+.auth-alert-banner.is-error {
+  display: block;
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: #fda4af;
+}
+
+.auth-alert-banner.is-success {
+  display: block;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+/* Guest Link Notice */
+.auth-guest-notice {
+  background: rgba(56, 189, 248, 0.05);
+  border: 1px dashed rgba(56, 189, 248, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin-bottom: 1.25rem;
+}
+
+.auth-guest-notice strong {
+  color: #38bdf8;
+}
+

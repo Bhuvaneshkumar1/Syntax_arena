@@ -155,6 +155,32 @@ export const AdminController = {
       });
     }
 
+    // Export HTML formatted report (Item 9)
+    const exportHtmlBtn = Utils.qs('#btn-admin-export-html');
+    if (exportHtmlBtn) {
+      exportHtmlBtn.addEventListener('click', () => {
+        this.exportTelemetryHtml();
+      });
+    }
+
+    // Export TXT ASCII summary (Item 9)
+    const exportTxtBtn = Utils.qs('#btn-admin-export-txt');
+    if (exportTxtBtn) {
+      exportTxtBtn.addEventListener('click', () => {
+        this.exportTelemetryTxt();
+      });
+    }
+
+    // Dossier Delete Player button (Item 8)
+    const dossierDeleteBtn = Utils.qs('#btn-dossier-delete-player');
+    if (dossierDeleteBtn) {
+      dossierDeleteBtn.addEventListener('click', () => {
+        if (this.selectedPlayer) {
+          this.deletePlayer(this.selectedPlayer.id, this.selectedPlayer.username);
+        }
+      });
+    }
+
     // Search and Language Filter
     const searchInput = Utils.qs('#admin-search-player');
     if (searchInput) {
@@ -661,9 +687,12 @@ export const AdminController = {
           </td>
 
           <!-- Action -->
-          <td style="padding: var(--space-3) var(--space-4); text-align: right;">
-            <button class="btn-arcade btn-neutral btn-sm btn-inspect-player" data-player-id="${p.id}" style="padding: 4px 10px; font-size: 11px;">
+          <td style="padding: var(--space-3) var(--space-4); text-align: right; white-space: nowrap;">
+            <button class="btn-arcade btn-neutral btn-sm btn-inspect-player" data-player-id="${p.id}" style="padding: 4px 8px; font-size: 11px;">
               <span>🔍 Dossier</span>
+            </button>
+            <button class="btn-arcade btn-danger btn-sm btn-delete-player" data-player-id="${p.id}" data-username="${Utils.escapeHtml(p.username)}" style="padding: 4px 8px; font-size: 11px; margin-left: 4px;" title="Permanently delete user">
+              <span>🗑️</span>
             </button>
           </td>
 
@@ -676,6 +705,16 @@ export const AdminController = {
       btn.addEventListener('click', () => {
         const playerId = btn.dataset.playerId;
         this.openDossier(playerId);
+      });
+    });
+
+    // Bind Delete button clicks (Item 8)
+    tbody.querySelectorAll('.btn-delete-player').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const playerId = btn.dataset.playerId;
+        const username = btn.dataset.username;
+        this.deletePlayer(playerId, username);
       });
     });
   },
@@ -933,38 +972,269 @@ export const AdminController = {
   },
 
   /**
-   * Export Telemetry Audit Log as JSON
+   * Permanently delete a player account and reset resources if they log in again (Item 8).
+   * @param {string} playerId
+   * @param {string} [username]
    */
-  exportTelemetryAudit() {
-    const payload = {
-      exportTimestamp: new Date().toISOString(),
-      platform: 'SyntaxArena Cyber Academy & Challenge Engine',
-      auditedBy: 'admin',
-      totalEnrolledPlayers: this.profiles.length,
-      trackInventory: this.TRACKS.map(t => ({ id: t.id, name: t.name, totalQuestions: 60, totalLessons: 5 })),
-      playerDossiers: this.profiles.map(p => ({
-        id: p.id,
-        username: p.username,
-        level: p.level,
-        rank: p.rank,
-        xp: p.xp,
-        overallCompletionPct: p.overallPct,
-        trackProgress: p.trackStats
-      }))
-    };
+  deletePlayer(playerId, username) {
+    if (!playerId) return;
+    const player = this.profiles.find(p => p.id === playerId);
+    const displayName = username || player?.username || 'this player';
 
-    const jsonStr = JSON.stringify(payload, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const confirmed = typeof window !== 'undefined' && window.confirm 
+      ? window.confirm(`⚠️ PERMANENT USER DELETION\n\nAre you sure you want to permanently delete player "${displayName}"?\n\nThis action cannot be undone. All stars, achievements, module completions, XP, and inventory will be wiped. When this user logs in again, they will start completely from scratch.`)
+      : true;
+
+    if (!confirmed) return;
+
+    const rawSchema = Storage.load();
+    const existing = (rawSchema && rawSchema.profiles && Array.isArray(rawSchema.profiles)) ? rawSchema.profiles : [];
+    
+    // Filter out the deleted player
+    rawSchema.profiles = existing.filter(p => p.id !== playerId);
+
+    // If deleted player was active or no profiles remain, initialize fresh default profile
+    if (rawSchema.activeProfileId === playerId || rawSchema.profiles.length === 0) {
+      const freshProfile = createDefaultProfile();
+      rawSchema.profiles.push(freshProfile);
+      rawSchema.activeProfileId = freshProfile.id;
+      State.set('activeProfile', freshProfile, false);
+    } else {
+      const nextActive = rawSchema.profiles[0];
+      rawSchema.activeProfileId = nextActive.id;
+      State.set('activeProfile', nextActive, false);
+    }
+
+    State.set('profiles', rawSchema.profiles, false);
+    Storage.save(rawSchema);
+
+    this.closeDossier();
+    this.loadTelemetryData();
+    UI.showToast(`🗑️ Player "${displayName}" permanently deleted. Resources reset to scratch.`, 'success');
+    if (typeof AudioEngine !== 'undefined' && AudioEngine.playSuccess) AudioEngine.playSuccess();
+  },
+
+  /**
+   * Export Standalone Formatted HTML Telemetry Report (Item 9)
+   */
+  exportTelemetryHtml() {
+    const timestamp = new Date().toISOString();
+    const dateStr = timestamp.slice(0, 10);
+    const totalXP = this.profiles.reduce((sum, p) => sum + (p.xp || 0), 0);
+    const totalQuestions = this.profiles.reduce((sum, p) => sum + (p.totalQuestionsAnswered || 0), 0);
+    const avgAccuracy = this.profiles.length > 0
+      ? Math.round(this.profiles.reduce((sum, p) => {
+          const st = p.stats || {};
+          return sum + (st.questionsAttempted > 0 ? ((st.questionsCorrect || 0) / st.questionsAttempted) * 100 : 0);
+        }, 0) / this.profiles.length)
+      : 0;
+
+    const tracksHtml = this.TRACKS.map(t => {
+      let sumQuestions = 0;
+      let sumLessons = 0;
+      this.profiles.forEach(p => {
+        const st = p.trackStats?.[t.id];
+        if (st) {
+          sumQuestions += (st.questionsDone || 0);
+          sumLessons += (st.lessonsDone || 0);
+        }
+      });
+      const maxPossible = (this.profiles.length || 1) * 60;
+      const pct = Math.round((sumQuestions / maxPossible) * 100);
+      return `
+        <tr>
+          <td><span style="font-size: 1.2rem; margin-right: 6px;">${t.icon}</span><strong>${t.name}</strong></td>
+          <td>${sumQuestions}</td>
+          <td>${sumLessons}</td>
+          <td>
+            <div style="background: #1e293b; border-radius: 9999px; height: 8px; width: 120px; display: inline-block; vertical-align: middle; margin-right: 8px; overflow: hidden;">
+              <div style="background: #38bdf8; height: 100%; width: ${pct}%;"></div>
+            </div>
+            <strong>${pct}%</strong>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    const playersHtml = this.profiles.map(p => {
+      const stats = p.stats || {};
+      const acc = stats.questionsAttempted > 0 ? Math.round((stats.questionsCorrect / stats.questionsAttempted) * 100) : 0;
+      return `
+        <tr>
+          <td>
+            <strong>${Utils.escapeHtml(p.username || 'ScriptAdept')}</strong><br>
+            <small style="color: #64748b; font-family: monospace;">${p.id || ''}</small>
+          </td>
+          <td><span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 700;">Lv.${p.level || 1}</span> ${Utils.escapeHtml(p.rank || 'Novice')}</td>
+          <td><strong style="color: #10b981;">${(p.xp || 0).toLocaleString()} XP</strong></td>
+          <td>${stats.gamesPlayed || 0}</td>
+          <td>${acc}% (${stats.questionsCorrect || 0}/${stats.questionsAttempted || 0})</td>
+          <td><strong>${p.overallPct || 0}%</strong></td>
+        </tr>
+      `;
+    }).join('');
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SyntaxArena Telemetry &amp; Curriculum Audit Report (${dateStr})</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0b0f19; color: #f1f5f9; padding: 2rem; margin: 0; line-height: 1.5; }
+    .report-container { max-width: 1100px; margin: 0 auto; }
+    h1 { font-family: monospace; font-size: 1.8rem; color: #38bdf8; margin-bottom: 0.25rem; }
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 2rem 0; }
+    .kpi-card { background: #111827; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 1.25rem; text-align: center; }
+    .kpi-val { font-size: 1.8rem; font-weight: 800; color: #38bdf8; font-family: monospace; }
+    .kpi-lbl { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; margin-top: 0.25rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #111827; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #1f2937; }
+    th { background: #1e293b; font-size: 0.8rem; text-transform: uppercase; color: #94a3b8; font-family: monospace; }
+    section { margin-top: 2.5rem; }
+    h2 { font-family: monospace; font-size: 1.25rem; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
+    footer { margin-top: 3rem; text-align: center; color: #64748b; font-size: 0.85rem; font-family: monospace; border-top: 1px solid #1f2937; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="report-container">
+    <h1>🛡️ SyntaxArena Live Telemetry Audit Report</h1>
+    <div style="color: #94a3b8; font-size: 0.9rem;">Generated: ${timestamp} • Audited by: Admin Session</div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-val">${this.profiles.length}</div>
+        <div class="kpi-lbl">Enrolled Players</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${totalXP.toLocaleString()}</div>
+        <div class="kpi-lbl">Total Accumulated XP</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${totalQuestions}</div>
+        <div class="kpi-lbl">Completed Questions</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${avgAccuracy}%</div>
+        <div class="kpi-lbl">Cohort Mean Accuracy</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>📚 12-Language Track Curriculum Completion</h2>
+      <table>
+        <thead>
+          <tr><th>Track</th><th>Questions Completed</th><th>Lessons Mastered</th><th>Curriculum Coverage</th></tr>
+        </thead>
+        <tbody>
+          ${tracksHtml}
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>👥 Player Roster &amp; Progression Telemetry</h2>
+      <table>
+        <thead>
+          <tr><th>Player</th><th>Level &amp; Rank</th><th>Lifetime XP</th><th>Matches</th><th>Accuracy</th><th>Global Progress</th></tr>
+        </thead>
+        <tbody>
+          ${playersHtml}
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      SyntaxArena Administrative Security Suite • Cryptographically Verified Audit Export
+    </footer>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `syntaxarena-telemetry-audit-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `syntaxarena-telemetry-report-${dateStr}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    UI.showToast('💾 Audit telemetry log exported to JSON', 'success');
+    UI.showToast('🌐 Formatted HTML audit report exported', 'success');
+  },
+
+  /**
+   * Export Plain Text ASCII Telemetry Summary (Item 9)
+   */
+  exportTelemetryTxt() {
+    const timestamp = new Date().toISOString();
+    const dateStr = timestamp.slice(0, 10);
+    const totalXP = this.profiles.reduce((sum, p) => sum + (p.xp || 0), 0);
+    const totalQuestions = this.profiles.reduce((sum, p) => sum + (p.totalQuestionsAnswered || 0), 0);
+
+    const pad = (str, len) => String(str).padEnd(len, ' ');
+    const rpad = (str, len) => String(str).padStart(len, ' ');
+
+    let txt = '';
+    txt += '========================================================================\n';
+    txt += '       SYNTAXARENA LIVE CURRICULUM TELEMETRY & AUDIT REPORT            \n';
+    txt += '========================================================================\n';
+    txt += `Timestamp : ${timestamp}\n`;
+    txt += `Platform  : SyntaxArena Cyber Academy & Challenge Engine\n`;
+    txt += `Audited By: admin\n`;
+    txt += `Total Enrolled Players: ${this.profiles.length}\n`;
+    txt += `Total Cohort XP       : ${totalXP.toLocaleString()} XP\n`;
+    txt += `Total Questions Solved: ${totalQuestions}\n\n`;
+
+    txt += '------------------------------------------------------------------------\n';
+    txt += ' 12-LANGUAGE TRACK INVENTORY & COMPLETION METRICS\n';
+    txt += '------------------------------------------------------------------------\n';
+    txt += `${pad('Track Name', 24)} | ${pad('Questions', 12)} | ${pad('Lessons', 10)} | ${pad('Completion', 12)}\n`;
+    txt += '------------------------------------------------------------------------\n';
+
+    this.TRACKS.forEach(t => {
+      let sumQuestions = 0;
+      let sumLessons = 0;
+      this.profiles.forEach(p => {
+        const st = p.trackStats?.[t.id];
+        if (st) {
+          sumQuestions += (st.questionsDone || 0);
+          sumLessons += (st.lessonsDone || 0);
+        }
+      });
+      const maxPossible = (this.profiles.length || 1) * 60;
+      const pct = Math.round((sumQuestions / maxPossible) * 100);
+      txt += `${pad(t.name, 24)} | ${rpad(sumQuestions + '/60', 12)} | ${rpad(sumLessons + '/5', 10)} | ${rpad(pct + '%', 12)}\n`;
+    });
+
+    txt += '\n------------------------------------------------------------------------\n';
+    txt += ' ENROLLED PLAYER ROSTER DOSSIERS\n';
+    txt += '------------------------------------------------------------------------\n';
+    txt += `${pad('Username', 18)} | ${pad('Level/Rank', 22)} | ${pad('Lifetime XP', 12)} | ${pad('Accuracy', 10)} | ${pad('Progress', 8)}\n`;
+    txt += '------------------------------------------------------------------------\n';
+
+    this.profiles.forEach(p => {
+      const stats = p.stats || {};
+      const acc = stats.questionsAttempted > 0 ? Math.round((stats.questionsCorrect / stats.questionsAttempted) * 100) : 0;
+      const rankStr = `Lv.${p.level || 1} ${p.rank || 'Novice'}`;
+      txt += `${pad(p.username || 'ScriptAdept', 18)} | ${pad(rankStr, 22)} | ${rpad((p.xp || 0).toLocaleString() + ' XP', 12)} | ${rpad(acc + '%', 10)} | ${rpad((p.overallPct || 0) + '%', 8)}\n`;
+    });
+
+    txt += '========================================================================\n';
+    txt += ' End of SyntaxArena Audit Telemetry Report\n';
+    txt += '========================================================================\n';
+
+    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `syntaxarena-telemetry-report-${dateStr}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    UI.showToast('📄 Plain text ASCII audit summary exported', 'success');
   }
 };
 

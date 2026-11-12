@@ -16,7 +16,7 @@ export const Router = {
     // 1. Authoritative check: data-page on body tag
     if (typeof document !== 'undefined' && document.body) {
       const bodyPage = document.body.getAttribute('data-page');
-      if (bodyPage && ['index', 'game', 'results', 'progress', 'settings', 'learn'].includes(bodyPage)) {
+      if (bodyPage && ['index', 'game', 'results', 'progress', 'settings', 'learn', 'memory-games', 'privacy', 'terms', 'admin'].includes(bodyPage)) {
         return bodyPage;
       }
     }
@@ -86,6 +86,14 @@ export const Router = {
         return 'progress';
       }
 
+      if (last === 'privacy' || last === 'privacy.html' || path.endsWith('privacy.html') || path.endsWith('/privacy')) {
+        return 'privacy';
+      }
+
+      if (last === 'terms' || last === 'terms.html' || path.endsWith('terms.html') || path.endsWith('/terms')) {
+        return 'terms';
+      }
+
       if (last === 'settings' || last === 'settings.html' ||
           path.endsWith('settings.html') || path.endsWith('/settings') || path.includes('/settings') ||
           hash.includes('/settings')) {
@@ -108,6 +116,7 @@ export const Router = {
    */
   maskUrlWithUUID(pageType) {
     if (typeof window === 'undefined' || !window.history || !window.history.replaceState) return;
+    if (['privacy', 'terms', 'admin'].includes(pageType)) return;
     try {
       const uuid = (typeof crypto !== 'undefined' && crypto.randomUUID)
         ? crypto.randomUUID()

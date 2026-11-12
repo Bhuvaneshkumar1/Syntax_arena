@@ -101,13 +101,14 @@ class ProceduralAudioEngine {
      ========================================================================== */
 
   /**
-   * Tactile mechanical switch click (delegates to Battlestation switch engine or synthesizes fallback).
+   * Tactile mechanical switch click with mode-specific acoustic profiles (Item 4).
+   * @param {'default'|'boss'|'duel'|'memory'} [variant='default']
    */
-  playClick() {
+  playClick(variant = 'default') {
     const vol = this._getVolume();
     if (vol <= 0) return;
 
-    if (typeof window !== 'undefined' && window.BattlestationEngine && typeof window.BattlestationEngine.playSwitchSound === 'function') {
+    if (variant === 'default' && typeof window !== 'undefined' && window.BattlestationEngine && typeof window.BattlestationEngine.playSwitchSound === 'function') {
       window.BattlestationEngine.playSwitchSound(null, vol);
       return;
     }
@@ -117,6 +118,66 @@ class ProceduralAudioEngine {
 
     try {
       const now = ctx.currentTime;
+
+      if (variant === 'boss') {
+        // Heavy industrial punch + hydraulic sub-thump
+        const punchOsc = ctx.createOscillator();
+        const punchGain = ctx.createGain();
+        punchOsc.type = 'sawtooth';
+        punchOsc.frequency.setValueAtTime(450, now);
+        punchOsc.frequency.exponentialRampToValueAtTime(110, now + 0.022);
+        punchGain.gain.setValueAtTime(vol * 0.45, now);
+        punchGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+        punchOsc.connect(punchGain);
+        punchGain.connect(ctx.destination);
+        punchOsc.start(now);
+        punchOsc.stop(now + 0.028);
+
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(120, now);
+        subOsc.frequency.exponentialRampToValueAtTime(42, now + 0.045);
+        subGain.gain.setValueAtTime(vol * 0.4, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.048);
+        subOsc.connect(subGain);
+        subGain.connect(ctx.destination);
+        subOsc.start(now);
+        subOsc.stop(now + 0.05);
+        return;
+      }
+
+      if (variant === 'duel') {
+        // High-tech plasma laser chirp
+        const laserOsc = ctx.createOscillator();
+        const laserGain = ctx.createGain();
+        laserOsc.type = 'sine';
+        laserOsc.frequency.setValueAtTime(2800, now);
+        laserOsc.frequency.exponentialRampToValueAtTime(480, now + 0.016);
+        laserGain.gain.setValueAtTime(vol * 0.32, now);
+        laserGain.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
+        laserOsc.connect(laserGain);
+        laserGain.connect(ctx.destination);
+        laserOsc.start(now);
+        laserOsc.stop(now + 0.02);
+        return;
+      }
+
+      if (variant === 'memory') {
+        // Crystalline glass droplet tap
+        const glassOsc = ctx.createOscillator();
+        const glassGain = ctx.createGain();
+        glassOsc.type = 'sine';
+        glassOsc.frequency.setValueAtTime(1600, now);
+        glassOsc.frequency.exponentialRampToValueAtTime(750, now + 0.02);
+        glassGain.gain.setValueAtTime(vol * 0.25, now);
+        glassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+        glassOsc.connect(glassGain);
+        glassGain.connect(ctx.destination);
+        glassOsc.start(now);
+        glassOsc.stop(now + 0.028);
+        return;
+      }
 
       // 1. Transient click snap (1800Hz -> 700Hz in 8ms)
       const snapOsc = ctx.createOscillator();
@@ -480,19 +541,38 @@ class ProceduralAudioEngine {
   }
 
   /**
-   * Start procedural ambient background music.
-   * Respects user settings and browser audio state.
+   * Return currently playing music mode ('normal', 'boss', 'duel', 'memory').
+   * @returns {string}
    */
-  startMusic() {
+  getMusicMode() {
+    return this._musicMode || 'normal';
+  }
+
+  /**
+   * Start procedural background music with mode-specific musical character (Item 4).
+   * Modes supported:
+   * - 'normal': Ambient lo-fi cyber pads (Dm7 -> G7 -> Cmaj7 -> Am7)
+   * - 'boss': Driving industrial Phrygian bass synth (sawtooth + resonant sub-pulse)
+   * - 'duel': High-tension cyber arpeggiator (16th-note staccato synth pulse at 135 BPM)
+   * - 'memory': Meditative crystalline bell pads (pentatonic ethereal chimes)
+   * @param {'normal'|'boss'|'duel'|'memory'} [mode='normal']
+   */
+  startMusic(mode = 'normal') {
     const vol = this._getMusicVolume();
     if (vol <= 0) {
       this.stopMusic();
       return;
     }
 
-    if (this._musicPlaying) {
+    // If already playing the requested mode, just update volume
+    if (this._musicPlaying && this._musicMode === mode) {
       this.setMusicVolume(vol);
       return;
+    }
+
+    // If changing mode while playing, stop existing loops smoothly
+    if (this._musicPlaying && this._musicMode !== mode) {
+      this.stopMusic();
     }
 
     const ctx = this._getContext();
@@ -500,17 +580,150 @@ class ProceduralAudioEngine {
 
     try {
       this._musicPlaying = true;
+      this._musicMode = mode;
+      this._musicChordIndex = 0;
 
       // Master music gain node
       this._musicGain = ctx.createGain();
       this._musicGain.gain.setValueAtTime(vol * 0.12, ctx.currentTime);
       this._musicGain.connect(ctx.destination);
 
-      // Ambient Cyber Chord Progression:
-      // Chord 1 (Dm7): D3 (146.8), F3 (174.6), A3 (220.0), C4 (261.6)
-      // Chord 2 (G7):  G2 (98.0),  F3 (174.6), B3 (246.9), D4 (293.7)
-      // Chord 3 (Cmaj7): C3 (130.8), E3 (164.8), G3 (196.0), B3 (246.9)
-      // Chord 4 (Am7): A2 (110.0), E3 (164.8), G3 (196.0), C4 (261.6)
+      if (mode === 'boss') {
+        // --- MODE 2: BOSS OVERDRIVE (Industrial Phrygian Bass Synth) ---
+        // Heavy Phrygian bass loop: E2 (82.4Hz), G2 (98.0Hz), F2 (87.3Hz), B1 (61.7Hz)
+        const bassNotes = [82.4, 82.4, 98.0, 87.3, 82.4, 82.4, 61.7, 87.3];
+        let stepIdx = 0;
+
+        const playBossBeat = () => {
+          if (!this._musicPlaying || !this._ctx || this._ctx.state === 'closed' || this._musicMode !== 'boss') return;
+          const freq = bassNotes[stepIdx % bassNotes.length];
+          stepIdx++;
+
+          const now = this._ctx.currentTime;
+          const dur = 0.28;
+
+          try {
+            // Aggressive saw bass
+            const osc = this._ctx.createOscillator();
+            const filter = this._ctx.createBiquadFilter();
+            const gain = this._ctx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, now);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(420, now);
+            filter.frequency.exponentialRampToValueAtTime(140, now + dur);
+            filter.Q.setValueAtTime(4.5, now);
+
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this._musicGain);
+
+            osc.start(now);
+            osc.stop(now + dur + 0.05);
+          } catch (_) {}
+        };
+
+        playBossBeat();
+        if (this._musicInterval) clearInterval(this._musicInterval);
+        this._musicInterval = setInterval(playBossBeat, 320); // ~94 BPM 8th-note pulse
+        return;
+      }
+
+      if (mode === 'duel') {
+        // --- MODE 3: 1v1 DUEL (High-Tension Cyber Arpeggiator at 135 BPM) ---
+        // Staccato 16th-note sequence: A3 (220Hz), C4 (261.6Hz), E4 (329.6Hz), G4 (392Hz), A4 (440Hz), G4, E4, C4
+        const arpNotes = [220.0, 261.6, 329.6, 392.0, 440.0, 392.0, 329.6, 261.6];
+        let arpIdx = 0;
+
+        const playDuelStep = () => {
+          if (!this._musicPlaying || !this._ctx || this._ctx.state === 'closed' || this._musicMode !== 'duel') return;
+          const freq = arpNotes[arpIdx % arpNotes.length];
+          arpIdx++;
+
+          const now = this._ctx.currentTime;
+          const dur = 0.16;
+
+          try {
+            const osc = this._ctx.createOscillator();
+            const filter = this._ctx.createBiquadFilter();
+            const gain = this._ctx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(900, now);
+            filter.Q.setValueAtTime(2.5, now);
+
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this._musicGain);
+
+            osc.start(now);
+            osc.stop(now + dur + 0.03);
+          } catch (_) {}
+        };
+
+        playDuelStep();
+        if (this._musicInterval) clearInterval(this._musicInterval);
+        this._musicInterval = setInterval(playDuelStep, 222); // 135 BPM 16th-notes
+        return;
+      }
+
+      if (mode === 'memory') {
+        // --- MODE 4: TACTILE MEMORY LAB (Meditative Ethereal Crystal Chimes) ---
+        // Pentatonic bells: E4 (329.6), G#4 (415.3), B4 (493.9), D#5 (622.3), F#5 (739.9)
+        const chimeChords = [
+          [329.6, 493.9, 622.3],
+          [415.3, 622.3, 739.9],
+          [329.6, 415.3, 493.9]
+        ];
+
+        const playMemoryChime = () => {
+          if (!this._musicPlaying || !this._ctx || this._ctx.state === 'closed' || this._musicMode !== 'memory') return;
+          const chord = chimeChords[this._musicChordIndex % chimeChords.length];
+          this._musicChordIndex++;
+
+          const now = this._ctx.currentTime;
+          const duration = 4.8;
+
+          chord.forEach((freq, idx) => {
+            try {
+              const osc = this._ctx.createOscillator();
+              const gain = this._ctx.createGain();
+              const delay = idx * 0.15;
+
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, now + delay);
+
+              gain.gain.setValueAtTime(0.001, now + delay);
+              gain.gain.linearRampToValueAtTime(0.14, now + delay + 0.8);
+              gain.gain.linearRampToValueAtTime(0.001, now + delay + duration);
+
+              osc.connect(gain);
+              gain.connect(this._musicGain);
+
+              osc.start(now + delay);
+              osc.stop(now + delay + duration + 0.2);
+            } catch (_) {}
+          });
+        };
+
+        playMemoryChime();
+        if (this._musicInterval) clearInterval(this._musicInterval);
+        this._musicInterval = setInterval(playMemoryChime, 4600);
+        return;
+      }
+
+      // --- MODE 1: NORMAL ARENA (Ambient Cyber Chord Progression) ---
       const chords = [
         [146.8, 220.0, 261.6],
         [98.0, 174.6, 246.9],
@@ -519,7 +732,7 @@ class ProceduralAudioEngine {
       ];
 
       const playChord = () => {
-        if (!this._musicPlaying || !this._ctx || this._ctx.state === 'closed') return;
+        if (!this._musicPlaying || !this._ctx || this._ctx.state === 'closed' || this._musicMode !== 'normal') return;
         const currentChord = chords[this._musicChordIndex % chords.length];
         this._musicChordIndex++;
 
@@ -560,7 +773,7 @@ class ProceduralAudioEngine {
       // Loop every 3.8 seconds for smooth chord crossfade
       if (this._musicInterval) clearInterval(this._musicInterval);
       this._musicInterval = setInterval(() => {
-        if (this._musicPlaying) {
+        if (this._musicPlaying && this._musicMode === 'normal') {
           playChord();
         } else {
           clearInterval(this._musicInterval);

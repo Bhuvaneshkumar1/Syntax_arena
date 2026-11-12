@@ -29,6 +29,57 @@ export const Utils = {
   },
 
   /**
+   * Prototype-pollution safe JSON parser.
+   * Strips __proto__, constructor, and prototype properties during parsing.
+   * @param {string} str
+   * @param {*} [fallback=null]
+   * @returns {*}
+   */
+  safeJsonParse(str, fallback = null) {
+    if (typeof str !== 'string' || !str.trim()) return fallback;
+    try {
+      return JSON.parse(str, (key, value) => {
+        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+          return undefined;
+        }
+        return value;
+      });
+    } catch (_) {
+      return fallback;
+    }
+  },
+
+  /**
+   * Deep sanitize an object to strip prototype pollution vectors and dangerous keys.
+   * @param {*} obj
+   * @returns {*}
+   */
+  sanitizeObject(obj) {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.sanitizeObject(item));
+    }
+    const clean = Object.create(null);
+    for (const [k, v] of Object.entries(obj)) {
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+      clean[k] = this.sanitizeObject(v);
+    }
+    return Object.assign({}, clean);
+  },
+
+  /**
+   * Sanitize text against control characters, null bytes, and HTML injection.
+   * @param {string} str
+   * @returns {string}
+   */
+  sanitizeText(str) {
+    if (typeof str !== 'string') return '';
+    // Strip null bytes and non-printable control characters except newline and tab
+    const clean = str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    return this.escapeHTML(clean);
+  },
+
+  /**
    * Safe document.querySelector wrapper.
    * @param {string} selector
    * @param {Element|Document} [parent=document]

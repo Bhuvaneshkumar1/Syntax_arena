@@ -46,7 +46,7 @@ export async function runGamificationTests() {
   // ------------------------------------------------------------------------
   console.log('--- 1. XP Formulas & Scoring Calculations ---');
 
-  // Beginner questions (+50 XP each)
+  // Beginner questions (+15 XP each)
   const begSummary = {
     sessionId: 'test-sess-001',
     difficulty: 'beginner',
@@ -62,9 +62,9 @@ export async function runGamificationTests() {
     ]
   };
   const begXP = Gamification.calculateSessionXP(begSummary);
-  assert(begXP === 150, 'Beginner track awards +50 XP per correct question (3 * 50 = 150 XP)', `Got: ${begXP}`);
+  assert(begXP === 45, 'Beginner track awards +15 XP per correct question (3 * 15 = 45 XP)', `Got: ${begXP}`);
 
-  // Intermediate questions (+100 XP each)
+  // Intermediate questions (+25 XP each)
   const intSummary = {
     sessionId: 'test-sess-002',
     difficulty: 'intermediate',
@@ -78,9 +78,9 @@ export async function runGamificationTests() {
     ]
   };
   const intXP = Gamification.calculateSessionXP(intSummary);
-  assert(intXP === 200, 'Intermediate track awards +100 XP per correct question (2 * 100 = 200 XP)', `Got: ${intXP}`);
+  assert(intXP === 50, 'Intermediate track awards +25 XP per correct question (2 * 25 = 50 XP)', `Got: ${intXP}`);
 
-  // Expert questions (+150 XP each)
+  // Expert questions (+40 XP each)
   const expSummary = {
     sessionId: 'test-sess-003',
     difficulty: 'expert',
@@ -94,9 +94,9 @@ export async function runGamificationTests() {
     ]
   };
   const expXP = Gamification.calculateSessionXP(expSummary);
-  assert(expXP === 300, 'Expert track awards +150 XP per correct question (2 * 150 = 300 XP)', `Got: ${expXP}`);
+  assert(expXP === 80, 'Expert track awards +40 XP per correct question (2 * 40 = 80 XP)', `Got: ${expXP}`);
 
-  // Flawless Clear Bonus (+100 XP)
+  // Flawless Clear Bonus (+30 XP)
   const flawlessSummary = {
     sessionId: 'test-sess-004',
     difficulty: 'beginner',
@@ -109,9 +109,9 @@ export async function runGamificationTests() {
     ]
   };
   const flawlessXP = Gamification.calculateSessionXP(flawlessSummary);
-  assert(flawlessXP === 250, 'Flawless run awards base XP (150) + 100 flawless bonus = 250 XP', `Got: ${flawlessXP}`);
+  assert(flawlessXP === 75, 'Flawless run awards base XP (45) + 30 flawless bonus = 75 XP', `Got: ${flawlessXP}`);
 
-  // Daily Challenge Bonus (+300 XP)
+  // Daily Challenge Bonus (+50 XP)
   const dailySummary = {
     sessionId: 'test-sess-005',
     difficulty: 'intermediate',
@@ -126,7 +126,7 @@ export async function runGamificationTests() {
     ]
   };
   const dailyXP = Gamification.calculateSessionXP(dailySummary);
-  assert(dailyXP === 700, 'Daily flawless run awards 300 (base) + 100 (flawless) + 300 (daily clear) = 700 XP', `Got: ${dailyXP}`);
+  assert(dailyXP === 155, 'Daily flawless run awards 75 (base) + 30 (flawless) + 50 (daily clear) = 155 XP', `Got: ${dailyXP}`);
 
   // Invalid / Zero correct yields 0 XP
   const zeroSummary = {
@@ -253,24 +253,24 @@ export async function runGamificationTests() {
   // ------------------------------------------------------------------------
   console.log('\n--- 4. Achievement Badges Registry & Unlock Conditions ---');
 
-  assert(ACHIEVEMENTS.length === 23, 'Achievement registry contains exactly 23 distinct badges');
+  assert(ACHIEVEMENTS.length === 33, 'Achievement registry contains exactly 33 distinct badges');
 
   const allBadgeIds = new Set(ACHIEVEMENTS.map(b => b.id));
-  assert(allBadgeIds.size === 23, 'All 23 badges have unique, stable IDs');
+  assert(allBadgeIds.size === 33, 'All 33 badges have unique, stable IDs');
 
   // Verify difficulty and tiered pricing across badges (Item 4)
   const validDiffs = ['beginner', 'intermediate', 'expert', 'master'];
   ACHIEVEMENTS.forEach(badge => {
     assert(validDiffs.includes(badge.difficulty), `Badge ${badge.id} has valid difficulty tier`);
-    assert(typeof badge.cost === 'number' && badge.cost >= 50, `Badge ${badge.id} has numeric cost >= 50`);
+    assert(typeof badge.cost === 'number' && badge.cost >= 350, `Badge ${badge.id} has numeric cost >= 350`);
     if (badge.difficulty === 'beginner') {
-      assert(badge.cost <= 80, `Beginner badge ${badge.id} cost is <= 80`);
+      assert(badge.cost <= 600, `Beginner badge ${badge.id} cost is <= 600`);
     } else if (badge.difficulty === 'intermediate') {
-      assert(badge.cost >= 90 && badge.cost <= 150, `Intermediate badge ${badge.id} cost is 90-150`);
+      assert(badge.cost >= 700 && badge.cost <= 1200, `Intermediate badge ${badge.id} cost is 700-1200`);
     } else if (badge.difficulty === 'expert') {
-      assert(badge.cost >= 180 && badge.cost <= 260, `Expert badge ${badge.id} cost is 180-260`);
+      assert(badge.cost >= 1500 && badge.cost <= 2200, `Expert badge ${badge.id} cost is 1500-2200`);
     } else if (badge.difficulty === 'master') {
-      assert(badge.cost >= 280, `Master badge ${badge.id} cost is >= 280`);
+      assert(badge.cost >= 2200, `Master badge ${badge.id} cost is >= 2200`);
     }
   });
 
@@ -334,7 +334,7 @@ export async function runGamificationTests() {
   console.log('\n--- 5. Unlockable Themes, Avatars & Challenge Modes ---');
 
   assert(UNLOCKABLE_THEMES.length === 4, 'Defines 4 themes (dark, light, amber, gold)');
-  assert(UNLOCKABLE_AVATARS.length === 6, 'Defines 6 unlockable avatars');
+  assert(UNLOCKABLE_AVATARS.length === 14, 'Defines 14 unlockable avatars');
   assert(CHALLENGE_MODES.length === 4, 'Defines 4 challenge modes');
 
   // Theme level requirements
@@ -354,7 +354,7 @@ export async function runGamificationTests() {
   assert(CHALLENGE_MODES.find(m => m.id === 'speedrun').requiredLevel === 3, 'Speedrun mode requires Level 3');
   assert(CHALLENGE_MODES.find(m => m.id === 'hardcore').requiredLevel === 5, 'Hardcore mode requires Level 5');
 
-  // Test level promotion unlocks
+  // Test level promotion unlocks (Crossing Level 2 & 3 thresholds)
   const lowLevelProfile = {
     id: 'test-low-level',
     xp: 200,
@@ -366,18 +366,13 @@ export async function runGamificationTests() {
     unlockedModes: ['campaign', 'practice']
   };
 
-  // Session providing +500 XP brings total to 700 XP -> Level 3!
+  // 10 Expert questions (10 * 40 = 400 XP) + flawless (30) = 430 XP -> Total 630 XP (Level 3!)
   const levelUpSession = {
     sessionId: 'sess-levelup-01',
     difficulty: 'expert',
-    questionsCorrect: 4,
-    totalQuestions: 4,
-    answers: [
-      { correct: true, difficulty: 'expert' },
-      { correct: true, difficulty: 'expert' },
-      { correct: true, difficulty: 'expert' },
-      { correct: true, difficulty: 'expert' }
-    ]
+    questionsCorrect: 10,
+    totalQuestions: 10,
+    answers: Array(10).fill({ correct: true, difficulty: 'expert' })
   };
   const levelUpResult = Gamification.processSessionSummary(lowLevelProfile, levelUpSession);
   assert(levelUpResult.levelUp === true, 'Level up triggered upon crossing threshold');

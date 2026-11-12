@@ -332,3 +332,140 @@ $$\text{Damage} = \left\lfloor (D_{\text{base}} + B_{\text{speed}}) \times M_{\t
   - The encounter ends with **DAEMON PURGED** victory fanfare and confetti.
   - Awards massive XP bounty (+500–650 XP).
   - Unlocks permanent Boss Slayer badge in `profile.badges` and records adversary in `profile.defeatedBosses`.
+
+---
+
+## 10. Tactile Memory Pointer Lab Mechanics
+
+The Memory Lab (`memory-games.html`) provides hands-on, hardware-level memory management arcade training through 3 distinct interactive minigames:
+
+### 10.1 Mode 1: Cable Connect ("Stack Master")
+- **Concept:** Visualizes C/C++ memory layout with Call Stack frames (LIFO) on the left and Dynamic Heap chunks on the right.
+- **Gameplay:** Drag pointer cables or click source ports (cyan) to target heap address ports (purple).
+- **Auto-Validation:** The system automatically verifies pointer topology the instant all required wire connections are placed.
+- **Scoring:** $+120$ to $+200$ base XP plus $+25\text{ XP} \times \text{Streak}$.
+
+### 10.2 Mode 2: Leak Patrol ("Heap Hunter")
+- **Concept:** Interactive Garbage Collector / Mark-and-Sweep memory audit.
+- **Gameplay:** Identify orphaned memory allocations whose root stack pointers have gone out of scope or been reassigned.
+- **Deallocation:** Click `Free Block` to deallocate leaks. Beware: deallocating an actively referenced block triggers a **Use-After-Free (UAF)** hazard and resets streak to 0!
+- **Assistance:** Use `Mark & Sweep Pulse` to inspect root references with a visual memory scan.
+
+### 10.3 Mode 3: Dereference Rush ("Segfault Defuser")
+- **Concept:** Rapid-fire memory hazard triage under a 12-second clock.
+- **Triage Categories:**
+  1. `🟢 SAFE ACCESS`: Valid memory read/write.
+  2. `🟡 NULL POINTER`: Dereferencing `0x0` or `NULL`.
+  3. `🔴 DANGLING / UAF`: Use-after-free or pointing to deallocated stack frames.
+  4. `🟣 BUFFER OVERRUN`: Reading or writing past array bounds.
+- **Timer Mechanics:** Fast answers yield up to $+60$ bonus points. 3 consecutive correct triages trigger a Combo Streak multiplier.
+
+---
+
+## 11. CyberDrill Incident Response & Diamond SLA Rewards
+
+### 11.1 Master Catalog: 20 Production Outage Scenarios
+The Cyber Security drill features 20 realistic SRE production incident scenarios covering:
+1. SQL Injection Data Exfiltration
+2. Ransomware Killswitch Activation
+3. Slowloris HTTP Exhaustion & DDoS
+4. Production Microservice Memory Leak
+5. Corrupted Production Database Migration
+6. Kubernetes Pod CrashLoopBackOff Storm
+7. SSH Brute Force Incursion & Compromised Keys
+8. Compromised S3 Bucket Data Leak
+9. Redis Cache Stampede / Dogpiling Thundering Herd
+10. Cascading Payment Gateway Circuit Breaker Failure
+11. JVM Stop-The-World Full GC Storm
+12. Kafka Consumer Group Rebalance Fever
+13. Worker Thread Pool Starvation & CPU Saturation
+14. JWT Algorithm Confusion Attack (`alg: none`)
+15. CoreDNS Resolution Timeout & Cluster Desync
+16. Cloud Metadata IMDSv1 SSRF Exploitation
+17. Linux File Descriptor Exhaustion (`EMFILE`)
+18. Go Microservice Goroutine Leak
+19. Webhook Delivery Echo Infinite Loop
+20. Database Connection Pool Exhaustion (N+1 Query Storm)
+
+### 11.2 Incident Response Rules & SLA Diamonds
+- **Allotted SLA Timer:** 3 full minutes ($180\text{s}$) with live status ticker (`ACTIVE OUTAGE`, `TRIAGING`, `STABILIZED`).
+- **Terminal Shell:** Interactive, resizable/fullscreen terminal output stream with log filtering (`ALL`, `ERRORS`, `SECURITY`).
+- **Diamond Rewards (`💎`):**
+  - Resolving an incident within SLA awards **+8 Diamonds** (`💎`) and $+350\text{ XP}$.
+  - Base stabilization awards **+5 Diamonds** (`💎`) and $+200\text{ XP}$.
+  - Diamonds are credited directly to the player profile for purchasing premium hacker cosmetics.
+- **Post-Mortem Reports:** Generates incident timeline, root cause analysis, MTTR metrics, and GitHub-ready Markdown featuring Shields.io achievement badges.
+
+---
+
+## 12. 1v1 Peer-to-Peer Battle Arena Rules
+
+### 12.1 Real-Time Multiplayer Architecture
+- Uses serverless WebRTC data channels with STUN relays. No central matchmaking server required.
+- Opponents join via 6-character room codes or QR pairing.
+
+### 12.2 Battle Mechanics & Zero-Retry Rule
+- **No Retries / No Hints:** In 1v1 duels, hints and Second Chance retries are disabled.
+- **Turnover Point Steal:** If Player 1 submits an incorrect answer, **the round point is immediately awarded to Player 2**, and vice-versa.
+- **Dedicated 60-Question Duel Catalog:** Duels pull from an independent, high-stakes question catalog distinct from single-player campaign questions.
+- **Ghost Arena:** In single-player Ghost mode, the AI ghost racer advances relentlessly without pausing, requiring swift deduction to outpace.
+
+---
+
+## 13. 7-Day Protocol Daily Streak Retention
+
+- **Daily Punch Card:** Players are encouraged to return daily to build their habit loop.
+- **7-Day Bounty Progression:**
+  - Day 1: $+50\text{ XP}$
+  - Day 2: $+80\text{ XP}$
+  - Day 3: $+120\text{ XP}$
+  - Day 4: $+160\text{ XP}$
+  - Day 5: $+220\text{ XP}$
+  - Day 6: $+280\text{ XP}$
+  - Day 7: $+350\text{ XP}$ + **5 Diamonds (`💎`)** + `Habit Titan` Achievement Badge.
+- **Streak Protection:** Missing a day resets the protocol back to Day 1, incentivizing daily deliberate practice.
+
+---
+
+## 14. Rebalanced Economy, Avatars & Badges
+
+### 14.1 Economy Calibration
+- Question points and stage rewards are calibrated to prevent catalog burnout.
+- Avatar prices range from $500\text{ XP}$ to $4,500\text{ XP}$, requiring sustained progression across multiple modes to unlock all 14 avatars.
+
+### 14.2 Master Avatar Roster (14 Total)
+1. `cyber_fox` (Default Starter)
+2. `matrix_cat` (500 XP)
+3. `binary_owl` (1,000 XP)
+4. `bitwise_bear` (1,500 XP)
+5. `pixel_penguin` (2,000 XP)
+6. `algo_rabbit` (2,500 XP)
+7. `quantum_wolf` (3,000 XP)
+8. `neon_samurai` (3,500 XP)
+9. `binary_golem` (2,800 XP)
+10. `hex_dragon` (4,000 XP)
+11. `cipher_phantom` (3,800 XP)
+12. `kernel_serpent` (4,200 XP)
+13. `glitch_bot` (3,200 XP)
+14. `void_stalker` (4,500 XP)
+
+### 14.3 Achievement Badges (33 Total)
+Categorized across 5 disciplines:
+- **Accuracy & Speed:** Flawless runs, sub-5-second answers, speed streaks.
+- **Campaign Mastery:** Tier completions across all 12 programming languages.
+- **Tactile Memory & Incident Response:** Stack Master, Heap Cleaner, Incident Commander.
+- **Multiplayer & Habit:** Duel Champion, Ghost Slayer, Habit Titan (7-Day Streak).
+- **GitHub Showcase:** Dynamic profile badge generator locks until at least 1 verified achievement badge is earned.
+
+---
+
+## 15. Administrative Governance & Telemetry Exports
+
+### 15.1 Permanent User Deletion & Reset
+- Admins can permanently delete user profiles from the roster (`🗑️`).
+- If the deleted user was active, all local resources are safely reset to defaults, allowing clean onboarding from scratch.
+
+### 15.2 Multi-Format Dossier & Telemetry Exports
+- **JSON:** Complete machine-readable state export.
+- **HTML:** Standalone, self-contained dashboard report with dark cybersecurity CSS, KPI cards, and full audit tables.
+- **TXT:** Structured ASCII telemetry report with system diagnostics and session timelines.

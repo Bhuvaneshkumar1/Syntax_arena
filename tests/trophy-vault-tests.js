@@ -178,6 +178,15 @@ export async function runTrophyVaultTests() {
     vault.inspectorRotY = 90;
     assert(vault.inspectorRotX === 25 && vault.inspectorRotY === 90, 'Inspector coordinates tracked correctly');
 
+    // Badge Studio Locked Gating (Item 6)
+    const lockedVault = new TrophyVault({
+      badges: mockBadges,
+      unlockedBadgeIds: []
+    });
+    assert(lockedVault.unlockedBadgeIds.size === 0, 'Badge studio is locked when 0 badges unlocked');
+    lockedVault.setUnlockedBadges(['b_first']);
+    assert(lockedVault.unlockedBadgeIds.size === 1, 'Badge studio unlocks when at least 1 badge is earned');
+
   } catch (err) {
     console.error('Fatal test error in TrophyVault test runner:', err);
     failed++;
@@ -196,3 +205,4 @@ if (typeof process !== 'undefined' && process.argv[1]?.includes('trophy-vault-te
     if (res.failed > 0) process.exit(1);
   });
 }
+

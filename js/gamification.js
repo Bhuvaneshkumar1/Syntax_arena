@@ -29,30 +29,38 @@ export const MAX_LEVEL = LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1].level;
 // 2. XP YIELD CONFIGURATION (docs/GAME_RULES.md §2.1)
 // =============================================================================
 export const XP_RULES = Object.freeze({
-  beginnerCorrect: 50,
-  intermediateCorrect: 100,
-  expertCorrect: 150,
-  flawlessBonus: 100,    // 100% accuracy in >= 10 questions
-  dailyClearBonus: 300   // Daily challenge clear
+  beginnerCorrect: 15,
+  intermediateCorrect: 25,
+  expertCorrect: 40,
+  flawlessBonus: 30,    // 100% accuracy in >= 10 questions
+  dailyClearBonus: 50   // Daily challenge clear
 });
 
 // =============================================================================
 // 3. COSMETICS & CHALLENGE MODES REGISTRY
 // =============================================================================
 export const UNLOCKABLE_THEMES = Object.freeze([
-  { id: 'dark',  name: 'Cyber Studio',     requiredLevel: 1,  cost: 0,   themeClass: 'dark',  description: 'Sleek neon-cyan dark arcade theme' },
-  { id: 'light', name: 'Studio Paper',     requiredLevel: 2,  cost: 100, themeClass: 'light', description: 'Crisp editorial light mode with high contrast' },
-  { id: 'amber', name: 'Amber Flame',      requiredLevel: 6,  cost: 200, themeClass: 'amber', description: 'Warm CRT amber phosphor arcade aesthetic' },
-  { id: 'gold',  name: 'Grandmaster Gold', requiredLevel: 10, cost: 350, themeClass: 'gold',  description: 'Prestige obsidian and metallic gold theme' }
+  { id: 'dark',  name: 'Cyber Studio',     requiredLevel: 1,  cost: 0,    themeClass: 'dark',  description: 'Sleek neon-cyan dark arcade theme' },
+  { id: 'light', name: 'Studio Paper',     requiredLevel: 2,  cost: 450,  themeClass: 'light', description: 'Crisp editorial light mode with high contrast' },
+  { id: 'amber', name: 'Amber Flame',      requiredLevel: 6,  cost: 1100, themeClass: 'amber', description: 'Warm CRT amber phosphor arcade aesthetic' },
+  { id: 'gold',  name: 'Grandmaster Gold', requiredLevel: 10, cost: 2500, themeClass: 'gold',  description: 'Prestige obsidian and metallic gold theme' }
 ]);
 
 export const UNLOCKABLE_AVATARS = Object.freeze([
-  { id: 'cyber_fox',    name: 'Cyber Fox',    requiredLevel: 1, symbol: '🦊', description: 'Quick, agile, and sharp-eyed.' },
-  { id: 'terminal_owl', name: 'Terminal Owl', requiredLevel: 1, symbol: '🦉', description: 'Wise systems trace analyst.' },
-  { id: 'matrix_cat',   name: 'Matrix Cat',   requiredLevel: 1, symbol: '🐱', description: 'Stealthy async bug stalker.' },
-  { id: 'bit_knight',   name: 'Bit Knight',   requiredLevel: 1, symbol: '🛡️', description: 'Resilient compiler defender.' },
-  { id: 'hex_dragon',   name: 'Hex Dragon',   requiredLevel: 4, symbol: '🐉', description: 'Fierce low-level memory lord.' },
-  { id: 'glitch_bot',   name: 'Glitch Bot',   requiredLevel: 7, symbol: '🤖', description: 'Unpredictable logic hacker.' }
+  { id: 'cyber_fox',      name: 'Cyber Fox',      requiredLevel: 1, cost: 0,    symbol: '🦊', description: 'Quick, agile, and sharp-eyed.' },
+  { id: 'terminal_owl',   name: 'Terminal Owl',   requiredLevel: 1, cost: 0,    symbol: '🦉', description: 'Wise systems trace analyst.' },
+  { id: 'matrix_cat',     name: 'Matrix Cat',     requiredLevel: 1, cost: 0,    symbol: '🐱', description: 'Stealthy async bug stalker.' },
+  { id: 'bit_knight',     name: 'Bit Knight',     requiredLevel: 1, cost: 0,    symbol: '🛡️', description: 'Resilient compiler defender.' },
+  { id: 'quantum_wolf',   name: 'Quantum Wolf',   requiredLevel: 2, cost: 450,  symbol: '🐺', description: 'Superposed predator navigating multithreaded timelines.' },
+  { id: 'neon_samurai',   name: 'Neon Samurai',   requiredLevel: 3, cost: 650,  symbol: '⚔️', description: 'Disciplined blade slicing through deadlocks.' },
+  { id: 'binary_golem',   name: 'Binary Golem',   requiredLevel: 4, cost: 850,  symbol: '🗿', description: 'Monolithic guardian forged from low-level opcode bytes.' },
+  { id: 'hex_dragon',     name: 'Hex Dragon',     requiredLevel: 4, cost: 950,  symbol: '🐉', description: 'Fierce low-level memory lord.' },
+  { id: 'cipher_phantom', name: 'Cipher Phantom', requiredLevel: 5, cost: 1200, symbol: '👻', description: 'Stealthy cryptographic ghost slipping past intrusion monitors.' },
+  { id: 'kernel_serpent', name: 'Kernel Serpent', requiredLevel: 6, cost: 1500, symbol: '🐍', description: 'Ring-0 entity coiled inside system interrupt vectors.' },
+  { id: 'glitch_bot',     name: 'Glitch Bot',     requiredLevel: 7, cost: 1800, symbol: '🤖', description: 'Unpredictable logic hacker.' },
+  { id: 'pixel_valkyrie', name: 'Pixel Valkyrie', requiredLevel: 7, cost: 2100, symbol: '⚡', description: 'Transcendent winged guardian of stack integrity.' },
+  { id: 'chrono_mage',    name: 'Chrono Mage',    requiredLevel: 8, cost: 2600, symbol: '⏳', description: 'Time-traveling debugee stepping backward through execution frames.' },
+  { id: 'void_stalker',   name: 'Void Stalker',   requiredLevel: 9, cost: 3500, symbol: '🌌', description: 'Eldritch entity dwelling in unallocated virtual memory spaces.' }
 ]);
 
 export const CHALLENGE_MODES = Object.freeze([
@@ -74,8 +82,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '⚔️',
     category: 'milestones',
     difficulty: 'beginner',
-    cost: 50,
-    price: 50,
+    cost: 350,
+    price: 350,
     evaluate: (profile, session) => {
       const correct = (profile?.stats?.questionsCorrect || 0) + (session?.questionsCorrect || 0);
       return correct >= 1;
@@ -88,8 +96,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🏁',
     category: 'milestones',
     difficulty: 'beginner',
-    cost: 50,
-    price: 50,
+    cost: 350,
+    price: 350,
     evaluate: (profile, session) => {
       return (profile?.stats?.gamesPlayed || 0) >= 1 || session?.isCompleted === true;
     }
@@ -101,8 +109,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '💯',
     category: 'milestones',
     difficulty: 'expert',
-    cost: 250,
-    price: 250,
+    cost: 2000,
+    price: 2000,
     evaluate: (profile, session) => {
       const attempted = (profile?.stats?.questionsAttempted || 0) + (session?.questionsAttempted || 0);
       return attempted >= 100;
@@ -115,8 +123,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🎖️',
     category: 'milestones',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 950,
+    price: 950,
     evaluate: (profile, session) => {
       const games = (profile?.stats?.gamesPlayed || 0) + (session?.isCompleted ? 1 : 0);
       return games >= 5;
@@ -131,8 +139,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🔹',
     category: 'streaks',
     difficulty: 'beginner',
-    cost: 60,
-    price: 60,
+    cost: 400,
+    price: 400,
     evaluate: (profile, session) => {
       return (session?.highestStreak || 0) >= 3 || (profile?.stats?.highestStreak || 0) >= 3;
     }
@@ -144,8 +152,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🔥',
     category: 'streaks',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 900,
+    price: 900,
     evaluate: (profile, session) => {
       return (session?.highestStreak || 0) >= 5 || (profile?.stats?.highestStreak || 0) >= 5;
     }
@@ -157,8 +165,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '⚡',
     category: 'streaks',
     difficulty: 'expert',
-    cost: 220,
-    price: 220,
+    cost: 1600,
+    price: 1600,
     evaluate: (profile, session) => {
       return (session?.highestStreak || 0) >= 8 || (profile?.stats?.highestStreak || 0) >= 8;
     }
@@ -172,8 +180,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🎯',
     category: 'accuracy',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 850,
+    price: 850,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.accuracy >= 75);
     }
@@ -185,8 +193,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '💎',
     category: 'accuracy',
     difficulty: 'expert',
-    cost: 250,
-    price: 250,
+    cost: 1800,
+    price: 1800,
     evaluate: (profile, session) => {
       if (!session) return false;
       const correct = session.questionsCorrect || 0;
@@ -202,8 +210,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🛡️',
     category: 'accuracy',
     difficulty: 'beginner',
-    cost: 75,
-    price: 75,
+    cost: 500,
+    price: 500,
     evaluate: (profile, session) => {
       if (session?.retriesUsed > 0 && session?.questionsCorrect > 0) return true;
       const results = session?.results || session?.answers;
@@ -217,8 +225,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '💡',
     category: 'accuracy',
     difficulty: 'intermediate',
-    cost: 100,
-    price: 100,
+    cost: 750,
+    price: 750,
     evaluate: (profile, session) => {
       return Boolean(session && (session.hintsUsed || 0) >= 3 && (session.questionsCorrect || 0) >= 3);
     }
@@ -232,8 +240,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '⏱️',
     category: 'speed',
     difficulty: 'expert',
-    cost: 220,
-    price: 220,
+    cost: 1600,
+    price: 1600,
     evaluate: (profile, session) => {
       const results = session?.results || session?.answers;
       if (!results || !Array.isArray(results)) return false;
@@ -253,8 +261,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🚀',
     category: 'speed',
     difficulty: 'intermediate',
-    cost: 130,
-    price: 130,
+    cost: 950,
+    price: 950,
     evaluate: (profile, session) => {
       if (!session?.results) return false;
       return session.results.some(r => {
@@ -271,8 +279,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🐍',
     category: 'polyglot',
     difficulty: 'beginner',
-    cost: 75,
-    price: 75,
+    cost: 500,
+    price: 500,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'python');
     }
@@ -284,8 +292,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '⚙️',
     category: 'polyglot',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 850,
+    price: 850,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'c');
     }
@@ -297,8 +305,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '⚡',
     category: 'polyglot',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 850,
+    price: 850,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'cpp');
     }
@@ -310,8 +318,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '☕',
     category: 'polyglot',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 850,
+    price: 850,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.language === 'java');
     }
@@ -323,8 +331,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '👑',
     category: 'polyglot',
     difficulty: 'master',
-    cost: 350,
-    price: 350,
+    cost: 2500,
+    price: 2500,
     evaluate: (profile, session) => {
       const camp = profile?.campaign || {};
       const languages = ['python', 'c', 'cpp', 'java'];
@@ -345,8 +353,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🔥',
     category: 'modes',
     difficulty: 'expert',
-    cost: 200,
-    price: 200,
+    cost: 1500,
+    price: 1500,
     evaluate: (profile) => {
       return (profile?.level || 1) >= 5;
     }
@@ -358,8 +366,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🖤',
     category: 'modes',
     difficulty: 'master',
-    cost: 300,
-    price: 300,
+    cost: 2200,
+    price: 2200,
     evaluate: (profile, session) => {
       return Boolean(session && session.isCompleted && session.mode === 'hardcore' && (session.lives === undefined || session.lives > 0));
     }
@@ -373,8 +381,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🎓',
     category: 'academy',
     difficulty: 'beginner',
-    cost: 60,
-    price: 60,
+    cost: 450,
+    price: 450,
     evaluate: (profile) => {
       return Boolean(profile && Array.isArray(profile.completedLessons) && profile.completedLessons.length >= 1);
     }
@@ -386,8 +394,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '📜',
     category: 'academy',
     difficulty: 'intermediate',
-    cost: 120,
-    price: 120,
+    cost: 900,
+    price: 900,
     evaluate: (profile) => {
       return Boolean(profile && Array.isArray(profile.completedLessons) && profile.completedLessons.length >= 5);
     }
@@ -399,8 +407,8 @@ export const ACHIEVEMENTS = Object.freeze([
     icon: '🌐',
     category: 'academy',
     difficulty: 'expert',
-    cost: 220,
-    price: 220,
+    cost: 1600,
+    price: 1600,
     evaluate: (profile) => {
       if (!profile || !Array.isArray(profile.completedLessons)) return false;
       const langs = new Set();
@@ -409,6 +417,144 @@ export const ACHIEVEMENTS = Object.freeze([
         if (prefix) langs.add(prefix);
       });
       return langs.size >= 3;
+    }
+  },
+
+  // --- Category: CyberDrill & Outage Response ---
+  {
+    id: 'cyber_sre_tier1',
+    name: 'SRE First Responder',
+    description: 'Resolve your first production outage incident in CyberDrill.',
+    icon: '🚨',
+    category: 'cyber',
+    difficulty: 'beginner',
+    cost: 450,
+    price: 450,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.resolvedIncidentsCount || profile.stats?.resolvedIncidents || 0) >= 1);
+    }
+  },
+  {
+    id: 'cyber_sre_master',
+    name: 'Site Reliability Master',
+    description: 'Resolve 5 production incidents within the 3-minute SLA window.',
+    icon: '🛡️',
+    category: 'cyber',
+    difficulty: 'expert',
+    cost: 1800,
+    price: 1800,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.resolvedIncidentsCount || profile.stats?.resolvedIncidents || 0) >= 5);
+    }
+  },
+
+  // --- Category: Tactile Memory Lab ---
+  {
+    id: 'memory_wire_initiate',
+    name: 'Stack Wirer',
+    description: 'Successfully route pointers in Tactile Memory Lab Cable Connect.',
+    icon: '🔌',
+    category: 'memory',
+    difficulty: 'beginner',
+    cost: 400,
+    price: 400,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.memoryLabScore || 0) >= 50);
+    }
+  },
+  {
+    id: 'memory_leak_cleaner',
+    name: 'Heap Sweeper',
+    description: 'Reclaim orphaned memory allocations in Leak Patrol.',
+    icon: '🧹',
+    category: 'memory',
+    difficulty: 'intermediate',
+    cost: 850,
+    price: 850,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.reclaimedHeapBlocks || 0) >= 5);
+    }
+  },
+  {
+    id: 'segfault_defuser_ace',
+    name: 'Segfault Defuser',
+    description: 'Accurately triage invalid memory accesses in Dereference Rush.',
+    icon: '⚡',
+    category: 'memory',
+    difficulty: 'expert',
+    cost: 1600,
+    price: 1600,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.defusedPointers || 0) >= 10);
+    }
+  },
+
+  // --- Category: Duels & Competition ---
+  {
+    id: 'duel_gladiator',
+    name: '1v1 Gladiator',
+    description: 'Achieve victory in a live peer-to-peer code duel.',
+    icon: '⚔️',
+    category: 'duel',
+    difficulty: 'intermediate',
+    cost: 950,
+    price: 950,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.duelWins || 0) >= 1);
+    }
+  },
+
+  // --- Category: Daily Protocol & Economy ---
+  {
+    id: 'habit_titan',
+    name: '7-Day Protocol',
+    description: 'Maintain an unbroken 7-day daily training streak.',
+    icon: '🗓️',
+    category: 'daily',
+    difficulty: 'master',
+    cost: 2500,
+    price: 2500,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.dayStreak || 0) >= 7);
+    }
+  },
+  {
+    id: 'diamond_collector',
+    name: 'Diamond Vault',
+    description: 'Accumulate 25 Cyber Diamonds from incident drills and daily streaks.',
+    icon: '💎',
+    category: 'daily',
+    difficulty: 'intermediate',
+    cost: 1100,
+    price: 1100,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.diamonds || 0) >= 25);
+    }
+  },
+  {
+    id: 'terminal_hacker',
+    name: 'Shell Commander',
+    description: 'Execute 20 interactive terminal commands in the cyber sandbox.',
+    icon: '💻',
+    category: 'cyber',
+    difficulty: 'beginner',
+    cost: 500,
+    price: 500,
+    evaluate: (profile) => {
+      return Boolean(profile && (profile.terminalCommandsRun || 0) >= 20);
+    }
+  },
+  {
+    id: 'trophy_collector',
+    name: 'Trophy Connoisseur',
+    description: 'Unlock 10 distinct cartridge trophies in the 3D Vault.',
+    icon: '🏆',
+    category: 'milestones',
+    difficulty: 'master',
+    cost: 3000,
+    price: 3000,
+    evaluate: (profile) => {
+      return Boolean(profile && Array.isArray(profile.unlockedAchievements) && profile.unlockedAchievements.length >= 10);
     }
   }
 ]);

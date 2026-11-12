@@ -45,6 +45,14 @@ export const BossEngine = {
     this.clearActiveGlitch();
 
     console.info(`[BossEngine] Initialized Boss Encounter: ${boss.name} (${this.maxHp} HP)`);
+
+    // Switch background music to Driving Boss Battle mode (Item 4)
+    try {
+      if (typeof AudioEngine !== 'undefined' && typeof AudioEngine.startMusic === 'function') {
+        AudioEngine.startMusic('boss');
+      }
+    } catch (_) {}
+
     return this.getStatus();
   },
 

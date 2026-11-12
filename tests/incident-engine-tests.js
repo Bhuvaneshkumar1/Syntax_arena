@@ -28,7 +28,7 @@ export function runIncidentEngineTests() {
   // --- 1. Incident Scenario Inventory ---
   console.log('--- 1. Incident Scenario Inventory ---');
   const allScenarios = IncidentScenarios.getAll();
-  assert(allScenarios.length === 8, 'Master catalog contains exactly 8 incident scenarios');
+  assert(allScenarios.length >= 20, 'Master catalog contains at least 20 incident scenarios (Item 19)');
 
   const memOutage = IncidentScenarios.getById('inc_memory_leak');
   assert(memOutage !== null && memOutage.severity === 'SEV-1', 'Loaded Memory Sink Outage (SEV-1)');
@@ -103,11 +103,13 @@ export function runIncidentEngineTests() {
   assert(postMortem.isResolved === true, 'Post-mortem confirms outage resolved');
   assert(postMortem.isSlaMet === true, 'Post-mortem tracks SLA compliance');
   assert(postMortem.score >= 300, 'Awards Incident Commander XP bounty (>= 300 pts)');
+  assert(postMortem.diamondsAwarded >= 5, 'Awards at least 5 diamonds on resolution (Item 18)');
   assert(postMortem.preventedCostUSD > 10000, 'Calculates downtime cost prevented ($USD)');
   assert(Array.isArray(postMortem.timeline) && postMortem.timeline.length === 3, 'Post-mortem includes 3 incident timeline checkpoints');
 
   const mdReport = IncidentEngine.generateMarkdownReport();
   assert(typeof mdReport === 'string' && mdReport.includes('SRE Incident Post-Mortem'), 'Markdown report card generated for clipboard sharing');
+  assert(mdReport.includes('img.shields.io'), 'Markdown report contains embeddable GitHub shields.io badges (Item 20)');
   assert(mdReport.includes('Root Cause Analysis'), 'Markdown report contains Root Cause Analysis');
 
   console.log(`\n============================================================`);

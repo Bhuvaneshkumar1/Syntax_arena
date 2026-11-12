@@ -160,7 +160,6 @@ export const SandboxManager = {
         .then(() => {
           this.isLoaded = true;
           this.isLoading = false;
-          console.log('[SandboxManager] Client-side Python 3 engine initialized successfully.');
           resolve(true);
         })
         .catch(err => {
@@ -1101,7 +1100,10 @@ export const SandboxManager = {
     let error = null;
 
     try {
-      const result = new Function(`"use strict"; ${code}`)();
+      const shadowNames = ['window', 'document', 'localStorage', 'sessionStorage', 'indexedDB', 'fetch', 'XMLHttpRequest', 'WebSocket', 'top', 'parent', 'location'];
+      const shadowValues = shadowNames.map(() => undefined);
+      const runner = new Function(...shadowNames, `"use strict";\n${code}`);
+      const result = runner(...shadowValues);
       if (result !== undefined) {
         stdout.push(`=> ${typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result)}`);
       }

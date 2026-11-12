@@ -3502,6 +3502,8 @@ export const Gameplay = {
     }
     if (costEl) costEl.textContent = `$${costPrevented.toLocaleString()}`;
     if (xpEl) xpEl.textContent = `+${scoreVal} XP`;
+    const diamondsEl = Utils.qs('#incident-pm-diamonds');
+    if (diamondsEl) diamondsEl.textContent = `+${pm.diamondsAwarded || 5} 💎`;
 
     if (rootCauseEl) rootCauseEl.textContent = pm.rootCause;
     if (hotfixEl) hotfixEl.textContent = pm.hotfixApplied;
@@ -3541,6 +3543,16 @@ export const Gameplay = {
         if (typeof IncidentEngine !== 'undefined') {
           this._renderIncidentLogs(IncidentEngine.getStreamingLogs());
         }
+      });
+    }
+
+    // Fullscreen Outage Screen toggle (Item 18)
+    const fsToggleBtn = Utils.qs('#btn-toggle-incident-fullscreen');
+    const hudMonitor = Utils.qs('#hud-incident-monitor');
+    if (fsToggleBtn && hudMonitor) {
+      fsToggleBtn.addEventListener('click', () => {
+        const isFs = hudMonitor.classList.toggle('is-fullscreen');
+        fsToggleBtn.textContent = isFs ? '🗗 Exit Fullscreen' : '⛶ Fullscreen';
       });
     }
 

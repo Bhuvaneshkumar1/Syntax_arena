@@ -9,12 +9,20 @@ import { State } from './state.js';
 import { Gamification } from './gamification.js';
 
 export const AVATAR_CATALOG = [
-  { id: 'cyber_fox',    name: 'Cyber Fox',    requiredLevel: 1, symbol: '🦊', description: 'Quick, agile, and sharp-eyed.' },
-  { id: 'terminal_owl', name: 'Terminal Owl', requiredLevel: 1, symbol: '🦉', description: 'Wise systems trace analyst.' },
-  { id: 'matrix_cat',   name: 'Matrix Cat',   requiredLevel: 1, symbol: '🐱', description: 'Stealthy async bug stalker.' },
-  { id: 'bit_knight',   name: 'Bit Knight',   requiredLevel: 1, symbol: '🛡️', description: 'Resilient compiler defender.' },
-  { id: 'hex_dragon',   name: 'Hex Dragon',   requiredLevel: 4, symbol: '🐉', description: 'Fierce low-level memory lord.' },
-  { id: 'glitch_bot',   name: 'Glitch Bot',   requiredLevel: 7, symbol: '🤖', description: 'Unpredictable logic hacker.' }
+  { id: 'cyber_fox',      name: 'Cyber Fox',      requiredLevel: 1, cost: 0,    symbol: '🦊', description: 'Quick, agile, and sharp-eyed.' },
+  { id: 'terminal_owl',   name: 'Terminal Owl',   requiredLevel: 1, cost: 0,    symbol: '🦉', description: 'Wise systems trace analyst.' },
+  { id: 'matrix_cat',     name: 'Matrix Cat',     requiredLevel: 1, cost: 0,    symbol: '🐱', description: 'Stealthy async bug stalker.' },
+  { id: 'bit_knight',     name: 'Bit Knight',     requiredLevel: 1, cost: 0,    symbol: '🛡️', description: 'Resilient compiler defender.' },
+  { id: 'quantum_wolf',   name: 'Quantum Wolf',   requiredLevel: 2, cost: 450,  symbol: '🐺', description: 'Superposed predator navigating multithreaded timelines.' },
+  { id: 'neon_samurai',   name: 'Neon Samurai',   requiredLevel: 3, cost: 650,  symbol: '⚔️', description: 'Disciplined blade slicing through deadlocks.' },
+  { id: 'binary_golem',   name: 'Binary Golem',   requiredLevel: 4, cost: 850,  symbol: '🗿', description: 'Monolithic guardian forged from low-level opcode bytes.' },
+  { id: 'hex_dragon',     name: 'Hex Dragon',     requiredLevel: 4, cost: 950,  symbol: '🐉', description: 'Fierce low-level memory lord.' },
+  { id: 'cipher_phantom', name: 'Cipher Phantom', requiredLevel: 5, cost: 1200, symbol: '👻', description: 'Stealthy cryptographic ghost slipping past intrusion monitors.' },
+  { id: 'kernel_serpent', name: 'Kernel Serpent', requiredLevel: 6, cost: 1500, symbol: '🐍', description: 'Ring-0 entity coiled inside system interrupt vectors.' },
+  { id: 'glitch_bot',     name: 'Glitch Bot',     requiredLevel: 7, cost: 1800, symbol: '🤖', description: 'Unpredictable logic hacker.' },
+  { id: 'pixel_valkyrie', name: 'Pixel Valkyrie', requiredLevel: 7, cost: 2100, symbol: '⚡', description: 'Transcendent winged guardian of stack integrity.' },
+  { id: 'chrono_mage',    name: 'Chrono Mage',    requiredLevel: 8, cost: 2600, symbol: '⏳', description: 'Time-traveling debugee stepping backward through execution frames.' },
+  { id: 'void_stalker',   name: 'Void Stalker',   requiredLevel: 9, cost: 3500, symbol: '🌌', description: 'Eldritch entity dwelling in unallocated virtual memory spaces.' }
 ];
 
 export const Profile = {
@@ -81,6 +89,7 @@ export const Profile = {
       xp: 0,
       lifetimeXP: 0,
       totalScore: 0,
+      diamonds: 0,
       hasReceivedJoiningBonus: false,
       dayStreak: 1,
       lastLoginDate: null,
@@ -357,21 +366,29 @@ export const Profile = {
    * @param {number} cost
    * @returns {{ success: boolean, message: string, profile?: object }}
    */
-  purchaseItem(profileId, itemType, itemId, cost = 150) {
+  purchaseItem(profileId, itemType, itemId, cost) {
     const profile = (State.get('profiles') || []).find(p => p.id === profileId) || this.getActiveProfile();
     if (!profile) return { success: false, message: 'Profile not found.' };
 
+    let resolvedCost = typeof cost === 'number' ? cost : 450;
+    if (typeof cost !== 'number') {
+      if (itemType === 'avatar') {
+        const meta = AVATAR_CATALOG.find(a => a.id === itemId);
+        if (meta && typeof meta.cost === 'number') resolvedCost = meta.cost;
+      }
+    }
+
     const currentPoints = typeof profile.totalScore === 'number' ? profile.totalScore : (profile.xp || 0);
-    if (currentPoints < cost) {
+    if (currentPoints < resolvedCost) {
       return {
         success: false,
-        message: `Insufficient points! You need ${cost} points (Current: ${currentPoints.toLocaleString()}).`
+        message: `Insufficient points! You need ${resolvedCost.toLocaleString()} points (Current: ${currentPoints.toLocaleString()}).`
       };
     }
 
     const updates = {
-      totalScore: Math.max(0, currentPoints - cost),
-      xp: Math.max(0, (profile.xp || currentPoints) - cost)
+      totalScore: Math.max(0, currentPoints - resolvedCost),
+      xp: Math.max(0, (profile.xp || currentPoints) - resolvedCost)
       // NOTE: lifetimeXP is deliberately NOT reduced, preserving player level!
     };
 

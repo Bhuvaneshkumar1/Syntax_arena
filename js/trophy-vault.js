@@ -316,12 +316,17 @@ export class TrophyVault {
 
   setUnlockedBadges(unlockedIds) {
     this.unlockedBadgeIds = new Set(unlockedIds || []);
-    this.render();
+    if (typeof document !== 'undefined') {
+      this.render();
+      this.updateBadgeStudioPreview();
+    }
   }
 
   setProfile(profile) {
     this.profile = profile;
-    this.updateBadgeStudioPreview();
+    if (typeof document !== 'undefined') {
+      this.updateBadgeStudioPreview();
+    }
   }
 
   // ===========================================================================
@@ -329,6 +334,7 @@ export class TrophyVault {
   // ===========================================================================
 
   render(filterSubject = 'all', filterStatus = 'all') {
+    if (typeof document === 'undefined') return;
     const grid = document.getElementById(this.containerId);
     if (!grid) return;
 
@@ -888,6 +894,33 @@ export class TrophyVault {
     const previewEl = document.getElementById('badge-live-preview');
     if (!previewEl) return;
 
+    const isLocked = this.unlockedBadgeIds.size === 0;
+
+    // Toggle export buttons state
+    const container = document.getElementById('github-badge-studio');
+    if (container) {
+      const exportBtns = container.querySelectorAll('.badge-export-btn');
+      exportBtns.forEach(btn => {
+        btn.disabled = isLocked;
+        btn.style.opacity = isLocked ? '0.45' : '1';
+        btn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+        btn.title = isLocked ? 'Unlock at least 1 trophy badge in the arena to export GitHub badges' : '';
+      });
+    }
+
+    if (isLocked) {
+      previewEl.innerHTML = `
+        <div class="badge-studio-locked-notice" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 160px; padding: 1.5rem; text-align: center; background: rgba(15, 23, 42, 0.85); border: 2px dashed rgba(244, 63, 94, 0.4); border-radius: 10px;">
+          <span style="font-size: 2.4rem; margin-bottom: 0.5rem;" aria-hidden="true">🔒</span>
+          <h4 style="margin: 0 0 0.35rem; color: #f8fafc; font-family: var(--font-display, sans-serif); font-size: 1.05rem;">GITHUB BADGE STUDIO LOCKED</h4>
+          <p style="margin: 0; color: #94a3b8; font-size: 0.85rem; max-width: 420px; line-height: 1.5;">
+            You haven't unlocked any badges yet! Complete challenges, win duels, or solve memory puzzles to unlock at least <strong>1 trophy cartridge</strong> to generate and export dynamic SVG badges for your GitHub README.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
     const prof = this.profile || {};
     const stats = prof.stats || {};
     const callsign = prof.callsign || 'ScriptAdept';
@@ -922,6 +955,15 @@ export class TrophyVault {
     const feedbackEl = document.getElementById('badge-copy-feedback');
     if (!previewEl) return;
 
+    if (this.unlockedBadgeIds.size === 0) {
+      if (feedbackEl) {
+        feedbackEl.style.color = '#f43f5e';
+        feedbackEl.textContent = '🔒 Studio locked! Earn at least 1 trophy badge first.';
+        setTimeout(() => { if (feedbackEl) feedbackEl.textContent = ''; }, 3000);
+      }
+      return;
+    }
+
     const svg = previewEl.innerHTML.trim();
     const encodedDataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 
@@ -947,6 +989,7 @@ export class TrophyVault {
   }
 
   _downloadSvgFile() {
+    if (this.unlockedBadgeIds.size === 0) return;
     const previewEl = document.getElementById('badge-live-preview');
     if (!previewEl) return;
 
@@ -972,3 +1015,4 @@ if (typeof window !== 'undefined') {
   window.RARITY_CONFIG = RARITY_CONFIG;
   window.mapBadgeRarity = mapBadgeRarity;
 }
+

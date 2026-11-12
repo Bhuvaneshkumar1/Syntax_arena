@@ -6,57 +6,57 @@
 /* High-performance offline system typography stack (Zero external network calls) */
 :root {
   /* ==========================================================================
-     CANVAS & SURFACE HIERARCHY (LINEAR / RAYCAST STUDIO SLATE - DEFAULT)
+     CANVAS & SURFACE HIERARCHY (SOFTENED LUXURY SLATE - EYE-FRIENDLY THEME)
      ========================================================================== */
-  --bg-app:             #0B0D13; /* Deep obsidian graphite void */
-  --bg-surface-base:    #11141D; /* Matte slate panel ground */
-  --bg-surface-raised:  #171B26; /* Elevated cockpit slate card */
-  --bg-surface-overlay: #1E2332; /* Floating HUD dialogs, menus, tooltips */
-  --bg-code-terminal:   #07090E; /* Recessed terminal console */
+  --bg-app:             #0e131d; /* Elegant deep midnight graphite void */
+  --bg-surface-base:    #151b29; /* Soft matte slate panel ground */
+  --bg-surface-raised:  #1c2437; /* Elevated cockpit slate card */
+  --bg-surface-overlay: #242d45; /* Floating HUD dialogs, menus, tooltips */
+  --bg-code-terminal:   #0b0f17; /* High-readability terminal recess */
 
   /* BORDERS & DIVIDERS */
-  --border-subtle:      #1F2432; /* Ultra-crisp architectural divider */
-  --border-strong:      #2E364B; /* Active card boundary / section divider */
+  --border-subtle:      #212b3e; /* Crisp architectural divider */
+  --border-strong:      #2d3a54; /* Active card boundary / section divider */
   --border-focus:       #6366F1; /* High-visibility electric indigo outline */
 
-  /* TYPOGRAPHIC INK */
-  --text-primary:       #F1F5F9; /* Crisp heading and active readable text */
+  /* TYPOGRAPHIC INK (Softer contrast to eliminate eye-strain glare) */
+  --text-primary:       #e2e8f0; /* Crisp heading and readable text */
   --text-secondary:     #94A3B8; /* Slate explanations, metadata, labels */
   --text-muted:         #64748B; /* Inactive line numbers, quiet captions */
   --text-inverse:       #FFFFFF; /* Text on vibrant accent buttons */
 
   /* ==========================================================================
-     STUDIO TACTILE ACCENTS (CLEAN, SOPHISTICATED, HIGH-CONTRAST)
+     STUDIO TACTILE ACCENTS (SOPHISTICATED, BALANCED GLOWS)
      ========================================================================== */
   /* Primary Action: Electric Indigo / Cobalt */
   --color-primary:        #6366F1;
   --color-primary-edge:   #4338CA;
   --color-primary-hover:  #818CF8;
-  --color-primary-glow:   rgba(99, 102, 241, 0.22);
+  --color-primary-glow:   rgba(99, 102, 241, 0.15);
 
   /* Success & Affirmation: Studio Emerald */
   --color-success:        #10B981;
   --color-success-edge:   #059669;
   --color-success-hover:  #34D399;
-  --color-success-glow:   rgba(16, 185, 129, 0.22);
+  --color-success-glow:   rgba(16, 185, 129, 0.15);
 
   /* Warning & Caution: Studio Amber */
   --color-warning:        #F59E0B;
   --color-warning-edge:   #D97706;
   --color-warning-hover:  #FBBF24;
-  --color-warning-glow:   rgba(245, 158, 11, 0.22);
+  --color-warning-glow:   rgba(245, 158, 11, 0.15);
 
   /* Danger & Error: Studio Crimson */
   --color-danger:         #F43F5E;
   --color-danger-edge:    #BE123C;
   --color-danger-hover:   #FB7185;
-  --color-danger-glow:    rgba(244, 63, 94, 0.22);
+  --color-danger-glow:    rgba(244, 63, 94, 0.15);
 
   /* Streak Flame: Studio Violet */
   --color-violet:         #8B5CF6;
   --color-violet-edge:    #6D28D9;
   --color-violet-hover:   #A78BFA;
-  --color-violet-glow:    rgba(139, 92, 246, 0.22);
+  --color-violet-glow:    rgba(139, 92, 246, 0.15);
 
   /* Neutral Studio Button */
   --color-neutral:        #141824;

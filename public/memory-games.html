@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/battlestation.css">
   <link rel="stylesheet" href="css/memory-minigame.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/auth.css">
 </head>
 <body data-page="memory-games">
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -50,51 +51,117 @@
     </symbol>
   </svg>
 
-  <!-- Application Shell Header -->
-  <header class="app-header">
-    <div class="header-container">
-      <a href="index.html" class="brand-link" aria-label="SyntaxArena Home">
-        <span class="brand-badge" aria-hidden="true">
-          <img src="assets/images/logo.svg" width="24" height="24" alt="SyntaxArena Logo">
-        </span>
-        <span class="brand-title">SyntaxArena</span>
-      </a>
+    <!-- Master App Shell (Item 16) -->
+  <div class="app-shell" id="app-shell">
+    <!-- Collapsible Side Navigation Bar (Item 16) -->
+    <aside class="app-sidebar is-collapsed" id="app-sidebar" aria-label="Main Navigation">
+      <!-- Sidebar Header: Brand & Collapse Toggle -->
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-brand" aria-label="SyntaxArena Home">
+          <span class="brand-badge" style="width: 34px; height: 34px;">
+            <img src="assets/images/logo.svg" width="20" height="20" alt="SyntaxArena Logo">
+          </span>
+          <span class="sidebar-brand-text">SyntaxArena</span>
+        </a>
+        <button type="button" class="btn-sidebar-toggle" id="btn-sidebar-toggle" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle Navigation Sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
 
-      <!-- Desktop Primary Navigation -->
-      <nav class="app-nav" aria-label="Main Navigation">
-        <a href="index.html" class="nav-link">
-          <svg class="nav-icon"><use href="#icon-code"></use></svg>
-          <span>Hub</span>
+      <!-- Primary Navigation Links (App Nav) -->
+      <nav class="app-nav sidebar-nav" aria-label="Sidebar Navigation">
+        <a href="index.html" class="nav-link sidebar-link" data-tooltip="Hub">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-code"></use></svg></span>
+          <span class="sidebar-label">Hub</span>
         </a>
-        <a href="game.html" class="nav-link">
-          <svg class="nav-icon"><use href="#icon-gamepad"></use></svg>
-          <span>Arena</span>
+        <a href="game.html" class="nav-link sidebar-link" data-tooltip="Arena">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-gamepad"></use></svg></span>
+          <span class="sidebar-label">Arena</span>
         </a>
-        <a href="memory-games.html" class="nav-link" aria-current="page">
-          <svg class="nav-icon"><use href="#icon-cpu"></use></svg>
-          <span>Memory Lab</span>
+        <a href="memory-games.html" class="nav-link sidebar-link" data-tooltip="Memory Lab" aria-current="page">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-zap"></use></svg></span>
+          <span class="sidebar-label">Memory Lab</span>
         </a>
-        <a href="learn.html" class="nav-link">
-          <svg class="nav-icon"><use href="#icon-zap"></use></svg>
-          <span>Academy</span>
+        <a href="learn.html" class="nav-link sidebar-link" data-tooltip="Academy">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-bulb"></use></svg></span>
+          <span class="sidebar-label">Academy</span>
         </a>
-        <a href="sandbox.html" class="nav-link">
-          <svg class="nav-icon"><use href="#icon-code"></use></svg>
-          <span>Sandbox</span>
+        <a href="sandbox.html" class="nav-link sidebar-link" data-tooltip="Sandbox">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-code"></use></svg></span>
+          <span class="sidebar-label">Sandbox</span>
         </a>
-        <a href="progress.html" class="nav-link">
-          <svg class="nav-icon"><use href="#icon-trophy"></use></svg>
-          <span>Career</span>
+        <a href="progress.html" class="nav-link sidebar-link" data-tooltip="Career">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-trophy"></use></svg></span>
+          <span class="sidebar-label">Career</span>
         </a>
       </nav>
 
-      <div class="header-actions">
-        <a href="settings.html#section-battlestation" class="btn-arcade btn-secondary btn-sm" style="text-decoration: none;">
-          🖥️ Battlestation
+      <!-- Sidebar Footer: Battlestation, Settings, Auth Profile -->
+      <div class="sidebar-footer">
+        <a href="settings.html#section-battlestation" class="sidebar-link" data-tooltip="Battlestation">
+          <span class="sidebar-icon">🖥️</span>
+          <span class="sidebar-label">Battlestation</span>
         </a>
+        <a href="settings.html" class="sidebar-link" data-tooltip="Settings">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-settings"></use></svg></span>
+          <span class="sidebar-label">Settings</span>
+        </a>
+        <div class="sidebar-auth-card" id="sidebar-auth-card" title="Click to open Cloud Sync & Auth">
+          <img src="assets/images/cyber_fox.svg" width="28" height="28" alt="avatar" id="sidebar-profile-avatar" style="border-radius: 50%; flex-shrink: 0;">
+          <div class="sidebar-auth-meta">
+            <span class="sidebar-auth-name" id="sidebar-profile-name">ScriptAdept</span>
+            <span class="sidebar-auth-status" id="sidebar-profile-rank">
+              <span class="cloud-sync-dot status-guest"></span>
+              <span>Local Guest</span>
+            </span>
+          </div>
+        </div>
       </div>
-    </div>
-  </header>
+    </aside>
+
+    <!-- Master Viewport Beside Sidebar -->
+    <div class="app-viewport">
+      <!-- Sleek Compact Topbar -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn-sidebar-toggle" id="btn-sidebar-mobile-toggle" aria-label="Open Navigation Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <a href="progress.html" id="header-user-level-badge" class="header-level-pill" title="Player Level & Progression" style="display: none;">
+            <span class="header-level-tag">Lv.1</span>
+            <span class="header-xp-rem">250 XP to Lv.2</span>
+          </a>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Cloud Sync Status Pill (Item 14) -->
+          <button type="button" class="cloud-sync-pill" id="btn-open-auth" title="Click to Sign In or Link Cloud Account">
+            <span class="cloud-sync-dot status-guest"></span>
+            <span>Guest Mode</span>
+          </button>
+
+          <!-- Quick Action Button -->
+          <a href="game.html" id="btn-nav-play" class="btn-arcade btn-primary btn-sm" aria-label="Quick launch Battle Arena" style="padding: 0.35rem 0.75rem; font-size: 11px; text-decoration: none;">
+            ⚔️ Play Arena
+          </a>
+
+          <!-- Theme & Sound Toggles -->
+          <button id="btn-theme-toggle" class="btn-icon-toggle" aria-label="Toggle color theme" title="Toggle color theme">
+            <svg width="18" height="18" aria-hidden="true"><use href="#icon-sun"></use></svg>
+          </button>
+          <button id="btn-sound-toggle" class="btn-icon-toggle" aria-label="Toggle sound effects" title="Toggle sound effects">
+            <svg width="18" height="18" aria-hidden="true"><use href="#icon-volume"></use></svg>
+          </button>
+
+          <!-- Profile Pill -->
+          <a href="settings.html" class="profile-pill" aria-label="User profile and settings">
+            <span class="profile-avatar-mini" aria-hidden="true">
+              <img src="assets/images/cyber_fox.svg" width="22" height="22" alt="avatar" style="border-radius: 50%;">
+            </span>
+            <span class="profile-name">ScriptAdept</span>
+          </a>
+        </div>
+      </header>
 
   <!-- Main Content Shell -->
   <main id="main-content" class="app-main">
@@ -103,8 +170,11 @@
       <!-- Lab Header -->
       <section class="mem-header">
         <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-          <span class="badge badge-cyan">Feature 8 Interactive Laboratory</span>
+          <span class="badge badge-cyan">Tactile Laboratory</span>
           <span class="badge badge-emerald">0ms Hardware Latency</span>
+          <button id="btn-open-mem-manual" class="btn-arcade btn-secondary btn-sm" style="margin-left: 0.5rem;" aria-label="Open Memory Lab Field Manual">
+            📖 Lab Manual &amp; Rules
+          </button>
         </div>
         <h1 class="mem-title">🧠 Tactile Memory Pointer Lab</h1>
         <p class="mem-subtitle">
@@ -202,6 +272,30 @@
         </div>
       </section>
 
+      <!-- Live Feedback Banner (Positioned prominently above stage for immediate visibility) -->
+      <div id="mem-feedback" class="mem-feedback-banner" style="margin: 0.75rem 0;"></div>
+
+      <!-- Action Controls Bar (Directly accessible above stage) -->
+      <div class="mem-actions-bar" id="mem-actions-bar" style="margin-bottom: 0.75rem;">
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button id="btn-check-wiring" class="btn-arcade btn-primary btn-sm">
+            ⚡ Check Wiring
+          </button>
+          <button id="btn-clear-cables" class="btn-arcade btn-neutral btn-sm">
+            🔄 Clear Cables
+          </button>
+          <button id="btn-gc-hint" class="btn-arcade btn-secondary btn-sm" style="display: none;">
+            💡 Mark & Sweep Pulse
+          </button>
+        </div>
+
+        <div>
+          <button id="btn-next-level" class="btn-arcade btn-primary btn-sm" style="display: none; background: #10b981; border-color: #34d399;">
+            ➡️ Next Level (+XP)
+          </button>
+        </div>
+      </div>
+
       <!-- Interactive Stage Canvas (Stack & Heap Column Grid + SVG Wires) -->
       <div class="mem-interactive-stage" id="mem-stage-canvas">
         <!-- SVG Cables Layer Overlay -->
@@ -213,7 +307,7 @@
             <span class="mem-col-title stack">📍 CALL STACK (LIFO)</span>
             <span class="badge badge-cyan" style="font-size: 10px;">FRAME: main()</span>
           </div>
-          <div id="mem-stack-list" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div id="mem-stack-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
             <!-- Rendered dynamically -->
           </div>
         </div>
@@ -224,38 +318,202 @@
             <span class="mem-col-title heap">💾 DYNAMIC HEAP (POOL)</span>
             <span class="badge badge-purple" style="font-size: 10px;">0x55a100 BASE</span>
           </div>
-          <div id="mem-heap-list" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div id="mem-heap-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
             <!-- Rendered dynamically -->
           </div>
         </div>
       </div>
 
-      <!-- Live Feedback Banner -->
-      <div id="mem-feedback" class="mem-feedback-banner" style="margin-top: 1.5rem;"></div>
+      <!-- Interactive Field Manual Modal (How to Play - 3 Minigames) -->
+      <div id="modal-mem-manual" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="mem-manual-title">
+        <div class="modal-dialog" style="max-width: 740px; background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 1.75rem; box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+            <h2 id="mem-manual-title" style="font-family: var(--font-display, monospace); font-size: 1.3rem; margin: 0; color: #38bdf8;">
+              📖 Memory Lab Operations Manual
+            </h2>
+            <button id="btn-close-mem-manual" class="btn-icon-toggle" aria-label="Close Manual" style="color: #94a3b8; font-size: 1.2rem;">✕</button>
+          </div>
 
-      <!-- Action Controls Bar -->
-      <div class="mem-actions-bar" id="mem-actions-bar">
-        <div style="display: flex; gap: 0.75rem;">
-          <button id="btn-check-wiring" class="btn-arcade btn-primary">
-            ⚡ Check Wiring
-          </button>
-          <button id="btn-clear-cables" class="btn-arcade btn-neutral">
-            🔄 Clear Cables
-          </button>
-          <button id="btn-gc-hint" class="btn-arcade btn-secondary" style="display: none;">
-            💡 Mark & Sweep Pulse
-          </button>
-        </div>
+          <!-- Illustrated Tab Nav -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+            <button class="btn-arcade btn-primary btn-sm manual-tab-btn is-active" data-tab="tab-man-cable">🔌 1. Cable Connect</button>
+            <button class="btn-arcade btn-neutral btn-sm manual-tab-btn" data-tab="tab-man-leak">🧹 2. Leak Patrol</button>
+            <button class="btn-arcade btn-neutral btn-sm manual-tab-btn" data-tab="tab-man-rush">⚡ 3. Dereference Rush</button>
+          </div>
 
-        <div>
-          <button id="btn-next-level" class="btn-arcade btn-primary" style="display: none; background: #10b981; border-color: #34d399;">
-            ➡️ Next Level (+XP)
-          </button>
+          <!-- Tab Content 1: Cable Connect -->
+          <div id="tab-man-cable" class="manual-tab-pane">
+            <h3 style="color: #38bdf8; font-size: 1.05rem; margin-bottom: 0.5rem;">🔌 Stack Master: Virtual Cable Routing</h3>
+            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 0.75rem;">
+              In low-level programming (C/C++), a pointer does not store data directly; it holds the <strong>64-bit hexadecimal memory address</strong> (e.g. <code>0x55a100</code>) of an allocation on the heap or stack.
+            </p>
+            <div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 0.9rem; font-size: 0.82rem; color: #94a3b8; line-height: 1.6; margin-bottom: 1rem;">
+              <strong style="color: #f8fafc; display: block; margin-bottom: 0.25rem;">How to Play:</strong>
+              1. <strong>Select Source:</strong> Click the cyan circular socket on the right edge of any stack pointer variable (e.g., <code>ptr</code>). The socket will pulse yellow.<br>
+              2. <strong>Plug Target:</strong> Click the purple target socket on the left of the allocated heap chunk (e.g., <code>0x55a100 malloc(sizeof(int))</code>).<br>
+              3. <strong>Auto-Validation:</strong> The system automatically verifies your route immediately upon completing all required connections! Correct routes glow emerald green and advance you forward.<br>
+              4. <strong>Disconnecting:</strong> Click any active cable wire to instantly unplug it.
+            </div>
+          </div>
+
+          <!-- Tab Content 2: Leak Patrol -->
+          <div id="tab-man-leak" class="manual-tab-pane" style="display: none;">
+            <h3 style="color: #a855f7; font-size: 1.05rem; margin-bottom: 0.5rem;">🧹 Heap Hunter: Mark-and-Sweep Garbage Collector</h3>
+            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 0.75rem;">
+              Dynamic heap memory must be freed when no longer in scope. If a pointer handle is overwritten without calling <code>free()</code>, the memory block becomes <strong>orphaned</strong>, wasting RAM.
+            </p>
+            <div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(168,85,247,0.2); border-radius: 8px; padding: 0.9rem; font-size: 0.82rem; color: #94a3b8; line-height: 1.6; margin-bottom: 1rem;">
+              <strong style="color: #f8fafc; display: block; margin-bottom: 0.25rem;">How to Play:</strong>
+              1. <strong>Trace Roots:</strong> Inspect active stack root pointers in the left column. Follow their targets.<br>
+              2. <strong>Spot Orphans:</strong> If a heap chunk has no live pointer referencing it, it is a memory leak.<br>
+              3. <strong>Reclaim:</strong> Click <strong>"Free Block"</strong> on the orphaned block to deallocate it and lower the heap capacity gauge.<br>
+              4. <strong>⚠️ Danger — Use-After-Free:</strong> Never free an active block that is still referenced by a stack pointer! Doing so triggers a fatal Use-After-Free alert and resets your streak.
+            </div>
+          </div>
+
+          <!-- Tab Content 3: Dereference Rush -->
+          <div id="tab-man-rush" class="manual-tab-pane" style="display: none;">
+            <h3 style="color: #fbbf24; font-size: 1.05rem; margin-bottom: 0.5rem;">⚡ Segfault Defuser: Rapid Memory Hazard Triage</h3>
+            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 0.75rem;">
+              You have 12 seconds per rapid-fire code snippet to diagnose pointer memory safety before CPU hardware interrupts trigger a segmentation fault.
+            </p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.8rem; margin-bottom: 1rem;">
+              <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); padding: 0.75rem; border-radius: 6px;">
+                <strong style="color: #10b981;">🟢 SAFE ACCESS:</strong><br>Valid pointer assigned to real stack/heap memory before dereference.
+              </div>
+              <div style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); padding: 0.75rem; border-radius: 6px;">
+                <strong style="color: #f59e0b;">🟡 NULL POINTER:</strong><br>Dereferencing explicit address <code>0x0</code> / <code>NULL</code> (SIGSEGV).
+              </div>
+              <div style="background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.3); padding: 0.75rem; border-radius: 6px;">
+                <strong style="color: #f43f5e;">🔴 DANGLING / UAF:</strong><br>Dereferencing memory after <code>free()</code> or out of scope stack frame.
+              </div>
+              <div style="background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3); padding: 0.75rem; border-radius: 6px;">
+                <strong style="color: #c084fc;">🟣 BUFFER OVERRUN:</strong><br>Accessing indexes past allocation boundary (e.g. <code>arr[10]</code> on length 5).
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align: right; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.75rem;">
+            <button id="btn-understood-mem-manual" class="btn-arcade btn-primary btn-sm">Understood, Return to Lab</button>
+          </div>
         </div>
       </div>
 
     </div>
   </main>
+    </div> <!-- /.app-viewport -->
+
+    <!-- Mobile Bottom Navigation Dock (Item 16) -->
+    <nav class="mobile-bottom-dock" aria-label="Mobile Navigation">
+      <a href="index.html" class="mobile-dock-link">
+        <span class="mobile-dock-icon">🏠</span>
+        <span>Hub</span>
+      </a>
+      <a href="game.html" class="mobile-dock-link">
+        <span class="mobile-dock-icon">🎮</span>
+        <span>Arena</span>
+      </a>
+      <a href="memory-games.html" class="mobile-dock-link" aria-current="page">
+        <span class="mobile-dock-icon">🧠</span>
+        <span>Lab</span>
+      </a>
+      <a href="learn.html" class="mobile-dock-link">
+        <span class="mobile-dock-icon">⚡</span>
+        <span>Academy</span>
+      </a>
+      <a href="sandbox.html" class="mobile-dock-link">
+        <span class="mobile-dock-icon">💻</span>
+        <span>REPL</span>
+      </a>
+    </nav>
+  </div> <!-- /#app-shell -->
+
+    <!-- Multi-Provider Authentication Modal (Item 14) -->
+  <div id="modal-auth" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" style="display: none;">
+    <div class="modal-dialog card card-raised">
+      <div class="auth-modal-header">
+        <h3 id="auth-modal-title" class="auth-modal-title">
+          <span>🛡️</span>
+          <span>SyntaxArena Cloud Sync</span>
+        </h3>
+        <button type="button" class="btn-icon" id="btn-close-auth" aria-label="Close Authentication Dialog" style="background: transparent; border: none; font-size: 1.5rem; color: #94a3b8; cursor: pointer;">✕</button>
+      </div>
+
+      <div class="auth-modal-body">
+        <!-- Guest Status Notice -->
+        <div class="auth-guest-notice" id="auth-guest-banner">
+          <strong>⚡ Cloud Backup &amp; Sync:</strong> Sign in with Google, GitHub, Apple ID, or Email to preserve your XP, levels, 14 avatars, and 33 badges across all devices.
+        </div>
+
+        <!-- Alert Notification Box -->
+        <div id="auth-alert" class="auth-alert-banner"></div>
+
+        <!-- Tabs: Sign In / Create Account -->
+        <div class="auth-tabs-row" role="tablist">
+          <button type="button" class="auth-tab-btn is-active" id="tab-auth-signin" role="tab" aria-selected="true">Sign In</button>
+          <button type="button" class="auth-tab-btn" id="tab-auth-signup" role="tab" aria-selected="false">Create Account</button>
+        </div>
+
+        <!-- Social OAuth 2.0 Providers -->
+        <div class="auth-oauth-buttons">
+          <button type="button" class="btn-oauth btn-oauth-google" id="btn-oauth-google">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            <span>Continue with Google</span>
+          </button>
+
+          <button type="button" class="btn-oauth btn-oauth-github" id="btn-oauth-github">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            <span>Continue with GitHub</span>
+          </button>
+
+          <button type="button" class="btn-oauth btn-oauth-apple" id="btn-oauth-apple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 1.01-2.87-.96.04-2.12.64-2.79 1.43-.57.67-.99 1.74-.94 2.79 1.08.08 2.14-.57 2.72-1.35z"/></svg>
+            <span>Sign in with Apple</span>
+          </button>
+        </div>
+
+        <div class="auth-divider">
+          <span>Or with Email</span>
+        </div>
+
+        <!-- Form for Email & Password -->
+        <form id="auth-form" autocomplete="on">
+          <div class="auth-field" id="auth-field-name" style="display: none;">
+            <label for="auth-name">Player Callsign / Display Name</label>
+            <input type="text" id="auth-name" class="auth-input" placeholder="e.g. CyberSamurai" maxlength="24">
+          </div>
+
+          <div class="auth-field">
+            <label for="auth-email">Email Address</label>
+            <input type="email" id="auth-email" class="auth-input" placeholder="hacker@syntaxarena.cloud" required>
+          </div>
+
+          <div class="auth-field">
+            <label for="auth-password">Password</label>
+            <div class="auth-input-wrapper">
+              <input type="password" id="auth-password" class="auth-input" placeholder="••••••••" required minlength="6">
+              <button type="button" class="auth-eye-btn" id="btn-auth-toggle-pwd" aria-label="Toggle password visibility">👁️</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-arcade btn-primary btn-block" id="btn-auth-submit" style="width: 100%; margin-top: 0.5rem; padding: 12px;">
+            Sign In to SyntaxArena
+          </button>
+        </form>
+
+        <div style="font-size: 11px; color: #94a3b8; text-align: center; margin-top: 0.85rem; line-height: 1.4;">
+          By continuing, you agree to SyntaxArena's <a href="terms.html" target="_blank" style="color: var(--neon-cyan); text-decoration: underline;">Terms of Service</a> and <a href="privacy.html" target="_blank" style="color: var(--neon-cyan); text-decoration: underline;">Privacy Policy</a>.
+        </div>
+
+        <!-- Sign Out Option (Visible if currently logged in) -->
+        <div style="margin-top: 1rem; text-align: center;">
+          <button type="button" id="btn-auth-signout" class="btn-arcade btn-neutral btn-sm" style="font-size: 11px; padding: 4px 12px; border-color: rgba(244, 63, 94, 0.4); color: #fda4af;">
+            🚪 Sign Out (Return to Guest)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="js/bundle.js"></script>
 </body>

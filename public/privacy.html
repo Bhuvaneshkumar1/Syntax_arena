@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SyntaxArena Privacy Policy — Transparent disclosures on data collection, Google & GitHub OAuth 2.0 integration, and user privacy protections.">
+  <title>SyntaxArena — Privacy Policy</title>
+  
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/battlestation.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/auth.css">
+
+  <style>
+    .legal-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+    .legal-hero {
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+      padding-bottom: 2rem;
+    }
+    .legal-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .legal-title {
+      font-family: var(--font-display, inherit);
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--text-primary, #f8fafc);
+      letter-spacing: -0.02em;
+      margin: 0 0 0.75rem 0;
+    }
+    .legal-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-secondary, #94a3b8);
+      max-width: 760px;
+      line-height: 1.6;
+      margin: 0;
+    }
+    .legal-toc {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: var(--radius-lg, 12px);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .legal-toc-title {
+      font-size: 0.85rem;
+      font-family: var(--font-display, inherit);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--neon-cyan, #38bdf8);
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+    }
+    .legal-toc-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.5rem 1.5rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .legal-toc-list a {
+      color: var(--text-secondary, #cbd5e1);
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .legal-toc-list a:hover {
+      color: var(--neon-cyan, #38bdf8);
+      transform: translateX(3px);
+    }
+    .legal-section {
+      background: var(--bg-card, rgba(30, 41, 59, 0.45));
+      border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.07));
+      border-radius: var(--radius-lg, 12px);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      scroll-margin-top: 5rem;
+    }
+    .legal-section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 0.75rem;
+    }
+    .legal-section-num {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--neon-cyan, #38bdf8);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: var(--font-mono, monospace);
+    }
+    .legal-section-title {
+      font-family: var(--font-display, inherit);
+      font-size: 1.35rem;
+      color: var(--text-primary, #f8fafc);
+      margin: 0;
+      font-weight: 700;
+    }
+    .legal-prose {
+      color: var(--text-secondary, #cbd5e1);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+    .legal-prose p {
+      margin: 0 0 1rem 0;
+    }
+    .legal-prose p:last-child {
+      margin-bottom: 0;
+    }
+    .legal-prose ul {
+      margin: 0.5rem 0 1.25rem 1.5rem;
+      padding: 0;
+    }
+    .legal-prose li {
+      margin-bottom: 0.5rem;
+    }
+    .legal-highlight-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid var(--neon-emerald, #10b981);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+    }
+    .legal-highlight-box.cyan {
+      background: rgba(56, 189, 248, 0.08);
+      border-left-color: var(--neon-cyan, #38bdf8);
+    }
+    .legal-highlight-box.warning {
+      background: rgba(245, 158, 11, 0.08);
+      border-left-color: #f59e0b;
+    }
+    .legal-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-size: 0.88rem;
+    }
+    .legal-table th, .legal-table td {
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: left;
+    }
+    .legal-table th {
+      background: rgba(15, 23, 42, 0.7);
+      color: var(--text-primary, #f8fafc);
+      font-weight: 700;
+    }
+    .legal-table td {
+      color: var(--text-secondary, #cbd5e1);
+    }
+    .badge-google {
+      background: rgba(66, 133, 244, 0.15);
+      border: 1px solid rgba(66, 133, 244, 0.4);
+      color: #60a5fa;
+    }
+  </style>
+</head>
+<body data-page="privacy">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Embedded SVG Icons -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>
+    </symbol>
+    <symbol id="icon-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="6" x2="10" y1="11" y2="11"></line><line x1="8" x2="8" y1="9" y2="13"></line>
+      <line x1="15" x2="15.01" y1="12" y2="12"></line><line x1="18" x2="18.01" y1="10" y2="10"></line>
+      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
+    </symbol>
+    <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+      <path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+    </symbol>
+    <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+    </symbol>
+    <symbol id="icon-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 18h6"></path><path d="M10 22h4"></path>
+      <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+    </symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </symbol>
+    <symbol id="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </symbol>
+    <symbol id="icon-volume-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>
+    </symbol>
+  </svg>
+
+  <!-- Master App Shell (Item 16) -->
+  <div class="app-shell" id="app-shell">
+    <!-- Collapsible Side Navigation Bar (Item 16) -->
+    <aside class="app-sidebar is-collapsed" id="app-sidebar" aria-label="Main Navigation">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-brand" aria-label="SyntaxArena Home">
+          <span class="brand-badge" style="width: 34px; height: 34px;">
+            <img src="assets/images/logo.svg" width="20" height="20" alt="SyntaxArena Logo">
+          </span>
+          <span class="sidebar-brand-text">SyntaxArena</span>
+        </a>
+        <button type="button" class="btn-sidebar-toggle" id="btn-sidebar-toggle" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle Navigation Sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <nav class="app-nav sidebar-nav" aria-label="Sidebar Navigation">
+        <a href="index.html" class="nav-link sidebar-link" data-tooltip="Hub">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-code"></use></svg></span>
+          <span class="sidebar-label">Hub</span>
+        </a>
+        <a href="game.html" class="nav-link sidebar-link" data-tooltip="Arena">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-gamepad"></use></svg></span>
+          <span class="sidebar-label">Arena</span>
+        </a>
+        <a href="memory-games.html" class="nav-link sidebar-link" data-tooltip="Memory Lab">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-zap"></use></svg></span>
+          <span class="sidebar-label">Memory Lab</span>
+        </a>
+        <a href="learn.html" class="nav-link sidebar-link" data-tooltip="Academy">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-bulb"></use></svg></span>
+          <span class="sidebar-label">Academy</span>
+        </a>
+        <a href="sandbox.html" class="nav-link sidebar-link" data-tooltip="Sandbox">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-code"></use></svg></span>
+          <span class="sidebar-label">Sandbox</span>
+        </a>
+        <a href="progress.html" class="nav-link sidebar-link" data-tooltip="Career">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-trophy"></use></svg></span>
+          <span class="sidebar-label">Career</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="settings.html#section-battlestation" class="sidebar-link" data-tooltip="Battlestation">
+          <span class="sidebar-icon">🖥️</span>
+          <span class="sidebar-label">Battlestation</span>
+        </a>
+        <a href="settings.html" class="sidebar-link" data-tooltip="Settings">
+          <span class="sidebar-icon"><svg class="nav-icon"><use href="#icon-settings"></use></svg></span>
+          <span class="sidebar-label">Settings</span>
+        </a>
+        <div class="sidebar-auth-card" id="sidebar-auth-card" title="Click to open Cloud Sync & Auth">
+          <img src="assets/images/cyber_fox.svg" width="28" height="28" alt="avatar" id="sidebar-profile-avatar" style="border-radius: 50%; flex-shrink: 0;">
+          <div class="sidebar-auth-meta">
+            <span class="sidebar-auth-name" id="sidebar-profile-name">ScriptAdept</span>
+            <span class="sidebar-auth-status" id="sidebar-profile-rank">
+              <span class="cloud-sync-dot status-guest"></span>
+              <span>Local Guest</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Master Viewport Beside Sidebar -->
+    <div class="app-viewport">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn-sidebar-toggle" id="btn-sidebar-mobile-toggle" aria-label="Open Navigation Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <a href="progress.html" id="header-user-level-badge" class="header-level-pill" title="Player Level & Progression" style="display: none;">
+            <span class="header-level-tag">Lv.1</span>
+            <span class="header-xp-rem">250 XP to Lv.2</span>
+          </a>
+        </div>
+
+        <div class="topbar-right">
+          <button type="button" class="cloud-sync-pill" id="btn-open-auth" title="Click to Sign In or Link Cloud Account">
+            <span class="cloud-sync-dot status-guest"></span>
+            <span>Guest Mode</span>
+          </button>
+
+          <a href="game.html" id="btn-nav-play" class="btn-arcade btn-primary btn-sm" aria-label="Quick launch Battle Arena" style="padding: 0.35rem 0.75rem; font-size: 11px; text-decoration: none;">
+            ⚔️ Play Arena
+          </a>
+
+          <button id="btn-theme-toggle" class="btn-icon-toggle" aria-label="Toggle color theme" title="Toggle color theme">
+            <svg width="18" height="18" aria-hidden="true"><use href="#icon-sun"></use></svg>
+          </button>
+          <button id="btn-sound-toggle" class="btn-icon-toggle" aria-label="Toggle sound effects" title="Toggle sound effects">
+            <svg width="18" height="18" aria-hidden="true"><use href="#icon-volume"></use></svg>
+          </button>
+
+          <a href="settings.html" class="profile-pill" aria-label="User profile and settings">
+            <span class="profile-avatar-mini" aria-hidden="true">
+              <img src="assets/images/cyber_fox.svg" width="22" height="22" alt="avatar" style="border-radius: 50%;">
+            </span>
+            <span class="profile-name">ScriptAdept</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Main Legal Document Body -->
+      <main id="main-content" class="app-main">
+        <div class="legal-container">
+
+          <!-- Hero Section -->
+          <div class="legal-hero">
+            <div class="legal-meta-row">
+              <span class="badge badge-cyan">Privacy Policy</span>
+              <span class="badge badge-emerald">OAuth 2.0 Compliant</span>
+              <span class="badge badge-google">Google API User Data Policy</span>
+              <span class="badge badge-purple">Effective: November 12, 2026</span>
+            </div>
+            <h1 class="legal-title">SyntaxArena Privacy Policy</h1>
+            <p class="legal-subtitle">
+              We respect your digital privacy. This document outlines how SyntaxArena collects, uses, protects, and handles player data when using our interactive platform and signing in with Google or GitHub.
+            </p>
+          </div>
+
+          <!-- Quick Jump Table of Contents -->
+          <nav class="legal-toc" aria-label="Privacy Policy Table of Contents">
+            <div class="legal-toc-title">Quick Navigation Index</div>
+            <ul class="legal-toc-list">
+              <li><a href="#overview">1. Overview &amp; Application Scope</a></li>
+              <li><a href="#google-user-data">2. Google API User Data Policy</a></li>
+              <li><a href="#information-collected">3. Information We Collect</a></li>
+              <li><a href="#how-we-use">4. How We Use Information</a></li>
+              <li><a href="#storage-security">5. Storage, Security &amp; Zero-Sale</a></li>
+              <li><a href="#retention-deletion">6. Data Retention &amp; User Deletion</a></li>
+              <li><a href="#cookies-storage">7. Cookies &amp; Local Storage</a></li>
+              <li><a href="#children">8. Children's Privacy (COPPA)</a></li>
+              <li><a href="#contact">9. Contact &amp; Developer Inquiries</a></li>
+            </ul>
+          </nav>
+
+          <!-- 1. Overview -->
+          <section class="legal-section" id="overview">
+            <div class="legal-section-header">
+              <span class="legal-section-num">01</span>
+              <h2 class="legal-section-title">Overview &amp; Application Scope</h2>
+            </div>
+            <div class="legal-prose">
+              <p>
+                <strong>SyntaxArena</strong> ("we", "our", or "the Platform") is a browser-native, gamified computer science learning environment and tactile memory laboratory available at <a href="https://syntaxarena-phi.vercel.app" target="_blank" rel="noopener">https://syntaxarena-phi.vercel.app</a>.
+              </p>
+              <p>
+                This Privacy Policy applies to all users of SyntaxArena, including those who play anonymously in local Guest Mode, those who create email-based accounts, and those who authenticate through third-party OAuth providers such as <strong>Google Sign-In</strong> or <strong>GitHub OAuth</strong>.
+              </p>
+              <div class="legal-highlight-box cyan">
+                <strong>Core Privacy Principle:</strong> SyntaxArena was built with an offline-first, client-side architectural foundation. We do not sell user data, run third-party tracking scripts, inject commercial advertising trackers, or monitor your activity across external websites.
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. Google User Data Policy Compliance -->
+          <section class="legal-section" id="google-user-data">
+            <div class="legal-section-header">
+              <span class="legal-section-num">02</span>
+              <h2 class="legal-section-title">Google API Services User Data Policy Compliance</h2>
+            </div>
+            <div class="legal-prose">
+              <p>
+                When you choose to sign in to SyntaxArena using your Google Account, we request access only to your basic public profile information and email address to verify your identity and save your gameplay progress.
+              </p>
+              
+              <div class="legal-highlight-box" style="border-left-color: #4285F4; background: rgba(66, 133, 244, 0.08);">
+                <p style="margin: 0; font-weight: 600; color: #93c5fd;">
+                  SyntaxArena's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener" style="color: #60a5fa; text-decoration: underline;">Google API Services User Data Policy</a>, including the Limited Use requirements.
+                </p>
+              </div>
+
+              <p>Specifically, regarding data accessed through Google OAuth 2.0:</p>
+              <ul>
+                <li><strong>No Restricted Scopes:</strong> We do NOT request access to Google Drive, Gmail, Google Calendar, Google Contacts, or any sensitive Google workspace files. We only request basic identity scopes: <code>openid</code>, <code>profile</code>, and <code>email</code>.</li>
+                <li><strong>No Advertising Usage:</strong> Google user data is NEVER used or transferred to third-party serving advertising, retargeting, or interest-based profiling.</li>
+                <li><strong>No Human Inspection:</strong> Human employees, contractors, or third parties do not inspect or read your private Google data.</li>
+                <li><strong>Limited Use Adherence:</strong> Data obtained via Google Sign-In is exclusively used to provide and enhance user-facing features (player identity, game level synchronizing, and profile avatars) within the SyntaxArena game.</li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- 3. Information We Collect -->
+          <section class="legal-section" id="information-collected">
+            <div class="legal-section-header">
+              <span class="legal-section-num">03</span>
+              <h2 class="legal-section-title">Information We Collect</h2>
+            </div>
+            <div class="legal-prose">
+              <p>Depending on how you interact with SyntaxArena, we may collect the following categories of data:</p>
+
+              <table class="legal-table" aria-label="Data Categories Table">
+                <thead>
+                  <tr>
+                    <th>Data Category</th>
+                    <th>Data Fields Collected</th>
+                    <th>Source &amp; Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Google Sign-In</strong></td>
+                    <td>Google Account User ID, Verified Email Address, Display Name, Profile Photo URL</td>
+                    <td>Provided by Google OAuth with your consent. Used to establish account identity and sync cloud achievements.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>GitHub Sign-In</strong></td>
+                    <td>GitHub Numeric ID, Primary Verified Email, Public Username, Avatar URL</td>
+                    <td>Provided by GitHub OAuth with your consent. Used to sync profile state and unlock developer badges.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Local Guest Mode</strong></td>
+                    <td>Anonymous randomized Player ID (e.g. <code>guest_xxxx</code>), chosen callsign</td>
+                    <td>Generated locally in your browser. No personal email or external credentials required.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Game Progression</strong></td>
+                    <td>XP points, level tier, unlocked avatars (14 total), 33 trophy badges, high scores in Tactile Memory Lab, 1v1 duel stats</td>
+                    <td>Generated during your gameplay sessions to maintain persistent records and calculate achievements.</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p>
+                <strong>What We Do NOT Collect:</strong> We never collect payment card information, bank accounts, government identification numbers, precise physical GPS locations, or biometric identifiers.
+              </p>
+            </div>
+          </section>
+
+          <!-- 4. How We Use Information -->
+          <section class="legal-section" id="how-we-use">
+            <div class="legal-section-header">
+              <span class="legal-section-num">04</span>
+              <h2 class="legal-section-title">How We Use Your Information</h2>
+            </div>
+            <div class="legal-prose">
+              <p>We process collected information strictly for the following operational and pedagogical purposes:</p>
+              <ul>
+                <li><strong>Authentication &amp; Session Management:</strong> Authenticating your identity so you can securely log in, sign out, or restore your session across browser tabs.</li>
+                <li><strong>Cross-Device Cloud Synchronization:</strong> Enabling you to access your solved code challenges, memory lab completions, and battlestation visual unlocks on any device.</li>
+                <li><strong>Profile &amp; Visual Customization:</strong> Displaying your selected callsign, rank badge, and avatar on the Topbar, Sidebar, and Trophy Vault.</li>
+                <li><strong>Leaderboard &amp; Fair Play Verification:</strong> Calculating XP rankings and preventing automated bot scripts or game integrity violations.</li>
+                <li><strong>Customer Support:</strong> Responding to user inquiries, account recovery questions, or data export/deletion requests.</li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- 5. Storage, Security & Zero-Sale Guarantee -->
+          <section class="legal-section" id="storage-security">
+            <div class="legal-section-header">
+              <span class="legal-section-num">05</span>
+              <h2 class="legal-section-title">Storage, Security &amp; Zero-Sale Guarantee</h2>
+            </div>
+            <div class="legal-prose">
+              <p>
+                <strong>Zero-Sale Guarantee:</strong> SyntaxArena will <strong>never sell, lease, monetize, or trade</strong> your personal information, email address, or gaming telemetry to any data brokers, marketers, or third-party advertisers. Period.
+              </p>
+              <p>
+                <strong>Security Measures:</strong> We implement rigorous technical and organizational controls to protect your data:
+              </p>
+              <ul>
+                <li><strong>End-to-End Encryption in Transit:</strong> All web traffic, API calls, and OAuth handshakes strictly enforce modern TLS 1.3 / HTTPS encryption.</li>
+                <li><strong>Isolated Storage Architecture:</strong> Authentication metadata is isolated in browser storage under <code>syntaxarena_auth_v1</code>, segregated from game telemetry to avoid cross-contamination.</li>
+                <li><strong>Minimal Server Footprint:</strong> Authentication token exchanges are executed via transient serverless functions hosted securely on Vercel without persistent database logging of OAuth secret credentials.</li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- 6. Data Retention & User Deletion Rights -->
+          <section class="legal-section" id="retention-deletion">
+            <div class="legal-section-header">
+              <span class="legal-section-num">06</span>
+              <h2 class="legal-section-title">Data Retention &amp; User Deletion Rights (Right to be Forgotten)</h2>
+            </div>
+            <div class="legal-prose">
+              <p>
+                We believe you have absolute ownership over your data. You may inspect, export, or permanently erase your data at any time:
+              </p>
+              <ul>
+                <li><strong>Self-Service Account Deletion:</strong> You can wipe your account and reset all local storage at any time by visiting <a href="settings.html" style="color: var(--neon-cyan); text-decoration: underline;">Settings &gt; Data Management</a> and selecting <em>"Reset / Delete Profile"</em>.</li>
+                <li><strong>Revoking Google Permissions:</strong> You can disconnect SyntaxArena from your Google Account at any time by visiting your Google Security Dashboard at <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener" style="color: var(--neon-cyan); text-decoration: underline;">https://myaccount.google.com/permissions</a>.</li>
+                <li><strong>Email Data Deletion Requests:</strong> You may email our developer support team at <a href="mailto:support@syntaxarena.cloud" style="color: var(--neon-cyan);">support@syntaxarena.cloud</a> with the subject line <em>"Data Deletion Request"</em>. All associated cloud sync records will be permanently purged within 48 hours.</li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- 7. Cookies & Local Storage -->
+          <section class="legal-section" id="cookies-storage">
+            <div class="legal-section-header">
+              <span class="legal-section-num">07</span>
+              <h2 class="legal-section-title">Cookies &amp; Local Storage Technology</h2>
+            </div>
+            <div class="legal-prose">
+              <p>
+                SyntaxArena does <strong>not</strong> use third-party advertising cookies, cross-site trackers, or commercial marketing pixels (e.g. Meta Pixel, TikTok Pixel, Google Ads remarketing).
+              </p>
+              <p>
+                We utilize standard, first-party HTML5 Web Storage (<code>localStorage</code> and <code>sessionStorage</code>) exclusively for essential application functionality:
+              </p>
+              <ul>
+                <li>Saving your active color theme preference (dark/light) and audio volume settings.</li>
+                <li>Preserving in-game question progress and unlocked achievements while offline.</li>
+                <li>Maintaining your authenticated session state across page reloads.</li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- 8. Children's Privacy -->
+          <section class="legal-section" id="children">
+            <div class="legal-section-header">
+              <span class="legal-section-num">08</span>
+              <h2 class="legal-section-title">Children's Privacy (COPPA Compliance)</h2>
+            </div>
+            <div class="legal-prose">
+              <p>
+                SyntaxArena is designed as an educational programming tool. We do not knowingly solicit or collect personally identifiable information from children under the age of 13 in compliance with the Children's Online Privacy Protection Act (COPPA).
+              </p>
+              <p>
+                Students under 13 are encouraged to use SyntaxArena in anonymous <strong>Guest Mode</strong>, which functions 100% offline without collecting emails, full names, or external identity tokens. If you believe a child under 13 has provided personal information to our cloud sync, please contact us immediately for prompt deletion.
+              </p>
+            </div>
+          </section>
+
+          <!-- 9. Contact & Inquiries -->
+          <section class="legal-section" id="contact">
+            <div class="legal-section-header">
+              <span class="legal-section-num">09</span>
+              <h2 class="legal-section-title">Contact &amp; Developer Inquiries</h2>
+            </div>
+            <div class="legal-prose">
+              <p>
+                If you have questions, feedback, or data requests regarding this Privacy Policy or our OAuth 2.0 integration, please contact our development team:
+              </p>
+              <ul>
+                <li><strong>Application Name:</strong> SyntaxArena</li>
+                <li><strong>Deployed Web App:</strong> <a href="https://syntaxarena-phi.vercel.app" target="_blank" rel="noopener">https://syntaxarena-phi.vercel.app</a></li>
+                <li><strong>Developer Support Email:</strong> <a href="mailto:support@syntaxarena.cloud">support@syntaxarena.cloud</a></li>
+                <li><strong>Alternative Contact:</strong> <a href="mailto:priyadharshiniv5832@gmail.com">priyadharshiniv5832@gmail.com</a> / <a href="mailto:hackerbhuvan9753@gmail.com">hackerbhuvan9753@gmail.com</a></li>
+                <li><strong>Open Source Repository:</strong> <a href="https://github.com/Bhuvaneshkumar1/syntaxarena" target="_blank" rel="noopener">https://github.com/Bhuvaneshkumar1/syntaxarena</a></li>
+              </ul>
+              <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="terms.html" class="btn-arcade btn-neutral btn-sm" style="text-decoration: none;">View Terms of Service →</a>
+                <a href="index.html" class="btn-arcade btn-primary btn-sm" style="text-decoration: none;">Return to SyntaxArena Hub ➔</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </main>
+
+      <!-- Application Footer -->
+      <footer class="app-footer">
+        <div class="footer-container">
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <span class="brand-title" style="font-size: var(--text-base);">SyntaxArena</span>
+            <span>•</span>
+            <span>© <span id="copyright-year">2026</span> SyntaxArena. All rights reserved.</span>
+          </div>
+
+          <nav class="footer-nav" aria-label="Footer Links">
+            <a href="index.html">Home</a>
+            <a href="game.html">Arena</a>
+            <a href="memory-games.html">Memory Lab</a>
+            <a href="learn.html">Academy</a>
+            <a href="privacy.html" style="color: var(--neon-cyan);">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+          </nav>
+        </div>
+      </footer>
+    </div> <!-- /.app-viewport -->
+
+    <!-- Mobile Bottom Navigation Dock (Item 16) -->
+    <nav class="mobile-bottom-dock" aria-label="Mobile Navigation">
+      <a href="index.html" class="mobile-dock-link">
+        <span class="mobile-dock-icon">🏠</span>
+        <span class="mobile-dock-label">Hub</span>
+      </a>
+      <a href="game.html" class="mobile-dock-link">
+        <span class="mobile-dock-icon">⚔️</span>
+        <span class="mobile-dock-label">Arena</span>
+      </a>
+      <a href="memory-games.html" class="mobile-dock-link">
+        <span class="mobile-dock-icon">🧠</span>
+        <span class="mobile-dock-label">Memory</span>
+      </a>
+      <a href="learn.html" class="mobile-dock-link">
+        <span class="mobile-dock-icon">📖</span>
+        <span class="mobile-dock-label">Academy</span>
+      </a>
+      <a href="settings.html" class="mobile-dock-link">
+        <span class="mobile-dock-icon">⚙️</span>
+        <span class="mobile-dock-label">Settings</span>
+      </a>
+    </nav>
+  </div> <!-- /#app-shell -->
+
+  <!-- Authentication Modal for Cloud Sync -->
+  <div id="modal-auth" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" style="display: none;">
+    <div class="modal-dialog card card-raised">
+      <div class="auth-modal-header">
+        <h3 id="auth-modal-title" class="auth-modal-title">
+          <span>🛡️</span>
+          <span>SyntaxArena Cloud Sync</span>
+        </h3>
+        <button type="button" class="btn-icon" id="btn-close-auth" aria-label="Close Authentication Dialog" style="background: transparent; border: none; font-size: 1.5rem; color: #94a3b8; cursor: pointer;">✕</button>
+      </div>
+
+      <div class="auth-modal-body">
+        <div class="auth-guest-notice" id="auth-guest-banner">
+          <strong>⚡ Cloud Backup &amp; Sync:</strong> Sign in with Google, GitHub, or Email to preserve your XP, levels, 14 avatars, and 33 badges across all devices.
+        </div>
+
+        <div id="auth-alert" class="auth-alert-banner"></div>
+
+        <div class="auth-tabs-row" role="tablist">
+          <button type="button" class="auth-tab-btn is-active" id="tab-auth-signin" role="tab" aria-selected="true">Sign In</button>
+          <button type="button" class="auth-tab-btn" id="tab-auth-signup" role="tab" aria-selected="false">Create Account</button>
+        </div>
+
+        <div class="auth-oauth-buttons">
+          <button type="button" class="btn-oauth btn-oauth-google" id="btn-oauth-google">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            <span>Continue with Google</span>
+          </button>
+          <button type="button" class="btn-oauth btn-oauth-github" id="btn-oauth-github">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            <span>Continue with GitHub</span>
+          </button>
+        </div>
+
+        <div class="auth-divider"><span>Or with Email</span></div>
+
+        <form id="auth-form" autocomplete="on">
+          <div class="auth-field" id="auth-field-name" style="display: none;">
+            <label for="auth-name">Player Callsign / Display Name</label>
+            <input type="text" id="auth-name" class="auth-input" placeholder="e.g. CyberSamurai" maxlength="24">
+          </div>
+          <div class="auth-field">
+            <label for="auth-email">Email Address</label>
+            <input type="email" id="auth-email" class="auth-input" placeholder="hacker@syntaxarena.cloud" required>
+          </div>
+          <div class="auth-field">
+            <label for="auth-password">Password</label>
+            <div class="auth-input-wrapper">
+              <input type="password" id="auth-password" class="auth-input" placeholder="••••••••" required minlength="6">
+              <button type="button" class="auth-eye-btn" id="btn-auth-toggle-pwd" aria-label="Toggle password visibility">👁️</button>
+            </div>
+          </div>
+          <button type="submit" class="btn-arcade btn-primary btn-block" id="btn-auth-submit" style="width: 100%; margin-top: 0.5rem; padding: 12px;">
+            Sign In to SyntaxArena
+          </button>
+        </form>
+
+        <div style="font-size: 11px; color: #94a3b8; text-align: center; margin-top: 0.85rem; line-height: 1.4;">
+          By continuing, you agree to SyntaxArena's <a href="terms.html" target="_blank" style="color: var(--neon-cyan); text-decoration: underline;">Terms of Service</a> and <a href="privacy.html" target="_blank" style="color: var(--neon-cyan); text-decoration: underline;">Privacy Policy</a>.
+        </div>
+
+        <div style="margin-top: 1rem; text-align: center;">
+          <button type="button" id="btn-auth-signout" class="btn-arcade btn-neutral btn-sm" style="font-size: 11px; padding: 4px 12px; border-color: rgba(244, 63, 94, 0.4); color: #fda4af;">
+            🚪 Sign Out (Return to Guest)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/bundle.js"></script>
+</body>
+</html>

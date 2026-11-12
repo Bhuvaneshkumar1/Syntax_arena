@@ -46,17 +46,57 @@
   gap: var(--space-4);
 }
 
-/* Brand Logo */
+/* Brand Logo & Level Pill */
 .brand-link {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: 0.45rem;
   text-decoration: none;
   color: var(--text-primary);
+  margin-right: 0.25rem;
 }
 
 .brand-link:hover {
   text-decoration: none;
+}
+
+.header-level-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.header-level-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--text-primary);
+  text-decoration: none;
+  background: var(--bg-surface-overlay);
+}
+
+.header-level-tag {
+  color: #fff;
+  font-weight: 800;
+  background: var(--color-primary);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: var(--font-display);
+}
+
+.header-xp-rem {
+  color: var(--color-warning);
+  font-weight: 700;
+  font-size: 10px;
 }
 
 .brand-badge {
@@ -158,6 +198,291 @@
   border-color: var(--color-primary);
   text-decoration: none;
   transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   SIDEBAR ACTIVITY RAIL & MODERN APP SHELL (Item 16)
+   ========================================================================== */
+:root {
+  --sidebar-expanded-width: 240px;
+  --sidebar-collapsed-width: 68px;
+  --topbar-height: 54px;
+}
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-surface-base, #0e131d);
+  position: relative;
+  width: 100%;
+}
+
+/* Sidebar Rail */
+.app-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-expanded-width);
+  background: #090d16;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  user-select: none;
+  scrollbar-width: thin;
+}
+
+.app-sidebar.is-collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  height: var(--topbar-height);
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-brand-text {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+  transition: opacity 0.15s ease;
+}
+
+.app-sidebar.is-collapsed .sidebar-brand-text {
+  display: none;
+}
+
+.btn-sidebar-toggle {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+/* On desktop, hide topbar mobile toggle so only the sidebar's collapse toggle is visible */
+#btn-sidebar-mobile-toggle {
+  display: none;
+}
+
+/* Sidebar Navigation Items */
+.sidebar-nav {
+  padding: 0.75rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.18s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.sidebar-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+}
+
+.sidebar-link[aria-current="page"] {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
+}
+
+.sidebar-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-label {
+  transition: opacity 0.15s ease;
+}
+
+.app-sidebar.is-collapsed .sidebar-label {
+  display: none;
+}
+
+/* Collapsed Tooltip on Hover */
+.app-sidebar.is-collapsed .sidebar-link::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #0f172a;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #ffffff;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 200;
+}
+
+.app-sidebar.is-collapsed .sidebar-link:hover::after {
+  opacity: 1;
+}
+
+/* Sidebar Footer (Battlestation, Settings, Auth Profile) */
+.sidebar-footer {
+  padding: 0.75rem 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(5, 8, 17, 0.6);
+}
+
+.sidebar-auth-card {
+  margin-top: 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar-auth-card:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.sidebar-auth-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.app-sidebar.is-collapsed .sidebar-auth-meta {
+  display: none;
+}
+
+.sidebar-auth-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-auth-status {
+  font-size: 10px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Master Viewport beside Sidebar */
+.app-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: var(--sidebar-expanded-width);
+  transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100vh;
+}
+
+.app-sidebar.is-collapsed ~ .app-viewport {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Sleek Topbar inside Viewport */
+.app-topbar {
+  height: var(--topbar-height);
+  background: rgba(14, 19, 29, 0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  gap: 1rem;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Mobile Bottom Dock (Hidden on Desktop) */
+.mobile-bottom-dock {
+  display: none;
 }
 
 .profile-avatar-mini {
