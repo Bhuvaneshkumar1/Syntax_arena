@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 
   // 2. Step 1: Initiate OAuth Authorization Request
   if (action === 'login' || !code) {
-    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=read:user%20user:email&redirect_uri=${encodeURIComponent(CALLBACK_URL)}`;
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=read:user%20user:email%20gist&redirect_uri=${encodeURIComponent(CALLBACK_URL)}`;
     return res.redirect(302, githubAuthUrl);
   }
 

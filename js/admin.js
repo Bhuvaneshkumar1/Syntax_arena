@@ -181,6 +181,25 @@ export const AdminController = {
       });
     }
 
+    // Credentials Search & Refresh (Issue 3)
+    const credSearch = Utils.qs('#admin-search-credentials');
+    if (credSearch) {
+      credSearch.addEventListener('input', (e) => {
+        this.credentialsSearchQuery = e.target.value.toLowerCase().trim();
+        this.renderAuthCredentialsTable();
+      });
+    }
+
+    const credRefresh = Utils.qs('#btn-refresh-credentials');
+    if (credRefresh) {
+      credRefresh.addEventListener('click', () => {
+        this.renderAuthCredentialsTable();
+        if (typeof UI !== 'undefined' && UI.showToast) {
+          UI.showToast('Credentials registry refreshed.', 'info');
+        }
+      });
+    }
+
     // Search and Language Filter
     const searchInput = Utils.qs('#admin-search-player');
     if (searchInput) {
@@ -458,6 +477,7 @@ export const AdminController = {
     // Render Metrics, Roster Table, and Track Cards
     this.renderGlobalMetrics();
     this.renderPlayerRosterTable();
+    this.renderAuthCredentialsTable();
     this.renderGlobalTrackCards();
   },
 
@@ -717,6 +737,148 @@ export const AdminController = {
         this.deletePlayer(playerId, username);
       });
     });
+  },
+
+  /**
+   * Render registered authentication accounts & credentials for security audit (Issue 3).
+   */
+  renderAuthCredentialsTable() {
+    const tbody = Utils.qs('#admin-credentials-tbody');
+    const countBadge = Utils.qs('#admin-auth-accounts-count');
+    if (!tbody) return;
+
+    let users = [];
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const raw = window.localStorage.getItem('syntaxarena_auth_v1');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.users)) {
+            users = parsed.users;
+          }
+        }
+      }
+    } catch (_) {
+      users = [];
+    }
+
+    if (countBadge) {
+      countBadge.textContent = `${users.length} ACCOUNT${users.length === 1 ? '' : 'S'} REGISTERED`;
+    }
+
+    // Filter by credentials search query
+    let filtered = users.slice();
+    if (this.credentialsSearchQuery) {
+      const q = this.credentialsSearchQuery.toLowerCase();
+      filtered = filtered.filter(u => 
+        (u.email || '').toLowerCase().includes(q) ||
+        (u.displayName || '').toLowerCase().includes(q) ||
+        (u.provider || '').toLowerCase().includes(q) ||
+        (u.id || '').toLowerCase().includes(q)
+      );
+    }
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="padding: var(--space-6); text-align: center; color: var(--text-muted);">
+            ${users.length === 0 ? 'No registered credentials in database yet. Users can register via Google, GitHub, or Email.' : 'No accounts match the search query.'}
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    const providerBadges = {
+      google: '<span class="badge badge-emerald" style="font-size: 11px;">🌐 Google OAuth 2.0</span>',
+      github: '<span class="badge badge-cyan" style="font-size: 11px;">🐙 GitHub OAuth</span>',
+      apple: '<span class="badge badge-violet" style="font-size: 11px;">🍎 Apple ID</span>',
+      email: '<span class="badge badge-neutral" style="font-size: 11px;">✉️ Local Email</span>'
+    };
+
+    tbody.innerHTML = filtered.map(u => {
+      const regDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Initial';
+      const lastLogin = u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : 'Recent';
+      const pBadge = providerBadges[u.provider] || `<span class="badge badge-neutral">${u.provider}</span>`;
+
+      let credStatusHtml = '';
+      if (u.provider === 'email') {
+        const saltPrefix = u.salt ? u.salt.substring(0, 8) + '...' : 'none';
+        const hashPrefix = u.pwdHash ? u.pwdHash.substring(0, 10) + '...' : '[Protected]';
+        credStatusHtml = `
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="badge badge-cyan" style="font-size: 10px; width: fit-content;">🔒 SHA-256 Salted Hash</span>
+            <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">Salt: ${saltPrefix} • Hash: ${hashPrefix}</span>
+          </div>
+        `;
+      } else {
+        const uid = u.providerUserId ? String(u.providerUserId).substring(0, 12) + '...' : 'OAuth-Token';
+        credStatusHtml = `
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="badge badge-emerald" style="font-size: 10px; width: fit-content;">🔑 Token Verified</span>
+            <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">UID: ${uid} • Active Handshake</span>
+          </div>
+        `;
+      }
+
+      return `
+        <tr style="border-bottom: 1px solid var(--border-subtle);">
+          <td style="padding: var(--space-3) var(--space-4);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <img src="${u.avatarUrl || 'assets/images/cyber_fox.svg'}" width="28" height="28" alt="avatar" style="border-radius: 50%; border: 1px solid var(--border-strong);">
+              <div>
+                <strong style="color: var(--text-primary); font-size: var(--text-sm);">${u.displayName || u.email.split('@')[0]}</strong>
+                <div style="font-family: var(--font-mono); font-size: 11px; color: var(--color-cyan);">${u.email}</div>
+                <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">UID: ${u.id}</div>
+              </div>
+            </div>
+          </td>
+          <td style="padding: var(--space-3);">${pBadge}</td>
+          <td style="padding: var(--space-3);">${credStatusHtml}</td>
+          <td style="padding: var(--space-3); font-size: 12px; color: var(--text-secondary);">${regDate}</td>
+          <td style="padding: var(--space-3); font-size: 12px; color: var(--text-secondary);">${lastLogin}</td>
+          <td style="padding: var(--space-3) var(--space-4); text-align: right;">
+            <button class="btn-arcade btn-danger btn-sm btn-revoke-account" data-user-id="${u.id}" data-email="${u.email}" style="font-size: 11px; padding: 4px 8px;" title="Revoke this account registration">
+              Revoke
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // Bind revoke buttons
+    tbody.querySelectorAll('.btn-revoke-account').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const uid = e.currentTarget.getAttribute('data-user-id');
+        const email = e.currentTarget.getAttribute('data-email');
+        if (confirm(`Revoke and delete authentication record for ${email}?\n(The player will need to re-authenticate).`)) {
+          this.revokeUserAccount(uid);
+        }
+      });
+    });
+  },
+
+  /**
+   * Revoke an account registration from syntaxarena_auth_v1.
+   */
+  revokeUserAccount(userId) {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return;
+      const raw = window.localStorage.getItem('syntaxarena_auth_v1');
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.users)) {
+        parsed.users = parsed.users.filter(u => u.id !== userId);
+        if (parsed.activeUserId === userId) parsed.activeUserId = null;
+        window.localStorage.setItem('syntaxarena_auth_v1', JSON.stringify(parsed));
+        if (typeof UI !== 'undefined' && UI.showToast) {
+          UI.showToast('Account record revoked successfully.', 'info');
+        }
+        this.renderAuthCredentialsTable();
+      }
+    } catch (e) {
+      console.warn('[AdminController] Failed to revoke account:', e);
+    }
   },
 
   /**

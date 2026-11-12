@@ -197,16 +197,43 @@
 /* ==========================================================================
    SIDEBAR & MOBILE BOTTOM DOCK RESPONSIVENESS (Item 16)
    ========================================================================== */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 12, 0.78);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 98;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.sidebar-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.sidebar-scroll-lock {
+  overflow: hidden !important;
+}
+
 @media (max-width: 768px) {
   #btn-sidebar-mobile-toggle {
     display: flex !important;
   }
 
   .app-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
     transform: translateX(-100%);
-    width: var(--sidebar-expanded-width) !important;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.8);
-    transition: transform 0.25s ease;
+    width: min(85vw, 280px) !important;
+    max-width: 85vw;
+    box-shadow: 4px 0 28px rgba(0, 0, 0, 0.85);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .app-sidebar.is-mobile-open {
@@ -216,6 +243,26 @@
   .app-viewport {
     margin-left: 0 !important;
     margin-bottom: 60px; /* Space for bottom dock */
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .app-topbar {
+    padding: 0 0.75rem;
+    gap: 0.5rem;
+    height: 52px;
+  }
+
+  .topbar-left {
+    gap: 0.5rem;
+  }
+
+  .topbar-right {
+    gap: 0.4rem;
+  }
+
+  #btn-nav-play {
+    display: none !important; /* Mobile bottom dock already features primary Arena route */
   }
 
   .mobile-bottom-dock {
@@ -259,5 +306,115 @@
     font-size: 18px;
     line-height: 1;
   }
+}
+
+/* ==========================================================================
+   FLUID MOBILE CARD SCALING & ALIGNMENT RESILIENCE (Issues 5 & 6)
+   ========================================================================== */
+.card,
+.card-raised,
+.option-card,
+.duel-card,
+.battlestation-card,
+.item-card,
+.drill-card,
+.admin-login-card,
+.feedback-panel,
+.incident-telemetry-hud,
+.boss-battle-hud,
+.auth-dialog {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+html,
+body,
+.app-viewport,
+.page-container {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+@media (max-width: 640px) {
+  .options-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem;
+  }
+
+  .option-card {
+    padding: 0.75rem 0.85rem !important;
+    font-size: 13px !important;
+    min-height: 48px;
+  }
+
+  .admin-table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-auth-wrapper {
+    padding: var(--space-2) 0 !important;
+    min-height: auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-topbar {
+    padding: 0 0.4rem;
+    gap: 0.3rem;
+  }
+
+  .cloud-sync-pill {
+    padding: 4px 8px;
+    font-size: 11px;
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .profile-pill {
+    padding: 4px;
+  }
+
+  .profile-pill .profile-name {
+    display: none;
+  }
+
+  /* Compact Question Action Bar on Mobile */
+  .card-body > div[style*="justify-content: space-between"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+
+  .card-body > div[style*="justify-content: space-between"] > div {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
+  }
+
+  .card-body > div[style*="justify-content: space-between"] > div > button {
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* ==========================================================================
+   MOBILE LOADING & RENDERING SPEED ACCELERATOR (Issue 2)
+   ========================================================================== */
+.catalog-grid,
+.languages-grid,
+.curriculum-roster,
+.leaderboard-container,
+#admin-tracks-grid,
+.mem-level-selection-grid {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 360px;
 }
 

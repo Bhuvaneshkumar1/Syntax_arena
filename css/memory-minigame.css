@@ -656,6 +656,29 @@
 @media (max-width: 900px) {
   .mem-interactive-stage {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .mem-interactive-stage {
+    padding: 0.65rem 0.5rem;
+    gap: 1rem;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .mem-stack-column,
+  .mem-heap-column {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .mem-stack-frame,
+  .heap-block {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 }

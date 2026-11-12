@@ -372,6 +372,59 @@
 
         </div>
 
+        <!-- Section: Authentication & Registered Credentials Security Audit (Issue 3) -->
+        <section class="card" id="admin-auth-credentials-section" style="margin-bottom: var(--space-6); padding: var(--space-5);">
+          
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-subtle);">
+            <div>
+              <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: 4px;">
+                <span class="badge badge-cyan">🔐 SECURITY AUDIT</span>
+                <span class="badge badge-emerald" id="admin-auth-accounts-count">0 ACCOUNTS REGISTERED</span>
+              </div>
+              <h2 style="font-size: var(--text-lg); font-family: var(--font-display); font-weight: 700; color: var(--text-primary); margin: 0 0 2px 0;">
+                Registered Accounts &amp; Authentication Credentials Registry
+              </h2>
+              <p style="font-size: var(--text-xs); color: var(--text-muted); margin: 0;">
+                Auditing user authentication identities, cryptographic password hashes, and OAuth providers (Google, GitHub, Apple) from isolated storage (<code style="color: var(--color-cyan);">syntaxarena_auth_v1</code>).
+              </p>
+            </div>
+
+            <!-- Credentials Search & Actions -->
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center;">
+              <input 
+                type="search" 
+                id="admin-search-credentials" 
+                class="form-input" 
+                placeholder="Filter by email or provider..." 
+                style="padding: 6px 12px; font-size: var(--text-xs); width: 220px;"
+              >
+              <button id="btn-refresh-credentials" class="btn-arcade btn-neutral btn-sm" type="button" title="Refresh credentials table">
+                <span>🔄 Refresh</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Responsive Credentials Table Container -->
+          <div class="admin-table-container" style="overflow-x: auto;">
+            <table id="admin-credentials-table" class="admin-roster-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: var(--text-sm);">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border-strong); color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase;">
+                  <th style="padding: var(--space-3) var(--space-4);">Account Identity</th>
+                  <th style="padding: var(--space-3) var(--space-3);">Provider</th>
+                  <th style="padding: var(--space-3) var(--space-3);">Cryptographic Credential State</th>
+                  <th style="padding: var(--space-3) var(--space-3);">Registered</th>
+                  <th style="padding: var(--space-3) var(--space-3);">Last Login</th>
+                  <th style="padding: var(--space-3) var(--space-4); text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-credentials-tbody">
+                <!-- Dynamically populated by AdminController -->
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+
         <!-- Section: Player Roster & Language Progress -->
         <section class="card" style="margin-bottom: var(--space-6); padding: var(--space-5);">
           
@@ -797,7 +850,7 @@
     </div>
   </div>
 
-  <script src="js/bundle.js"></script>
+  <script src="js/bundle.js" defer></script>
 </body>
 </html>
 

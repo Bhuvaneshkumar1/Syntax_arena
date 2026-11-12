@@ -95,6 +95,25 @@ export class AuthManager {
       // Non-critical
     }
 
+    // Consume incoming one-click sync transfer link if opened on this phone/device
+    this.consumeIncomingSyncLink();
+
+    // If currently authenticated, attempt background cloud refresh
+    if (this.currentUser) {
+      this.pullCloudSave(this.currentUser).catch(() => {});
+    }
+
+    // Subscribe to activeProfile changes to auto-push progress updates to cloud
+    try {
+      if (typeof window !== 'undefined' && window.State && typeof window.State.subscribe === 'function') {
+        window.State.subscribe('activeProfile', () => {
+          if (this.isAuthenticated()) {
+            this.pushCloudSave();
+          }
+        });
+      }
+    } catch (_) {}
+
     this.isInitialized = true;
     this._emit('auth:init', { user: this.currentUser, syncStatus: this.syncStatus });
     return this.currentUser;
@@ -272,12 +291,28 @@ export class AuthManager {
   }
 
   /**
-   * Link user to active profile in StorageManager / State without overwriting game data.
+   * Link user to active profile in StorageManager / State and initiate cloud sync handshake.
    */
   _linkToActiveProfile(user) {
     try {
       if (typeof window === 'undefined') return;
       const StateObj = window.State;
+      const StorageObj = window.Storage;
+
+      // 1. If local storage already has a profile for this email/provider, activate it first
+      if (StorageObj && typeof StorageObj.load === 'function') {
+        const raw = StorageObj.load();
+        if (raw && Array.isArray(raw.profiles)) {
+          const matched = raw.profiles.find(p => p.linkedAccount && p.linkedAccount.email === user.email);
+          if (matched && StateObj && typeof StateObj.set === 'function') {
+            raw.activeProfileId = matched.id;
+            StorageObj.save(raw);
+            StateObj.set('activeProfile', matched, true);
+          }
+        }
+      }
+
+      // 2. Link account info to the active profile
       if (StateObj && typeof StateObj.get === 'function') {
         const activeProf = StateObj.get('activeProfile');
         if (activeProf) {
@@ -292,9 +327,209 @@ export class AuthManager {
           }
         }
       }
+
+      // 3. Trigger asynchronous cloud pull to restore remote progress across devices
+      this.pullCloudSave(user).catch(err => {
+        console.warn('[AuthManager] Non-critical cloud pull notice:', err);
+      });
     } catch (err) {
       console.warn('[AuthManager] Non-critical profile link notice:', err);
     }
+  }
+
+  /**
+   * Fetch remote cloud save from /api/sync and restore if higher or newer progress.
+   */
+  async pullCloudSave(user = this.currentUser) {
+    if (!user || !user.email) return null;
+    if (typeof window === 'undefined' || !window.location || !window.location.origin) return null;
+    try {
+      this.syncStatus = 'syncing';
+      this._emit('auth:sync-status', { status: 'syncing', message: 'Checking cloud save...' });
+
+      const res = await fetch(`/api/sync?key=${encodeURIComponent(user.email.toLowerCase())}`);
+      if (!res.ok) {
+        this.syncStatus = 'synced';
+        return null;
+      }
+
+      const data = await res.json();
+      if (!data.found || !data.profile) {
+        // No remote cloud save yet; push current state so initial progress is preserved
+        await this.pushCloudSave();
+        this.syncStatus = 'synced';
+        return null;
+      }
+
+      const cloudProf = data.profile;
+      const StateObj = (typeof window !== 'undefined' && window.State) ? window.State : null;
+      const StorageObj = (typeof window !== 'undefined' && window.Storage) ? window.Storage : null;
+      const localProf = StateObj ? StateObj.get('activeProfile') : null;
+
+      // Determine if cloud profile has more progress
+      const localXP = (localProf && (localProf.lifetimeXP || localProf.xp)) || 0;
+      const cloudXP = (cloudProf && (cloudProf.lifetimeXP || cloudProf.xp)) || 0;
+      const localBadges = (localProf && localProf.purchasedBadges && localProf.purchasedBadges.length) || 0;
+      const cloudBadges = (cloudProf && cloudProf.purchasedBadges && cloudProf.purchasedBadges.length) || 0;
+      const isLocalEmpty = localXP === 0 && localBadges === 0 && (!localProf || !localProf.stats || (localProf.stats.questionsAttempted || 0) === 0);
+
+      if (isLocalEmpty || cloudXP >= localXP || cloudBadges > localBadges) {
+        // Cloud profile is superior or this device is a fresh guest; restore cloud save!
+        cloudProf.authUserId = user.id;
+        cloudProf.linkedAccount = {
+          email: user.email,
+          provider: user.provider,
+          displayName: user.displayName
+        };
+
+        if (StorageObj) {
+          const raw = StorageObj.load();
+          if (raw && Array.isArray(raw.profiles)) {
+            const idx = raw.profiles.findIndex(p => p.id === cloudProf.id || (p.linkedAccount && p.linkedAccount.email === user.email));
+            if (idx >= 0) {
+              raw.profiles[idx] = cloudProf;
+            } else {
+              raw.profiles.unshift(cloudProf);
+            }
+            raw.activeProfileId = cloudProf.id;
+            StorageObj.save(raw);
+          }
+        }
+
+        if (StateObj && typeof StateObj.set === 'function') {
+          StateObj.set('activeProfile', cloudProf, true);
+        }
+
+        if (typeof window !== 'undefined' && window.UI && typeof window.UI.updateHeaderProfile === 'function') {
+          window.UI.updateHeaderProfile();
+        }
+
+        const UIObj = (typeof window !== 'undefined' && window.UI) ? window.UI : null;
+        if (UIObj && typeof UIObj.showToast === 'function') {
+          UIObj.showToast(`☁️ Cloud Save Restored! Level ${cloudProf.level || 1} • ${cloudProf.xp || 0} XP • ${cloudBadges} Badges`, 'success');
+        }
+
+        this.syncStatus = 'synced';
+        this._emit('auth:sync-status', { status: 'synced', profile: cloudProf });
+        return cloudProf;
+      } else {
+        // Local has more recent progress (played offline); push local to cloud
+        await this.pushCloudSave();
+        this.syncStatus = 'synced';
+        return localProf;
+      }
+    } catch (err) {
+      console.warn('[AuthManager] Cloud pull error (safe fallback to local):', err);
+      this.syncStatus = 'synced';
+      return null;
+    }
+  }
+
+  /**
+   * Push current active profile to /api/sync (debounced).
+   */
+  async pushCloudSave() {
+    if (!this.currentUser || !this.currentUser.email) return;
+    if (typeof window === 'undefined' || !window.location || !window.location.origin) return;
+
+    if (this._pushDebounceTimer) {
+      clearTimeout(this._pushDebounceTimer);
+    }
+
+    this._pushDebounceTimer = setTimeout(async () => {
+      try {
+        const StateObj = (typeof window !== 'undefined' && window.State) ? window.State : null;
+        const profile = StateObj ? StateObj.get('activeProfile') : null;
+        if (!profile) return;
+
+        await fetch('/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            key: this.currentUser.email.toLowerCase(),
+            email: this.currentUser.email.toLowerCase(),
+            profile
+          })
+        });
+      } catch (err) {
+        console.warn('[AuthManager] Cloud push background notice:', err);
+      }
+    }, 1200);
+  }
+
+  /**
+   * Generate an instant One-Click Device Transfer Link.
+   * Can be opened on any phone to clone complete game progress without needing database setup.
+   */
+  generateSyncLink() {
+    try {
+      if (typeof window === 'undefined') return '';
+      const StateObj = window.State;
+      const profile = StateObj ? StateObj.get('activeProfile') : null;
+      if (!profile) return '';
+
+      const jsonStr = JSON.stringify(profile);
+      const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
+      const origin = window.location.origin || '';
+      return `${origin}/index.html?sync_data=${encoded}`;
+    } catch (e) {
+      console.warn('[AuthManager] Failed to generate sync link:', e);
+      return '';
+    }
+  }
+
+  /**
+   * Check and consume incoming sync_data from URL parameter upon page load.
+   */
+  consumeIncomingSyncLink() {
+    try {
+      if (typeof window === 'undefined' || !window.location || !window.location.search) return false;
+      const params = new URLSearchParams(window.location.search);
+      const rawData = params.get('sync_data') || params.get('import_sync');
+      if (!rawData) return false;
+
+      const decoded = decodeURIComponent(escape(atob(decodeURIComponent(rawData))));
+      const profile = JSON.parse(decoded);
+
+      if (profile && profile.id && typeof profile.xp === 'number') {
+        const StorageObj = window.Storage;
+        const StateObj = window.State;
+
+        if (StorageObj) {
+          const raw = StorageObj.load();
+          if (raw && Array.isArray(raw.profiles)) {
+            const idx = raw.profiles.findIndex(p => p.id === profile.id);
+            if (idx >= 0) {
+              raw.profiles[idx] = profile;
+            } else {
+              raw.profiles.unshift(profile);
+            }
+            raw.activeProfileId = profile.id;
+            StorageObj.save(raw);
+          }
+        }
+
+        if (StateObj) {
+          StateObj.set('activeProfile', profile, true);
+        }
+
+        // Clean query parameter from address bar
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+
+        setTimeout(() => {
+          if (typeof window.UI !== 'undefined' && typeof window.UI.showToast === 'function') {
+            window.UI.showToast(`🎉 Device Transfer Complete! Restored Lv.${profile.level || 1} with ${profile.purchasedBadges?.length || 0} badges!`, 'success');
+            if (typeof window.UI.triggerConfetti === 'function') window.UI.triggerConfetti();
+          }
+        }, 600);
+
+        return true;
+      }
+    } catch (e) {
+      console.warn('[AuthManager] Could not parse incoming sync link:', e);
+    }
+    return false;
   }
 
   /**

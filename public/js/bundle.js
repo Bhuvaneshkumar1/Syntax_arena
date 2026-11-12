@@ -97955,6 +97955,25 @@ var AuthManager = window.AuthManager = class AuthManager {
       // Non-critical
     }
 
+    // Consume incoming one-click sync transfer link if opened on this phone/device
+    this.consumeIncomingSyncLink();
+
+    // If currently authenticated, attempt background cloud refresh
+    if (this.currentUser) {
+      this.pullCloudSave(this.currentUser).catch(() => {});
+    }
+
+    // Subscribe to activeProfile changes to auto-push progress updates to cloud
+    try {
+      if (typeof window !== 'undefined' && window.State && typeof window.State.subscribe === 'function') {
+        window.State.subscribe('activeProfile', () => {
+          if (this.isAuthenticated()) {
+            this.pushCloudSave();
+          }
+        });
+      }
+    } catch (_) {}
+
     this.isInitialized = true;
     this._emit('auth:init', { user: this.currentUser, syncStatus: this.syncStatus });
     return this.currentUser;
@@ -98132,12 +98151,28 @@ var AuthManager = window.AuthManager = class AuthManager {
   }
 
   /**
-   * Link user to active profile in StorageManager / State without overwriting game data.
+   * Link user to active profile in StorageManager / State and initiate cloud sync handshake.
    */
   _linkToActiveProfile(user) {
     try {
       if (typeof window === 'undefined') return;
       const StateObj = window.State;
+      const StorageObj = window.Storage;
+
+      // 1. If local storage already has a profile for this email/provider, activate it first
+      if (StorageObj && typeof StorageObj.load === 'function') {
+        const raw = StorageObj.load();
+        if (raw && Array.isArray(raw.profiles)) {
+          const matched = raw.profiles.find(p => p.linkedAccount && p.linkedAccount.email === user.email);
+          if (matched && StateObj && typeof StateObj.set === 'function') {
+            raw.activeProfileId = matched.id;
+            StorageObj.save(raw);
+            StateObj.set('activeProfile', matched, true);
+          }
+        }
+      }
+
+      // 2. Link account info to the active profile
       if (StateObj && typeof StateObj.get === 'function') {
         const activeProf = StateObj.get('activeProfile');
         if (activeProf) {
@@ -98152,9 +98187,209 @@ var AuthManager = window.AuthManager = class AuthManager {
           }
         }
       }
+
+      // 3. Trigger asynchronous cloud pull to restore remote progress across devices
+      this.pullCloudSave(user).catch(err => {
+        console.warn('[AuthManager] Non-critical cloud pull notice:', err);
+      });
     } catch (err) {
       console.warn('[AuthManager] Non-critical profile link notice:', err);
     }
+  }
+
+  /**
+   * Fetch remote cloud save from /api/sync and restore if higher or newer progress.
+   */
+  async pullCloudSave(user = this.currentUser) {
+    if (!user || !user.email) return null;
+    if (typeof window === 'undefined' || !window.location || !window.location.origin) return null;
+    try {
+      this.syncStatus = 'syncing';
+      this._emit('auth:sync-status', { status: 'syncing', message: 'Checking cloud save...' });
+
+      const res = await fetch(`/api/sync?key=${encodeURIComponent(user.email.toLowerCase())}`);
+      if (!res.ok) {
+        this.syncStatus = 'synced';
+        return null;
+      }
+
+      const data = await res.json();
+      if (!data.found || !data.profile) {
+        // No remote cloud save yet; push current state so initial progress is preserved
+        await this.pushCloudSave();
+        this.syncStatus = 'synced';
+        return null;
+      }
+
+      const cloudProf = data.profile;
+      const StateObj = (typeof window !== 'undefined' && window.State) ? window.State : null;
+      const StorageObj = (typeof window !== 'undefined' && window.Storage) ? window.Storage : null;
+      const localProf = StateObj ? StateObj.get('activeProfile') : null;
+
+      // Determine if cloud profile has more progress
+      const localXP = (localProf && (localProf.lifetimeXP || localProf.xp)) || 0;
+      const cloudXP = (cloudProf && (cloudProf.lifetimeXP || cloudProf.xp)) || 0;
+      const localBadges = (localProf && localProf.purchasedBadges && localProf.purchasedBadges.length) || 0;
+      const cloudBadges = (cloudProf && cloudProf.purchasedBadges && cloudProf.purchasedBadges.length) || 0;
+      const isLocalEmpty = localXP === 0 && localBadges === 0 && (!localProf || !localProf.stats || (localProf.stats.questionsAttempted || 0) === 0);
+
+      if (isLocalEmpty || cloudXP >= localXP || cloudBadges > localBadges) {
+        // Cloud profile is superior or this device is a fresh guest; restore cloud save!
+        cloudProf.authUserId = user.id;
+        cloudProf.linkedAccount = {
+          email: user.email,
+          provider: user.provider,
+          displayName: user.displayName
+        };
+
+        if (StorageObj) {
+          const raw = StorageObj.load();
+          if (raw && Array.isArray(raw.profiles)) {
+            const idx = raw.profiles.findIndex(p => p.id === cloudProf.id || (p.linkedAccount && p.linkedAccount.email === user.email));
+            if (idx >= 0) {
+              raw.profiles[idx] = cloudProf;
+            } else {
+              raw.profiles.unshift(cloudProf);
+            }
+            raw.activeProfileId = cloudProf.id;
+            StorageObj.save(raw);
+          }
+        }
+
+        if (StateObj && typeof StateObj.set === 'function') {
+          StateObj.set('activeProfile', cloudProf, true);
+        }
+
+        if (typeof window !== 'undefined' && window.UI && typeof window.UI.updateHeaderProfile === 'function') {
+          window.UI.updateHeaderProfile();
+        }
+
+        const UIObj = (typeof window !== 'undefined' && window.UI) ? window.UI : null;
+        if (UIObj && typeof UIObj.showToast === 'function') {
+          UIObj.showToast(`☁️ Cloud Save Restored! Level ${cloudProf.level || 1} • ${cloudProf.xp || 0} XP • ${cloudBadges} Badges`, 'success');
+        }
+
+        this.syncStatus = 'synced';
+        this._emit('auth:sync-status', { status: 'synced', profile: cloudProf });
+        return cloudProf;
+      } else {
+        // Local has more recent progress (played offline); push local to cloud
+        await this.pushCloudSave();
+        this.syncStatus = 'synced';
+        return localProf;
+      }
+    } catch (err) {
+      console.warn('[AuthManager] Cloud pull error (safe fallback to local):', err);
+      this.syncStatus = 'synced';
+      return null;
+    }
+  }
+
+  /**
+   * Push current active profile to /api/sync (debounced).
+   */
+  async pushCloudSave() {
+    if (!this.currentUser || !this.currentUser.email) return;
+    if (typeof window === 'undefined' || !window.location || !window.location.origin) return;
+
+    if (this._pushDebounceTimer) {
+      clearTimeout(this._pushDebounceTimer);
+    }
+
+    this._pushDebounceTimer = setTimeout(async () => {
+      try {
+        const StateObj = (typeof window !== 'undefined' && window.State) ? window.State : null;
+        const profile = StateObj ? StateObj.get('activeProfile') : null;
+        if (!profile) return;
+
+        await fetch('/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            key: this.currentUser.email.toLowerCase(),
+            email: this.currentUser.email.toLowerCase(),
+            profile
+          })
+        });
+      } catch (err) {
+        console.warn('[AuthManager] Cloud push background notice:', err);
+      }
+    }, 1200);
+  }
+
+  /**
+   * Generate an instant One-Click Device Transfer Link.
+   * Can be opened on any phone to clone complete game progress without needing database setup.
+   */
+  generateSyncLink() {
+    try {
+      if (typeof window === 'undefined') return '';
+      const StateObj = window.State;
+      const profile = StateObj ? StateObj.get('activeProfile') : null;
+      if (!profile) return '';
+
+      const jsonStr = JSON.stringify(profile);
+      const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
+      const origin = window.location.origin || '';
+      return `${origin}/index.html?sync_data=${encoded}`;
+    } catch (e) {
+      console.warn('[AuthManager] Failed to generate sync link:', e);
+      return '';
+    }
+  }
+
+  /**
+   * Check and consume incoming sync_data from URL parameter upon page load.
+   */
+  consumeIncomingSyncLink() {
+    try {
+      if (typeof window === 'undefined' || !window.location || !window.location.search) return false;
+      const params = new URLSearchParams(window.location.search);
+      const rawData = params.get('sync_data') || params.get('import_sync');
+      if (!rawData) return false;
+
+      const decoded = decodeURIComponent(escape(atob(decodeURIComponent(rawData))));
+      const profile = JSON.parse(decoded);
+
+      if (profile && profile.id && typeof profile.xp === 'number') {
+        const StorageObj = window.Storage;
+        const StateObj = window.State;
+
+        if (StorageObj) {
+          const raw = StorageObj.load();
+          if (raw && Array.isArray(raw.profiles)) {
+            const idx = raw.profiles.findIndex(p => p.id === profile.id);
+            if (idx >= 0) {
+              raw.profiles[idx] = profile;
+            } else {
+              raw.profiles.unshift(profile);
+            }
+            raw.activeProfileId = profile.id;
+            StorageObj.save(raw);
+          }
+        }
+
+        if (StateObj) {
+          StateObj.set('activeProfile', profile, true);
+        }
+
+        // Clean query parameter from address bar
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+
+        setTimeout(() => {
+          if (typeof window.UI !== 'undefined' && typeof window.UI.showToast === 'function') {
+            window.UI.showToast(`🎉 Device Transfer Complete! Restored Lv.${profile.level || 1} with ${profile.purchasedBadges?.length || 0} badges!`, 'success');
+            if (typeof window.UI.triggerConfetti === 'function') window.UI.triggerConfetti();
+          }
+        }, 600);
+
+        return true;
+      }
+    } catch (e) {
+      console.warn('[AuthManager] Could not parse incoming sync link:', e);
+    }
+    return false;
   }
 
   /**
@@ -106277,6 +106512,39 @@ var UI = window.UI = {
 
     if (!sidebar) return;
 
+    // Mobile Glassmorphic Backdrop overlay
+    let backdrop = document.getElementById('sidebar-backdrop');
+    if (!backdrop && typeof document !== 'undefined') {
+      backdrop = document.createElement('div');
+      backdrop.id = 'sidebar-backdrop';
+      backdrop.className = 'sidebar-backdrop';
+      backdrop.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(backdrop);
+    }
+
+    // Helper functions for closing and opening mobile sidebar
+    const closeMobileSidebar = () => {
+      sidebar.classList.remove('is-mobile-open');
+      if (backdrop) backdrop.classList.remove('is-open');
+      document.body.classList.remove('sidebar-scroll-lock');
+    };
+
+    const openMobileSidebar = () => {
+      sidebar.classList.add('is-mobile-open');
+      if (backdrop) backdrop.classList.add('is-open');
+      document.body.classList.add('sidebar-scroll-lock');
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    const toggleMobileSidebar = (e) => {
+      if (e) e.preventDefault();
+      if (sidebar.classList.contains('is-mobile-open')) {
+        closeMobileSidebar();
+      } else {
+        openMobileSidebar();
+      }
+    };
+
     // Restore saved collapse preference (defaults to collapsed 68px on desktop for clean IDE look)
     const savedState = localStorage.getItem('syntaxarena_sidebar_collapsed');
     if (savedState === 'false') {
@@ -106285,41 +106553,75 @@ var UI = window.UI = {
       sidebar.classList.add('is-collapsed');
     }
 
-    const toggle = (e) => {
+    const toggleDesktopCollapse = (e) => {
       if (e) e.preventDefault();
       const isCollapsed = sidebar.classList.toggle('is-collapsed');
       localStorage.setItem('syntaxarena_sidebar_collapsed', String(isCollapsed));
       if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
     };
 
+    // Toggle button in sidebar header:
+    // If mobile drawer is open or viewport <= 768px, close drawer; else toggle desktop collapse.
     if (toggleBtn) {
-      toggleBtn.onclick = toggle;
+      toggleBtn.onclick = (e) => {
+        if (e) e.preventDefault();
+        if (window.innerWidth <= 768 || sidebar.classList.contains('is-mobile-open')) {
+          closeMobileSidebar();
+          if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+        } else {
+          toggleDesktopCollapse(e);
+        }
+      };
     }
 
     if (mobileToggle) {
-      mobileToggle.onclick = (e) => {
+      mobileToggle.onclick = toggleMobileSidebar;
+    }
+
+    if (backdrop) {
+      backdrop.onclick = (e) => {
         if (e) e.preventDefault();
-        sidebar.classList.toggle('is-mobile-open');
+        closeMobileSidebar();
         if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
       };
     }
 
-    // Keyboard shortcut: Ctrl + B or Cmd + B to toggle sidebar
+    // Keyboard shortcuts:
+    // Ctrl/Cmd + B: toggle desktop sidebar
+    // Escape: close mobile drawer
     window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sidebar.classList.contains('is-mobile-open')) {
+        closeMobileSidebar();
+        return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
         const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
         if (activeTag !== 'input' && activeTag !== 'textarea') {
           e.preventDefault();
-          toggle();
+          if (window.innerWidth <= 768) {
+            toggleMobileSidebar();
+          } else {
+            toggleDesktopCollapse();
+          }
         }
       }
     });
 
-    // Close mobile sidebar on route click or outside click
-    document.querySelectorAll('.sidebar-link').forEach(link => {
-      link.addEventListener('click', () => {
-        sidebar.classList.remove('is-mobile-open');
+    // Close mobile sidebar on ANY click inside sidebar (routes, brand, buttons, auth card)
+    const closeTargets = sidebar.querySelectorAll('a, button, .sidebar-link, .sidebar-brand, .sidebar-auth-card');
+    closeTargets.forEach(el => {
+      el.addEventListener('click', () => {
+        if (window.innerWidth <= 768 || sidebar.classList.contains('is-mobile-open')) {
+          closeMobileSidebar();
+        }
       });
+    });
+
+    // On viewport resize: if resized to desktop, ensure mobile classes are cleaned up
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && sidebar.classList.contains('is-mobile-open')) {
+        closeMobileSidebar();
+      }
     });
   },
 
@@ -119561,6 +119863,25 @@ var AdminController = window.AdminController = {
       });
     }
 
+    // Credentials Search & Refresh (Issue 3)
+    const credSearch = Utils.qs('#admin-search-credentials');
+    if (credSearch) {
+      credSearch.addEventListener('input', (e) => {
+        this.credentialsSearchQuery = e.target.value.toLowerCase().trim();
+        this.renderAuthCredentialsTable();
+      });
+    }
+
+    const credRefresh = Utils.qs('#btn-refresh-credentials');
+    if (credRefresh) {
+      credRefresh.addEventListener('click', () => {
+        this.renderAuthCredentialsTable();
+        if (typeof UI !== 'undefined' && UI.showToast) {
+          UI.showToast('Credentials registry refreshed.', 'info');
+        }
+      });
+    }
+
     // Search and Language Filter
     const searchInput = Utils.qs('#admin-search-player');
     if (searchInput) {
@@ -119838,6 +120159,7 @@ var AdminController = window.AdminController = {
     // Render Metrics, Roster Table, and Track Cards
     this.renderGlobalMetrics();
     this.renderPlayerRosterTable();
+    this.renderAuthCredentialsTable();
     this.renderGlobalTrackCards();
   },
 
@@ -120097,6 +120419,148 @@ var AdminController = window.AdminController = {
         this.deletePlayer(playerId, username);
       });
     });
+  },
+
+  /**
+   * Render registered authentication accounts & credentials for security audit (Issue 3).
+   */
+  renderAuthCredentialsTable() {
+    const tbody = Utils.qs('#admin-credentials-tbody');
+    const countBadge = Utils.qs('#admin-auth-accounts-count');
+    if (!tbody) return;
+
+    let users = [];
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const raw = window.localStorage.getItem('syntaxarena_auth_v1');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.users)) {
+            users = parsed.users;
+          }
+        }
+      }
+    } catch (_) {
+      users = [];
+    }
+
+    if (countBadge) {
+      countBadge.textContent = `${users.length} ACCOUNT${users.length === 1 ? '' : 'S'} REGISTERED`;
+    }
+
+    // Filter by credentials search query
+    let filtered = users.slice();
+    if (this.credentialsSearchQuery) {
+      const q = this.credentialsSearchQuery.toLowerCase();
+      filtered = filtered.filter(u => 
+        (u.email || '').toLowerCase().includes(q) ||
+        (u.displayName || '').toLowerCase().includes(q) ||
+        (u.provider || '').toLowerCase().includes(q) ||
+        (u.id || '').toLowerCase().includes(q)
+      );
+    }
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="padding: var(--space-6); text-align: center; color: var(--text-muted);">
+            ${users.length === 0 ? 'No registered credentials in database yet. Users can register via Google, GitHub, or Email.' : 'No accounts match the search query.'}
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    const providerBadges = {
+      google: '<span class="badge badge-emerald" style="font-size: 11px;">🌐 Google OAuth 2.0</span>',
+      github: '<span class="badge badge-cyan" style="font-size: 11px;">🐙 GitHub OAuth</span>',
+      apple: '<span class="badge badge-violet" style="font-size: 11px;">🍎 Apple ID</span>',
+      email: '<span class="badge badge-neutral" style="font-size: 11px;">✉️ Local Email</span>'
+    };
+
+    tbody.innerHTML = filtered.map(u => {
+      const regDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Initial';
+      const lastLogin = u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : 'Recent';
+      const pBadge = providerBadges[u.provider] || `<span class="badge badge-neutral">${u.provider}</span>`;
+
+      let credStatusHtml = '';
+      if (u.provider === 'email') {
+        const saltPrefix = u.salt ? u.salt.substring(0, 8) + '...' : 'none';
+        const hashPrefix = u.pwdHash ? u.pwdHash.substring(0, 10) + '...' : '[Protected]';
+        credStatusHtml = `
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="badge badge-cyan" style="font-size: 10px; width: fit-content;">🔒 SHA-256 Salted Hash</span>
+            <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">Salt: ${saltPrefix} • Hash: ${hashPrefix}</span>
+          </div>
+        `;
+      } else {
+        const uid = u.providerUserId ? String(u.providerUserId).substring(0, 12) + '...' : 'OAuth-Token';
+        credStatusHtml = `
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="badge badge-emerald" style="font-size: 10px; width: fit-content;">🔑 Token Verified</span>
+            <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">UID: ${uid} • Active Handshake</span>
+          </div>
+        `;
+      }
+
+      return `
+        <tr style="border-bottom: 1px solid var(--border-subtle);">
+          <td style="padding: var(--space-3) var(--space-4);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <img src="${u.avatarUrl || 'assets/images/cyber_fox.svg'}" width="28" height="28" alt="avatar" style="border-radius: 50%; border: 1px solid var(--border-strong);">
+              <div>
+                <strong style="color: var(--text-primary); font-size: var(--text-sm);">${u.displayName || u.email.split('@')[0]}</strong>
+                <div style="font-family: var(--font-mono); font-size: 11px; color: var(--color-cyan);">${u.email}</div>
+                <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">UID: ${u.id}</div>
+              </div>
+            </div>
+          </td>
+          <td style="padding: var(--space-3);">${pBadge}</td>
+          <td style="padding: var(--space-3);">${credStatusHtml}</td>
+          <td style="padding: var(--space-3); font-size: 12px; color: var(--text-secondary);">${regDate}</td>
+          <td style="padding: var(--space-3); font-size: 12px; color: var(--text-secondary);">${lastLogin}</td>
+          <td style="padding: var(--space-3) var(--space-4); text-align: right;">
+            <button class="btn-arcade btn-danger btn-sm btn-revoke-account" data-user-id="${u.id}" data-email="${u.email}" style="font-size: 11px; padding: 4px 8px;" title="Revoke this account registration">
+              Revoke
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // Bind revoke buttons
+    tbody.querySelectorAll('.btn-revoke-account').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const uid = e.currentTarget.getAttribute('data-user-id');
+        const email = e.currentTarget.getAttribute('data-email');
+        if (confirm(`Revoke and delete authentication record for ${email}?\n(The player will need to re-authenticate).`)) {
+          this.revokeUserAccount(uid);
+        }
+      });
+    });
+  },
+
+  /**
+   * Revoke an account registration from syntaxarena_auth_v1.
+   */
+  revokeUserAccount(userId) {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return;
+      const raw = window.localStorage.getItem('syntaxarena_auth_v1');
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.users)) {
+        parsed.users = parsed.users.filter(u => u.id !== userId);
+        if (parsed.activeUserId === userId) parsed.activeUserId = null;
+        window.localStorage.setItem('syntaxarena_auth_v1', JSON.stringify(parsed));
+        if (typeof UI !== 'undefined' && UI.showToast) {
+          UI.showToast('Account record revoked successfully.', 'info');
+        }
+        this.renderAuthCredentialsTable();
+      }
+    } catch (e) {
+      console.warn('[AdminController] Failed to revoke account:', e);
+    }
   },
 
   /**

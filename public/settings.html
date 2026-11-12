@@ -385,6 +385,48 @@
         </div>
       </section>
 
+      <!-- Section: Cloud Progress Sync & Instant Cross-Device Transfer (Issue 4) -->
+      <section id="section-cloud-sync" class="card" style="margin-bottom: 1.5rem; border-color: rgba(99, 102, 241, 0.4);">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <h2 class="card-title" style="font-size: var(--text-lg); display: flex; align-items: center; gap: 0.5rem;">
+              <span>☁️</span> Cloud Sync &amp; Mobile Phone Transfer
+            </h2>
+            <p style="font-size: 12px; color: var(--text-secondary); margin: 0.25rem 0 0 0;">
+              Synchronize your badges, avatars, XP, levels, and battlestation gear across multiple laptops, tablets, and phones.
+            </p>
+          </div>
+          <span id="cloud-sync-status-badge" class="badge badge-emerald">Cloud Connected</span>
+        </div>
+        <div class="card-body">
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <strong style="color: var(--text-primary); font-size: var(--text-sm);" id="sync-account-email">Local Guest</strong>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="sync-account-detail">
+                  Sign in with Google or GitHub to automatically sync your progress across any phone or computer.
+                </div>
+              </div>
+              <button id="btn-settings-open-auth" class="btn-arcade btn-primary btn-sm" type="button">
+                🔑 Sign In / Link Account
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button id="btn-force-cloud-sync" class="btn-arcade btn-neutral btn-sm" type="button">
+              ☁️ Sync with Cloud Now
+            </button>
+            <button id="btn-copy-mobile-sync-link" class="btn-arcade btn-primary btn-sm" type="button" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+              📲 Copy Mobile Transfer Link (Open on Phone)
+            </button>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0.75rem 0 0 0;">
+            💡 <strong>Pro Tip:</strong> Click <em>"Copy Mobile Transfer Link"</em> to generate a single-use transfer link. Paste it into your phone's browser or send it via chat to instantly clone your exact level, avatar, and badges without any login!
+          </p>
+        </div>
+      </section>
+
       <!-- Section 4: Data Storage, Backup & Reset -->
       <section class="card" style="border-color: var(--border-strong);">
         <div class="card-header">
@@ -688,7 +730,7 @@
     </div>
   </div>
 
-  <script src="js/bundle.js"></script>
+  <script src="js/bundle.js" defer></script>
 
   <!-- Settings Page Script -->
   <script>
@@ -1177,6 +1219,89 @@
             }
           };
           reader.readAsText(file);
+        };
+      }
+
+      // Cloud Progress Sync & Mobile Transfer Handlers (Issue 4)
+      function updateCloudSyncUI() {
+        const emailEl = Utils.qs('#sync-account-email');
+        const detailEl = Utils.qs('#sync-account-detail');
+        const badgeEl = Utils.qs('#cloud-sync-status-badge');
+        const authBtn = Utils.qs('#btn-settings-open-auth');
+
+        const currentUser = (typeof Auth !== 'undefined' && Auth.getCurrentUser) ? Auth.getCurrentUser() : null;
+        if (currentUser && currentUser.email) {
+          if (emailEl) emailEl.textContent = `Synced: ${currentUser.displayName} (${currentUser.email})`;
+          if (detailEl) detailEl.textContent = `Provider: ${currentUser.provider.toUpperCase()} • Cloud Auto-Sync Active across all devices`;
+          if (badgeEl) {
+            badgeEl.textContent = '☁️ Synced & Protected';
+            badgeEl.className = 'badge badge-emerald';
+          }
+          if (authBtn) authBtn.textContent = 'Manage Account';
+        } else {
+          if (emailEl) emailEl.textContent = 'Local Guest Account (Not Synced)';
+          if (detailEl) detailEl.textContent = 'Sign in with Google or GitHub to automatically sync your badges, avatar, and XP across your phone and computer.';
+          if (badgeEl) {
+            badgeEl.textContent = 'Local Only';
+            badgeEl.className = 'badge badge-neutral';
+          }
+          if (authBtn) authBtn.textContent = '🔑 Sign In / Link Account';
+        }
+      }
+      updateCloudSyncUI();
+
+      const btnForceSync = Utils.qs('#btn-force-cloud-sync');
+      if (btnForceSync) {
+        btnForceSync.onclick = async () => {
+          if (typeof Auth === 'undefined' || !Auth.isAuthenticated()) {
+            UI.showToast('Please sign in with Google or GitHub first to enable Cloud Sync.', 'warning');
+            const modal = document.getElementById('modal-auth');
+            if (modal) { modal.style.display = 'flex'; modal.classList.add('is-open'); }
+            return;
+          }
+          btnForceSync.disabled = true;
+          btnForceSync.textContent = '⏳ Syncing...';
+          try {
+            await Auth.pullCloudSave();
+            await Auth.pushCloudSave();
+            updateCloudSyncUI();
+            UI.showToast('☁️ Cloud Save verified and synchronized successfully!', 'success');
+          } catch (_) {
+            UI.showToast('Cloud sync completed with local backup.', 'info');
+          } finally {
+            btnForceSync.disabled = false;
+            btnForceSync.textContent = '☁️ Sync with Cloud Now';
+          }
+        };
+      }
+
+      const btnCopyLink = Utils.qs('#btn-copy-mobile-sync-link');
+      if (btnCopyLink) {
+        btnCopyLink.onclick = () => {
+          if (typeof Auth === 'undefined' || !Auth.generateSyncLink) return;
+          const link = Auth.generateSyncLink();
+          if (link) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(link).then(() => {
+                UI.showToast('📋 Transfer link copied to clipboard! Open it on your phone to transfer progress.', 'success');
+              }).catch(() => {
+                prompt('Copy this link and open it on your phone:', link);
+              });
+            } else {
+              prompt('Copy this link and open it on your phone:', link);
+            }
+          }
+        };
+      }
+
+      const btnSettingsAuth = Utils.qs('#btn-settings-open-auth');
+      if (btnSettingsAuth) {
+        btnSettingsAuth.onclick = () => {
+          const modal = document.getElementById('modal-auth');
+          if (modal) {
+            modal.style.display = 'flex';
+            modal.classList.add('is-open');
+          }
         };
       }
 

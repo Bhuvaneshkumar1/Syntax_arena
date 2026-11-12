@@ -622,6 +622,39 @@ export const UI = {
 
     if (!sidebar) return;
 
+    // Mobile Glassmorphic Backdrop overlay
+    let backdrop = document.getElementById('sidebar-backdrop');
+    if (!backdrop && typeof document !== 'undefined') {
+      backdrop = document.createElement('div');
+      backdrop.id = 'sidebar-backdrop';
+      backdrop.className = 'sidebar-backdrop';
+      backdrop.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(backdrop);
+    }
+
+    // Helper functions for closing and opening mobile sidebar
+    const closeMobileSidebar = () => {
+      sidebar.classList.remove('is-mobile-open');
+      if (backdrop) backdrop.classList.remove('is-open');
+      document.body.classList.remove('sidebar-scroll-lock');
+    };
+
+    const openMobileSidebar = () => {
+      sidebar.classList.add('is-mobile-open');
+      if (backdrop) backdrop.classList.add('is-open');
+      document.body.classList.add('sidebar-scroll-lock');
+      if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+    };
+
+    const toggleMobileSidebar = (e) => {
+      if (e) e.preventDefault();
+      if (sidebar.classList.contains('is-mobile-open')) {
+        closeMobileSidebar();
+      } else {
+        openMobileSidebar();
+      }
+    };
+
     // Restore saved collapse preference (defaults to collapsed 68px on desktop for clean IDE look)
     const savedState = localStorage.getItem('syntaxarena_sidebar_collapsed');
     if (savedState === 'false') {
@@ -630,41 +663,75 @@ export const UI = {
       sidebar.classList.add('is-collapsed');
     }
 
-    const toggle = (e) => {
+    const toggleDesktopCollapse = (e) => {
       if (e) e.preventDefault();
       const isCollapsed = sidebar.classList.toggle('is-collapsed');
       localStorage.setItem('syntaxarena_sidebar_collapsed', String(isCollapsed));
       if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
     };
 
+    // Toggle button in sidebar header:
+    // If mobile drawer is open or viewport <= 768px, close drawer; else toggle desktop collapse.
     if (toggleBtn) {
-      toggleBtn.onclick = toggle;
+      toggleBtn.onclick = (e) => {
+        if (e) e.preventDefault();
+        if (window.innerWidth <= 768 || sidebar.classList.contains('is-mobile-open')) {
+          closeMobileSidebar();
+          if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
+        } else {
+          toggleDesktopCollapse(e);
+        }
+      };
     }
 
     if (mobileToggle) {
-      mobileToggle.onclick = (e) => {
+      mobileToggle.onclick = toggleMobileSidebar;
+    }
+
+    if (backdrop) {
+      backdrop.onclick = (e) => {
         if (e) e.preventDefault();
-        sidebar.classList.toggle('is-mobile-open');
+        closeMobileSidebar();
         if (typeof AudioEngine !== 'undefined') AudioEngine.playClick();
       };
     }
 
-    // Keyboard shortcut: Ctrl + B or Cmd + B to toggle sidebar
+    // Keyboard shortcuts:
+    // Ctrl/Cmd + B: toggle desktop sidebar
+    // Escape: close mobile drawer
     window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sidebar.classList.contains('is-mobile-open')) {
+        closeMobileSidebar();
+        return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
         const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
         if (activeTag !== 'input' && activeTag !== 'textarea') {
           e.preventDefault();
-          toggle();
+          if (window.innerWidth <= 768) {
+            toggleMobileSidebar();
+          } else {
+            toggleDesktopCollapse();
+          }
         }
       }
     });
 
-    // Close mobile sidebar on route click or outside click
-    document.querySelectorAll('.sidebar-link').forEach(link => {
-      link.addEventListener('click', () => {
-        sidebar.classList.remove('is-mobile-open');
+    // Close mobile sidebar on ANY click inside sidebar (routes, brand, buttons, auth card)
+    const closeTargets = sidebar.querySelectorAll('a, button, .sidebar-link, .sidebar-brand, .sidebar-auth-card');
+    closeTargets.forEach(el => {
+      el.addEventListener('click', () => {
+        if (window.innerWidth <= 768 || sidebar.classList.contains('is-mobile-open')) {
+          closeMobileSidebar();
+        }
       });
+    });
+
+    // On viewport resize: if resized to desktop, ensure mobile classes are cleaned up
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && sidebar.classList.contains('is-mobile-open')) {
+        closeMobileSidebar();
+      }
     });
   },
 
