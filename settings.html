@@ -410,6 +410,132 @@
         </div>
       </section>
 
+      <!-- Section 5: Legal Compliance, Privacy Policy & Terms of Service (Item 2) -->
+      <section id="section-legal" class="card" style="margin-top: 1.5rem; border-color: rgba(56, 189, 248, 0.35);">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <h2 class="card-title" style="font-size: var(--text-lg); display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚖️</span> Legal, Privacy &amp; Terms of Service
+            </h2>
+            <p style="font-size: 12px; color: var(--text-secondary); margin: 0.25rem 0 0 0;">
+              Review SyntaxArena's data privacy protections, Google OAuth 2.0 compliance, and fair play terms.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="badge badge-cyan">Google OAuth Compliant</span>
+            <span class="badge badge-emerald">Zero-Sale Guarantee</span>
+          </div>
+        </div>
+        <div class="card-body">
+          
+          <!-- Legal Mode Switcher Tabs -->
+          <div class="battlestation-tabs" role="tablist" style="margin-bottom: 1.25rem;">
+            <button type="button" class="battlestation-tab-btn active" id="tab-btn-legal-privacy" role="tab" aria-selected="true">
+              <span>🔒</span> Privacy Policy
+            </button>
+            <button type="button" class="battlestation-tab-btn" id="tab-btn-legal-terms" role="tab" aria-selected="false">
+              <span>📜</span> Terms of Service
+            </button>
+          </div>
+
+          <!-- Embedded Reader Container -->
+          <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 1.5rem; max-height: 480px; overflow-y: auto; font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+            
+            <!-- Pane 1: Privacy Policy -->
+            <div id="pane-legal-privacy" style="display: block;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.75rem;">
+                <h3 style="font-family: var(--font-display); font-size: 1.25rem; color: var(--text-primary); margin: 0;">SyntaxArena Privacy Policy</h3>
+                <span style="font-size: 11px; color: var(--neon-cyan); font-family: var(--font-mono);">Effective: November 12, 2026</span>
+              </div>
+
+              <!-- Google User Data Policy Compliance Callout -->
+              <div style="background: rgba(66, 133, 244, 0.08); border-left: 4px solid #4285F4; border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin: 1rem 0;">
+                <p style="margin: 0; font-weight: 600; color: #93c5fd; font-size: 0.9rem;">
+                  Google API Services User Data Policy Compliance: SyntaxArena's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener" style="color: #60a5fa; text-decoration: underline;">Google API Services User Data Policy</a>, including the Limited Use requirements.
+                </p>
+              </div>
+
+              <h4 style="color: var(--text-primary); margin: 1.25rem 0 0.5rem;">1. Information We Collect</h4>
+              <p>Depending on your interaction with SyntaxArena, we collect minimal data required to deliver gamified CS learning:</p>
+              <ul style="margin: 0.5rem 0 1rem 1.5rem; padding: 0;">
+                <li><strong>Google Sign-In:</strong> Google Account ID, Verified Email Address, Display Name, and Profile Photo URL. We do NOT access Google Drive, Gmail, Contacts, or any sensitive Google workspace files.</li>
+                <li><strong>GitHub Sign-In:</strong> GitHub Numeric ID, Primary Verified Email, Public Callsign, and Avatar URL.</li>
+                <li><strong>Anonymous Guest Mode:</strong> A randomized local identifier (e.g. <code>guest_xxxx</code>). No email, password, or external credentials required.</li>
+                <li><strong>Game Progression:</strong> Accumulated XP points, difficulty tier, unlocked avatars (14 total), 33 trophy badges, and tactile memory lab scores.</li>
+              </ul>
+
+              <h4 style="color: var(--text-primary); margin: 1.25rem 0 0.5rem;">2. How We Use Your Information</h4>
+              <p>We use collected data solely to authenticate your gaming session, sync your levels and badge achievements across browsers, display your callsign and avatar, and ensure leaderboard integrity.</p>
+
+              <h4 style="color: var(--text-primary); margin: 1.25rem 0 0.5rem;">3. Zero-Sale Data Guarantee &amp; Storage Security</h4>
+              <p>
+                <strong>We will NEVER sell, lease, or monetize your personal data or email to third parties or advertisers.</strong>
+                All authentication handshakes enforce HTTPS / TLS 1.3 encryption. Auth metadata is stored client-side in browser storage under <code>syntaxarena_auth_v1</code>, segregated from game telemetry.
+              </p>
+
+              <h4 style="color: var(--text-primary); margin: 1.25rem 0 0.5rem;">4. Your Rights &amp; Self-Serve Data Deletion</h4>
+              <p>
+                You have the absolute right to delete your data at any time:
+              </p>
+              <ul style="margin: 0.5rem 0 1rem 1.5rem; padding: 0;">
+                <li><strong>Self-Service:</strong> Click "Reset All Progress" above or use Data Management to wipe all stored records immediately.</li>
+                <li><strong>Revoking Google Access:</strong> You can disconnect SyntaxArena anytime at <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener" style="color: var(--neon-cyan); text-decoration: underline;">https://myaccount.google.com/permissions</a>.</li>
+                <li><strong>Email Request:</strong> Contact <a href="mailto:support@syntaxarena.cloud" style="color: var(--neon-cyan);">support@syntaxarena.cloud</a> with subject "Data Deletion Request" for permanent purge within 48 hours.</li>
+              </ul>
+
+              <h4 style="color: var(--text-primary); margin: 1.25rem 0 0.5rem;">5. Contact Information</h4>
+              <p style="margin-bottom: 0;">
+                Developer Support: <a href="mailto:support@syntaxarena.cloud" style="color: var(--neon-cyan);">support@syntaxarena.cloud</a> / <a href="mailto:priyadharshiniv5832@gmail.com" style="color: var(--neon-cyan);">priyadharshiniv5832@gmail.com</a><br>
+                Hosted Domain: <a href="https://syntaxarena-phi.vercel.app" target="_blank" rel="noopener" style="color: var(--neon-cyan);">https://syntaxarena-phi.vercel.app</a>
+              </p>
+            </div>
+
+            <!-- Pane 2: Terms of Service -->
+            <div id="pane-legal-terms" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.75rem;">
+                <h3 style="font-family: var(--font-display); font-size: 1.25rem; color: var(--text-primary); margin: 0;">SyntaxArena Terms of Service</h3>
+                <span style="font-size: 11px; color: var(--neon-emerald); font-family: var(--font-mono);">Effective: November 12, 2026</span>
+              </div>
+
+              <h4 style="color: var(--text-primary); margin: 1.25rem 0 0.5rem;">1. Acceptance of Terms</h4>
+              <p>By accessing SyntaxArena (https://syntaxarena-phi.vercel.app) or authenticating via Google, GitHub, or Email, you agree to be bound by these Terms of Service and our Privacy Policy.</p>
+
+              <h4 style="color: var(--text-primary); margin: 1.25rem 0 0.5rem;">2. Eligibility &amp; Guest Mode</h4>
+              <p>SyntaxArena is open to all learners aged 13 and older. Users under 13 may freely use our anonymous local Guest Mode, which operates completely offline without collecting personal information.</p>
+
+              <h4 style="color: var(--text-primary); margin: 1.25rem 0 0.5rem;">3. Fair Play &amp; Anti-Cheating</h4>
+              <p>You agree not to use automated bots, memory injection tools, or headless scripts to artificially inflate scores, forge duel win streaks, or attack the serverless authentication infrastructure (<code>/api/auth/*</code>).</p>
+
+              <h4 style="color: var(--text-primary); margin: 1.25rem 0 0.5rem;">4. Intellectual Property &amp; User Code Ownership</h4>
+              <p>
+                <strong>You retain 100% ownership of all code solutions and algorithms you write in SyntaxArena.</strong>
+                All original platform curricula, memory minigames, visual shaders, and avatar designs are proprietary to SyntaxArena and protected by copyright and open-source licenses.
+              </p>
+
+              <h4 style="color: var(--text-primary); margin: 1.25rem 0 0.5rem;">5. Disclaimer of Warranties &amp; Liability</h4>
+              <p style="margin-bottom: 0;">SyntaxArena is provided "AS IS" without warranties of any kind. To the maximum extent permitted by law, SyntaxArena and its developers shall not be liable for any indirect or consequential damages resulting from platform use.</p>
+            </div>
+
+          </div>
+
+          <!-- Bottom Direct Route Controls (Hidden from main nav, available here) -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+            <span style="font-size: 11px; color: var(--text-muted);">
+              Standalone routes for Google OAuth compliance:
+            </span>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <a href="privacy.html" target="_blank" rel="noopener" class="btn-arcade btn-neutral btn-sm" style="font-size: 11px; padding: 4px 10px; text-decoration: none;">
+                Open Full Privacy Policy ↗
+              </a>
+              <a href="terms.html" target="_blank" rel="noopener" class="btn-arcade btn-neutral btn-sm" style="font-size: 11px; padding: 4px 10px; text-decoration: none;">
+                Open Full Terms ↗
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
     </div>
   </main>
 
@@ -448,8 +574,7 @@
         <a href="results.html">Results</a>
         <a href="progress.html">Progression</a>
         <a href="settings.html">Settings</a>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <a href="#section-legal">Privacy &amp; Terms</a>
       </nav>
     </div>
   </footer>
@@ -1261,6 +1386,62 @@
       }
 
       initBattlestationShowroom();
+
+      // Legal & Compliance tab switcher (Item 2)
+      function initLegalTabs() {
+        const btnPrivacy = document.getElementById('tab-btn-legal-privacy');
+        const btnTerms = document.getElementById('tab-btn-legal-terms');
+        const panePrivacy = document.getElementById('pane-legal-privacy');
+        const paneTerms = document.getElementById('pane-legal-terms');
+
+        if (!btnPrivacy || !btnTerms || !panePrivacy || !paneTerms) return;
+
+        const switchLegalTab = (tab) => {
+          if (tab === 'terms') {
+            btnPrivacy.classList.remove('active');
+            btnPrivacy.setAttribute('aria-selected', 'false');
+            btnTerms.classList.add('active');
+            btnTerms.setAttribute('aria-selected', 'true');
+            panePrivacy.style.display = 'none';
+            paneTerms.style.display = 'block';
+          } else {
+            btnTerms.classList.remove('active');
+            btnTerms.setAttribute('aria-selected', 'false');
+            btnPrivacy.classList.add('active');
+            btnPrivacy.setAttribute('aria-selected', 'true');
+            paneTerms.style.display = 'none';
+            panePrivacy.style.display = 'block';
+          }
+        };
+
+        btnPrivacy.onclick = () => {
+          switchLegalTab('privacy');
+          try { AudioEngine.playClick(); } catch (_) {}
+        };
+
+        btnTerms.onclick = () => {
+          switchLegalTab('terms');
+          try { AudioEngine.playClick(); } catch (_) {}
+        };
+
+        // Check hash on load or hashchange
+        const checkHash = () => {
+          if (window.location.hash.includes('terms')) {
+            switchLegalTab('terms');
+            const sec = document.getElementById('section-legal');
+            if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+          } else if (window.location.hash.includes('privacy') || window.location.hash.includes('legal')) {
+            switchLegalTab('privacy');
+            const sec = document.getElementById('section-legal');
+            if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+          }
+        };
+
+        checkHash();
+        window.addEventListener('hashchange', checkHash);
+      }
+
+      initLegalTabs();
     });
   })();
   </script>

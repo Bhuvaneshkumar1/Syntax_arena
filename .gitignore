@@ -44,10 +44,16 @@ ehthumbs_vista.db
 *.swp
 *.swo
 
-# Local Environment Variables
+# Local Environment Variables & Secrets
 .env
 .env.local
 .env.*.local
+credentials/
+credentials/
+*.secret.json
+client_secret*.json
+*.pem
+*.key
 
 # Local shell wrappers
 powershell.cmd

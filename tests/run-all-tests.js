@@ -18,6 +18,7 @@ import { runBattlestationTests } from './battlestation-tests.js';
 import { runMemoryMinigameTests } from './memory-minigame-tests.js';
 import { runTrophyVaultTests } from './trophy-vault-tests.js';
 import { runAuthTests } from './auth-tests.js';
+import { runLegalRoutesTests } from './legal-routes-tests.js';
 
 async function runAll() {
   console.log('============================================================');
@@ -39,10 +40,11 @@ async function runAll() {
   const mem = await runMemoryMinigameTests();
   const tv = await runTrophyVaultTests();
   const auth = await runAuthTests();
+  const legal = await runLegalRoutesTests();
 
-  const total = qb.passed + qb.failed + ac.passed + ac.failed + ge.passed + ge.failed + ui.passed + ui.failed + gm.passed + gm.failed + an.passed + an.failed + ia.passed + ia.failed + rel.passed + rel.failed + boss.passed + boss.failed + duel.passed + duel.failed + inc.passed + inc.failed + bs.passed + bs.failed + mem.passed + mem.failed + tv.passed + tv.failed + auth.passed + auth.failed;
-  const passed = qb.passed + ac.passed + ge.passed + ui.passed + gm.passed + an.passed + ia.passed + rel.passed + boss.passed + duel.passed + inc.passed + bs.passed + mem.passed + tv.passed + auth.passed;
-  const failed = qb.failed + ac.failed + ge.failed + ui.failed + gm.failed + an.failed + ia.failed + rel.failed + boss.failed + duel.failed + inc.failed + bs.failed + mem.failed + tv.failed + auth.failed;
+  const total = qb.passed + qb.failed + ac.passed + ac.failed + ge.passed + ge.failed + ui.passed + ui.failed + gm.passed + gm.failed + an.passed + an.failed + ia.passed + ia.failed + rel.passed + rel.failed + boss.passed + boss.failed + duel.passed + duel.failed + inc.passed + inc.failed + bs.passed + bs.failed + mem.passed + mem.failed + tv.passed + tv.failed + auth.passed + auth.failed + legal.passed + legal.failed;
+  const passed = qb.passed + ac.passed + ge.passed + ui.passed + gm.passed + an.passed + ia.passed + rel.passed + boss.passed + duel.passed + inc.passed + bs.passed + mem.passed + tv.passed + auth.passed + legal.passed;
+  const failed = qb.failed + ac.failed + ge.failed + ui.failed + gm.failed + an.failed + ia.failed + rel.failed + boss.failed + duel.failed + inc.failed + bs.failed + mem.failed + tv.failed + auth.failed + legal.failed;
 
   console.log('============================================================');
   console.log('🏁 SUITE EXECUTION SUMMARY');
@@ -62,6 +64,7 @@ async function runAll() {
   console.log(`Memory Minigames Tests:  ${mem.passed}/${mem.passed + mem.failed} passed`);
   console.log(`3D Trophy Vault Tests:   ${tv.passed}/${tv.passed + tv.failed} passed`);
   console.log(`Authentication Tests:    ${auth.passed}/${auth.passed + auth.failed} passed`);
+  console.log(`Legal & OAuth Standards: ${legal.passed}/${legal.passed + legal.failed} passed`);
   console.log('------------------------------------------------------------');
   console.log(`TOTAL TESTS:             ${total}`);
   console.log(`PASSED:                  ${passed}`);
