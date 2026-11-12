@@ -222,3 +222,4 @@ Every code change must satisfy:
    - `node tests/test-memory-minigames-playwright.js` (Memory Minigames E2E, 44 tests)
 3. **Parity Build Execution:**
    - `npm run build` must run without error to generate `js/bundle.js` and sync all assets to `public/`.
+
